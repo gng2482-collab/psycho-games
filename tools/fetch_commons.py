@@ -24,8 +24,13 @@ GROUPS = {
     'calcification': (None, ['basal ganglia calcification CT', 'Fahr disease CT', 'pineal gland calcification CT']),
     'whitematter': (None, ['leukoaraiosis CT', 'white matter hypodensity CT', 'small vessel disease CT brain']),
     'cerebellum': (None, ['cerebellar atrophy CT', 'alcoholic cerebellar degeneration CT']),
-    'ftd': (None, ['frontotemporal dementia CT', 'frontotemporal atrophy CT']),
+    'ftd': (None, ['frontotemporal dementia CT', 'frontotemporal atrophy CT', 'Frontotemporale Demenz CT']),
+    # ドイツ語の題名で上がっている放射線科医の画像（Hellerhoff など）
+    'de_csdh': (None, ['Chronisches Subduralhämatom CT', 'Subduralhämatom chronisch', 'bilateral chronic subdural haematoma']),
+    'de_infarct': (None, ['Alter Mediainfarkt CT', 'Hirninfarkt alt CT', 'Lakunäre Infarkte CT', 'Mikroangiopathie CT Gehirn', 'encephalomalacia CT']),
+    'de_atrophy': (None, ['Hirnatrophie CT', 'Kleinhirnatrophie CT', 'Alzheimer CT atrophy', 'Hydrocephalus malresorptivus CT']),
 }
+WIDTH = {'normal_case1': 1024}
 PER_QUERY = 12
 
 
@@ -86,7 +91,7 @@ def main():
         os.makedirs(os.path.join(OUT, group), exist_ok=True)
         n = 0
         for i in range(0, len(titles), 40):
-            d = api({'action': 'query', 'titles': '|'.join(titles[i:i + 40]), 'prop': 'imageinfo', 'iiprop': 'url|size|mime|extmetadata', 'iiurlwidth': 512})
+            d = api({'action': 'query', 'titles': '|'.join(titles[i:i + 40]), 'prop': 'imageinfo', 'iiprop': 'url|size|mime|extmetadata', 'iiurlwidth': WIDTH.get(group, 640)})
             for p in d.get('query', {}).get('pages', []):
                 ii = (p.get('imageinfo') or [None])[0]
                 if not ii or ii.get('mime') not in ('image/png', 'image/jpeg'): continue
