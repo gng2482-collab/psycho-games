@@ -1,0 +1,738 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="精神科試験ゲーム">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icon-180.png">
+<style>
+:root{color-scheme:light; padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px)}
+body{margin:0; font:14px system-ui,-apple-system,sans-serif}
+img{max-width:100%}
+[hidden]{display:none!important}
+.ipad-bar{display:flex; flex-wrap:wrap; gap:6px 14px; align-items:center; justify-content:space-between;
+  padding:8px max(16px, env(safe-area-inset-right,0px)) 8px max(16px, env(safe-area-inset-left,0px));
+  font:600 14px system-ui,-apple-system,"Hiragino Sans",sans-serif; background:#1d2a33; color:#f3f6f8}
+.ipad-bar a{color:#f3f6f8; text-decoration:none; padding:6px 10px; border:1px solid #4a5d6a; border-radius:6px}
+.ipad-bar span{opacity:.85; font-weight:400}
+</style>
+<script>
+/* プレイヤーごとに記録を分ける（自分は今までどおり、ゲストは頭に印をつける） */
+(function () {
+  try {
+    var P = window.localStorage.getItem('ipad-player') || 'me';
+    window.__ipadPlayer = P;
+    if (P === 'me') return;
+    var pre = 'p:' + P + ':', S = Storage.prototype, g = S.getItem, s = S.setItem, r = S.removeItem;
+    var map = function (k) { return k === 'ipad-player' ? k : pre + k; };
+    S.getItem = function (k) { return g.call(this, map(k)); };
+    S.setItem = function (k, v) { return s.call(this, map(k), v); };
+    S.removeItem = function (k) { return r.call(this, map(k)); };
+  } catch (e) { /* 保存できない環境 */ }
+})();
+if ('serviceWorker' in navigator) { window.addEventListener('load', function () { navigator.serviceWorker.register('sw.js').catch(function () {}); }); }
+</script>
+</head>
+<body>
+<nav class="ipad-bar" aria-label="アプリ"><a href="index.html">← ゲーム一覧</a><span id="ipadWho"></span></nav>
+<script>(function(){var P=window.__ipadPlayer||'me';document.getElementById('ipadWho').textContent='プレイヤー：'+(P==='me'?'自分':P);})();</script>
+<title>ECT当番</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=BIZ+UDGothic:wght@400;700&family=BIZ+UDPGothic:wght@400;700&family=DotGothic16&display=swap">
+<style>
+/* Layout: 上に患者の選択と6回分のコース表、中央に「今日の回」の操作と問い、その下に感熱紙の記録、最後に早見表。最大幅1040px */
+:root{
+  --paper:#eaf0ef; --panel:#f8fbfa; --ink:#18242a; --muted:#56666c; --line:#c3d0d0;
+  --thermal:#fbfbf6; --grid:#e3e6ea; --grid2:#c7ccd6; --trace:#1b2440; --hr:#b03a48;
+  --accent:#126a6a; --accent-ink:#fff; --seal:#bb3333; --gold:#a8720c; --ok:#2a7a55; --warn:#a8600c;
+  --accent-soft:color-mix(in srgb, var(--accent) 10%, var(--panel));
+  --seal-soft:color-mix(in srgb, var(--seal) 9%, var(--panel));
+  --ok-soft:color-mix(in srgb, var(--ok) 11%, var(--panel));
+  --f-display:"DotGothic16","BIZ UDPGothic","Hiragino Sans",system-ui,sans-serif;
+  --f-body:"BIZ UDPGothic","Hiragino Sans","Hiragino Kaku Gothic ProN","Yu Gothic",Meiryo,system-ui,sans-serif;
+  --f-mono:"BIZ UDGothic",ui-monospace,Menlo,monospace;
+  --fs-xs:.78rem; --fs-s:.875rem; --fs-m:1rem; --fs-l:1.12rem; --fs-xl:1.4rem; --r:5px;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --paper:#0f1617; --panel:#162021; --ink:#e0eaea; --muted:#93a4a6; --line:#2a3839;
+    --thermal:#111a1b; --grid:#1c2729; --grid2:#2c3b3e; --trace:#d4e2ff; --hr:#ff8b97;
+    --accent:#5cc8c4; --accent-ink:#0f1617; --seal:#ec6a5f; --gold:#e2b54b; --ok:#63c993; --warn:#e8a64e;
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --paper:#0f1617; --panel:#162021; --ink:#e0eaea; --muted:#93a4a6; --line:#2a3839;
+  --thermal:#111a1b; --grid:#1c2729; --grid2:#2c3b3e; --trace:#d4e2ff; --hr:#ff8b97;
+  --accent:#5cc8c4; --accent-ink:#0f1617; --seal:#ec6a5f; --gold:#e2b54b; --ok:#63c993; --warn:#e8a64e;
+  color-scheme:dark;
+}
+[hidden]{display:none!important}
+*,*::before,*::after{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0; background:var(--paper); color:var(--ink); font-family:var(--f-body); font-size:var(--fs-m); line-height:1.75;
+  padding-left:max(16px, env(safe-area-inset-left, 0px)); padding-right:max(16px, env(safe-area-inset-right, 0px)); padding-block:0 56px; overflow-wrap:anywhere}
+:focus-visible{outline:3px solid var(--accent); outline-offset:2px}
+h1,h2,h3{text-wrap:balance; line-height:1.35}
+p{margin:0}
+.wrap{max-width:1040px; margin:0 auto}
+.muted{color:var(--muted)}
+.top{padding-block:34px 4px; display:grid; gap:12px}
+.eyebrow{font-size:var(--fs-xs); letter-spacing:.16em; color:var(--muted)}
+h1{font-family:var(--f-display); font-weight:400; margin:0; font-size:clamp(2.2rem, 9vw, 3.4rem); letter-spacing:.1em; line-height:1.1; text-shadow:3px 3px 0 var(--line)}
+.lead{max-width:44em}
+.rule{font-size:var(--fs-xs); color:var(--muted)}
+
+/* 患者の選択 */
+.pts{margin-top:20px; display:grid; grid-template-columns:repeat(2, minmax(0,1fr)); gap:10px}
+@media (max-width:640px){ .pts{grid-template-columns:minmax(0,1fr)} }
+.pt{font:inherit; text-align:left; color:var(--ink); background:var(--panel); border:1px solid var(--line); border-radius:var(--r); padding:10px 14px; cursor:pointer; display:grid; gap:2px; min-height:48px}
+.pt:hover{border-color:var(--accent)}
+.pt[aria-current="true"]{border-color:var(--accent); box-shadow:inset 0 0 0 1px var(--accent); background:var(--accent-soft)}
+.pt .pn{font-family:var(--f-display); font-size:var(--fs-l)}
+.pt .ps{font-size:var(--fs-xs); color:var(--muted)}
+
+/* コース表と患者の状態 */
+.course{margin-top:14px; display:grid; grid-template-columns:minmax(0,1fr) auto; gap:10px 18px; align-items:center}
+@media (max-width:720px){ .course{grid-template-columns:minmax(0,1fr)} }
+.slots{list-style:none; margin:0; padding:0; display:grid; grid-template-columns:repeat(6, minmax(0,1fr)); gap:5px}
+.slot{border:1px solid var(--line); border-radius:var(--r); background:var(--panel); padding:4px; display:grid; justify-items:center; gap:0; font-size:var(--fs-xs); min-height:58px; align-content:center}
+.slot[aria-current="step"]{border-color:var(--accent); box-shadow:inset 0 0 0 1px var(--accent)}
+.slot .sn{font-family:var(--f-display); color:var(--muted)}
+.slot .sr{font-weight:700}
+.sr.good{color:var(--ok)} .sr.bad{color:var(--seal)} .sr.mid{color:var(--warn)}
+.vitals{display:flex; gap:14px; flex-wrap:wrap; font-size:var(--fs-s)}
+.vital{display:grid; gap:0; min-width:7.5em}
+.vital .vl{font-size:var(--fs-xs); color:var(--muted)}
+.vital .vv{font-family:var(--f-display); font-size:var(--fs-xl); font-variant-numeric:tabular-nums; line-height:1.1}
+.bar{height:6px; border-radius:3px; background:var(--line); overflow:hidden; width:7.5em}
+.bar span{display:block; height:100%}
+
+/* 今日の回 */
+#panel{margin-top:16px; background:var(--panel); border:1px solid var(--line); border-radius:var(--r); padding:16px 18px; display:grid; gap:14px}
+.ph{display:flex; flex-wrap:wrap; gap:4px 14px; align-items:baseline}
+.ph h2{margin:0; font-family:var(--f-display); font-weight:400; font-size:var(--fs-xl); letter-spacing:.04em}
+.ph h2:focus{outline:none}
+.ph .sub{font-size:var(--fs-s); color:var(--muted)}
+.memo{display:grid; grid-template-columns:auto minmax(0,1fr); border:1px solid var(--line); border-radius:var(--r); margin:0; font-size:var(--fs-s); overflow:hidden}
+.memo dt,.memo dd{margin:0; padding:5px 12px; border-bottom:1px dashed var(--line)}
+.memo dt{color:var(--muted); white-space:nowrap}
+.memo dd{font-weight:700}
+.memo dt:last-of-type,.memo dd:last-of-type{border-bottom:0}
+.qh{margin:0; font-size:var(--fs-l); display:flex; gap:10px; align-items:baseline}
+.qh:focus{outline:none}
+.qh:focus-visible{outline:3px solid var(--accent); outline-offset:3px}
+.qn{font-family:var(--f-display); font-weight:400; font-size:var(--fs-s); color:var(--accent); border:1.5px solid var(--accent); padding:0 7px; flex:none; white-space:nowrap}
+.opts{list-style:none; margin:0; padding:0; display:grid; grid-template-columns:repeat(2, minmax(0,1fr)); gap:8px}
+@media (max-width:700px){ .opts{grid-template-columns:minmax(0,1fr)} }
+.opt{font:inherit; font-size:var(--fs-s); width:100%; height:100%; text-align:left; color:var(--ink); background:var(--paper); cursor:pointer;
+  border:1px solid var(--line); border-radius:var(--r); padding:9px 12px; min-height:48px; display:grid; grid-template-columns:1.5em minmax(0,1fr) auto; gap:8px; align-items:start; line-height:1.55}
+.opt:hover:not(:disabled){border-color:var(--accent); background:var(--accent-soft)}
+.opt .k{font-family:var(--f-display); color:var(--muted)}
+.opt .v{font-weight:700; white-space:nowrap}
+.opt:disabled{cursor:default}
+.opt.right{border-color:var(--ok); background:var(--ok-soft)} .opt.right .v{color:var(--ok)}
+.opt.wrong{border-color:var(--seal); background:var(--seal-soft)} .opt.wrong .v{color:var(--seal)}
+.opt.dim{opacity:.6}
+.why{border-left:3px solid var(--accent); padding:4px 0 4px 12px; font-size:var(--fs-s); max-width:48em}
+.dose{display:grid; gap:8px; border:1px solid var(--line); border-radius:var(--r); padding:12px 14px; background:var(--paper)}
+.dose-row{display:flex; flex-wrap:wrap; gap:8px 16px; align-items:center}
+.dose output{font-family:var(--f-display); font-size:2rem; font-variant-numeric:tabular-nums; color:var(--accent); min-width:3.5em}
+.dose input[type=range]{flex:1 1 220px; accent-color:var(--accent); min-height:36px}
+.dose .hint{font-size:var(--fs-s); color:var(--muted)}
+.btn{font:inherit; font-weight:700; cursor:pointer; min-height:46px; padding:8px 20px; border:0; border-radius:var(--r); background:var(--accent); color:var(--accent-ink); justify-self:start}
+.btn:hover{filter:brightness(1.08)}
+.btn.stim{background:var(--seal); color:#fff}
+.ghost{font:inherit; font-size:var(--fs-s); cursor:pointer; min-height:44px; padding:8px 14px; border:1px solid var(--line); border-radius:var(--r); background:var(--panel); color:var(--ink)}
+.result-line{font-size:var(--fs-s); padding:8px 12px; border-radius:var(--r); background:var(--accent-soft)}
+.result-line b{font-family:var(--f-display); font-weight:400; font-size:var(--fs-m)}
+
+/* 記録紙 */
+.strip-wrap{margin-top:14px; border:1px solid var(--line); border-radius:var(--r); background:var(--thermal); overflow:hidden}
+.strip-h{display:flex; flex-wrap:wrap; gap:4px 14px; justify-content:space-between; padding:6px 12px; font-size:var(--fs-xs); color:var(--muted); border-bottom:1px solid var(--grid2); font-family:var(--f-mono)}
+#strip{display:block; width:100%}
+.strip-empty{padding:28px 16px; text-align:center; color:var(--muted); font-size:var(--fs-s)}
+
+/* 記録紙コレクション */
+.col{margin-top:34px; display:grid; gap:10px}
+.col h2{margin:0; font-family:var(--f-display); font-weight:400; font-size:var(--fs-xl); display:flex; flex-wrap:wrap; gap:4px 14px; align-items:baseline}
+.col h2 small{font-family:var(--f-body); font-size:var(--fs-s); color:var(--muted)}
+.cards{list-style:none; margin:0; padding:0; display:grid; grid-template-columns:repeat(auto-fill, minmax(200px, 1fr)); gap:10px}
+.card{border:1px solid var(--line); border-radius:var(--r); background:var(--panel); padding:8px 10px 10px; display:grid; gap:4px; align-content:start; height:100%}
+.card.on{border-color:var(--gold); box-shadow:inset 0 0 0 1px var(--gold)}
+.card.off{border-style:dashed; color:var(--muted)}
+.card canvas{width:100%; display:block; border-radius:3px; background:var(--thermal)}
+.card .cn{font-weight:700}
+.card .cf{font-size:var(--fs-xs); color:var(--muted)}
+
+/* 結果 */
+.rank{display:flex; align-items:center; gap:18px; flex-wrap:wrap}
+.rank .big{font-family:var(--f-display); font-size:4.2rem; line-height:1; color:var(--accent); text-shadow:3px 3px 0 var(--line)}
+.rank .pts2{font-family:var(--f-display); font-size:1.4rem}
+.log{list-style:none; margin:0; padding:0; display:grid; gap:4px; font-size:var(--fs-s)}
+.log .x{color:var(--seal)}
+
+/* 早見表 */
+.ref{margin-top:36px; display:grid; gap:10px}
+.ref h2{margin:0; font-family:var(--f-display); font-weight:400; font-size:var(--fs-xl)}
+.tbl-wrap{overflow-x:auto; border:1px solid var(--line); border-radius:var(--r); background:var(--panel)}
+table{border-collapse:collapse; width:100%; min-width:640px; font-size:var(--fs-s); line-height:1.55}
+th,td{padding:8px 10px; text-align:left; vertical-align:top; border-bottom:1px solid var(--line)}
+thead th{font-size:var(--fs-xs); color:var(--muted); font-weight:400; background:var(--accent-soft)}
+tbody tr:last-child th, tbody tr:last-child td{border-bottom:0}
+tbody th{white-space:nowrap}
+.foot{margin-top:24px; font-size:var(--fs-xs); color:var(--muted); max-width:56em}
+.toast{position:fixed; z-index:20; right:max(16px, env(safe-area-inset-right, 0px)); bottom:calc(16px + env(safe-area-inset-bottom, 0px));
+  max-width:min(340px, calc(100vw - 32px)); background:var(--panel); color:var(--ink); border:2px solid var(--gold); border-radius:var(--r); padding:10px 14px; font-size:var(--fs-s); box-shadow:0 6px 24px var(--grid2)}
+.toast b{color:var(--gold)}
+@media (prefers-reduced-motion: no-preference){ .toast:not([hidden]){animation:tp .35s cubic-bezier(.2,1.4,.4,1)} }
+@keyframes tp{from{transform:translateY(12px); opacity:0} to{transform:none; opacity:1}}
+</style>
+
+<div class="wrap">
+  <header class="top">
+    <p class="eyebrow">精神科試験ゲーム ・ 電気けいれん療法（修正型 ECT）</p>
+    <h1>ECT当番</h1>
+    <p class="lead">今朝の ECT はあなたの担当です。患者さんを1人受け持ち、6回のコースを進めます。毎回、前の確認をして、刺激の強さを決め、感熱紙に出た脳波・筋電図・心拍を読んで、次の一手を決めます。</p>
+    <p class="rule">刺激の強さは、サーマトロンのような装置の目盛り（%）で決めます。閾値（発作が出るぎりぎりの強さ）の何倍にするかで、効き目と副作用が変わります。数字キー1〜4で選べます。</p>
+  </header>
+
+  <nav class="pts" id="pts" aria-label="受け持つ患者さん"></nav>
+  <section class="course" aria-label="コースの進み具合">
+    <ol class="slots" id="slots"></ol>
+    <div class="vitals" id="vitals"></div>
+  </section>
+
+  <main id="panel"></main>
+
+  <section class="strip-wrap" aria-label="感熱紙の記録">
+    <div class="strip-h"><span id="stripTitle">記録紙</span><span>上から EEG 左（Fp1–M1）・EEG 右（Fp2–M2）・筋電図（カフをした足）・心拍数</span></div>
+    <canvas id="strip" role="img" aria-label="ECT の記録"></canvas>
+    <p class="strip-empty" id="stripEmpty">刺激すると、ここに記録が出ます。</p>
+  </section>
+
+  <section class="col" aria-labelledby="colh">
+    <h2 id="colh">記録紙コレクション <small id="colCount"></small></h2>
+    <p class="rule">出会った記録紙のパターンが集まります。そのパターンの問題に正解すると、金の枠になります。このブラウザに保存されます。</p>
+    <ul class="cards" id="cards"></ul>
+  </section>
+
+  <section class="ref" aria-labelledby="refh">
+    <h2 id="refh">ECT の早見表</h2>
+    <div class="tbl-wrap"><table>
+      <thead><tr><th scope="col">項目</th><th scope="col">要点</th></tr></thead>
+      <tbody>
+        <tr><th scope="row">電極の位置</th><td>両側（両こめかみ）は効きが速く確実だが、記憶への影響が大きい。右片側（右こめかみと頭頂）は記憶への影響が小さいが、十分な強さが要る。</td></tr>
+        <tr><th scope="row">刺激の強さの目安</th><td>閾値を測り（滴定）、両側は閾値の1.5〜2.5倍、右片側は約6倍。閾値はコースが進むと上がる。</td></tr>
+        <tr><th scope="row">発作の評価</th><td>以前は「脳波で25秒・運動で20秒以上」が目安とされた。今は長さに加えて、振幅が大きく左右がそろい、終わりがはっきりして発作後抑制があるか（発作の質）も見る。</td></tr>
+        <tr><th scope="row">発作が出ない</th><td>遅れて始まる発作がないか少し待ってから、強さを上げて再刺激する。閾値以下の刺激のあとは徐脈・心停止が起きやすい。</td></tr>
+        <tr><th scope="row">発作が長すぎる</th><td>目安として3分を超えたら、静脈麻酔薬やベンゾジアゼピンで止め、酸素化を保つ。</td></tr>
+        <tr><th scope="row">発作を出にくくするもの</th><td>ベンゾジアゼピン、抗てんかん薬、麻酔薬の量が多い（プロポフォールは発作を短くしやすい）、過換気の不足、コースが進んで閾値が上がる。</td></tr>
+        <tr><th scope="row">前の確認</th><td>絶食、義歯、内服（リチウムはせん妄・遷延発作の危険、ベンゾは発作が出にくくなる）、血圧、同意。長く寝たきりの人はスキサメトニウムで高カリウム血症の危険。</td></tr>
+        <tr><th scope="row">カフ法</th><td>片足に血圧計のカフを巻いて筋弛緩薬が届かないようにし、その足のけいれんで運動発作を確かめる。</td></tr>
+      </tbody>
+    </table></div>
+    <p class="foot">登場する患者と記録はすべて架空で、波形はこのページの中で合成したものです。数値や手順は学習用に単純化しており、実際の ECT は、各施設の手順と日本精神神経学会などの指針、麻酔科との協議に従って行ってください。</p>
+  </section>
+  <div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
+</div>
+
+<script>
+(function () {
+  'use strict';
+  var TAU = Math.PI * 2, FS = 100, DUR = 90, T0 = 5;
+
+  /* ---------- 記録の合成 ---------- */
+  function rng(seed) { var a = seed >>> 0; return function () { a |= 0; a = a + 0x6D2B79F5 | 0; var t = Math.imul(a ^ a >>> 15, 1 | a); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
+  function g(x, w) { var z = x / w; return Math.exp(-0.5 * z * z); }
+  function sm(x) { return x <= 0 ? 0 : x >= 1 ? 1 : x * x * (3 - 2 * x); }
+  // o: { seed, sd(刺激の秒), sz:null|{D, A, end:'abrupt'|'fade', Dm}, brady:{min, asys}, hv:bool }
+  function record(o) {
+    var R = rng(o.seed || 1), N = DUR * FS, L = new Float32Array(N), Rr = new Float32Array(N), M = new Float32Array(N), H = new Float32Array(N);
+    var ph = []; for (var k = 0; k < 8; k++) ph.push(R() * TAU);
+    var sd = o.sd || 3, ts = T0 + sd, sz = o.sz, bm = o.brady || { min: 62, asys: 0 };
+    for (var i = 0; i < N; i++) {
+      var t = i / FS, bg = 24 * (Math.sin(TAU * 1.3 * t + ph[0]) + 0.7 * Math.sin(TAU * 2.4 * t + ph[1]) + 0.5 * Math.sin(TAU * 5.6 * t + ph[2])) + 4 * (R() - 0.5);
+      var bg2 = 24 * (Math.sin(TAU * 1.3 * t + ph[0] + 0.4) + 0.7 * Math.sin(TAU * 2.4 * t + ph[3]) + 0.5 * Math.sin(TAU * 5.6 * t + ph[4])) + 4 * (R() - 0.5);
+      var l = bg, r = bg2, m = 2 * (R() - 0.5), hr = 82;
+      if (t >= T0 && t < ts) { var sq = 260 * (Math.sin(TAU * 70 * t) > 0 ? 1 : -1); l = sq; r = sq; m = sq * 0.4; }
+      else if (t >= ts) {
+        var u = t - ts;
+        // 心拍：刺激直後の徐脈（心停止）→ 発作中の頻脈
+        var brady = u < bm.asys ? 0 : u < bm.asys + 3 ? bm.min + (82 - bm.min) * (u - bm.asys) / 3 : 82;
+        if (sz) {
+          var peak = 140, rise = sm((u - 2) / 12), fall = u > sz.D ? sm((u - sz.D) / 25) : 0;
+          hr = Math.min(u < bm.asys + 3 ? brady : 999, 82 + (peak - 82) * rise * (1 - fall) + 12 * (1 - fall) * rise);
+          if (u >= bm.asys + 3) hr = 82 + (peak - 82) * rise * (1 - fall * 0.85);
+          if (u < bm.asys + 3) hr = brady;
+          if (u < sz.D) {
+            var P = 5, A = sz.A, v;
+            if (u < P) { var a = 20 + (A * 0.45 - 20) * (u / P); v = a * (Math.sin(TAU * 15 * u) + 0.4 * Math.sin(TAU * 11 * u + 1)); }
+            else {
+              var q = (u - P) / Math.max(1, sz.D - P), f = 4 - 1.8 * q, phs = 4 * (u - P) - 0.9 * (u - P) * q, c = (phs - Math.floor(phs)) / f;
+              var env = sm((u - P) / 4) * (sz.end === 'fade' ? 1 - 0.75 * sm((q - 0.55) / 0.45) : 1) * (0.85 + 0.15 * Math.sin(TAU * 0.13 * u));
+              v = A * env * (-0.9 * g(c - 0.03, 0.014) + 0.2 * g(c - 0.08, 0.02) - g(c - 0.2, 0.06)) + A * 0.08 * Math.sin(TAU * 13 * u) * (1 - q);
+            }
+            l = v + bg * 0.3; r = v * 0.93 + bg2 * 0.3;
+          } else {
+            var after = u - sz.D;
+            if (sz.end === 'abrupt') { var rec = 0.06 + 0.5 * sm(after / 70); l = bg * rec; r = bg2 * rec; }
+            else { var res = Math.max(0, 1 - after / 12); l = bg * 0.7 + 40 * res * Math.sin(TAU * 2 * u); r = bg2 * 0.7 + 36 * res * Math.sin(TAU * 2 * u + 0.3); }
+          }
+          // 筋電図（カフをした足）
+          if (u < sz.Dm) { var ton = u < 8 ? 1 : 0, clo = u >= 8 ? Math.pow(Math.max(0, Math.sin(Math.PI * (u - 8) * (2.6 - 1.2 * (u / sz.Dm)))), 6) : 0; m = (ton * 70 + clo * 90 * (1 - 0.5 * u / sz.Dm)) * (R() - 0.5) * 2; }
+        } else { hr = brady; }
+      }
+      L[i] = l; Rr[i] = r; M[i] = m; H[i] = hr;
+    }
+    return { L: L, R: Rr, M: M, H: H, ts: ts, sz: sz };
+  }
+
+  /* ---------- 患者さんとコース ---------- */
+  // st: 両側の閾値（%）。stR: 右片側の閾値（%）。回ごとに上がる。
+  var CASES = [
+    { id: 'a', name: '食べられない72歳', who: '72歳の女性・精神病性うつ病', st: 22, stR: 9, ham: 32, scale: { name: 'うつの重さ（HAM-D）', max: 52, remit: 7, word: 'うつ病が寛解' },
+      story: '「お金がなくなった」「体が腐っている」と言い、食事も水分も十分にとれません。抗うつ薬と抗精神病薬を続けても良くならず、体重が減り続けています。家族と本人の同意を得て、両側（両こめかみ）の ECT を始めます。',
+      sessions: [
+        { title: '第1回：閾値を測る', memo: [['前の確認', '絶食できている。上の歯は総入れ歯'], ['血圧', '148/86'], ['麻酔', 'プロポフォール・スキサメトニウム（右足にカフ）'], ['電極', '両側']],
+          steps: [
+            { q: '刺激の前に、総入れ歯はどうする？', a: ['外して、バイトブロック（マウスピース）を入れる', '入れたままにする（歯を守るため）', '下の歯だけ外す', '入れたまま、ガーゼをかませる'],
+              why: '入れ歯は割れたり、のどに落ちたりするので外します。刺激のときは歯と舌を守るため、バイトブロックを入れます。', card: null },
+            { stim: { fixed: 10, note: '滴定：まず弱い 10% から刺激します。' } },
+            { q: '10% では発作が出ず、心拍が一時 40台に下がりました。次は？', a: ['少し待って遅れて始まる発作がないことを確かめ、強さを上げてもう一度刺激する', 'その日はやめて、次回に強くする', '同じ 10% でもう一度刺激する', 'すぐにアトロピンを打ってから 100% で刺激する'],
+              why: '閾値に届かない刺激です。遅れて始まる発作がないかを少し待ち、強さを上げて再刺激します（滴定）。閾値以下の刺激では迷走神経が刺激されて、徐脈や短い心停止が起きやすくなります。', card: 'missed' },
+            { stim: { fixed: 20, note: '強さを 20% に上げて、もう一度刺激します。' } },
+            { stim: { fixed: 30, note: '20% でも出ませんでした。30% で刺激します。' } },
+            { q: 'この患者さんの閾値はおよそ何%？ 次回からの両側の強さの目安は？', a: ['閾値は 30% 弱。次回からは閾値の1.5〜2.5倍、およそ 45〜70%', '閾値は 10%。次回は 10%', '閾値は 30%。次回も 30% のまま', '閾値は 30%。次回は6倍の 100% 以上'],
+              why: '20% では出ず 30% で出たので、閾値は 20〜30% の間です。両側の ECT では、閾値の1.5〜2.5倍を目安にします。6倍が目安なのは右片側です。', card: null }
+          ] },
+        { title: '第2回', memo: [['前の確認', '昨夜、眠れず看護師がロラゼパム 1mg を渡していた'], ['血圧', '142/84'], ['前回の閾値', '約 28%']],
+          steps: [
+            { q: '前の晩のロラゼパムについて、正しいのは？', a: ['発作が出にくく短くなりやすい。前の晩のベンゾジアゼピンは避けるよう病棟と決めておく', '発作が長くなりやすいので、強さを下げる', 'ECT には関係ない', '危険なので、今日の ECT は必ず中止する'],
+              why: 'ベンゾジアゼピンは発作の閾値を上げ、発作を短く弱くします。前の晩は使わないように、病棟と決めておきます。今日は、強さを少し上げ、刺激の前に十分に過換気して補います。', card: null },
+            { stim: { choose: true, mod: 1.15, hv: true } },
+            { evalq: true },
+            { q: '脳波で見た発作の長さは、およそ何秒？（刺激の終わりから、発作が終わって平らになるまで）', durq: true, card: null }
+          ] },
+        { title: '第3回', memo: [['前の確認', '問題なし'], ['経過', '少しずつ食事がとれ始めた'], ['血圧', '138/80']],
+          steps: [
+            { stim: { choose: true, mod: 1.0, prolong: true } },
+            { q: '発作が3分を超えても止まりません。どうする？', a: ['静脈麻酔薬やベンゾジアゼピンを静注して止め、酸素化を保つ', '自然に止まるまで待つ', 'もう一度刺激して止める', '筋弛緩薬を追加する'],
+              why: '目安として3分を超える発作は、遷延発作として薬で止めます。筋弛緩薬は体の動きを止めるだけで、脳の発作は止めません。高齢、初回に近い回、テオフィリンなどの薬は遷延発作の危険を高めます。', card: 'prolonged' }
+          ] },
+        { title: '第4回', memo: [['前の確認', 'ECT のあと半日ほど、日付と場所がわからなくなる'], ['経過', 'うつはかなり改善。食事は半分以上'], ['看護師', '「昨日のことを覚えていないことがある」']],
+          steps: [
+            { q: '記憶と見当識の副作用が目立ってきました。コースの組み立てをどうする？', a: ['右片側に切り替えるか、間隔をあける（週3回→週2回など）', '効いているので、強さを上げて続ける', '副作用は必ず出るので、そのまま続ける', 'すぐに ECT をやめ、二度と行わない'],
+              why: '両側は記憶への影響が大きめです。効果を保ちながら副作用を減らすには、右片側への切り替えや、間隔をあける方法があります。副作用の多くは時間とともに回復しますが、記録して本人と家族に説明します。', card: null },
+            { q: '右片側に切り替えます。右片側での閾値は約 9% でした。強さの目安は？', a: ['閾値の約6倍、およそ 50〜60%', '閾値の1.5倍、およそ 15%', '両側と同じ 50% 前後なら何倍でもよい', '閾値ちょうどの 9%'],
+              why: '右片側は、閾値ぎりぎりの強さでは発作が出ても効きが弱いことがわかっています。閾値の約6倍（5〜8倍）を目安にします。', card: null },
+            { stim: { choose: true, rul: true, mod: 1.0 } },
+            { evalq: true }
+          ] },
+        { title: '第5回', memo: [['前の確認', '本人が「おなかがすいた」と、朝7時にパンを半分食べていた'], ['ECT の予定', '9時'], ['経過', 'よく話すようになった']],
+          steps: [
+            { q: 'どうする？', a: ['誤嚥の危険があるので、今日は延期するか、絶食の時間がとれるまで遅らせる', '少しだけなので予定どおり行う', '胃管を入れて吸引してから予定どおり行う', '筋弛緩薬を減らして行う'],
+              why: '全身麻酔をかけるので、食後は胃の内容物を吸い込む危険があります。施設の決まりの絶食時間がとれるまで延期します。食べられるようになったのは回復のよい知らせでもあります。', card: null }
+          ] },
+        { title: '第6回', memo: [['前の確認', '問題なし'], ['経過', '妄想はほとんどなくなり、食事も全量'], ['電極', '右片側']],
+          steps: [
+            { stim: { choose: true, rul: true, mod: 1.05 } },
+            { evalq: true },
+            { q: 'コースの終わりが見えてきました。このあと大切なのは？', a: ['再発しやすいので、薬物療法を続け、必要なら継続・維持 ECT を考える', '良くなったので薬もすべてやめる', '再発したら、また最初から同じ強さで ECT をする', '退院したら経過は見なくてよい'],
+              why: 'ECT で寛解しても、その後の数か月は再発しやすい時期です。薬物療法を続け、再発をくり返す人では継続 ECT や維持 ECT を考えます。', card: null }
+          ] }
+      ] },
+    { id: 'b', name: '動かなくなった24歳', who: '24歳の男性・緊張病', st: 12, stR: 5, ham: 24, scale: { name: '緊張病の重さ（BFCRS）', max: 69, remit: 5, word: '緊張病の症状がほぼ消失' },
+      story: '2週間前からほとんど動かず、話さず、食事もとりません。ロラゼパム（1日6mg）を続けても改善しません。寝たきりが続いています。両側の ECT を始めます。',
+      sessions: [
+        { title: '第1回', memo: [['前の確認', '2週間ほぼ寝たきり。ロラゼパム 1日6mg を内服中'], ['血圧', '128/76'], ['麻酔', 'プロポフォール・筋弛緩薬はこれから決める']],
+          steps: [
+            { q: '筋弛緩薬について、気をつけることは？', a: ['長く寝たきりの人はスキサメトニウムで高カリウム血症の危険がある。ロクロニウム（スガマデクスで拮抗）を麻酔科と検討する', '寝たきりでも、スキサメトニウムに特別な危険はない', '筋弛緩薬は使わずに行う', '量を倍にして確実に効かせる'],
+              why: '長い臥床、熱傷、神経筋疾患などでは、スキサメトニウムで急に高カリウム血症になり、不整脈を起こすことがあります。麻酔科と相談して、ロクロニウムとスガマデクスの組み合わせなどを考えます。', card: null },
+            { q: 'ロラゼパム 6mg/日を飲んでいます。ECT の前にどうする？', a: ['急にやめず、麻酔科と相談して、刺激の直前にフルマゼニルで作用を打ち消す方法などを考える', 'ECT の前の日にすべて中止する', 'ECT には関係ないのでそのまま', '発作が長くなるので、ロラゼパムを増やす'],
+              why: 'ベンゾジアゼピンは発作を出にくくしますが、緊張病では急な中止で悪化することがあります。刺激の直前にフルマゼニルで拮抗する方法が使われることがあります。', card: null },
+            { stim: { fixed: 15, note: '滴定：15% で刺激します。' } },
+            { evalq: true }
+          ] },
+        { title: '第2回', memo: [['前の確認', '問題なし'], ['経過', '少し目で追うようになった'], ['前回の閾値', '約 15%']],
+          steps: [
+            { stim: { choose: true, mod: 1.0, asys: true } },
+            { q: '刺激の直後に、心拍が数秒止まりました（そのあと発作が起き、頻脈になった）。次回からどうする？', a: ['アトロピンなどの抗コリン薬を刺激の前に使うことを麻酔科と検討する', 'ECT を中止する', '強さを下げる', '発作が起きたので気にしなくてよい'],
+              why: '刺激で迷走神経が強く刺激されると、刺激の直後に徐脈や短い心停止が起きることがあります。特に閾値以下の刺激や若い人で起きやすく、抗コリン薬の前投与で防ぎます。', card: 'asystole' }
+          ] },
+        { title: '第3回', memo: [['前の確認', '問題なし'], ['麻酔科から', '「前回、体動が出たのでプロポフォールを多めにした」']],
+          steps: [
+            { stim: { choose: true, mod: 1.3, weak: true } },
+            { evalq: true },
+            { q: '発作が短く弱くなりました。考えられることと、次回の工夫は？', a: ['麻酔薬が多いと発作が短くなる。麻酔薬を必要最小限にし、十分に過換気し、強さを上げる', '閾値が下がったので、強さを下げる', '発作の長さは効き目に関係ないので、何もしない', '緊張病には ECT が効かないので中止する'],
+              why: 'プロポフォールなどの麻酔薬は抗けいれん作用があり、量が多いと発作が短くなります。麻酔薬を必要最小限にし、刺激の前に十分に過換気して、強さも見直します。', card: null }
+          ] },
+        { title: '第4回', memo: [['前の確認', '問題なし'], ['経過', '自分で座れる。短く返事をする'], ['筋電図', '右足にカフ']],
+          steps: [
+            { q: '右足にカフを巻くのはなぜ？', a: ['筋弛緩薬が右足に届かないようにして、その足のけいれんで運動発作を確かめるため', '血圧を測るため', '点滴の漏れを防ぐため', '静脈血栓を防ぐため'],
+              why: 'カフ法です。筋弛緩薬を入れる前に片足のカフを収縮期血圧より高くふくらませ、その足だけはけいれんが見えるようにします。', card: null },
+            { stim: { choose: true, mod: 1.0, hv: true } },
+            { evalq: true }
+          ] },
+        { title: '第5回', memo: [['前の確認', '問題なし'], ['経過', '食事を自分でとる']],
+          steps: [
+            { stim: { choose: true, mod: 1.0, fade: true } },
+            { q: 'この記録の発作の終わり方について、正しいのは？', a: ['発作がだらだらと弱まり、発作後抑制がはっきりしない。質が十分でない可能性がある', '終わりがはっきりしているので理想的', '発作後抑制がないほうが脳にやさしく、よい', '終わり方は評価に関係ない'],
+              why: '質のよい発作では、大きな波のあとで急に終わり、脳波が平らに近くなります（発作後抑制）。だらだら終わるときは、強さや麻酔の条件を見直します。', card: 'fade' }
+          ] },
+        { title: '第6回', memo: [['前の確認', '問題なし'], ['経過', '会話ができ、病棟を歩ける']],
+          steps: [
+            { stim: { choose: true, mod: 1.05, hv: true } },
+            { evalq: true },
+            { q: '緊張病が改善しました。このあと気をつけることは？', a: ['原因になった病気（気分障害・統合失調症など）を見立て直し、その治療と再発予防を続ける', '緊張病は一度治れば再発しない', 'ロラゼパムをすぐ全部やめる', '退院後はフォローしなくてよい'],
+              why: '緊張病は症状のまとまりで、背景に気分障害や統合失調症、体の病気があります。背景の病気を見立て直し、薬物療法や必要なら継続 ECT で再発を防ぎます。', card: null }
+          ] }
+      ] }
+  ];
+
+  var COL = [
+    { id: 'good', name: '十分な発作', feat: '大きくそろった棘徐波のあと、急に終わって平らになる（発作後抑制）。', rec: { seed: 501, sd: 3, sz: { D: 42, A: 300, end: 'abrupt', Dm: 30 } } },
+    { id: 'missed', name: '発作が出ない', feat: '刺激のあと背景の波に戻るだけ。徐脈が出やすい。', rec: { seed: 502, sd: 2, sz: null, brady: { min: 42, asys: 0 } } },
+    { id: 'short', name: '短く弱い発作', feat: '振幅が小さく、20秒前後で終わる。強さ・麻酔・過換気を見直す。', rec: { seed: 503, sd: 3, sz: { D: 17, A: 140, end: 'fade', Dm: 12 } } },
+    { id: 'prolonged', name: '遷延発作', feat: '止まらない発作。目安3分で薬を使って止める。', rec: { seed: 504, sd: 3, sz: { D: 200, A: 280, end: 'fade', Dm: 70 } } },
+    { id: 'asystole', name: '刺激直後の心停止', feat: '刺激の直後に心拍が数秒止まり、発作とともに頻脈になる。', rec: { seed: 505, sd: 3, sz: { D: 38, A: 280, end: 'abrupt', Dm: 26 }, brady: { min: 30, asys: 4 } } },
+    { id: 'fade', name: '終わりのはっきりしない発作', feat: 'だらだら弱まり、発作後抑制がはっきりしない。', rec: { seed: 506, sd: 3, sz: { D: 34, A: 230, end: 'fade', Dm: 24 } } }
+  ];
+
+  /* ---------- 状態 ---------- */
+  var S = null, CUR_REC = null;
+  var stripCv = document.getElementById('strip');
+  var panel = document.getElementById('panel');
+  function lsGet(k) { try { return window.localStorage.getItem(k); } catch (e) { return null; } }
+  function lsSet(k, v) { try { window.localStorage.setItem(k, v); } catch (e) { /* 保存できない環境 */ } }
+  function esc(s) { return String(s).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); }
+  function shuffled(n) { var a = []; for (var i = 0; i < n; i++) a.push(i); for (var j = n - 1; j > 0; j--) { var r = Math.floor(Math.random() * (j + 1)); var t = a[j]; a[j] = a[r]; a[r] = t; } return a; }
+  var COLKEY = 'ect-collection-v1', BESTKEY = 'ect-best-v1';
+  var CO = {}; try { CO = JSON.parse(lsGet(COLKEY) || '{}') || {}; } catch (e) { CO = {}; }
+
+  function newState(ci) {
+    var c = CASES[ci];
+    return { ci: ci, si: 0, step: 0, ham: c.ham, cog: 10, rul: false, st: c.st, stR: c.stR, pts: 0, max: 0, log: [], res: c.sessions.map(function () { return null; }),
+      picks: {}, opt: {}, last: null, dose: 50 };
+  }
+
+  /* ---------- 刺激の結果 ---------- */
+  function outcome(stim, dose) {
+    var st = (stim.rul ? S.stR : S.st) * (stim.mod || 1);
+    var r = dose / st, kind, sz = null, D, A;
+    var seed = 600 + S.ci * 50 + S.si * 7 + S.step;
+    if (stim.prolong && r >= 1) { kind = 'prolonged'; sz = { D: 200, A: 290, end: 'fade', Dm: 75 }; }
+    else if (r < 1) kind = 'missed';
+    else if (stim.weak || r < (stim.rul ? 1.6 : 1.3)) { kind = 'short'; D = 15 + Math.round(5 * Math.random()); sz = { D: D, A: 130 + 30 * Math.random(), end: 'fade', Dm: D * 0.7 }; }
+    else if (stim.fade) { kind = 'fade'; sz = { D: 32, A: 220, end: 'fade', Dm: 24 }; }
+    else { kind = 'good'; D = Math.round(Math.max(26, 55 - 7 * Math.max(0, r - (stim.rul ? 5 : 1.5)) - S.si * 2 + (stim.hv ? 6 : 0) + 4 * Math.random())); A = 260 + 60 * Math.random(); sz = { D: D, A: A, end: 'abrupt', Dm: Math.round(D * 0.72) }; }
+    var brady = kind === 'missed' ? { min: 42, asys: 0 } : stim.asys ? { min: 30, asys: 4 } : { min: 64, asys: 0 };
+    var sd = Math.min(8, 1.2 + dose / 18);
+    return { kind: kind, r: r, st: st, dose: dose, rec: record({ seed: seed, sd: sd, sz: sz, brady: brady }), sz: sz, sd: sd, asys: !!stim.asys };
+  }
+  function effect(o, stim) {
+    if (o.kind === 'missed') return;
+    var rul = !!stim.rul, good = o.kind === 'good' || o.kind === 'prolonged';
+    var gain = 0, cogLoss = 0;
+    if (good || o.kind === 'fade') {
+      if (rul) { gain = o.r >= 4.5 ? 5 : o.r >= 2.5 ? 2.5 : 1; cogLoss = 0.3 + (o.r > 9 ? 0.6 : 0); }
+      else { gain = o.r >= 1.3 ? 5.5 : 2.5; cogLoss = 1 + (o.r > 2.8 ? 1.2 : 0); }
+      if (o.kind === 'fade') gain *= 0.6;
+    } else if (o.kind === 'short') { gain = 1.5; cogLoss = rul ? 0.2 : 0.6; }
+    S.ham = Math.max(2, Math.round(S.ham - gain));
+    S.cog = Math.max(3, Math.round((S.cog - cogLoss) * 10) / 10);
+  }
+  function doseWindow(stim) { var st = stim.rul ? S.stR : S.st, w = stim.rul ? [st * 5, st * 8] : [st * 1.5, st * 2.6]; return [Math.min(95, w[0]), Math.min(100, w[1])]; }
+
+  /* ---------- 描画 ---------- */
+  var TOK = {};
+  function readTokens() { var cs = getComputedStyle(document.documentElement); ['--thermal', '--grid', '--grid2', '--trace', '--hr', '--muted', '--ink', '--seal', '--accent', '--gold'].forEach(function (k) { TOK[k] = cs.getPropertyValue(k).trim(); }); }
+  readTokens();
+  if (window.matchMedia) { var mq = window.matchMedia('(prefers-color-scheme: dark)'); if (mq.addEventListener) mq.addEventListener('change', function () { readTokens(); drawStrip(); renderCards(); }); }
+  new MutationObserver(function () { readTokens(); drawStrip(); renderCards(); }).observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
+
+  function drawRec(cv, rec, opt) {
+    opt = opt || {};
+    var W0 = cv.clientWidth || 600, rows = opt.rows || 3, secs = DUR / rows, small = opt.small;
+    var tk = small ? 18 : (W0 < 560 ? 22 : 28), rowH = tk * 4 + (small ? 6 : 22), LW = small ? 0 : (W0 < 560 ? 34 : 44);
+    var H = rows * rowH + (small ? 2 : 6), dpr = Math.min(window.devicePixelRatio || 1, 2);
+    cv.width = Math.round(W0 * dpr); cv.height = Math.round(H * dpr); cv.style.height = H + 'px';
+    var x = cv.getContext('2d'); x.setTransform(dpr, 0, 0, dpr, 0, 0);
+    x.fillStyle = TOK['--thermal']; x.fillRect(0, 0, W0, H);
+    var plotW = W0 - LW - 6, pps = plotW / secs;
+    for (var row = 0; row < rows; row++) {
+      var y0 = row * rowH + (small ? 2 : 18), t0 = row * secs;
+      if (!small) { x.fillStyle = TOK['--muted']; x.font = '10px "BIZ UDGothic", monospace'; x.textAlign = 'left'; }
+      for (var s = 0; s <= secs; s++) {
+        var gx = Math.round(LW + s * pps) + 0.5, five = (t0 + s) % 5 === 0;
+        x.strokeStyle = five ? TOK['--grid2'] : TOK['--grid']; x.lineWidth = 1;
+        if (!five && pps < 5) continue;
+        x.beginPath(); x.moveTo(gx, y0); x.lineTo(gx, y0 + tk * 4); x.stroke();
+        if (!small && five && s < secs) x.fillText((t0 + s - T0) + 's', gx + 2, y0 - 5);
+      }
+      if (!small) { x.fillStyle = TOK['--muted']; x.textAlign = 'right'; ['EEG左', 'EEG右', 'EMG', '心拍'].forEach(function (lb, i) { x.fillText(lb, LW - 4, y0 + tk * i + tk / 2 + 3); }); }
+      var tracks = [[rec.L, tk / 2 / 330], [rec.R, tk / 2 / 330], [rec.M, tk / 2 / 110], null];
+      for (var ti = 0; ti < 3; ti++) {
+        var arr = tracks[ti][0], k = tracks[ti][1], yc = y0 + tk * ti + tk / 2;
+        x.strokeStyle = TOK['--trace']; x.lineWidth = small ? 0.8 : 1; x.beginPath();
+        var n = Math.round(secs * FS), i0 = Math.round(t0 * FS);
+        for (var px = 0; px < plotW; px++) {
+          var a = i0 + Math.floor(px * n / plotW), b = i0 + Math.max(Math.floor(px * n / plotW) + 1, Math.floor((px + 1) * n / plotW)), mn = 1e9, mx = -1e9;
+          for (var i = a; i < b && i < arr.length; i++) { var v = -arr[i] * k; if (v < mn) mn = v; if (v > mx) mx = v; }
+          var lim = tk / 2 - 1; mn = Math.max(-lim, mn); mx = Math.min(lim, mx);
+          if (px === 0) x.moveTo(LW + px, yc + mn);
+          x.lineTo(LW + px + 0.5, yc + mn); x.lineTo(LW + px + 0.5, yc + mx);
+        }
+        x.stroke();
+      }
+      // 心拍
+      var yh = y0 + tk * 3, nH = Math.round(secs * FS), iH = Math.round(t0 * FS);
+      x.strokeStyle = TOK['--hr']; x.lineWidth = 1.4; x.beginPath();
+      for (var p2 = 0; p2 <= plotW; p2 += 2) { var ii = iH + Math.min(nH - 1, Math.floor(p2 * nH / plotW)), hv = rec.H[ii], yy = yh + tk - 2 - (hv / 180) * (tk - 4); if (p2 === 0) x.moveTo(LW + p2, yy); else x.lineTo(LW + p2, yy); }
+      x.stroke();
+      if (!small) {
+        x.fillStyle = TOK['--hr']; x.textAlign = 'left'; x.font = '10px "BIZ UDGothic", monospace';
+        var hrMax = 0, hrMin = 999; for (var q = iH; q < iH + nH; q++) { if (rec.H[q] > hrMax) hrMax = rec.H[q]; if (rec.H[q] < hrMin) hrMin = rec.H[q]; }
+        x.fillText('最高 ' + Math.round(hrMax) + ' / 最低 ' + Math.round(hrMin), LW + 4, yh + 10);
+      }
+      // 刺激の帯と、答えたあとの発作の終わりの印
+      var stA = T0, stB = rec.ts;
+      if (stB > t0 && stA < t0 + secs) {
+        var xa = LW + (Math.max(stA, t0) - t0) * pps, xb = LW + (Math.min(stB, t0 + secs) - t0) * pps;
+        x.fillStyle = TOK['--seal']; x.globalAlpha = 0.12; x.fillRect(xa, y0, xb - xa, tk * 3); x.globalAlpha = 1;
+        if (!small) { x.fillStyle = TOK['--seal']; x.font = '700 11px "BIZ UDPGothic", sans-serif'; x.textAlign = 'left'; x.fillText('刺激', xa + 2, y0 + 11); }
+      }
+      if (opt.showEnd && rec.sz && rec.sz.D < DUR) {
+        var te = rec.ts + rec.sz.D;
+        if (te >= t0 && te < t0 + secs) {
+          var xe = LW + (te - t0) * pps;
+          x.strokeStyle = TOK['--gold']; x.lineWidth = 2; x.setLineDash([5, 3]); x.beginPath(); x.moveTo(xe, y0); x.lineTo(xe, y0 + tk * 3); x.stroke(); x.setLineDash([]);
+          if (!small) { x.fillStyle = TOK['--gold']; x.font = '700 11px "BIZ UDPGothic", sans-serif'; x.textAlign = 'left'; x.fillText('発作の終わり（' + Math.round(rec.sz.D) + '秒）', xe + 3, y0 + tk * 3 - 4); }
+        }
+      }
+    }
+  }
+  function drawStrip() {
+    var empty = document.getElementById('stripEmpty');
+    if (!CUR_REC) { stripCv.hidden = true; empty.hidden = false; return; }
+    stripCv.hidden = false; empty.hidden = true;
+    drawRec(stripCv, CUR_REC.rec, { showEnd: CUR_REC.showEnd });
+    document.getElementById('stripTitle').textContent = '記録紙 ・ ' + CUR_REC.label;
+    stripCv.setAttribute('aria-label', 'ECT の記録：' + CUR_REC.label);
+  }
+
+  /* ---------- コレクション ---------- */
+  var toastEl = document.getElementById('toast'), toastT = 0;
+  function toast(h) { toastEl.innerHTML = h; toastEl.hidden = false; clearTimeout(toastT); toastT = setTimeout(function () { toastEl.hidden = true; }, 3200); }
+  function collect(id, tier) {
+    var c = COL.filter(function (x) { return x.id === id; })[0]; if (!c) return;
+    var cur = CO[id] || 0; if (tier <= cur) return;
+    CO[id] = tier; lsSet(COLKEY, JSON.stringify(CO));
+    toast('<b>' + (tier === 2 ? '金の記録紙' : '記録紙コレクションに追加') + '</b><br>' + esc(c.name));
+    renderCards();
+  }
+  function renderCards() {
+    var n = COL.filter(function (c) { return CO[c.id]; }).length, gold = COL.filter(function (c) { return CO[c.id] === 2; }).length;
+    document.getElementById('colCount').textContent = n + ' / ' + COL.length + ' ・ 金 ' + gold;
+    var ul = document.getElementById('cards');
+    ul.innerHTML = COL.map(function (c) {
+      var t = CO[c.id] || 0;
+      if (!t) return '<li><div class="card off"><span class="cn">？？？</span><span class="cf">まだ出会っていない記録紙</span></div></li>';
+      return '<li><div class="card' + (t === 2 ? ' on' : '') + '"><canvas data-c="' + c.id + '" aria-hidden="true"></canvas><span class="cn">' + esc(c.name) + (t === 2 ? '（金）' : '') + '</span><span class="cf">' + esc(c.feat) + '</span></div></li>';
+    }).join('');
+    ul.querySelectorAll('canvas[data-c]').forEach(function (cv) { var c = COL.filter(function (x) { return x.id === cv.getAttribute('data-c'); })[0]; drawRec(cv, record(c.rec), { rows: 1, small: true }); });
+  }
+
+  /* ---------- 画面 ---------- */
+  function renderPts() {
+    document.getElementById('pts').innerHTML = CASES.map(function (c, i) {
+      return '<button type="button" class="pt" data-ci="' + i + '" aria-current="' + (S && S.ci === i) + '"><span class="pn">' + esc(c.name) + '</span><span class="ps">' + esc(c.who) + '</span></button>';
+    }).join('');
+  }
+  function renderCourse() {
+    var c = CASES[S.ci];
+    document.getElementById('slots').innerHTML = c.sessions.map(function (ss, i) {
+      var r = S.res[i], cls = '', tx = '';
+      if (r) { tx = r; cls = r === '十分' ? 'good' : (r === '延期' || r === '短い' || r === '弱い' ? 'mid' : 'bad'); }
+      return '<li class="slot"' + (i === S.si && S.si < c.sessions.length ? ' aria-current="step"' : '') + '><span class="sn">第' + (i + 1) + '回</span><span class="sr ' + cls + '">' + (tx || (i === S.si ? '▶' : '・')) + '</span></li>';
+    }).join('');
+    var sc = CASES[S.ci].scale, hamPct = Math.round(S.ham / sc.max * 100), cogPct = Math.round(S.cog / 10 * 100);
+    document.getElementById('vitals').innerHTML =
+      '<div class="vital"><span class="vl">' + sc.name + '</span><span class="vv">' + S.ham + '</span><span class="bar"><span style="width:' + hamPct + '%;background:var(--seal)"></span></span></div>' +
+      '<div class="vital"><span class="vl">記憶・見当識</span><span class="vv">' + S.cog.toFixed(1) + '<small class="muted"> /10</small></span><span class="bar"><span style="width:' + cogPct + '%;background:var(--ok)"></span></span></div>' +
+      '<div class="vital"><span class="vl">電極</span><span class="vv" style="font-size:var(--fs-l)">' + (S.rul ? '右片側' : '両側') + '</span></div>';
+  }
+  function optsHTML(key, a, pick) {
+    if (!S.opt[key]) S.opt[key] = shuffled(a.length);
+    return '<ol class="opts">' + S.opt[key].map(function (ai, pos) {
+      var cls = '', tag = '';
+      if (pick != null) { if (ai === 0) { cls = ' right'; tag = '正解'; } else if (ai === pick) { cls = ' wrong'; tag = 'あなたの答え'; } else cls = ' dim'; }
+      return '<li><button type="button" class="opt' + cls + '" data-key="' + key + '" data-a="' + ai + '"' + (pick != null ? ' disabled' : '') + '><span class="k">' + (pos + 1) + '</span><span>' + esc(a[ai]) + '</span><span class="v">' + tag + '</span></button></li>';
+    }).join('') + '</ol>';
+  }
+  var EVAL_A = { good: '十分な発作', short: '短く弱い発作', missed: '発作が出ていない', prolonged: '長すぎる発作（遷延）', fade: '短く弱い発作' };
+  function evalQ(o) {
+    var right = o.kind === 'fade' ? '発作はあるが、終わりがはっきりしない' : EVAL_A[o.kind];
+    var all = ['十分な発作', '短く弱い発作', '発作が出ていない', '長すぎる発作（遷延）', '発作はあるが、終わりがはっきりしない'].filter(function (x) { return x !== right; });
+    var wrong = shuffled(all.length).slice(0, 3).map(function (i) { return all[i]; });
+    var why = {
+      good: '大きくそろった棘徐波が続いたあと、急に終わって平らになっています（発作後抑制）。心拍も発作に合わせて上がっています。',
+      short: '振幅が小さく、20秒前後で終わっています。強さ（閾値の何倍か）、麻酔薬の量、過換気を見直します。',
+      missed: '刺激のあと、背景の波に戻っただけで、棘徐波が出ていません。心拍は下がっています。',
+      prolonged: '発作が止まらずに続いています。',
+      fade: '発作は起きていますが、だらだら弱まり、発作後抑制がはっきりしません。'
+    }[o.kind];
+    return { q: 'この記録の発作の評価は？', a: [right].concat(wrong), why: why, card: o.kind };
+  }
+  function durQ(o) {
+    var D = Math.round(o.sz ? o.sz.D : 0), c = [D, Math.round(D * 0.5), Math.round(D * 1.6), Math.round(D + 30)];
+    return { q: '脳波で見た発作の長さは、およそ何秒？（刺激の終わりから、発作が終わって平らになるまで）', a: c.map(function (x, i) { return 'およそ ' + x + ' 秒'; }), why: '記録紙の上の秒の数字を使って、刺激の帯の右端から、大きな波が急に終わって平らになるところまでを数えます。この回は約 ' + D + ' 秒でした。以前は脳波で25秒以上が目安とされましたが、今は長さに加えて質も見ます。', card: null };
+  }
+
+  function render(focus) {
+    renderPts(); renderCourse();
+    var c = CASES[S.ci];
+    if (S.si >= c.sessions.length) return renderEnd(focus);
+    var ss = c.sessions[S.si], steps = ss.steps;
+    var h = '<div class="ph"><h2 id="panelH" tabindex="-1">' + esc(ss.title) + '</h2><span class="sub">' + esc(c.who) + '</span></div>';
+    if (S.si === 0 && S.step === 0 && !S.picks['story']) h += '<p>' + esc(c.story) + '</p>';
+    h += '<dl class="memo">' + ss.memo.map(function (m) { return '<dt>' + esc(m[0]) + '</dt><dd>' + esc(m[1]) + '</dd>'; }).join('') + '</dl>';
+    var waiting = false;
+    for (var k = 0; k <= Math.min(S.step, steps.length - 1); k++) {
+      var st = steps[k], key = S.si + '-' + k, pick = S.picks[key];
+      if (st.stim) {
+        var o = S.picks[key + 'o'];
+        if (!o) {
+          if (st.stim.choose) {
+            var w = doseWindow(st.stim), hint = st.stim.rul ? '右片側。閾値は約 ' + Math.round(S.stR) + '%（前回まで）。' : '両側。閾値は約 ' + Math.round(S.st) + '%（前回まで）。';
+            h += '<div class="dose"><div class="dose-row"><label for="dose"><b>刺激の強さ</b></label><output id="doseOut" for="dose">' + S.dose + '%</output>' +
+              '<input type="range" id="dose" min="5" max="100" step="5" value="' + S.dose + '"></div>' +
+              '<p class="hint">' + hint + (st.stim.hv ? '刺激の前に十分に過換気しています。' : '') + '　閾値は回を追うごとに少しずつ上がります。</p>' +
+              '<button type="button" class="btn stim" id="stimBtn">この強さで刺激する</button></div>';
+          } else {
+            h += '<p class="result-line">' + esc(st.stim.note || '') + '</p><button type="button" class="btn stim" id="stimBtn">' + st.stim.fixed + '% で刺激する</button>';
+          }
+          waiting = true; break;
+        } else {
+          var rTxt = o.kind === 'missed' ? '発作は出ませんでした' : o.kind === 'prolonged' ? '発作が止まりません' : '発作が出ました';
+          var win = st.stim.choose ? doseWindow(st.stim) : null;
+          h += '<p class="result-line"><b>' + o.dose + '%</b>（' + (st.stim.rul ? '右片側' : '両側') + '）で刺激 → ' + rTxt + '。' +
+            (st.stim.choose && S.picks[key + 'e'] ? ' この回の閾値は約 ' + Math.round(o.st) + '% で、刺激は閾値の <b>' + o.r.toFixed(1) + '倍</b>。目安は ' + Math.round(win[0]) + '〜' + Math.round(win[1]) + '%' + (o.dose >= win[0] && o.dose <= win[1] + 5 ? '（目安どおり）' : o.dose < win[0] ? '（弱め）' : '（強め：記憶への影響が増える）') + '。' : '') + '</p>';
+        }
+      } else {
+        var q = st.evalq ? (S.picks[key + 'q'] = S.picks[key + 'q'] || evalQ(S.last)) : st.durq ? (S.picks[key + 'q'] = S.picks[key + 'q'] || durQ(S.last)) : st;
+        h += '<h3 class="qh" id="q' + key + '" tabindex="-1"><span class="qn">問</span><span>' + esc(q.q) + '</span></h3>' + optsHTML(key, q.a, pick);
+        if (pick == null) { waiting = true; break; }
+        h += '<p class="why"><b>' + (pick === 0 ? '正解。' : '正解は「' + esc(q.a[0]) + '」。') + '</b>' + esc(q.why) + '</p>';
+      }
+    }
+    if (!waiting) h += '<button type="button" class="btn" id="nextBtn">' + (S.si === c.sessions.length - 1 ? 'コースを終える' : '次の回へ') + '</button>';
+    panel.innerHTML = h;
+    var dose = document.getElementById('dose');
+    if (dose) dose.addEventListener('input', function () { S.dose = +dose.value; document.getElementById('doseOut').textContent = S.dose + '%'; });
+    drawStrip();
+    if (focus) { var hh = document.getElementById('panelH'); if (hh) hh.focus({ preventScroll: true }); }
+  }
+
+  function stim() {
+    var c = CASES[S.ci], st = c.sessions[S.si].steps[S.step], key = S.si + '-' + S.step;
+    var dose = st.stim.choose ? S.dose : st.stim.fixed;
+    var o = outcome(st.stim, dose);
+    S.picks[key + 'o'] = o; S.picks[key + 'e'] = true; S.last = o;
+    if (st.stim.rul) S.rul = true;
+    effect(o, st.stim);
+    if (st.stim.choose) { S.max += 1; var w = doseWindow(st.stim); if (dose >= w[0] && dose <= w[1] + 5) S.pts += 1; else S.log.push('第' + (S.si + 1) + '回の強さ：' + dose + '%（目安 ' + Math.round(w[0]) + '〜' + Math.round(w[1]) + '%）'); }
+    if (o.kind !== 'missed') {
+      // 閾値の更新（滴定で出たときは、その強さを閾値の目安にする）
+      if (!st.stim.choose) S.st = Math.max(S.st, dose * 0.92);
+      if (st.stim.rul) S.stR *= 1.08; else S.st *= 1.08;
+    }
+    CUR_REC = { rec: o.rec, label: '第' + (S.si + 1) + '回 ・ ' + dose + '% ・ ' + (st.stim.rul ? '右片側' : '両側'), showEnd: false };
+    S.res[S.si] = o.kind === 'good' ? '十分' : o.kind === 'missed' ? (S.res[S.si] || 'なし') : o.kind === 'short' ? '短い' : o.kind === 'prolonged' ? '遷延' : '弱い';
+    collect(o.kind, 1);
+    S.step++;
+    render();
+    document.querySelector('.strip-wrap').scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+  }
+
+  function answer(key, ai) {
+    if (S.picks[key] != null) return;
+    var parts = key.split('-'), si = +parts[0], k = +parts[1];
+    if (si !== S.si || k !== S.step) return;
+    var st = CASES[S.ci].sessions[si].steps[k];
+    var q = st.evalq || st.durq ? S.picks[key + 'q'] : st;
+    S.picks[key] = ai; S.max += 1;
+    if (ai === 0) { S.pts += 1; if (q.card) collect(q.card, 2); } else S.log.push(q.q.slice(0, 24) + '… → ' + q.a[0]);
+    if (q.card && (st.evalq || st.durq || st.q)) { if (CUR_REC) CUR_REC.showEnd = true; }
+    if (st.evalq || st.durq) { if (CUR_REC) CUR_REC.showEnd = true; }
+    // 発作が出なかったときは、次に再刺激の段を足す（滴定の回は台本どおり）
+    if (st.evalq && S.last.kind === 'missed') {
+      var steps = CASES[S.ci].sessions[si].steps;
+      steps.splice(k + 1, 0, { stim: { choose: true, mod: (steps.filter(function (x) { return x.stim; })[0].stim.mod || 1), rul: S.rul, hv: true }, _added: true }, { evalq: true, _added: true });
+    }
+    if (st.q && st.card === 'missed' && CUR_REC) CUR_REC.showEnd = true;
+    S.step++;
+    render();
+    var h = document.getElementById('q' + key); if (h) h.focus({ preventScroll: true });
+  }
+
+  function nextSession() {
+    var c = CASES[S.ci];
+    if (!S.res[S.si]) S.res[S.si] = '延期';
+    S.si++; S.step = 0; CUR_REC = null;
+    if (S.si < c.sessions.length) { S.st *= 1.04; S.stR *= 1.04; }
+    render(true);
+    window.scrollTo({ top: document.querySelector('.course').offsetTop - 10, behavior: 'smooth' });
+  }
+
+  function renderEnd(focus) {
+    var c = CASES[S.ci], pct = S.max ? Math.round(S.pts / S.max * 100) : 0;
+    var remit = S.ham <= c.scale.remit, rank = pct >= 90 ? 'S' : pct >= 75 ? 'A' : pct >= 60 ? 'B' : pct >= 40 ? 'C' : 'D';
+    var best = {}; try { best = JSON.parse(lsGet(BESTKEY) || '{}') || {}; } catch (e) { best = {}; }
+    if (!best[c.id] || pct > best[c.id]) { best[c.id] = pct; lsSet(BESTKEY, JSON.stringify(best)); }
+    panel.innerHTML = '<div class="ph"><h2 id="panelH" tabindex="-1">コースの記録 ・ ' + esc(c.name) + '</h2></div>' +
+      '<div class="rank"><span class="big">' + rank + '</span><span class="pts2">' + pct + '<small class="muted"> ／100</small></span><span class="muted" style="font-size:var(--fs-s)">判断 ' + S.pts + ' / ' + S.max + '　自己ベスト ' + best[c.id] + '点</span></div>' +
+      '<p>' + (remit ? '<b>' + c.scale.word + '</b>しました。' : '改善しましたが、まだ症状が残っています。') + ' ' + c.scale.name + ' ' + c.ham + ' → ' + S.ham + '、記憶・見当識 ' + S.cog.toFixed(1) + ' / 10。' + (S.cog < 6 ? '記憶への影響が大きめでした。強さが閾値に対して強すぎなかったか、電極の位置や間隔を振り返りましょう。' : '') + '</p>' +
+      (S.log.length ? '<ol class="log">' + S.log.map(function (l) { return '<li class="x">✗ ' + esc(l) + '</li>'; }).join('') + '</ol>' : '<p class="muted">すべての判断が目安どおりでした。</p>') +
+      '<div class="row" style="display:flex;gap:10px;flex-wrap:wrap"><button type="button" class="btn" id="againBtn">もう一度この患者さん</button>' +
+      '<button type="button" class="ghost" id="otherBtn">ほかの患者さんへ</button></div>';
+    drawStrip();
+    if (focus) document.getElementById('panelH').focus({ preventScroll: true });
+  }
+
+  /* ---------- 操作 ---------- */
+  function start(ci) {
+    // 台本は再刺激の段を足すことがあるので、写しを使う
+    CASES[ci].sessions.forEach(function (ss) { ss.steps = ss.steps.filter(function (x) { return !x._added; }); });
+    S = newState(ci); CUR_REC = null; render(true);
+  }
+  document.getElementById('pts').addEventListener('click', function (e) { var b = e.target.closest('.pt'); if (b) start(+b.getAttribute('data-ci')); });
+  panel.addEventListener('click', function (e) {
+    var b = e.target.closest('button'); if (!b) return;
+    if (b.classList.contains('opt')) answer(b.getAttribute('data-key'), +b.getAttribute('data-a'));
+    else if (b.id === 'stimBtn') stim();
+    else if (b.id === 'nextBtn') nextSession();
+    else if (b.id === 'againBtn') start(S.ci);
+    else if (b.id === 'otherBtn') start((S.ci + 1) % CASES.length);
+  });
+  document.addEventListener('keydown', function (e) {
+    if (e.altKey || e.ctrlKey || e.metaKey) return;
+    if (e.target.closest && e.target.closest('input, select, textarea')) return;
+    if (/^[1-4]$/.test(e.key)) { var bs = panel.querySelectorAll('.opt:not(:disabled)'), b = bs[+e.key - 1]; if (b) { e.preventDefault(); b.click(); } }
+  });
+  var rt = 0; window.addEventListener('resize', function () { clearTimeout(rt); rt = setTimeout(function () { drawStrip(); renderCards(); }, 100); });
+
+  start(0);
+  renderCards();
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(function () { drawStrip(); renderCards(); });
+  window.__ect = { S: function () { return S; }, start: start };
+})();
+</script>
+
+</body>
+</html>
