@@ -49,7 +49,7 @@ if ('serviceWorker' in navigator) { window.addEventListener('load', function () 
 :root{
   --paper:#edf0ea; --panel:#fafbf7; --ink:#1a2220; --muted:#5a6661; --line:#c8d1ca;
   --sheet:#fbfcf8; --grid:#dfe8e2; --grid2:#bccfc4; --trace:#17241f;
-  --accent:#0f6b84; --accent-ink:#fff; --mark:#e9b949; --hot:#c0404a; --ok:#2a7a55; --ann:#8a5a10;
+  --accent:#0f6b84; --accent-ink:#fff; --mark:#e9b949; --hot:#c0404a; --ok:#2a7a55; --ann:#8a5a10; --neg:#d23f35; --pos:#2f66c9;
   --accent-soft:color-mix(in srgb, var(--accent) 10%, var(--panel));
   --hot-soft:color-mix(in srgb, var(--hot) 9%, var(--panel));
   --ok-soft:color-mix(in srgb, var(--ok) 11%, var(--panel));
@@ -63,14 +63,14 @@ if ('serviceWorker' in navigator) { window.addEventListener('load', function () 
   :root:not([data-theme="light"]){
     --paper:#0f1513; --panel:#161e1b; --ink:#e1e9e5; --muted:#95a39d; --line:#2b3732;
     --sheet:#111916; --grid:#1d2824; --grid2:#2e3f38; --trace:#cfe4da;
-    --accent:#5cc0d9; --accent-ink:#0f1513; --mark:#e2b54b; --hot:#ef6f77; --ok:#63c993; --ann:#e2b54b;
+    --accent:#5cc0d9; --accent-ink:#0f1513; --mark:#e2b54b; --hot:#ef6f77; --ok:#63c993; --ann:#e2b54b; --neg:#f06a5e; --pos:#6f9bf0;
     color-scheme:dark;
   }
 }
 :root[data-theme="dark"]{
   --paper:#0f1513; --panel:#161e1b; --ink:#e1e9e5; --muted:#95a39d; --line:#2b3732;
   --sheet:#111916; --grid:#1d2824; --grid2:#2e3f38; --trace:#cfe4da;
-  --accent:#5cc0d9; --accent-ink:#0f1513; --mark:#e2b54b; --hot:#ef6f77; --ok:#63c993; --ann:#e2b54b;
+  --accent:#5cc0d9; --accent-ink:#0f1513; --mark:#e2b54b; --hot:#ef6f77; --ok:#63c993; --ann:#e2b54b; --neg:#f06a5e; --pos:#6f9bf0;
   color-scheme:dark;
 }
 [hidden]{display:none!important}
@@ -307,12 +307,17 @@ select{
     <div class="desk-main">
       <div class="toolbar">
         <span class="tb-item"><span class="lb">導出</span>
-          <span class="seg" id="montSeg"><button type="button" data-m="bip">双極（縦）</button><button type="button" data-m="ref">基準（耳朶）</button><button type="button" data-m="av">平均基準</button></span></span>
+          <span class="seg" id="montSeg"><button type="button" data-m="bip">双極（縦）</button><button type="button" data-m="tr">双極（横）</button><button type="button" data-m="ref">基準（耳朶）</button><button type="button" data-m="av">平均基準</button></span></span>
         <label class="tb-item" for="sens"><span class="lb">感度</span>
           <select id="sens"><option value="5">5 µV/mm</option><option value="7">7 µV/mm</option><option value="10" selected>10 µV/mm</option><option value="15">15 µV/mm</option><option value="20">20 µV/mm</option><option value="30">30 µV/mm</option><option value="50">50 µV/mm</option></select></label>
         <label class="tb-item" for="win"><span class="lb">1画面</span>
           <select id="win"><option value="5">5秒</option><option value="10" selected>10秒</option><option value="20">20秒</option></select></label>
+        <label class="tb-item" for="tc"><span class="lb">時定数</span>
+          <select id="tc"><option value="0.1">0.1秒</option><option value="0.3" selected>0.3秒</option><option value="1">1.0秒</option><option value="0">なし</option></select></label>
+        <label class="tb-item" for="hff"><span class="lb">高域遮断</span>
+          <select id="hff"><option value="15">15Hz</option><option value="35">35Hz</option><option value="60" selected>60Hz</option><option value="0">なし</option></select></label>
         <button type="button" class="act" id="notch" aria-pressed="false">ACフィルタ</button>
+        <button type="button" class="act" id="measBtn" aria-pressed="false">ものさし</button>
         <span class="tb-item" id="pager" hidden><button type="button" class="act" id="pgPrev" aria-label="前の5秒">◀</button><button type="button" class="act" id="pgNext" aria-label="次の5秒">▶</button></span>
         <button type="button" class="act" id="playBtn" hidden>一時停止</button>
       </div>
@@ -321,7 +326,7 @@ select{
     </div>
     <aside class="desk-side" aria-label="頭の図（10-20法）">
       <svg id="head" viewBox="-1.3 -1.24 2.6 2.48" role="group" aria-label="電極の配置"></svg>
-      <p class="map-note" id="mapNote">上が鼻、左が左半球。奇数は左、偶数は右、z は正中。</p>
+      <p class="map-note" id="mapNote">上が鼻、左が左半球。奇数は左、偶数は右、z は正中。波をタップすると、その瞬間の電位を色で出します。</p>
     </aside>
   </section>
 
@@ -728,6 +733,7 @@ select{
   /* ====================== 3. 導出 ====================== */
   var MONT = {
     bip: { name: '双極導出（縦）', ch: [['Fp1','F3'],['F3','C3'],['C3','P3'],['P3','O1'],['Fp2','F4'],['F4','C4'],['C4','P4'],['P4','O2'],['Fp1','F7'],['F7','T3'],['T3','T5'],['T5','O1'],['Fp2','F8'],['F8','T4'],['T4','T6'],['T6','O2'],['Fz','Cz'],['Cz','Pz']], gaps: [4, 8, 12, 16] },
+    tr: { name: '双極導出（横）', ch: [['F7','F3'],['F3','Fz'],['Fz','F4'],['F4','F8'],['T3','C3'],['C3','Cz'],['Cz','C4'],['C4','T4'],['T5','P3'],['P3','Pz'],['Pz','P4'],['P4','T6'],['Fp1','Fp2'],['O1','O2']], gaps: [4, 8, 12, 13] },
     ref: { name: '基準導出（耳朶）', ch: null, gaps: [16] },
     av: { name: '平均基準導出', ch: null, gaps: [16] }
   };
@@ -735,9 +741,10 @@ select{
   MONT.ref.ch = REF_ORDER.map(function (e) { var x = POS[e][0]; return [e, x < -0.01 ? 'A1' : x > 0.01 ? 'A2' : 'LE']; });
   MONT.av.ch = REF_ORDER.map(function (e) { return [e, 'AV']; });
   var BIP = MONT.bip.ch;
+  MONT.bip.bip = true; MONT.tr.bip = true;
 
   /* ====================== 4. 画面の状態 ====================== */
-  var V = { mode: 'lab', mont: 'bip', sens: 10, win: 10, notch: false, real: false, sel: -1, src: null, live: false, off: 0, hl: null, spec: null, playing: true };
+  var V = { mode: 'lab', mont: 'bip', sens: 10, win: 10, notch: false, real: false, tc: 0.3, hff: 60, meas: false, mline: null, cur: null, sel: -1, src: null, live: false, off: 0, hl: null, spec: null, playing: true };
   var cv = document.getElementById('trace'), ctx = cv.getContext('2d');
   var panel = document.getElementById('panel');
   var headSvg = document.getElementById('head');
@@ -762,7 +769,7 @@ select{
   var TOK = {};
   function readTokens() {
     var cs = getComputedStyle(document.documentElement);
-    ['--sheet','--grid','--grid2','--trace','--accent','--mark','--ann','--muted','--ink','--hot'].forEach(function (k) { TOK[k] = cs.getPropertyValue(k).trim(); });
+    ['--sheet','--grid','--grid2','--trace','--accent','--mark','--ann','--muted','--ink','--hot','--neg','--pos'].forEach(function (k) { TOK[k] = cs.getPropertyValue(k).trim(); });
   }
   readTokens();
   if (window.matchMedia) { var mq = window.matchMedia('(prefers-color-scheme: dark)'); if (mq.addEventListener) mq.addEventListener('change', function () { readTokens(); draw(); }); }
@@ -789,7 +796,7 @@ select{
     // 行の位置
     var y = top, rows = [];
     chans.forEach(function (c) { if (c.gap) y += gapPx; rows.push(y + sp / 2); y += sp; });
-    layout = { rows: rows, sp: sp, LW: LW, chans: chans };
+    layout = { rows: rows, sp: sp, LW: LW, chans: chans, plotW: plotW, s0: s0, n: n, win: win, H: H, k: (sp / 10) / V.sens };
 
     // 選んだ線
     if (V.sel >= 0 && V.sel < chans.length) { ctx.fillStyle = TOK['--accent']; ctx.globalAlpha = 0.09; ctx.fillRect(0, rows[V.sel] - sp / 2, W0, sp); ctx.globalAlpha = 1; }
@@ -816,8 +823,10 @@ select{
     // 波形
     var k = (sp / 10) / V.sens;
     var useAV = V.mont === 'av';
+    var pre = Math.min(s0, 2 * FS), b0 = s0 - pre, nn = n + pre;
     var avg = null;
-    if (useAV) { avg = new Float32Array(n); for (var i2 = 0; i2 < n; i2++) { var sum = 0; for (var q = 0; q < 19; q++) sum += src.get(SCALP[q], s0 + i2); avg[i2] = sum / 19; } }
+    if (useAV) { avg = new Float32Array(nn); for (var i2 = 0; i2 < nn; i2++) { var sum = 0; for (var q = 0; q < 19; q++) sum += src.get(SCALP[q], b0 + i2); avg[i2] = sum / 19; } }
+    var buf = new Float32Array(nn);
     ctx.lineJoin = 'round';
     chans.forEach(function (c, ci) {
       var yc = rows[ci];
@@ -825,10 +834,13 @@ select{
       if (c.kind === 'ecg') { var ke = sp * 0.45; val = function (i) { return -src.get(K_ECG, s0 + i) * ke; }; }
       else if (c.kind === 'ph') { val = function (i) { return -src.get(K_PH, s0 + i) * sp * 0.35; }; }
       else {
-        var ia = I[c.a], ib = c.b;
-        if (ib === 'AV') val = function (i) { return (src.get(ia, s0 + i) - avg[i]) * k; };
-        else if (ib === 'LE') val = function (i) { return (src.get(ia, s0 + i) - (src.get(I.A1, s0 + i) + src.get(I.A2, s0 + i)) / 2) * k; };
-        else { var ibi = I[ib]; val = function (i) { return (src.get(ia, s0 + i) - src.get(ibi, s0 + i)) * k; }; }
+        var ia = I[c.a], ib = c.b, raw;
+        if (ib === 'AV') raw = function (i) { return src.get(ia, b0 + i) - avg[i]; };
+        else if (ib === 'LE') raw = function (i) { return src.get(ia, b0 + i) - (src.get(I.A1, b0 + i) + src.get(I.A2, b0 + i)) / 2; };
+        else { var ibi = I[ib]; raw = function (i) { return src.get(ia, b0 + i) - src.get(ibi, b0 + i); }; }
+        for (var j = 0; j < nn; j++) buf[j] = raw(j);
+        applyFilters(buf);
+        val = function (i) { return buf[pre + i] * k; };
       }
       ctx.strokeStyle = c.kind ? TOK['--muted'] : TOK['--trace'];
       ctx.lineWidth = (ci === V.sel) ? 1.5 : 1;
@@ -863,6 +875,27 @@ select{
       ctx.fillStyle = TOK['--ann']; ctx.fillText(a[1], tx, top - 6);
     });
 
+    // 電位の地図のための時刻の線
+    if (V.cur != null) {
+      var cxp = LW + (V.cur - s0) / n * plotW;
+      if (cxp >= LW && cxp <= LW + plotW) {
+        ctx.strokeStyle = TOK['--neg']; ctx.lineWidth = 1.2; ctx.setLineDash([4, 3]);
+        ctx.beginPath(); ctx.moveTo(Math.round(cxp) + 0.5, top - 4); ctx.lineTo(Math.round(cxp) + 0.5, H - bottom + 2); ctx.stroke(); ctx.setLineDash([]);
+      } else if (V.live) { V.cur = null; updateTopo(); }
+    }
+    // ものさし
+    if (V.mline) {
+      var m = V.mline, dt = Math.abs(m.x1 - m.x0) / plotW * win, dv = Math.abs(m.y1 - m.y0) / k;
+      ctx.strokeStyle = TOK['--accent']; ctx.fillStyle = TOK['--accent']; ctx.lineWidth = 1.5;
+      ctx.beginPath(); ctx.moveTo(m.x0, m.y0); ctx.lineTo(m.x1, m.y0); ctx.lineTo(m.x1, m.y1); ctx.stroke();
+      [[m.x0, m.y0], [m.x1, m.y1]].forEach(function (pt) { ctx.beginPath(); ctx.arc(pt[0], pt[1], 3, 0, TAU); ctx.fill(); });
+      var txt = Math.round(dt * 1000) + ' ms' + (dt > 0.004 ? '（' + (1 / dt).toFixed(1) + ' Hz）' : '') + ' ・ ' + Math.round(dv) + ' µV';
+      ctx.font = '700 12px "BIZ UDPGothic", sans-serif'; ctx.textAlign = 'left';
+      var tw2 = ctx.measureText(txt).width, lx = Math.min(Math.max(m.x0, m.x1) + 6, W0 - tw2 - 8), ly = Math.max(16, Math.min(m.y0, m.y1) - 8);
+      ctx.fillStyle = TOK['--sheet']; ctx.fillRect(lx - 3, ly - 13, tw2 + 6, 17);
+      ctx.fillStyle = TOK['--accent']; ctx.fillText(txt, lx, ly);
+    }
+
     // 較正
     var calH = 50 * k, cx0 = W0 - RP - 4, cyB = H - 8;
     ctx.strokeStyle = TOK['--ink']; ctx.lineWidth = 1.5;
@@ -874,11 +907,25 @@ select{
     cv.setAttribute('aria-label', MONT[V.mont].name + '、' + chans.length + 'チャンネル、' + win + '秒分の脳波');
   }
 
+  // フィルタ：時定数（1次の高域通過）と高域遮断（1次の低域通過を2回）
+  function applyFilters(x) {
+    var dt = 1 / FS, n2 = x.length;
+    if (V.tc > 0) {
+      var a = V.tc / (V.tc + dt), px = x[0], py = 0;
+      for (var i = 0; i < n2; i++) { var xi = x[i], yi = a * (py + xi - px); px = xi; py = yi; x[i] = yi; }
+    }
+    if (V.hff > 0) {
+      var rc = 1 / (TAU * V.hff), al = dt / (rc + dt);
+      for (var pass = 0; pass < 2; pass++) { var yv = x[0]; for (var j = 0; j < n2; j++) { yv += al * (x[j] - yv); x[j] = yv; } }
+    }
+  }
+
   /* ====================== 6. 頭の図 ====================== */
   function buildHead() {
     var s = '<circle class="skull" cx="0" cy="0" r="0.98"/>' +
       '<path class="nose" d="M-0.13,-0.965 L0,-1.16 L0.13,-0.965"/>' +
       '<ellipse class="ear" cx="-1.03" cy="0.08" rx="0.07" ry="0.2"/><ellipse class="ear" cx="1.03" cy="0.08" rx="0.07" ry="0.2"/>' +
+      '<clipPath id="hmClip"><circle cx="0" cy="0" r="0.97"/></clipPath><image id="hmTopo" x="-0.98" y="-0.98" width="1.96" height="1.96" clip-path="url(#hmClip)" preserveAspectRatio="none" style="pointer-events:none"/>' +
       '<g id="hmLines"></g>';
     E.forEach(function (e) {
       var p = POS[e], ear = (e === 'A1' || e === 'A2');
@@ -891,7 +938,7 @@ select{
     var lines = '';
     var sel = (V.sel >= 0 && chans[V.sel] && !chans[V.sel].kind) ? chans[V.sel] : null;
     var line = function (a, b, cls) { var p = POS[a], q = POS[b]; return '<line class="ln ' + cls + '" x1="' + p[0] + '" y1="' + (-p[1]) + '" x2="' + q[0] + '" y2="' + (-q[1]) + '"/>'; };
-    if (V.mont === 'bip') BIP.forEach(function (c) { var isSel = sel && sel.a === c[0] && sel.b === c[1]; lines += line(c[0], c[1], isSel ? 'sel' : ''); });
+    if (MONT[V.mont].bip) MONT[V.mont].ch.forEach(function (c) { var isSel = sel && sel.a === c[0] && sel.b === c[1]; lines += line(c[0], c[1], isSel ? 'sel' : ''); });
     else if (sel && (sel.b === 'A1' || sel.b === 'A2')) lines += line(sel.a, sel.b, 'sel ref');
     else if (sel && sel.b === 'LE') { lines += line(sel.a, 'A1', 'sel ref') + line(sel.a, 'A2', 'sel ref'); }
     headSvg.querySelector('#hmLines').innerHTML = lines;
@@ -902,6 +949,31 @@ select{
       g2.classList.toggle('hl', hlEl.indexOf(e) !== -1);
     });
   }
+  // 電位の地図：タップした瞬間の、頭の上の電位（平均基準）を色で塗る
+  var topoCv = document.createElement('canvas'); topoCv.width = topoCv.height = 140;
+  var MAP_DEFAULT = '上が鼻、左が左半球。奇数は左、偶数は右、z は正中。波をタップすると、その瞬間の電位を色で出します。';
+  function updateTopo() {
+    var img = headSvg.querySelector('#hmTopo'), note = document.getElementById('mapNote');
+    if (!img) return;
+    if (V.cur == null || !V.src) { img.removeAttribute('href'); note.textContent = MAP_DEFAULT; return; }
+    var vals = [], mean = 0;
+    for (var q = 0; q < 19; q++) { var v = V.src.get(SCALP[q], V.cur); vals.push(v); mean += v; }
+    mean /= 19;
+    var mx = 1e-6; vals = vals.map(function (v) { v -= mean; if (Math.abs(v) > mx) mx = Math.abs(v); return v; });
+    var c2 = topoCv.getContext('2d'), N2 = 140, im = c2.createImageData(N2, N2);
+    var neg = hexRgb(TOK['--neg']), pos = hexRgb(TOK['--pos']), base = hexRgb(TOK['--sheet']);
+    for (var py = 0; py < N2; py++) for (var px = 0; px < N2; px++) {
+      var hx = (px + 0.5) / N2 * 1.96 - 0.98, hy = -((py + 0.5) / N2 * 1.96 - 0.98), ws = 0, vs = 0;
+      for (var e = 0; e < 19; e++) { var p2 = POS[E[e]], d2 = (hx - p2[0]) * (hx - p2[0]) + (hy - p2[1]) * (hy - p2[1]) + 0.004, w = 1 / (d2 * d2); ws += w; vs += w * vals[e]; }
+      var t = Math.max(-1, Math.min(1, vs / ws / mx)), col = t < 0 ? neg : pos, f = Math.abs(t) * 0.85, o = (py * N2 + px) * 4;
+      im.data[o] = base[0] + (col[0] - base[0]) * f; im.data[o + 1] = base[1] + (col[1] - base[1]) * f; im.data[o + 2] = base[2] + (col[2] - base[2]) * f; im.data[o + 3] = 255;
+    }
+    c2.putImageData(im, 0, 0);
+    img.setAttribute('href', topoCv.toDataURL());
+    note.textContent = (V.cur / FS).toFixed(2) + ' 秒の電位（平均基準）。赤＝マイナス（脳波では上向き）、青＝プラス。もう一度同じ線をタップすると消えます。';
+  }
+  function hexRgb(h) { h = (h || '#888888').replace('#', ''); if (h.length === 3) h = h.replace(/(.)/g, '$1$1'); var n3 = parseInt(h, 16); return [n3 >> 16 & 255, n3 >> 8 & 255, n3 & 255]; }
+
   function noteFor(c) {
     if (!c) return '線をタップすると、どの2つの電極の差かを頭の図に出します。';
     if (c.kind === 'ecg') return '<b>ECG</b>：同時にとっている心電図。規則正しい波が脳波に混じっていたら、ここと時刻を比べます。';
@@ -911,14 +983,26 @@ select{
   }
 
   cv.addEventListener('click', function (ev) {
-    if (!layout) return;
-    var r = cv.getBoundingClientRect(), y = ev.clientY - r.top, best = -1, bd = 1e9;
+    if (!layout || V.meas) return;
+    var r = cv.getBoundingClientRect(), x = ev.clientX - r.left, y = ev.clientY - r.top, best = -1, bd = 1e9;
     layout.rows.forEach(function (ry, i) { var d = Math.abs(ry - y); if (d < bd) { bd = d; best = i; } });
     if (bd > layout.sp) return;
-    V.sel = (V.sel === best) ? -1 : best;
+    var again = V.sel === best;
+    V.sel = again ? -1 : best;
+    V.cur = (!again && x > layout.LW) ? layout.s0 + Math.round((x - layout.LW) / layout.plotW * layout.n) : null;
     chanNote.innerHTML = noteFor(V.sel >= 0 ? layout.chans[V.sel] : null);
-    draw(); updateHead();
+    draw(); updateHead(); updateTopo();
   });
+  var mDrag = false;
+  function cvPt(ev) { var r = cv.getBoundingClientRect(); return [Math.max(layout.LW, Math.min(layout.LW + layout.plotW, ev.clientX - r.left)), Math.max(0, Math.min(layout.H, ev.clientY - r.top))]; }
+  cv.addEventListener('pointerdown', function (ev) {
+    if (!V.meas || !layout) return;
+    ev.preventDefault(); mDrag = true; cv.setPointerCapture && cv.setPointerCapture(ev.pointerId);
+    var p = cvPt(ev); V.mline = { x0: p[0], y0: p[1], x1: p[0], y1: p[1] }; draw();
+  });
+  cv.addEventListener('pointermove', function (ev) { if (!mDrag) return; var p = cvPt(ev); V.mline.x1 = p[0]; V.mline.y1 = p[1]; draw(); });
+  cv.addEventListener('pointerup', function () { mDrag = false; });
+  cv.addEventListener('pointercancel', function () { mDrag = false; });
 
   /* ====================== 7. ツールバー ====================== */
   var montSeg = document.getElementById('montSeg');
@@ -930,6 +1014,9 @@ select{
     if (!V.live && V.win > 10) V.win = 10;
     winSel.value = String(V.win);
     document.getElementById('notch').setAttribute('aria-pressed', V.notch ? 'true' : 'false');
+    document.getElementById('tc').value = String(V.tc); document.getElementById('hff').value = String(V.hff);
+    document.getElementById('measBtn').setAttribute('aria-pressed', V.meas ? 'true' : 'false');
+    cv.style.touchAction = V.meas ? 'none' : 'manipulation'; cv.style.cursor = V.meas ? 'crosshair' : 'pointer';
     var pager = document.getElementById('pager');
     pager.hidden = V.live || !V.src || V.win >= V.src.dur;
     var pb = document.getElementById('playBtn');
@@ -940,7 +1027,19 @@ select{
     V.mont = b.getAttribute('data-m'); V.sel = -1; chanNote.innerHTML = noteFor(null);
     syncToolbar(); draw(); updateHead();
   });
-  document.getElementById('sens').addEventListener('change', function (e) { V.sens = +e.target.value; draw(); });
+  document.getElementById('sens').addEventListener('change', function (e) { V.sens = +e.target.value; V.mline = null; draw(); });
+  document.getElementById('tc').addEventListener('change', function (e) {
+    V.tc = +e.target.value; draw();
+    chanNote.innerHTML = '<b>時定数 ' + (V.tc ? V.tc + '秒' : 'なし') + '</b>：時定数を短くすると、ゆっくりした揺れ（汗・体動・δ波）が小さくなります。長くするとそのまま出ます。ふつうは0.3秒です。';
+  });
+  document.getElementById('hff').addEventListener('change', function (e) {
+    V.hff = +e.target.value; draw();
+    chanNote.innerHTML = '<b>高域遮断 ' + (V.hff ? V.hff + 'Hz' : 'なし') + '</b>：下げると筋電図が消えて見やすくなりますが、棘波も丸くなり、β波も消えます。筋電図の多い記録で15Hzにすると、筋電図が「速波」や「棘波」に化けて見えることもあります。ふつうは60Hz前後です。';
+  });
+  document.getElementById('measBtn').addEventListener('click', function () {
+    V.meas = !V.meas; if (!V.meas) V.mline = null; syncToolbar(); draw();
+    chanNote.innerHTML = V.meas ? '<b>ものさし</b>：波の上を指（マウス）でなぞると、2点の間の時間と周波数、高さ（振幅）を出します。山から次の山までなぞれば、その波の周波数がわかります。' : noteFor(null);
+  });
   document.getElementById('win').addEventListener('change', function (e) { V.win = +e.target.value; V.off = 0; syncToolbar(); draw(); });
   document.getElementById('notch').addEventListener('click', function () {
     V.notch = !V.notch;
@@ -955,8 +1054,8 @@ select{
   function setPage(spec, keepView) {
     var s2 = Object.assign({}, spec, { notch: V.notch, real: V.real });
     V.spec = spec; V.src = buildPage(s2); V.live = false;
-    if (!keepView) { V.off = 0; V.hl = null; V.sel = -1; if (spec.mont) V.mont = spec.mont; V.sens = spec.sens || 10; chanNote.innerHTML = noteFor(null); }
-    syncToolbar(); draw(); updateHead();
+    if (!keepView) { V.off = 0; V.hl = null; V.sel = -1; V.cur = null; V.mline = null; if (spec.mont) V.mont = spec.mont; V.sens = spec.sens || 10; chanNote.innerHTML = noteFor(null); }
+    syncToolbar(); draw(); updateHead(); updateTopo();
   }
 
   /* ====================== 8. 触ってみる（流れる脳波） ====================== */
