@@ -1,0 +1,2043 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="精神科試験ゲーム">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icon-180.png">
+<style>
+:root{color-scheme:light; padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px)}
+body{margin:0; font:14px system-ui,-apple-system,sans-serif}
+img{max-width:100%}
+[hidden]{display:none!important}
+.ipad-bar{display:flex; flex-wrap:wrap; gap:6px 14px; align-items:center; justify-content:space-between;
+  padding:8px max(16px, env(safe-area-inset-right,0px)) 8px max(16px, env(safe-area-inset-left,0px));
+  font:600 14px system-ui,-apple-system,"Hiragino Sans",sans-serif; background:#1d2a33; color:#f3f6f8}
+.ipad-bar a{color:#f3f6f8; text-decoration:none; padding:6px 10px; border:1px solid #4a5d6a; border-radius:6px}
+.ipad-bar span{opacity:.85; font-weight:400}
+</style>
+<script>
+/* プレイヤーごとに記録を分ける（自分は今までどおり、ゲストは頭に印をつける） */
+(function () {
+  try {
+    var P = window.localStorage.getItem('ipad-player') || 'me';
+    window.__ipadPlayer = P;
+    if (P === 'me') return;
+    var pre = 'p:' + P + ':', S = Storage.prototype, g = S.getItem, s = S.setItem, r = S.removeItem;
+    var map = function (k) { return k === 'ipad-player' ? k : pre + k; };
+    S.getItem = function (k) { return g.call(this, map(k)); };
+    S.setItem = function (k, v) { return s.call(this, map(k), v); };
+    S.removeItem = function (k) { return r.call(this, map(k)); };
+  } catch (e) { /* 保存できない環境 */ }
+})();
+if ('serviceWorker' in navigator) { window.addEventListener('load', function () { navigator.serviceWorker.register('sw.js').catch(function () {}); }); }
+</script>
+</head>
+<body>
+<nav class="ipad-bar" aria-label="アプリ"><a href="index.html">← ゲーム一覧</a><span id="ipadWho"></span></nav>
+<script>(function(){var P=window.__ipadPlayer||'me';document.getElementById('ipadWho').textContent='プレイヤー：'+(P==='me'?'自分':P);})();</script>
+<title>曝露ランナー</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=BIZ+UDPGothic:wght@400;700&family=DotGothic16&display=swap">
+<style>
+/* Layout: カルテ紙の上にゲーム画面を1枚。右（スマホでは下）にカルテと遊び方、最下段に図鑑 */
+:root{
+  --paper:#ecf1ed; --panel:#f9fbf9; --ink:#1c2725; --muted:#59665f; --line:#c4cfc8;
+  --accent:#1d7566; --accent-ink:#ffffff; --seal:#bb3333; --water:#2f7fc0; --warn:#a8720c; --night:#2c3566;
+  --f-display:"DotGothic16","Hiragino Kaku Gothic ProN","Yu Gothic",monospace;
+  --f-body:"BIZ UDPGothic","Hiragino Kaku Gothic ProN","Yu Gothic","Meiryo",sans-serif;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --paper:#121918; --panel:#1a2321; --ink:#e2ebe6; --muted:#93a39b; --line:#2c3a36;
+    --accent:#4db3a0; --accent-ink:#0e1615; --seal:#e5615b; --water:#5aa6e0; --warn:#e0b04f; --night:#8f9be0; color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --paper:#121918; --panel:#1a2321; --ink:#e2ebe6; --muted:#93a39b; --line:#2c3a36;
+  --accent:#4db3a0; --accent-ink:#0e1615; --seal:#e5615b; --water:#5aa6e0; --warn:#e0b04f; --night:#8f9be0; color-scheme:dark;
+}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+body{background:var(--paper);color:var(--ink);font-family:var(--f-body);font-size:15px;line-height:1.7;padding-inline:16px;padding-block:20px 48px}
+.wrap{max-width:1100px;margin:0 auto;display:grid;gap:18px}
+.top{display:grid;gap:4px}
+.eyebrow{margin:0;font-family:var(--f-display);font-size:13px;letter-spacing:.08em;color:var(--accent)}
+h1{margin:0;font-family:var(--f-display);font-weight:400;font-size:clamp(30px,6vw,46px);line-height:1.15;text-wrap:balance}
+.lede{margin:0;color:var(--muted);max-width:62ch}
+
+.tabs{display:grid;gap:8px}
+.row{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.tab{font:inherit;font-family:var(--f-display);font-size:14px;color:var(--ink);background:var(--panel);border:1px solid var(--line);border-radius:6px;padding:5px 12px;cursor:pointer;display:flex;gap:6px;align-items:baseline}
+.tab:hover:not(:disabled){border-color:var(--accent)}
+.tab[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.tab:disabled{cursor:not-allowed;color:var(--muted);border-style:dashed}
+.tab:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+.tab .ok{font-size:11px}
+.tab.adv[aria-pressed="true"]{background:var(--seal);border-color:var(--seal);color:#ffffff}
+.loop{font-size:15px;padding:5px 16px}
+.loop.l2[aria-pressed="true"]{background:var(--night);border-color:var(--night);color:#ffffff}
+.lockmsg{font-size:12px;color:var(--muted)}
+
+.main{display:grid;gap:16px;grid-template-columns:minmax(0,1fr)}
+@media (min-width:900px){.main{grid-template-columns:minmax(0,1fr) 290px;align-items:start}}
+
+.stage{background:var(--panel);border:1px solid var(--line);border-radius:6px;overflow:hidden;min-width:0}
+.hud{display:flex;flex-wrap:wrap;align-items:center;gap:6px 14px;padding:8px 12px;font-family:var(--f-display);border-bottom:1px solid var(--line);min-height:44px}
+.hearts{color:var(--seal);font-size:16px;letter-spacing:1px;line-height:1}
+.water{display:flex;align-items:center;gap:6px;font-size:13px}
+.meter{width:96px;height:10px;border:1px solid var(--line);background:var(--paper);display:block;position:relative}
+.meter i{position:absolute;inset:0 auto 0 0;background:var(--water);width:100%}
+.meter.low i,.meter.over i{background:var(--seal)}
+.meter.hi i{background:var(--warn)}
+.meter.bal{width:120px}
+.meter.bal::after{content:'';position:absolute;left:80%;top:-3px;bottom:-3px;width:2px;background:var(--seal)}
+.lv{font-size:13px;font-variant-numeric:tabular-nums;border:1px solid var(--line);border-radius:4px;padding:0 8px}
+.lv b{font-weight:400;font-size:15px}
+.lv.hi{border-color:var(--warn);color:var(--warn)}
+.lv.tox{border-color:var(--seal);color:var(--seal);background:color-mix(in srgb,var(--seal) 12%,transparent)}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.suds{display:flex;align-items:center;gap:6px;font-size:14px}
+.smeter{width:150px;height:14px;border:1px solid var(--line);background:var(--paper);display:block;position:relative}
+.smeter i{position:absolute;inset:0 auto 0 0;width:0;background:linear-gradient(90deg,#e2b03a,#d0564f)}
+.suds.ba .smeter i{background:linear-gradient(90deg,#8fb4c9,#5fae7a)}
+.suds b{font-weight:400;font-size:18px;min-width:2.2em;font-variant-numeric:tabular-nums}
+.suds.hot b{color:var(--seal)}
+.stage.full .suds{font-size:var(--fz)}
+.stage.full .smeter{width:calc(var(--fz)*11);height:calc(var(--fz)*.9);border-width:2px}
+.stage.full .suds b{font-size:calc(var(--fz)*1.3)}
+.chartwrap{overflow-x:auto;border:1px solid var(--line);border-radius:6px;background:var(--paper);padding:6px}
+.chartwrap svg{display:block;width:100%;min-width:320px;height:auto}
+.pad.act4{grid-template-columns:1fr 1fr 1.3fr 1.3fr}
+.hudbtns{margin-left:auto;display:flex;gap:6px}
+.sndbtn{font:inherit;font-family:var(--f-display);font-size:13px;color:var(--ink);background:transparent;border:1px solid var(--line);border-radius:4px;padding:2px 10px;cursor:pointer}
+.sndbtn[aria-pressed="false"]{color:var(--muted);border-style:dashed}
+.stage.full{border:0;border-radius:0;display:flex;flex-direction:column;background:var(--panel)}
+.stage.full:not(.fs){width:100%;height:100%}
+.stage.fs{position:fixed;inset:0;z-index:30;padding:env(safe-area-inset-top,0px) env(safe-area-inset-right,0px) env(safe-area-inset-bottom,0px) env(safe-area-inset-left,0px)}
+.stage.full .screen{flex:1;min-height:0;container-type:size;display:grid;place-items:center;background:var(--paper)}
+.stage.full canvas{width:min(100cqw,calc(100cqh * 16 / 9));height:auto}
+body.fslock{overflow:hidden}
+/* 全画面：画面の高さに合わせて文字・ハート・ゲージを大きくする */
+.stage.full{--fz:clamp(15px,2.6vh,32px)}
+.stage.full .hud{font-size:var(--fz);gap:.35em .9em;padding:.45em .9em;min-height:0}
+.stage.full .hearts{font-size:calc(var(--fz)*1.4);letter-spacing:.06em}
+.stage.full .water{font-size:var(--fz);gap:.4em}
+.stage.full .meter{width:calc(var(--fz)*8);height:calc(var(--fz)*.8);border-width:2px}
+.stage.full .meter.bal{width:calc(var(--fz)*10)}
+.stage.full .lv{font-size:var(--fz);padding:.05em .5em}
+.stage.full .lv b{font-size:calc(var(--fz)*1.25)}
+.stage.full .chips{gap:.35em}
+.stage.full .chip{font-size:calc(var(--fz)*.9);padding:.1em .7em;border-width:2px}
+.stage.full .sndbtn{font-size:calc(var(--fz)*.8);padding:.25em .7em}
+.stage.full .toast{font-size:calc(var(--fz)*.9);padding:.5em 1.2em;top:.8em;border-width:2px}
+.stage.full .toast b{font-size:calc(var(--fz)*1.15)}
+.stage.full .startov .stg{font-size:calc(var(--fz)*.95)}
+.stage.full .startov .stn{font-size:calc(var(--fz)*1.9)}
+.stage.full .startov .btn{font-size:calc(var(--fz)*1.2);padding:.4em 1.4em}
+.stage.full .startov .hint{font-size:calc(var(--fz)*.8)}
+.stage.full .pad button{height:calc(var(--fz)*3.2);font-size:calc(var(--fz)*1.1)}
+.stage.full .sheet{max-width:min(1100px,94vw);font-size:calc(var(--fz)*.85);padding:1.2em 1.4em}
+.stage.full .rxhead h2{font-size:calc(var(--fz)*1.5)}
+.stage.full .rxhead span,.stage.full .ptline,.stage.full .warn{font-size:calc(var(--fz)*.85)}
+.stage.full .card{padding:.8em}
+.stage.full .card .k{font-size:calc(var(--fz)*.75)}
+.stage.full .card .n{font-size:calc(var(--fz)*1.15)}
+.stage.full .card .r,.stage.full .card .t,.stage.full .card .mg{font-size:calc(var(--fz)*.8)}
+.stage.full .stamp{width:calc(var(--fz)*3.6);height:calc(var(--fz)*3.6);font-size:calc(var(--fz)*1.1)}
+.stage.full .stats span{font-size:calc(var(--fz)*.75)}
+.stage.full .stats b{font-size:calc(var(--fz)*1.3)}
+.stage.full .sheet h3{font-size:calc(var(--fz)*1.05)}
+.stage.full .fxl div,.stage.full .grades li,.stage.full .pts,.stage.full .doses{font-size:calc(var(--fz)*.85)}
+.stage.full .fxl .g,.stage.full .grades .q{font-size:calc(var(--fz)*.75)}
+.stage.full .mark{font-size:calc(var(--fz)*1.3)}
+.stage.full .banner{font-size:var(--fz)}
+.stage.full .actions .btn{font-size:var(--fz)}
+.sndbtn:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+.chip{font-size:12px;line-height:1.6;padding:0 8px;border-radius:999px;border:1px solid var(--line);white-space:nowrap}
+.chip.drug{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.chip.adj{border-color:var(--accent);color:var(--accent)}
+.chip.fx{color:var(--seal);border-color:var(--seal)}
+.chip.wait{color:var(--warn);border-color:var(--warn)}
+.chip.none{color:var(--muted);border-style:dashed}
+
+.screen{position:relative}
+canvas{display:block;width:100%;aspect-ratio:16/9;image-rendering:pixelated;background:#cfe2e2;touch-action:none;transition:filter .6s}
+.toast{position:absolute;left:50%;top:10px;transform:translateX(-50%);width:max-content;max-width:calc(100% - 20px);background:var(--panel);color:var(--ink);border:1px solid var(--line);border-radius:6px;padding:6px 14px;font-size:13px;line-height:1.5;box-shadow:0 4px 14px rgb(0 0 0 / .18);display:grid;text-align:center;pointer-events:none}
+.toast b{font-family:var(--f-display);font-weight:400;font-size:15px}
+.startov{position:absolute;inset:0;display:grid;place-items:center;background:rgb(14 28 26 / .5);text-align:center;color:#ffffff;padding:12px}
+.startov .stg{margin:0;font-family:var(--f-display);font-size:14px;letter-spacing:.2em}
+.startov .stn{margin:0 0 12px;font-family:var(--f-display);font-size:clamp(20px,4.4vw,30px);line-height:1.3}
+.startov .hint{margin:8px 0 0;font-size:12px;opacity:.85}
+.btn{font-family:var(--f-display);font-size:18px;padding:8px 24px;border-radius:4px;border:2px solid var(--accent);background:var(--accent);color:var(--accent-ink);cursor:pointer}
+.btn.sub{background:transparent;color:var(--accent)}
+.btn.night{background:var(--night);border-color:var(--night);color:#ffffff}
+.startov .btn{border-color:#ffffff}
+.btn:focus-visible,.pad button:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+
+.pad{display:none;grid-template-columns:1fr 1fr 1.6fr;gap:10px;padding:10px;border-top:1px solid var(--line)}
+.pad button{height:64px;font-family:var(--f-display);font-size:20px;border:1px solid var(--line);border-radius:8px;background:var(--paper);color:var(--ink);touch-action:none;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none}
+.pad button.on{background:var(--accent);color:var(--accent-ink)}
+.pad button.urge{animation:urge .5s ease-in-out infinite alternate}
+@keyframes urge{to{background:#f3d9a0;border-color:#a8720c}}
+.xic{width:1.3em;height:1.3em;image-rendering:pixelated;vertical-align:-.28em;margin-right:.25em}
+.rxhead h2 .dic{width:1.5em;height:1.5em;image-rendering:pixelated;vertical-align:-.3em;margin-right:.3em}
+@media (pointer:coarse){.pad{display:grid}.keys{display:none}}
+
+.side{display:grid;gap:16px;min-width:0}
+.box{background:var(--panel);border:1px solid var(--line);border-radius:6px;padding:14px 16px}
+.box h2{font-family:var(--f-display);font-weight:400;font-size:18px;margin:0 0 8px;display:flex;justify-content:space-between;align-items:baseline;gap:8px}
+.box h2 small{font-family:var(--f-body);font-size:12px;color:var(--muted)}
+.karte{border-top:4px double var(--ink)}
+.karte dl{display:grid;grid-template-columns:auto 1fr;gap:4px 12px;margin:0}
+.karte dt{color:var(--muted);font-size:13px;padding-top:1px}
+.karte dd{margin:0;min-width:0}
+.howto ul{margin:0;padding-left:1.2em;display:grid;gap:4px;font-size:14px}
+.keys{margin:10px 0 0;font-size:13px;color:var(--muted)}
+kbd{font-family:var(--f-display);font-size:12px;border:1px solid var(--line);border-bottom-width:2px;border-radius:3px;padding:0 5px;background:var(--paper);color:var(--ink)}
+
+.zukan h2 span{font-family:var(--f-display);font-size:14px;color:var(--accent)}
+.zgroup{display:grid;gap:6px}
+.zgroup + .zgroup{margin-top:14px}
+.zgroup h3{font-size:13px;color:var(--muted);margin:0;font-weight:700;letter-spacing:.06em}
+.zgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,190px),1fr));gap:8px}
+.z{border:1px solid var(--line);border-radius:6px;padding:8px 10px;background:var(--paper);font-size:12.5px;line-height:1.55}
+.z b{display:block;font-family:var(--f-display);font-weight:400;font-size:15px;margin-bottom:2px}
+.z.lock{background:transparent;border-style:dashed;color:var(--muted)}
+.note{margin:10px 0 0;font-size:12px;color:var(--muted)}
+
+.modal{position:fixed;inset:0;z-index:20;display:grid;place-items:center;padding:16px;background:rgb(8 18 16 / .58);overflow:auto}
+.sheet{width:100%;max-width:740px;background:var(--panel);color:var(--ink);border-radius:8px;padding:20px;box-shadow:0 20px 50px rgb(0 0 0 / .3)}
+.rxhead{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:baseline;gap:4px 12px;border-bottom:4px double var(--ink);padding-bottom:6px;margin-bottom:12px}
+.rxhead h2{font-family:var(--f-display);font-weight:400;font-size:26px;margin:0;letter-spacing:.06em}
+.rxhead span{font-size:13px;color:var(--muted)}
+.rxhead.bad h2{color:var(--seal)}
+.ptline{font-size:14px;background:var(--paper);border:1px solid var(--line);border-radius:4px;padding:8px 12px;margin:0 0 12px}
+.cards{display:grid;gap:10px}
+.card{position:relative;text-align:left;font:inherit;color:inherit;background:var(--paper);border:1px solid var(--line);border-radius:6px;padding:12px;cursor:pointer;display:grid;gap:3px;line-height:1.5;align-content:start}
+.card:hover{border-color:var(--accent)}
+.card:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+.card .k{font-family:var(--f-display);font-size:12px;color:var(--muted)}
+.card .n{font-family:var(--f-display);font-size:19px}
+.card .r{font-size:13px;color:var(--accent);font-weight:700}
+.card .mg{font-family:var(--f-display);font-size:14px;color:var(--warn)}
+.card .t{font-size:13px;color:var(--muted)}
+.card:disabled{cursor:not-allowed}
+.card:disabled > span:not(.stamp){opacity:.45}
+.stamp{position:absolute;right:12px;top:10px;font-family:var(--f-display);color:var(--seal);border:3px solid var(--seal);border-radius:50%;width:62px;height:62px;display:grid;place-items:center;font-size:19px;transform:rotate(-14deg);animation:stamp .3s ease-out}
+@keyframes stamp{from{transform:rotate(-14deg) scale(2.2);opacity:0}to{transform:rotate(-14deg) scale(1);opacity:1}}
+.warn{color:var(--seal);font-size:14px;margin:12px 0 0}
+
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:8px;margin-bottom:6px}
+.stats div{background:var(--paper);border:1px solid var(--line);border-radius:4px;padding:6px 10px;display:grid}
+.stats span{font-size:12px;color:var(--muted)}
+.stats b{font-family:var(--f-display);font-weight:400;font-size:22px;font-variant-numeric:tabular-nums}
+.banner{margin:0 0 12px;padding:10px 14px;border-radius:6px;background:var(--night);color:#ffffff;font-family:var(--f-display);font-size:17px}
+.sheet h3{font-family:var(--f-display);font-weight:400;font-size:17px;margin:16px 0 6px}
+.sheet p{margin:0}
+.fxl{margin:0;display:grid;gap:8px}
+.fxl div{display:grid;grid-template-columns:minmax(0,10em) minmax(0,1fr);gap:2px 12px;font-size:14px}
+.fxl dt{font-weight:700;color:var(--seal)}
+.fxl dd{margin:0}
+.fxl .g{display:block;font-size:12.5px;color:var(--muted)}
+.grades{margin:0;padding:0;list-style:none;display:grid;gap:8px}
+.grades li{display:grid;grid-template-columns:2em minmax(0,1fr);gap:2px 10px;font-size:14px}
+.mark{font-family:var(--f-display);font-size:20px;line-height:1.2;text-align:center}
+.mark.g3{color:var(--accent)}.mark.g2{color:var(--accent)}.mark.g1{color:var(--warn)}.mark.g0{color:var(--seal)}
+.grades .q{font-size:12.5px;color:var(--muted);display:block}
+.doses{margin:0;padding-left:1.2em;display:grid;gap:4px;font-size:14px}
+@media (max-width:520px){.fxl div{grid-template-columns:minmax(0,1fr)}}
+.pts{margin:0;padding-left:1.2em;display:grid;gap:6px;font-size:14px}
+.actions{display:flex;flex-wrap:wrap;justify-content:flex-end;gap:10px;margin-top:18px}
+.muted{color:var(--muted)}
+@media (prefers-reduced-motion:reduce){.stamp{animation:none}canvas{transition:none}}
+</style>
+
+<div class="wrap">
+  <header class="top">
+    <p class="eyebrow">精神科専門医試験 × アクション　心理療法編</p>
+    <h1>曝露ランナー</h1>
+    <p class="lede">怖い場面に近づくと不安（SUDS）が上がり、足取りが重くなります。逃げずにとどまると、不安は少しずつ下がります。曝露療法・曝露反応妨害法・行動活性化を、体で覚えるゲームです。</p>
+  </header>
+
+  <nav class="tabs" id="tabs" aria-label="ステージを選ぶ"></nav>
+
+  <div class="main">
+    <section class="stage" aria-label="ゲーム画面">
+      <div class="hud">
+        <span class="hearts" id="hearts" aria-label="残りハート"></span>
+        <span class="suds" id="sudsbox" hidden><span id="slabel">不安</span><span class="smeter" id="smeter"><i id="sfill"></i></span><b id="sval">0</b></span>
+        <span class="water" id="waterbox">水分<span class="meter" id="meter"><i id="wfill"></i></span></span>
+        <span class="lv" id="lv" hidden>Li <b id="lvv">0.00</b> mEq/L</span>
+        <span class="chips" id="chips"></span>
+        <span class="hudbtns"><button type="button" class="sndbtn" id="snd" aria-pressed="true">♪ 音あり</button><button type="button" class="sndbtn" id="shk" aria-pressed="true">揺れ あり</button><button type="button" class="sndbtn" id="fsbtn" aria-pressed="false">全画面</button></span>
+      </div>
+      <div class="screen">
+        <canvas id="cv" width="960" height="540" aria-label="横スクロールのゲーム画面。怖い場面の前にとどまり、不安が下がるのを待ちながら右へ進む"></canvas>
+        <div class="toast" id="toast" hidden><b></b><span></span></div>
+        <div class="startov" id="startov">
+          <div>
+            <p class="stg" id="ovNo">第1面</p>
+            <p class="stn" id="ovName">統合失調症・急性期</p>
+            <button class="btn" id="startbtn" type="button">はじめる</button>
+            <p class="hint">はじめる前に、カルテを読んでおこう</p>
+          </div>
+        </div>
+      </div>
+      <div class="pad" id="pad">
+        <button type="button" data-k="l" aria-label="左へ">◀</button>
+        <button type="button" data-k="r" aria-label="右へ">▶</button>
+        <button type="button" data-k="j">ジャンプ</button>
+        <button type="button" data-k="act" id="actbtn" hidden>行動</button>
+      </div>
+      <div class="modal" id="modal" hidden><div class="sheet" id="sheet" role="dialog" aria-modal="true"></div></div>
+    </section>
+
+    <aside class="side">
+      <section class="box karte" aria-label="カルテ">
+        <h2>カルテ <small>不安階層表つき</small></h2>
+        <dl>
+          <dt>患者</dt><dd id="kWho"></dd>
+          <dt>経過</dt><dd id="kCourse"></dd>
+          <dt>主訴</dt><dd id="kCc"></dd>
+          <dt>既往歴</dt><dd id="kHx"></dd>
+          <dt id="kHistT" hidden>治療歴</dt><dd id="kHist" hidden></dd>
+          <dt id="kGoalT" hidden>希望</dt><dd id="kGoal" hidden></dd>
+          <dt id="kTestT" hidden>検査</dt><dd id="kTest" hidden></dd>
+          <dt id="kHierT" hidden>不安階層表</dt><dd id="kHier" hidden></dd>
+        </dl>
+      </section>
+      <section class="box howto">
+        <h2>遊び方</h2>
+        <ul>
+          <li>怖い場面の前には見えない壁があります。近づくほど不安が上がり、足取りが重くなります。</li>
+          <li>→を押していれば少しずつ進めます。手を離すと押し戻されます。壁の前で→を押し続け、不安が半分に下がると壁が消えます。</li>
+          <li>不安が強いほど、画面が揺れ、視野が狭まり、心拍が速くなります。頭に浮かぶ考え（自動思考）も出てきます。</li>
+          <li>途中で離れると「回避」。不安は元に戻り、次はもっと怖くなります。</li>
+          <li>光るアイテム（家族の腕・水・マスクなど）は安全行動。取るとその場は楽ですが、慣れが止まります。</li>
+          <li>強迫症・社交不安症の面では、<kbd>C</kbd>キー（「手を洗う」「目をそらす」ボタン）の誘惑に注意。</li>
+          <li>青い吹き出しのブロックは「できごと」。下から叩くと、治療の場面での判断を選びます。</li>
+          <li>うつ病の面は行動活性化。気分を待たずに、小さな活動から。</li>
+          <li>上級者モードは、不安の数字・解説・その場の採点を伏せます。</li>
+        </ul>
+        <p class="keys"><kbd>←</kbd> <kbd>→</kbd> 移動　<kbd>Space</kbd> / <kbd>↑</kbd> ジャンプ　<kbd>C</kbd> 手を洗う・目をそらす<br>選ぶ画面では <kbd>1</kbd>〜<kbd>4</kbd> でも選べます</p>
+      </section>
+    </aside>
+  </div>
+
+  <section class="box zukan" aria-label="図鑑">
+    <h2>図鑑 <span id="zcount"></span></h2>
+    <div id="zbody"></div>
+    <p class="note">図鑑とクリアの記録はこのブラウザに保存されます。</p>
+  </section>
+</div>
+
+
+<script>
+(()=>{
+'use strict';
+/*@EDITION*/const EDITION={loops:false,showMg:false,store:'bakuro-runner-v1',adv:'bakuro-adv'};
+const W=480,H=270,T=16,COLS=120,ROWS=17,FLAGX=113*T+6,MAXH=10;
+const PF='"DotGothic16","Hiragino Kaku Gothic ProN",monospace';
+const $=id=>document.getElementById(id);
+const cv=$('cv'),ctx=cv.getContext('2d');
+const modal=$('modal'),sheet=$('sheet'),toastEl=$('toast');
+let S=2;
+function resize(){const r=cv.getBoundingClientRect();const d=window.devicePixelRatio||1;S=Math.max(1,Math.min(4,Math.ceil((r.width||W)*d/W)));if(cv.width!==W*S){cv.width=W*S;cv.height=H*S;}}
+try{new ResizeObserver(resize).observe(cv)}catch(e){addEventListener('resize',resize)}
+resize();
+
+/* ========== 医学データ ========== */
+// fx: 副作用 {i:強さ, on:出るまでの秒, period:周期, dur:続く秒（慣れ）}  delay: 効果が出るまでの秒
+const DRUGS={
+  halo:{name:'ハロペリドール',cls:'定型・高力価',rec:'D2遮断 強',note:'陽性症状によく効く。錐体外路症状と悪性症候群に注意。',nms:true,contra:['pd'],fx:{parkinson:{i:1,on:3}}},
+  ola:{name:'オランザピン',cls:'MARTA',rec:'D2・5-HT2A・H1・M1 など多くを遮断',note:'鎮静がかかりやすい。体重増加・高血糖に注意。',contra:['dm'],fx:{weight:{i:1,on:2},sleepy:{i:.55,on:4,period:9}}},
+  ari:{name:'アリピプラゾール',cls:'DSS（D2部分作動薬）',rec:'D2部分作動・5-HT1A部分作動',note:'体重やプロラクチンへの影響が少ない。アカシジアが出やすい。',fx:{akathisia:{i:1,on:4}}},
+  que:{name:'クエチアピン',cls:'MARTA',rec:'H1・α1遮断 強、D2遮断 弱',note:'錐体外路症状は少ない。眠気と起立性低血圧に注意。',contra:['dm'],fx:{sleepy:{i:.85,on:3,period:6},ortho:{i:1,on:5}}},
+  ris:{name:'リスペリドン',cls:'SDA',rec:'D2・5-HT2A遮断',note:'用量が増えると錐体外路症状・高プロラクチン血症が出やすい。',fx:{parkinson:{i:.6,on:3}}},
+  cloz:{name:'クロザピン',cls:'治療抵抗性統合失調症の薬',rec:'D4・5-HT2A・H1・M1 など多くに作用',note:'無顆粒球症・心筋炎・耐糖能異常に注意。CPMSで血液検査。',fx:{sleepy:{i:.6,on:2,period:8},weight:{i:.6,on:3}}},
+  sert:{name:'セルトラリン',cls:'SSRI',rec:'セロトニン再取り込み阻害',note:'悪心などの消化器症状が飲み始めに出やすい。',delay:8,delayText:'2〜4週',act:true,fx:{nausea:{i:1,on:1,dur:20}}},
+  mir:{name:'ミルタザピン',cls:'NaSSA',rec:'α2遮断・5-HT2/5-HT3遮断・H1遮断',note:'悪心は少ない。眠気と体重増加が多い。',delay:8,delayText:'2〜4週',fx:{sleepy:{i:.7,on:2,period:7},weight:{i:.8,on:3}}},
+  ami:{name:'アミトリプチリン',cls:'三環系',rec:'5-HT・NA再取り込み阻害＋M1・H1・α1遮断',note:'抗コリン作用・起立性低血圧・心毒性。過量服薬で致死的になりうる。',delay:8,delayText:'2〜4週',contra:['mi','ur'],fx:{anticho:{i:1,on:2},ortho:{i:1,on:4},sleepy:{i:.4,on:5,period:10}}},
+  dul:{name:'デュロキセチン',cls:'SNRI',rec:'5-HT・NA再取り込み阻害',note:'悪心が多い。慢性疼痛にも使われる。',delay:8,delayText:'2〜4週',act:true,fx:{nausea:{i:1,on:1,dur:20}}},
+  li:{name:'炭酸リチウム',cls:'気分安定薬',rec:'治療域が狭い。血中濃度を測る',note:'振戦・多尿が多い。腎臓から排泄される。',delay:6,delayText:'1〜2週',contra:['ckd'],fx:{tremor:{i:.5,on:2},polyuria:{i:1,on:2}}},
+  vpa:{name:'バルプロ酸',cls:'気分安定薬（抗てんかん薬）',rec:'GABA増強など',note:'肝障害・高アンモニア血症・体重増加に注意。',delay:3,delayText:'数日',contra:['liver'],fx:{weight:{i:.6,on:3},tremor:{i:.3,on:4}}},
+  parox:{name:'パロキセチン',cls:'SSRI',rec:'セロトニン再取り込み阻害（抗コリン作用もやや）',note:'中断症候群が出やすい。CYP2D6を強く阻害する。',delay:8,delayText:'2〜4週',fx:{nausea:{i:1,on:1,dur:20},anticho:{i:.35,on:3}}},
+  alp:{name:'アルプラゾラム',cls:'ベンゾジアゼピン系抗不安薬',rec:'GABA-A受容体の働きを強める',note:'すぐ効く。眠気・ふらつき。長く使うと依存・耐性。',contra:['mg'],fx:{sleepy:{i:.4,on:2,period:9},ataxia:{i:.4,on:3}}},
+  cbt:{name:'認知行動療法',cls:'精神療法',rec:'曝露と、考え方のくせの修正',note:'副作用がない。効果が出るまで数週かかる。',delay:10,delayText:'数週',fx:{}},
+  env:{name:'原因の検索と環境調整',cls:'非薬物療法',rec:'脱水・感染・薬の見直し、照明・時計・家族の面会',note:'副作用がない。落ち着くまで少し時間がかかる。',delay:6,delayText:'数日',fx:{}},
+  brot:{name:'ブロチゾラム',cls:'ベンゾジアゼピン系睡眠薬',rec:'GABA-A受容体の働きを強める',note:'寝つきをよくする。',fx:{sleepy:{i:.5,on:1,period:8},ataxia:{i:.5,on:2}}},
+  diaz:{name:'ジアゼパム',cls:'長時間作用型ベンゾジアゼピン',rec:'GABA-A受容体の働きを強める',note:'作用が長く、離脱をなだらかに抑える。肝臓で代謝される。',contra:['mg'],fx:{sleepy:{i:.45,on:2,period:9},ataxia:{i:.35,on:3}}},
+  lora:{name:'ロラゼパム',cls:'中時間作用型ベンゾジアゼピン',rec:'GABA-A受容体の働きを強める',note:'グルクロン酸抱合だけで代謝され、肝障害でも使いやすい。',contra:['mg'],fx:{sleepy:{i:.35,on:2,period:9},ataxia:{i:.3,on:3}}},
+  assess:{name:'見立て',cls:'',fx:{}},
+  immuno:{name:'免疫療法',cls:'原因の治療',rec:'ステロイドパルス・免疫グロブリン・血漿交換',note:'',delay:4,delayText:'数週',fx:{}},
+  levo:{name:'レボチロキシン',cls:'甲状腺ホルモン',rec:'',note:'',delay:5,delayText:'数週',fx:{}},
+  donep:{name:'ドネペジル',cls:'コリンエステラーゼ阻害薬',rec:'アセチルコリンを増やす',note:'',delay:4,delayText:'数週',fx:{nausea:{i:.6,on:1,dur:12}}},
+  mmi:{name:'抗甲状腺薬（チアマゾール）',cls:'原因の治療',rec:'',note:'',delay:3,delayText:'数週',fx:{}},
+  alphab:{name:'α遮断薬と腫瘍の摘出',cls:'原因の治療',rec:'',note:'',delay:2,fx:{}},
+  abx:{name:'感染症の治療（抗菌薬）',cls:'原因の治療',rec:'',note:'',delay:2,fx:{}},
+  aed:{name:'抗てんかん薬',cls:'原因の治療',rec:'',note:'',fx:{sleepy:{i:.4,on:2,period:10}}},
+  thiamine:{name:'ビタミンB1の大量静注',cls:'原因の治療',rec:'',note:'',delay:2,fx:{}},
+  nafix:{name:'原因薬の中止とNaの緩徐な補正',cls:'原因の治療',rec:'',note:'',delay:3,fx:{}},
+  shunt:{name:'シャント手術',cls:'脳神経外科',rec:'',note:'',delay:3,fx:{}},
+  burr:{name:'穿頭血腫除去術',cls:'脳神経外科',rec:'',note:'',delay:2,fx:{}},
+  obs:{name:'経過観察（薬を使わない）',cls:'様子をみる',rec:'補液と観察のみ',note:'薬の副作用は出ない。',fx:{}},
+};
+const EXTRA={
+  bip:{name:'抗コリン薬（ビペリデンなど）',cls:'抗コリン性の抗パーキンソン薬'},pro:{name:'プロプラノロール',cls:'β遮断薬'},
+  tram:{name:'トラマドール',cls:'弱オピオイド'},loxo:{name:'ロキソプロフェン',cls:'NSAIDs'},apap:{name:'アセトアミノフェン',cls:'解熱鎮痛薬'},
+  cele:{name:'セレコキシブ',cls:'NSAIDs（COX-2選択的）'},mero:{name:'メロペネム',cls:'カルバペネム系抗菌薬'},ctrx:{name:'セフトリアキソン',cls:'セフェム系抗菌薬'},
+  lvfx:{name:'レボフロキサシン',cls:'ニューキノロン系抗菌薬'},hctz:{name:'ヒドロクロロチアジド',cls:'サイアザイド系利尿薬'},enal:{name:'エナラプリル',cls:'ACE阻害薬'},aml:{name:'アムロジピン',cls:'Ca拮抗薬'},
+  tria:{name:'トリアゾラム',cls:'ベンゾジアゼピン系睡眠薬'},diph:{name:'ジフェンヒドラミン',cls:'第一世代抗ヒスタミン薬'},rame:{name:'ラメルテオン',cls:'メラトニン受容体作動薬'},
+  glu:{name:'ブドウ糖液',cls:'補液'},thi:{name:'ビタミンB1（チアミン）',cls:'ビタミン'},nacl:{name:'生理食塩液',cls:'補液'},
+  acam:{name:'アカンプロサート',cls:'断酒補助薬'},disul:{name:'ジスルフィラム',cls:'抗酒薬'},nalm:{name:'ナルメフェン',cls:'飲酒量低減薬'},
+};
+// 2周目に表示する用量（日本の添付文書の通常用量をもとにした目安）
+const DOSE={
+  halo:{start:'1.5mg',up:'3mg',maint:'6mg',seCur:'3mg',seRed:'1.5mg',range:'1日0.75〜2.25mgで開始し漸増。維持量は1日3〜6mg'},
+  ola:{start:'10mg',up:'20mg',maint:'20mg',seCur:'10mg',seRed:'5mg',range:'1日5〜10mgで開始。維持量10mg、上限20mg'},
+  ari:{start:'12mg',up:'24mg',maint:'24mg',seCur:'12mg',seRed:'6mg',range:'1日6〜12mgで開始。維持量6〜24mg、上限30mg'},
+  que:{start:'75mg',up:'300mg',maint:'600mg',seCur:'300mg',seRed:'150mg',range:'1回25mgを1日2〜3回で開始し漸増。通常1日150〜600mg、上限750mg'},
+  ris:{start:'2mg',range:'1回1mgを1日2回で開始。維持量2〜6mg、上限12mg'},
+  cloz:{start:'12.5mg',range:'1日12.5mgで開始し漸増。維持量200〜400mg、上限600mg。CPMSへの登録と定期的な血液検査が必要'},
+  sert:{start:'25mg',up:'50mg',maint:'100mg',seCur:'50mg',seRed:'25mg',range:'1日25mgで開始し、上限100mg'},
+  mir:{start:'15mg',up:'30mg',maint:'45mg',seCur:'30mg',seRed:'15mg',range:'1日15mgを就寝前で開始。15〜30mg、上限45mg'},
+  ami:{start:'30mg',up:'75mg',maint:'150mg',seCur:'75mg',seRed:'30mg',range:'1日30〜75mgで開始し、150mgまで漸増（まれに300mg）'},
+  dul:{start:'20mg',up:'40mg',maint:'60mg',seCur:'40mg',seRed:'20mg',range:'1日20mgで開始し、1週間以上あけて20mgずつ増量。通常40mg、上限60mg'},
+  li:{start:'600mg',up:'800mg',maint:'800mg',seCur:'800mg',seRed:'600mg',range:'1日400〜600mgで開始し、通常1200mgまで漸増。血中濃度を見ながら調整'},
+  vpa:{start:'600mg',up:'1000mg',maint:'1200mg',seCur:'1000mg',seRed:'600mg',range:'躁病：1日400〜1200mgを2〜3回に分けて'},
+  'bp:ari':{start:'24mg',up:'30mg',maint:'30mg',seCur:'24mg',seRed:'12mg',range:'躁症状：1日24mgで開始。維持量12〜24mg、上限30mg'},
+  'mdd:ari':{start:'3mg',range:'うつ病の補助療法：1日3mgで開始。上限15mg'},
+  parox:{start:'10mg',up:'20mg',maint:'30mg',seCur:'20mg',seRed:'10mg',range:'パニック症：1日10mgで開始し、1週ごとに10mgずつ増量。上限30mg'},
+  alp:{start:'1.2mg',up:'2.4mg',range:'1日1.2mgを3回に分けて。上限2.4mg'},
+  cbt:{start:'週1回',range:'週1回、12〜16回程度が目安'},
+  'dlr:halo':{start:'0.75mg',range:'せん妄には適応外。0.75mg前後の少量から'},
+  'dlr:que':{start:'25mg',range:'せん妄には適応外。12.5〜25mgの少量から'},
+  brot:{start:'0.25mg',range:'1回0.25mgを就寝前'},
+  'alc:halo':{start:'1.5mg',range:'離脱そのものの治療にはならない'},
+  diaz:{start:'5mg×3回',range:'1回2〜5mgを1日2〜4回。離脱では症状に合わせて調整'},
+  lora:{start:'0.5mg×3回',range:'1日1〜3mgを2〜3回に分けて'},
+  acam:{start:'666mg×3回',range:'1回666mgを1日3回食後。高度の腎障害に禁忌'},
+  disul:{start:'0.1〜0.5g',range:'1日0.1〜0.5gを1〜3回に分けて'},
+  nalm:{start:'10mg',range:'飲酒の1〜2時間前に10mg。上限20mg'},
+};
+const CONTRA_WHY={
+  dm:'オランザピン・クエチアピンは、糖尿病の患者と糖尿病の既往がある患者に禁忌（日本の添付文書）。',
+  mi:'三環系抗うつ薬は心筋梗塞の回復初期に禁忌。不整脈・心伝導障害を起こしうる。',
+  ur:'三環系抗うつ薬は尿閉（前立腺疾患など）のある患者に禁忌。抗コリン作用で悪化する。',
+  ckd:'リチウムは腎障害のある患者に禁忌。排泄が遅れ、中毒を起こしやすい。',
+  'acam:ckd':'アカンプロサートは高度の腎障害のある患者に禁忌。',
+  liver:'バルプロ酸は重篤な肝障害のある患者に禁忌。',
+  pd:'ハロペリドールはパーキンソン病の患者に禁忌。',
+  mg:'ベンゾジアゼピン系は重症筋無力症の患者に禁忌（筋弛緩作用）。',
+};
+const cwhy=(id,tag)=>CONTRA_WHY[id+':'+tag]||CONTRA_WHY[tag];
+const FX={
+  parkinson:{label:'パーキンソニズム',game:'足が遅く、ジャンプが低くなる。体が小刻みに震える',why:'黒質線条体のD2遮断で起こる。動作緩慢・筋強剛・振戦・小刻み歩行。'},
+  akathisia:{label:'アカシジア',game:'じっとしていられず、手を離しても足が勝手に動く',why:'D2遮断で起こる静座不能。部分作動薬でも多い。焦燥が強まり、服薬中断の原因になる。'},
+  weight:{label:'体重増加',game:'だんだん体が大きくなり、ジャンプが低くなる',why:'H1・5-HT2C遮断で食欲が増す。高血糖・脂質異常も起こりやすい。'},
+  sleepy:{label:'眠気',game:'ときどき画面が暗くなる',why:'H1遮断やGABA-A作用による鎮静。'},
+  ortho:{label:'起立性低血圧',game:'止まった状態から動き出すと立ちくらみで暗転する',why:'α1遮断による。転倒・骨折の原因になる。'},
+  anticho:{label:'抗コリン作用',game:'画面がかすみ、水分が早く減る',why:'ムスカリン受容体遮断。霧視・口渇・便秘・尿閉。高齢者ではせん妄や認知機能低下。'},
+  dehyd:{label:'脱水',game:'水分ゲージが0になるとハートが減っていく',why:'脱水は悪性症候群の危険因子。リチウム濃度を上げ、せん妄の原因にもなる。'},
+  waterint:{label:'水中毒',game:'水を取りすぎると頭痛・嘔吐で動けなくなり、ハートが減る',why:'統合失調症では多飲水から水中毒（低ナトリウム血症）が起こりうる。頭痛・嘔吐・意識障害・けいれん。体重の日内変動で飲水量を見積もる。低ナトリウム血症を急に補正すると浸透圧性脱髄症候群を起こす。'},
+  nms:{label:'悪性症候群',game:'その場でゲームオーバー',why:'高熱・筋強剛・意識障害・自律神経症状・CK上昇。原因薬を中止し、補液・冷却、ダントロレン。'},
+  contra:{label:'禁忌',game:'ハートが1つ減り、その薬は選べない',why:'患者の背景で使えない薬がある。糖尿病（オランザピン・クエチアピン）、心筋梗塞の回復初期・尿閉（三環系）、腎障害（リチウム）、重篤な肝障害（バルプロ酸）、パーキンソン病（ハロペリドール）、重症筋無力症（ベンゾジアゼピン系）など。'},
+  delay:{label:'効果発現の遅れ',game:'飲んでもしばらくは症状を踏めない',why:'抗うつ薬は効果が出るまで2〜4週、リチウムの抗躁効果は1〜2週かかる。副作用のほうが先に出ることが多い。'},
+  nausea:{label:'悪心',game:'ときどき立ち止まって動けなくなる。しばらくすると慣れる',why:'SSRI・SNRIの飲み始めに多い（5-HT3受容体刺激）。1〜2週で軽くなることが多い。'},
+  manicsw:{label:'躁転',game:'急にダッシュして止まれなくなる',why:'抗うつ薬で躁病エピソードが誘発されること。双極症では抗うつ薬だけの治療を避ける。'},
+  activation:{label:'アクチベーション症候群',game:'急に勝手にダッシュして止まれない',why:'抗うつ薬の飲み始めや増量時の不安・焦燥・衝動性・不眠。24歳以下では自殺念慮・自殺企図のリスク増加に注意。'},
+  serotonin:{label:'セロトニン症候群',game:'体が勝手に跳ねて暴走し、ハートが減る',why:'セロトニン作動薬の併用（トラマドール・MAO阻害薬・トリプタン・リネゾリドなど）で起こる。精神状態の変化・発熱・発汗・頻脈・ミオクローヌス・反射亢進。原因薬を中止し、重症ではシプロヘプタジン。'},
+  gibleed:{label:'消化管出血',game:'ハートが1つ減る',why:'SSRI・SNRIとNSAIDsの併用で消化管出血のリスクが上がる。'},
+  tremor:{label:'振戦',game:'体が細かく震える',why:'リチウムやバルプロ酸で多い細かい振戦。粗大な振戦はリチウム中毒のサイン。'},
+  polyuria:{label:'多尿・口渇',game:'水分が1.6倍の速さで減る',why:'リチウムによる腎性尿崩症様の多尿。脱水になると血中濃度が上がる。'},
+  litox:{label:'リチウム中毒',game:'濃度1.5でふらつき、2.0でゲームオーバー',why:'粗大振戦・運動失調・構音障害・嘔吐・下痢・意識障害。NSAIDs・サイアザイド系利尿薬・ACE阻害薬・ARB・脱水で濃度が上がる。'},
+  vpadrop:{label:'バルプロ酸濃度の急低下',game:'倒せていた症状がまた踏めなくなる',why:'カルバペネム系抗菌薬とバルプロ酸は併用禁忌。バルプロ酸の血中濃度が急に下がり、症状の再燃やてんかん発作の原因になる。'},
+  ataxia:{label:'ふらつき',game:'ときどきよろける',why:'ベンゾジアゼピン系の筋弛緩作用・鎮静。高齢者では転倒・骨折の原因になる。'},
+  withdrawal:{label:'離脱症状・中断症候群',game:'画面が揺れ、ときどき動けなくなる',why:'ベンゾジアゼピン系：反跳性不安・不眠・振戦・けいれん。SSRI（特にパロキセチン）：めまい・耳鳴り・電気が走る感覚・焦燥。どちらも漸減して中止する。'},
+  relapse:{label:'再燃・再発',game:'しばらく症状が踏めなくなる',why:'寛解してすぐに治療をやめると再発しやすい。抗うつ薬は寛解後も半年〜1年続ける。'},
+  worse:{label:'せん妄の悪化',game:'症状が踏めなくなり、敵が速くなる',why:'ベンゾジアゼピン系と抗コリン薬はせん妄を悪化させる（アルコール離脱せん妄は例外）。'},
+  dlbsens:{label:'抗精神病薬への過敏性',game:'動きが極端に遅くなる',why:'レビー小体型認知症では、少量の抗精神病薬でも重いパーキンソニズムや意識障害が出ることがある。'},
+  wernicke:{label:'ウェルニッケ脳症',game:'視界が揺れ（眼振）、よろけてジャンプが低くなる',why:'ビタミンB1欠乏で起こる。眼球運動障害・運動失調・意識障害。ブドウ糖を先に入れると誘発される。'},
+  seizure:{label:'けいれん発作',game:'しばらく動けず、ハートが1つ減る',why:'アルコール離脱けいれんは最終飲酒から12〜48時間に多い。抗精神病薬はけいれん閾値を下げる。ベンゾジアゼピン系の急な中止でも起こる。'},
+};
+const GS={'◎':3,'○':2,'△':1,'×':0};
+const GC={'◎':'g3','○':'g2','△':'g1','×':'g0'};
+
+/* ---------- 2周目の「評価」で使う選択肢の部品 ---------- */
+const nm=id=>(DRUGS[id]||EXTRA[id]).name;
+function seLabel(m){const k=Object.keys(DRUGS[m].fx)[0];return k?FX[k].label:'副作用';}
+const P2={
+  up(R){const d=dose(G.main);
+    if(R==='partial')return {id:'up',name:`${d.up}に増量`,cls:'増量',mg:`${d.start} → ${d.up}`,g:'◎',why:'十分量に達していない。まず十分量まで増やしてから効果を判断する。',fn(){G.effLv=2;G.mg=d.up;scaleFx(1.15);return '増量で症状が改善してきた';}};
+    if(R==='none')return {id:'up',name:'上限まで増量',cls:'増量',mg:`${d.maint}から上限へ`,g:'△',why:'十分量・十分期間で反応がなければ、増量の効果は乏しい。',fn(){scaleFx(1.3);return '副作用が増えたが、症状はあまり変わらない';}};
+    return {id:'up',name:'さらに増量',cls:'増量',mg:`${d.seCur}から`,g:'×',why:'効いているのに増やすと、副作用が強くなるだけ。',fn(){scaleFx(1.4);return '副作用がさらに強くなった';}};},
+  sw(R,to,o={}){const d=dose(to);
+    const g=o.g||(R==='partial'?'△':'◎');
+    const why=o.why||(R==='partial'?'十分量を試す前の切り替えは早い。':R==='none'?'十分量・十分期間で効果がなければ、作用の異なる薬に切り替える。':'副作用のプロフィールが異なる薬に切り替える。');
+    return {id:'sw',name:`${nm(to)}に切り替え`,cls:'切り替え',mg:d.start?`${d.start}から`:'',g,why,fn(){switchTo(to);return R==='se'?'切り替えて副作用が軽くなった':'切り替えて症状が改善してきた';}};},
+  keep(R){const d=dose(G.main);
+    return R==='partial'?{id:'keep',name:'このまま様子をみる',cls:'継続',mg:`${d.start}のまま`,g:'△',why:'十分量に達していないので、改善は見込みにくい。',fn:()=>'症状は一部残ったまま'}
+      :{id:'keep',name:'このまま様子をみる',cls:'継続',mg:`${d.maint}のまま`,g:'×',why:'十分量・十分期間で無効なら、続けても改善は見込めない。',fn:()=>'症状は残ったまま'};},
+  red(g,why){const d=dose(G.main);
+    return {id:'red',name:`${d.seRed}に減量`,cls:'減量',mg:`${d.seCur} → ${d.seRed}`,g:g||'○',why:why||'用量に比例する副作用なら、効果を保てる範囲で減らす。',fn(){scaleFx(.45);G.mg=d.seRed;return '副作用が軽くなり、症状も落ち着いている';}};},
+};
+
+/* ========== ステージ ========== */
+/*@STAGES-BEGIN*/
+/*ICONS-BEGIN*/
+const IPAL={"k": "#2b2b2b", "w": "#ffffff", "b": "#b07a45", "B": "#6e4724", "s": "#f1c9a2", "S": "#d39a6a", "r": "#d0453f", "R": "#8e2a26", "y": "#efc944", "Y": "#b8901c", "g": "#56a35f", "G": "#2f6e3a", "u": "#4f86c6", "U": "#a9d0f0", "n": "#3a4556", "e": "#8c9799", "E": "#d5dcdc", "o": "#e58d3e", "p": "#ef9fb6", "c": "#7a5a3a", "m": "#efe6cf"};
+const ICONS={
+'写真':["kkkkkkkkkkkk", "kwwwwwwwwwwk", "kwUUUUUUUUwk", "kwUBUUUUBUwk", "kwUBbbbbBUwk", "kwUbkbbkbUwk", "kwUbbbbbbUwk", "kwUUbkkbUUwk", "kwggbbbbggwk", "kwwwwwwwwwwk", "kwwwwwwwwwwk", "kkkkkkkkkkkk"],
+'子犬':["............", "..B......B..", "..BBbbbbBB..", "...bkbbkb...", "...bbbbbb...", "....bkkb....", "e.e.e.e.e.e.", "eeeeeeeeeeee", "e.e.e.e.e.e.", "e.e.e.e.e.e.", "eeeeeeeeeeee", "e.e.e.e.e.e."],
+'犬':["..........r.", ".........r..", ".B......r...", "BBb....r....", "bkbb..r....b", "kbbbrr.....b", ".bbbbbbbbbb.", "..bbbbbbbbb.", "..bbbbbbbb..", "..b..b..b.b.", "..b..b..b.b.", "............"],
+'なでる':["....ssssss..", "...sSsSsSss.", "..Bsssssss..", "..BbbbbbbB..", ".BbbbbbbbbB.", ".bbkbbbbkbb.", ".bbbbbbbbbb.", "..bbbkkbbb..", "..bbbbbbbb..", "...bbppbb...", "....bbbb....", "............"],
+'動悸':["............", ".rrr....rrr.", "rrrrr..rrrrr", "rrwrrrrrrrrr", "rwrrrrrrrrrr", "rrrrrrrrrrrr", ".rrrrrrrrrr.", "..rrrrrrrr..", "...rrrrrr...", "....rrrr....", ".....rr.....", "............"],
+'駅':["............", "kkkkkkkkkkkk", "kwwwwwwwwwwk", "kwkkwkwkkkwk", "kwwwwwwwwwwk", "kuuuuuuuuuuk", "kkkkkkkkkkkk", "..e......e..", "..e......e..", "..e......e..", "yyyyyyyyyyyy", "eeeeeeeeeeee"],
+'電車':["............", "..kkkkkkkk..", ".kggggggggk.", ".kUUUkkUUUk.", ".kUUUkkUUUk.", ".kggggggggk.", ".kgwggggwgk.", ".kggggggggk.", ".kkkkkkkkkk.", "..k......k..", "eeeeeeeeeeee", "............"],
+'急行':["............", "....kkkkkkk.", "...krrrrrrk.", "..kUUUUkUUk.", ".kUUUUUkUUk.", "krrrrrrrrrk.", "kwrrrrrrrrk.", "krrrrrrrrrk.", "kkkkkkkkkkk.", "..k.....k...", "eeeeeeeeeeee", "............"],
+'ドア':["..kkkkkkkk..", "..kbbbbbbk..", "..kbBBBBbk..", "..kbBbbBbk..", "..kbBBBBbk..", "..kbbbbyyk..", "..kbbbbyYk..", "..kbBBBBbk..", "..kbBbbBbk..", "..kbBBBBbk..", "..kbbbbbbk..", "eeeeeeeeeeee"],
+'つり革':["eeeeeeeeeeee", ".....kk.....", ".....uu.....", ".....uu.....", ".....uu.....", ".....uu.....", "....kuuk....", "...kk..kk...", "..kk....kk..", "..k......k..", "..kk....kk..", "...kkkkkk..."],
+'トイレ':["............", "..uu....rr..", "..uu....rr..", "............", ".uuuu..rrrr.", ".uuuu..rrrr.", ".uuuu.rrrrrr", ".uuuu.rrrrrr", "..uu....rr..", "..uu....rr..", "..uu....rr..", "............"],
+'パン':["............", "..oooooooo..", ".ommmmmmmmo.", "ommmmmmmmmmo", "ommmmmmmmmmo", ".ommmmmmmmo.", ".ommmmmmmmo.", ".ommmmmmmmo.", ".ommmmmmmmo.", ".oooooooooo.", ".g..G...g.G.", "G..g..G...g."],
+'店':["............", "rwrwrwrwrwrw", "rwrwrwrwrwrw", ".kkkkkkkkkk.", ".kUUUkkmmmk.", ".kUUUkkmmmk.", ".kkkkkkmmmk.", ".kmmmmkmymk.", ".kmmmmkmmmk.", ".kkkkkkkkkk.", "eeeeeeeeeeee", "............"],
+'ゼミ':["...kkkkkkk..", "...kwwwwwk..", "...kwkwkwk..", "...kwwwwwk..", "...kkwkkkk..", "..BB.k......", ".BssB.......", ".BssB...BB..", "..ss...BssB.", ".uuuu..BssB.", ".uuuu...gg..", ".uuuu..gggg."],
+'演台':["............", "....BBBB....", "...BssssB...", "....skks.k..", "....ssss.k..", "..uuuuuuuu..", ".kkkkkkkkkk.", "..kcccccck..", "..kccyycck..", "..kcccccck..", "..kcccccck..", ".kkkkkkkkkk."],
+'交差点':["............", ".kkkkkkkkkk.", ".krrkYYkGGk.", ".krrkYYkGGk.", ".kkkkkkkkkk.", ".....kk.....", ".....kk.....", "............", "nnnnnnnnnnnn", "wwnwwnwwnwwn", "wwnwwnwwnwwn", "nnnnnnnnnnnn"],
+'記憶':["...kkkkk....", ".kkEEEEEkk..", "kEEEeeeEEEk.", "kEEeRReeEEk.", "kEEeReReEEEk", "kEEEeeeeEEk.", ".kkEEEEEkk..", "...kkkkk....", "...kk.......", "..kEEk......", "...kk.......", ".kk........."],
+'車':["............", "............", "...kkkkkk...", "..kUUkUUUk..", ".kkUUkUUUkk.", "kuuuuuuuuuuk", "kuuuuuuuuuyk", "kkkkkkkkkkkk", "..kkk..kkk..", "..kek..kek..", "..kkk..kkk..", "............"],
+'窓':["kkkkkkkkkkkk", "kpUUUUUUUUpk", "kppUUyyUUppk", "kppUyyyyUppk", "kppUUyyUUppk", "kpUUUUUUUUpk", "kpkkkkkkkkpk", "kppUUUUUUppk", "kpUUUUUUUUpk", "kpUUUUUUUUpk", "kkkkkkkkkkkk", "eeeeeeeeeeee"],
+'散歩':["............", "............", "...kkkk.....", "...kuuk.....", "...kuuk.....", "...kuukkk...", "..kuuuuuukk.", ".kuuuwuwuuuk", ".kwwwwwwwwwk", ".kkkkkkkkkkk", "............", "g.g.g.g.g.g."],
+'連絡':["..kkkkkkkk..", "..kwwwwwwk..", "..kwgggwwk..", "..kwgggwwk..", "..kwwwUUwk..", "..kwwwUUwk..", "..kwgggwwk..", "..kwwwwwwk..", "..kwwwwwwk..", "..kkkkkkkk..", "..kkkeekkk..", "............"],
+'料理':["....e..e....", "...e..e.....", "....e..e....", "............", ".kkkkkkkkkk.", "kkeeeeeeeekk", ".keeeeeeeek.", ".keeeeeeeek.", ".keeeeeeeek.", "..kkkkkkkk..", "...ror.ror..", "....r...r..."],
+'腕':["............", "............", "kkkkkkkk....", "uuuuuuuukss.", "uusSsSuukssk", "uussssuuksss", "uussssuukss.", "kkssssk.....", "..ssss......", "..ssss......", "..gggg......", "..gggg......"],
+'目':["............", "............", "............", "k..........k", ".kk......kk.", "..kkkkkkkk..", ".k..k..k..k.", "k...k..k...k", "............", "............", "............", "............"],
+'水':["....uuuu....", "....kkkk....", "...kUUUUk...", "..kUUUUUUk..", "..kwUUUUUk..", "..kUUUUUUk..", "..kuuuuuuk..", "..kuwwwwuk..", "..kuuuuuuk..", "..kUUUUUUk..", "..kUUUUUUk..", "..kkkkkkkk.."],
+'薬':["............", "............", "............", "..kkkkkkkk..", ".krrrrwwwwk.", ".krwrrwwwwk.", ".krrrrwwwwk.", "..kkkkkkkk..", "............", "....kkkk....", "...kwwwwk...", "....kkkk...."],
+'出':["kkkkkkkkkkkk", "kgggggggwwgk", "kgggggggwwgk", "kggggwwwwggk", "kgggwgwwgwgk", "kggggggwwggk", "kgggggwwwwgk", "kggggwwggwgk", "kgggwwggggwk", "kgggwggggggk", "kkkkkkkkkkkk", "............"],
+'マ':["............", "............", "............", "..kkkkkkkk..", "e.kwwwwwwk.e", "eekwEEEEwkee", "e.kwwwwwwk.e", "eekwEEEEwkee", "e.kwwwwwwk.e", "..kkkkkkkk..", "............", "............"],
+'原':["..kkkkkkk...", "..kwwwwwkk..", "..kweeewwk..", "..kwwwwwwk..", "..kweeeewk..", "..kwwwwwwk..", "..kweeewwk..", "..kwwwwwwk..", "..kweeeewk..", "..kwwwwwwk..", "..kkkkkkkk..", "............"],
+'止':["............", "...kkkkk....", ".kkEEEEEkk..", "kErEEEEErEk.", "kEErEEErEEk.", "kEEErErEEEk.", "kEEEErEEEEk.", "kEEErErEEEk.", ".kkrkkkrkk..", "...kkkkk....", "............", "............"],
+'酒':["..kkkkkk....", ".kwwwwwwk...", ".kwwwwwwk...", ".kyyyyyyk...", ".kyyyyyykkk.", ".kyywyyyk.k.", ".kyywyyyk.k.", ".kyyyyyykkk.", ".kyyyyyyk...", ".kyyyyyyk...", ".kkkkkkkk...", "............"],
+'布':["............", "............", "............", ".BBB........", "BBssB.......", "BsksBkkkkk..", "wwwwkuuuuukk", "wwwkuuUuuUuk", "kkkuuuuuuuuk", "kkkkkkkkkkkk", "............", "............"],
+'携':["..kkkkkkkk..", "..kUUUUUUk..", "..kUwwwwUk..", "..kUUUUUUk..", "..kUwwwUUk..", "..kUUUUUUk..", "..kUwwwwUk..", "..kUUUUUUk..", "..kUwwUUUk..", "..kUUUUUUk..", "..kkkeekkk..", "............"],
+'家族':["............", "..BB....BB..", ".BssB..BssB.", ".BssB..BssB.", "..ss....ss..", ".uuuu..pppp.", "uuuuussppppp", ".uuuu..pppp.", ".uuuu.pppppp", ".u..u..p..p.", ".u..u..p..p.", "............"],
+'階層':["............", ".........RR.", ".........RR.", "......rr.RR.", "......rr.RR.", "...oo.rr.RR.", "...oo.rr.RR.", "yy.oo.rr.RR.", "yy.oo.rr.RR.", "yy.oo.rr.RR.", "kkkkkkkkkkkk", "............"],
+'手洗い':["..eeeee.....", "....e.......", "..eeeeeee...", "..eeeeeeee..", ".......ee...", ".......UU...", "......U.U...", ".......U....", ".sss..U..sss", "sssS....Ssss", ".sss.UUU.sss", "............"],
+'計画':["..k.....k...", "kkkkkkkkkkkk", "krrrrrrrrrrk", "kwwwwwwwwwwk", "kwgwwewwewwk", "kwwwwwwwwwwk", "kwewwgwwewwk", "kwwwwwwwwwwk", "kwgwwewwgwwk", "kwwwwwwwwwwk", "kkkkkkkkkkkk", "............"]
+};
+/*ICONS-END*/
+// 曝露ランナー：怖い場面の前の見えない壁に、不安が半分に下がるまでとどまる
+const XL4={pits:[[30,31],[74,75],[96,97]],bricks:[[25,28,12],[45,48,12],[68,71,12],[89,91,12]],pillars:[[35,1],[57,2],[80,1]],rx:null,adj:[53,11],walkers:[],floaters:[],waters:[],cps:[2]};
+const XL3={pits:[[36,37],[64,65],[96,97]],bricks:[[30,33,12],[44,46,12],[84,87,12]],pillars:[[40,1],[70,1]],rx:null,adj:[60,11],walkers:[],floaters:[],waters:[],cps:[2]};
+const XS=o=>Object.assign({water:'none',rxWhat:'',drugs:[],cloud:'rgba(255,255,255,.75)',walker:{skin:'eye',vx:0,label:''},floater:{skin:'voice',speed:1,amp:0,label:'',txt:[]}},o);
+const OPT=(name,cls,g,why,fn)=>({name,cls,g,why,fn:fn||(()=>'')});
+function expoAvoidChoice(msg){G.avoid++;expoMark('a');cp('avoid');const g=expoCur();if(g)g.sens=Math.min(1.5,g.sens*1.2);return msg||'避けたぶん、次の場面がもっと怖くなった';}
+function expoSafeChoice(sec){G.safeT=sec||12;G.safeN++;expoMark('s');cp('safety');return 'その場は楽。でも、しばらく慣れが止まる';}
+const STAGES=[
+XS({id:'dog',no:1,expo:'anx',music:'anx',name:'限局性恐怖症（犬）',short:'犬恐怖',L:XL4,fear:'dog',thoughts:['かまれる！','逃げたい','襲ってくる','もう無理'],calm:['あれ…何も起きない','思ったより平気'],
+ sky:['#a8cfd5','#e7f0ea'],bld:['#b4cdca','#d6e5e1'],
+ patients:[{who:'26歳 女性',course:'小学生のとき犬にかまれてから',cc:'「犬がいる道は通れない。散歩中の犬を見ると引き返す」',hx:'特記事項なし',tags:[]}],
+ gates:[{x:20,label:'犬の写真を見る',ic:'写真',int:35},{x:42,label:'柵ごしの子犬',ic:'子犬',int:50,cue:'bark'},{x:64,label:'リードの犬のそば',ic:'犬',int:70,cue:'bark'},{x:86,label:'犬をなでる',ic:'なでる',int:90,cue:'bark'}],
+ safety:[[13,13,'家族の腕','腕'],[37,13,'目をつぶる','目'],[59,13,'家族の腕','腕']],
+ pre(){return {title:'不安階層表',ic:'階層',line:'怖い場面を、不安の強さ（SUDS 0〜100）の順に並べた。どこから始める？',opts:[
+   OPT('犬の写真（SUDS 35）から順に','段階的曝露','◎','耐えられる程度の場面から始め、少しずつ強い場面へ進む。',()=>{cp('hier');cp('graded');return '写真から始めよう';}),
+   OPT('いきなり犬をなでる（SUDS 90）','フラッディング','△','効果はあるが負担が大きく、中断しやすい。本人の同意と十分な説明が必要。',()=>{cp('hier');cp('flood');expoFlood();return '最も怖い場面から始める';}),
+   OPT('不安がなくなるまで、犬を避けて待つ','回避','×','避けているあいだ不安は下がらない。回避が恐怖を保つ。',()=>{cp('hier');G.gates.forEach(g=>g.sens=1.15);return expoAvoidChoice('避けていたぶん、怖さが増した');}),
+   OPT('抗不安薬を飲んでから練習する','ベンゾジアゼピン系','△','薬で不安を抑えると、曝露の学習が起きにくいことがある。',()=>{cp('hier');G.habK=.6;return '慣れるのに時間がかかりそう';})]};},
+ event(){return {title:'家族のひとこと',ic:'家族',line:'練習を見ていた家族が「怖いなら無理しなくていいよ」と言う。',opts:[
+   OPT('仕組みを家族にも説明し、回避を後押ししないよう頼む','心理教育','◎','家族の「無理しなくていい」は、善意でも回避を強める。仕組みを共有して協力してもらう。',()=>{G.habK*=1.15;return '家族も応援してくれるようになった';}),
+   OPT('家族の言うとおり、今日はここまでにする','回避','×','回避すると恐怖が保たれる。',()=>expoAvoidChoice()),
+   OPT('家族にずっと腕をつかませてもらう','安全行動','△','付き添いは最初の一歩にはよいが、頼り続けると慣れが起きにくい。',()=>expoSafeChoice(12))]};},
+ points(){return ['曝露療法は、怖い場面にとどまり、不安が自然に下がる（馴化する）まで待つ。不安そのものは危険ではない。','不安階層表を作り、耐えられる程度の場面から段階的に進めることが多い（段階的曝露）。','逃げる（回避）と、その場の不安は下がるが恐怖は保たれる（負の強化）。安全行動も学習を妨げる。'];}}),
+XS({id:'panic',no:2,expo:'anx',music:'anx',name:'パニック症・広場恐怖',short:'パニック症',L:XL4,fear:'panic',thoughts:['心臓が止まる？','倒れそう','息ができない','逃げられない'],calm:['波が引いてきた','発作は過ぎ去る'],
+ sky:['#b9c4e6','#eef0fa'],bld:['#c3c9e2','#e3e6f4'],
+ patients:[{who:'31歳 男性',course:'半年前、電車の中で突然の動悸と息苦しさ。それから電車に乗れない',cc:'「また発作が起きたら逃げられない」',hx:'心電図・甲状腺機能は正常（身体疾患は除外ずみ）',tags:[]}],
+ gates:[{x:20,label:'その場で駆け足（動悸）',ic:'動悸',int:45,type:'intero',cue:'heart'},{x:42,label:'駅のホームに立つ',ic:'駅',int:55,cue:'train'},{x:64,label:'各駅停車で1駅',ic:'電車',int:70,cue:'train'},{x:86,label:'急行に乗る',ic:'急行',int:90,cue:'train'}],
+ safety:[[13,13,'水のボトル','水'],[37,13,'頓服の薬','薬'],[59,13,'出口のそば','出'],[79,13,'水のボトル','水']],
+ pre(){return {title:'最初の練習',ic:'動悸',line:'心理教育で「パニック発作は危険ではなく、時間とともにおさまる」と説明した。最初の練習は？',opts:[
+   OPT('体の感覚に慣れる練習（内部感覚曝露）から','内部感覚曝露','◎','動悸・息切れなど発作に似た感覚をわざと起こし、「感覚＝危険」という結びつきを弱める。',()=>{cp('hier');cp('graded');return 'まずは体の感覚から';}),
+   OPT('いきなり急行に乗る','フラッディング','△','効果はあるが負担が大きく、中断しやすい。',()=>{cp('hier');cp('flood');expoFlood();return '最も怖い場面から始める';}),
+   OPT('水と頓服の薬を必ず持って練習する','安全行動','×','「薬があったから大丈夫だった」と学習し、薬なしではまた怖くなる。',()=>expoSafeChoice(20)),
+   OPT('発作が怖いので、しばらく外出を控える','回避','×','回避が広場恐怖を強める。',()=>{G.gates.forEach(g=>g.sens=1.15);return expoAvoidChoice('外出を避けたぶん、怖さが増した');})]};},
+ event(){return {title:'練習の途中で',ic:'電車',line:'電車の中で、発作が来そうな感じがした。',opts:[
+   OPT('発作は数分でピークを越える。降りずに、とどまって様子をみる','とどまる','◎','パニック発作は数分以内にピークに達し、時間とともにおさまる。とどまることで「発作は危険ではない」と学習する。',()=>{G.habK*=1.15;return 'しばらくすると、波が引いていった';}),
+   OPT('すぐ次の駅で降りる','回避','×','降りるとその場は楽になるが、「降りたから助かった」と学習する。',()=>expoAvoidChoice()),
+   OPT('頓服の薬を飲む','安全行動','△','頓服に頼り続けると、慣れが起きにくい。',()=>expoSafeChoice(12))]};},
+ points(){return ['パニック症の認知行動療法では、心理教育・内部感覚曝露（動悸などの体の感覚をわざと起こす）・状況への曝露を組み合わせる。','パニック発作は数分以内にピークに達し、時間とともにおさまる。','水や薬を持ち歩く、出口の近くにいるなどの安全行動は、「それがあったから助かった」という思い込みを強める。'];}}),
+XS({id:'ocd',no:3,expo:'anx',music:'anx',name:'強迫症（汚染恐怖）',short:'強迫症',L:XL4,fear:'ocd',thoughts:['菌がうつる','洗わなきゃ','病気になる','汚い…'],calm:['洗わなくても下がった','気にならなくなってきた'],
+ sky:['#c9dcd2','#f0f5f1'],bld:['#c2d4ca','#e3ece6'],
+ patients:[{who:'22歳 女性',course:'大学に入ってから汚れが気になり、手洗いが1日に何十回も',cc:'「手を洗わないと、病気がうつる気がして止まらない」',hx:'特記事項なし',tags:[]}],
+ gates:[{x:20,label:'ドアノブにさわる',ic:'ドア',int:40},{x:42,label:'電車のつり革にさわる',ic:'つり革',int:55},{x:64,label:'公衆トイレのドアにさわる',ic:'トイレ',int:70},{x:86,label:'床にふれた手でパンを食べる',ic:'パン',int:85}],
+ safety:[],
+ act:{label:'手を洗う',kind:'comp',urge:'手を洗いたい！',why:'強迫行為をすると、その場の不安は下がるが、不安が自然に下がる学習が起きず、強迫が続く。'},
+ pre(){return {title:'曝露反応妨害法の約束',ic:'手洗い',line:'練習のルールを本人と決める。',opts:[
+   OPT('さわったあと手を洗わず、不安が下がるのを待つ','曝露反応妨害法','◎','不安を起こす場面にふれ（曝露）、強迫行為をしない（反応妨害）。',()=>{cp('hier');return '手を洗わずに待つ練習をしよう';}),
+   OPT('さわったら、すぐ手を洗ってよいことにする','強迫行為','×','すぐ洗うと、不安が自然に下がる体験ができない。',()=>{cp('hier');G.habK=.5;return '慣れるのに時間がかかりそう';}),
+   OPT('家族に「大丈夫？」と確かめてよいことにする','保証の求め','×','保証を求めることも強迫行為の一つ。',()=>{cp('hier');cp('reass');G.gates.forEach(g=>g.sens=1.1);return '確認したくなる気持ちが強まった';}),
+   OPT('薬（SSRI）だけで様子をみる','薬物療法','△','SSRIは強迫症に有効だが、曝露反応妨害法と組み合わせると効果が高い。',()=>{cp('hier');return '練習は続けることにした';})]};},
+ event(){return {title:'家族の対応',ic:'家族',line:'本人が家族に「手は汚れてないよね？大丈夫だよね？」と何度も確認する。家族はどうする？',opts:[
+   OPT('保証はせず、「不安が下がるのを一緒に待とう」と返す','巻き込まれない','◎','保証は強迫を続ける燃料になる。家族も巻き込まれないよう協力してもらう。',()=>{cp('reass');G.habK*=1.15;return '家族の協力で、不安が下がりやすくなった';}),
+   OPT('毎回「大丈夫」と答えて安心させる','保証','×','その場は落ち着くが、確認がやめられなくなる。',()=>{cp('reass');const g=expoCur();if(g)g.sens=Math.min(1.5,g.sens*1.2);G.compN++;expoMark('k');return '確認したい気持ちが強まった';}),
+   OPT('家族が代わりに手を洗ってあげる','巻き込まれ','×','家族が強迫行為を手伝うと、症状が続く。',()=>{const g=expoCur();if(g)g.sens=Math.min(1.5,g.sens*1.2);G.compN++;expoMark('k');return '強迫が強まった';})]};},
+ points(){return ['強迫症の認知行動療法は曝露反応妨害法（ERP）。不安を起こす場面にふれ、手洗いや確認などの強迫行為をしない。','強迫行為や「大丈夫？」と保証を求めることは、その場の不安を下げるが、強迫を続ける燃料になる。家族にも巻き込まれないよう協力を頼む。','薬物療法ではSSRIを使う。うつ病より高用量・長期間が必要なことが多い。'];}}),
+XS({id:'social',no:4,expo:'anx',music:'anx',name:'社交不安症',short:'社交不安',L:XL3,fear:'social',thoughts:['変だと思われてる','声が震えてる','顔が赤い','笑われる'],calm:['誰も気にしてない','思ったより話せた'],
+ sky:['#d9cbe6','#f4eff8'],bld:['#d2c5df','#ece4f2'],
+ patients:[{who:'19歳 男性',course:'高校のころから、人前で話すと声が震えて顔が赤くなる',cc:'「変に思われるのが怖くて、授業で発表できない」',hx:'特記事項なし',tags:[]}],
+ gates:[{x:26,label:'店員に質問する',ic:'店',int:40,cue:'whisper'},{x:52,label:'ゼミで一言話す',ic:'ゼミ',int:60,cue:'whisper'},{x:80,label:'人前でスピーチ',ic:'演台',int:85,cue:'whisper'}],
+ safety:[[18,13,'マスク','マ'],[46,13,'原稿','原'],[73,13,'マスク','マ']],
+ act:{label:'目をそらす',kind:'look',urge:'目をそらしたい…',why:'目をそらす・下を向くなどの安全行動は、その場の不安を下げるが、「ちゃんと話せた」という学習を妨げる。'},
+ pre(){return {title:'練習の前に',ic:'演台',line:'人前で話す練習を始める。準備はどうする？',opts:[
+   OPT('「声が震えたら笑われる」という予測を書き、練習のあとで確かめる','行動実験','◎','予測と実際の結果を比べることで、「思ったほどひどくない」と学習する。',()=>{cp('hier');cp('behexp');return '予測を書いてから始めよう';}),
+   OPT('原稿を読み、目を合わせずに臨む','安全行動','×','安全行動があると、「ちゃんと話せた」という学習が起きにくい。',()=>{cp('hier');return expoSafeChoice(15);}),
+   OPT('自信がつくまで、人前で話す練習はしない','回避','×','回避が不安を保つ。',()=>{cp('hier');G.gates.forEach(g=>g.sens=1.15);return expoAvoidChoice('避けたぶん、怖さが増した');}),
+   OPT('お酒を少し飲んでから臨む','安全行動','×','アルコールも安全行動になり、依存の危険もある。',()=>{cp('hier');G.habK=.6;return '慣れるのに時間がかかりそう';})]};},
+ event(){return {title:'練習のあとで',ic:'ゼミ',line:'ゼミのあと、本人は「みんな変に思ったはず」と言う。',opts:[
+   OPT('録画や周りの反応で、予測と実際を比べる','行動実験','◎','予測と結果のずれに気づくと、不安が下がりやすくなる。',()=>{cp('behexp');G.habK*=1.15;return '思ったほど変ではなかった';}),
+   OPT('「考えすぎだよ」と励ますだけ','励まし','△','励ましだけでは、本人の予測は変わりにくい。',()=>'少しは楽になった'),
+   OPT('次からは発表を避ける','回避','×','回避が不安を保つ。',()=>expoAvoidChoice())]};},
+ points(){return ['社交不安症の認知行動療法では、人前の場面への曝露と、「失敗したら笑われる」などの予測を確かめる行動実験を組み合わせる。','目をそらす・原稿を読み上げる・マスクで隠すなどの安全行動は、不安を保つ。','薬物療法ではSSRIが使われる。'];}}),
+XS({id:'ptsd',no:5,expo:'anx',music:'dlr',name:'PTSD（心的外傷後ストレス障害）',short:'PTSD',L:XL3,fear:'ptsd',thoughts:['またあの場面が…','危ない！','体が固まる','思い出したくない'],calm:['あれは過去のこと','今はここにいる'],
+ sky:['#a9b4c8','#e3e7ee'],bld:['#aeb8c9','#d5dbe5'],
+ patients:[
+  {who:'38歳 女性',course:'1年前に交通事故。それから車に乗れず、事故の場面が何度もよみがえる',cc:'「眠れない。事故があった交差点に近づけない」',hx:'特記事項なし（今は安全に暮らしている）',tags:[],
+   gates:[{x:26,label:'事故現場の交差点へ（現実曝露）',ic:'交差点',int:60},{x:52,label:'事故の記憶を語る（想像曝露）',ic:'記憶',int:70},{x:80,label:'車の助手席に乗る',ic:'車',int:85}]},
+  {who:'34歳 女性',course:'夫からの暴力が続いている。暴力の場面がよみがえり、眠れない',cc:'「物音がするとびくっとする」',hx:'特記事項なし（夫と同居中）',tags:['unsafe'],
+   gates:[{x:26,label:'避けていた店へ行く（現実曝露）',ic:'店',int:55},{x:52,label:'暴力の記憶を語る（想像曝露）',ic:'記憶',int:75},{x:80,label:'記憶を最後まで語る',ic:'記憶',int:85}]}],
+ safety:[[18,13,'思い出さない','止'],[46,13,'お酒','酒'],[73,13,'思い出さない','止']],
+ pre(){const u=G.pt.tags.includes('unsafe');return {title:'治療を始める前に',ic:u?'家族':'交差点',line:u?'夫からの暴力は、今も続いている。':'事故から1年。今は安全な生活を送っている。',opts:[
+   OPT('持続エクスポージャー療法を始める','想像曝露・現実曝露',u?'×':'◎',u?'危険が続いている状況では、まず安全の確保。曝露はそのあとに。':'安全な状況なら、トラウマに焦点を当てた治療（持続エクスポージャー療法など）が勧められる。',
+     ()=>{cp('hier');cp('pe');if(u){G.hearts-=3;sfx('hurt');return '危険が続く中で曝露をして、症状が悪化した';}return '治療を始めた';}),
+   OPT('まず安全を確保し、支援につなぐ','安全の確保',u?'◎':'△',u?'避難・相談窓口・警察などと連携し、安全な環境を整えてから治療する。':'今は安全なので、曝露を始めてよい。',()=>{cp('hier');cp('safefirst');return u?'安全な場所に移った。ここから治療を始める':'安全を確かめた';}),
+   OPT('思い出さないように指導する','回避','×','回避はPTSDの症状を長引かせる。',()=>{cp('hier');G.gates.forEach(g=>g.sens=1.15);return expoAvoidChoice('避けるほど怖さが増した');}),
+   OPT('ベンゾジアゼピン系で落ち着かせる','薬物療法','×','PTSDにはベンゾジアゼピン系は勧められない。薬物療法ではSSRIを使う。',()=>{cp('hier');G.habK=.6;return '慣れるのに時間がかかりそう';})]};},
+ event(){return {title:'想像曝露の途中で',ic:'記憶',line:'記憶を語っている途中で、強く泣き出した。',opts:[
+   OPT('治療者が支えながら、記憶にとどまって語り続ける','想像曝露','◎','つらくても記憶にとどまることで、記憶が「過去のこと」として整理されていく。',()=>{cp('pe');G.habK*=1.15;return '語り終えると、少し落ち着いた';}),
+   OPT('短く深呼吸してから、同じ場面に戻る','短い中断','○','短い中断はよいが、記憶から離れきらないことが大切。',()=>'同じ場面に戻れた'),
+   OPT('すぐに中断して、話題を変える','回避','×','中断すると「思い出すと危ない」という学習が残る。',()=>expoAvoidChoice())]};},
+ points(){return ['PTSDの治療では、トラウマに焦点を当てた認知行動療法（持続エクスポージャー療法・認知処理療法など）やEMDRが勧められる。','持続エクスポージャー療法は、記憶を繰り返し語る想像曝露と、避けている場所へ行く現実曝露を組み合わせる。','危険が続いている（DVなど）ときは、まず安全の確保。PTSDにベンゾジアゼピン系は勧められない。'];}}),
+XS({id:'ba',no:6,expo:'ba',music:'mdd',name:'うつ病・行動活性化',short:'行動活性化',L:XL4,fear:'ba',thoughts:['どうせ無理','めんどうくさい','意味がない','動けない'],calm:['少しできた','やってよかった'],
+ sky:['#94a1b0','#d7dce2'],bld:['#a3acb8','#c4cad3'],cloud:'rgba(228,232,238,.7)',
+ patients:[{who:'48歳 男性',course:'うつ病で休職して2か月。薬で少し楽になったが、一日中横になっている',cc:'「やる気が出たら動きたい」',hx:'うつ病（セルトラリンを内服中）',tags:[]}],
+ gates:[{x:20,label:'カーテンを開ける',ic:'窓',type:'act',need:2,gain:12,fb:'少しすっきり'},{x:42,label:'近所を10分散歩',ic:'散歩',type:'act',need:3,gain:14,fb:'達成感！'},{x:64,label:'友人にメッセージ',ic:'連絡',type:'act',need:3,gain:15,fb:'楽しい'},{x:86,label:'夕食を作る',ic:'料理',type:'act',need:4,gain:16,fb:'達成感！'}],
+ safety:[[13,13,'布団で横になる','布'],[37,13,'スマホを見続ける','携'],[59,13,'布団で横になる','布'],[79,13,'スマホを見続ける','携']],
+ pre(){return {title:'活動の計画',ic:'計画',line:'活動記録表をつけて、これからの1週間の計画を立てる。',opts:[
+   OPT('小さく具体的な活動から（カーテンを開ける・散歩10分）','行動活性化','◎','気分を待たずに、できそうな小さな活動から始める。',()=>{cp('ba');return '小さな活動から始めよう';}),
+   OPT('毎日1時間の運動など、大きな目標を立てる','大きすぎる目標','×','目標が大きすぎると続かず、「できなかった」で気分が下がる。',()=>{G.gates.forEach(g=>g.need*=2);return '一つひとつが重く感じる';}),
+   OPT('やる気が出るまで休む','回避','×','気分が上がるのを待っていると、活動も気分も下がり続ける。',()=>{G.mood=Math.max(0,G.mood-10);return '気分がさらに沈んだ';}),
+   OPT('楽しい活動だけを選ぶ','楽しみの活動','△','楽しみ（趣味・交流）だけでなく、達成感（家事など）の活動も入れる。',()=>'楽しい活動から始めよう')]};},
+ event(){return {title:'2週目',ic:'計画',line:'「気分が乗らないので、今日はやめたい」と言う。',opts:[
+   OPT('気分を待たずに、予定した小さな活動をする','行動活性化','◎','気分は行動のあとからついてくる。',()=>{G.habK*=1.2;return '動いてみたら、少し気分が上がった';}),
+   OPT('活動の量を減らして続ける','調整','○','続けることが大切。量の調整は選択肢になる。',()=>'少しだけ続けた'),
+   OPT('気分が乗るまで休む','回避','×','休むほど活動も気分も下がる。',()=>{G.mood=Math.max(0,G.mood-10);return '気分がさらに沈んだ';})]};},
+ points(){return ['行動活性化は、うつ病の行動療法。気分を待たずに、予定した小さな活動から始める。','活動記録表で活動と気分を記録し、達成感（家事・仕事）と楽しみ（趣味・交流）のある活動を増やす。','横になる・スマホを見続けるなどの回避は、その場は楽でも気分を下げ続ける。'];}}),
+];
+/*@STAGES-END*/
+/*@DXCFG-BEGIN*/
+const DXCFG={};
+/*@DXCFG-END*/
+/* ---------- 見立て（診断）の仕組み：第7面と診断編で共通 ---------- */
+const DXC=()=>DXCFG[G.st.dc];
+const dxName=id=>{for(const c of Object.values(DXCFG))if(c.dx[id])return c.dx[id];return id;};
+const dxSet=()=>{const s=DXC().set;return Array.isArray(s)?s:s[G.case.syn];};
+const testK=()=>DXC().testk,testN=k=>DXC().testn[k];
+function ticketsLeft(){const c=DXC(),t=ADV&&c.ticketsAdv?c.ticketsAdv:c.tickets;return t?Math.max(0,t-G.tests.size):Infinity;}
+let TESTPOS={};
+function renderTests(){
+  const c=G.case,show=!!c;$('kTestT').hidden=$('kTest').hidden=!show;
+  if(show)$('kTest').innerHTML=G.tests.size?testK().filter(k=>G.tests.has(k)).map(k=>`<b>${testN(k)}</b>：${c.tests[k]}`).join('<br>'):'<span class="muted">「検」ブロックを叩くと情報が増える</span>';
+}
+function hitTest(k){
+  if(!k||!G.case||G.tests.has(k))return;
+  if(ticketsLeft()<=0){toast('検査券がない','わかっている情報で見立てよう',true);return;}
+  G.tests.add(k);renderTests();renderHUD(true);toast(testN(k),G.case.tests[k],true);
+}
+function applyHarm(h){
+  if(h==='switch')G.fx.manicsw={i:1,at:G.t+3,period:0,dur:0};
+  if(h==='rigid')G.fx.parkinson={i:1.3,at:G.t+2,period:0,dur:0};
+  if(h==='hurt'){G.hearts-=2;sfx('hurt');}
+  if(h==='worse'){G.worse=12;see('worse');}
+  if(h==='wernicke')G.fx.wernicke={i:1,at:G.t+1,period:0,dur:0};
+}
+function openDiag(){
+  const c=G.case,list=dxSet().map(id=>({id,cls:'診断',name:dxName(id)}));
+  const tl=G.tests.size?testK().filter(k=>G.tests.has(k)).map(k=>`<br>${testN(k)}：${c.tests[k]}`).join(''):'<br><span class="muted">家族からの聞き取りや検査はまだしていない</span>';
+  openSheet(`<div class="rxhead"><h2>見立て</h2><span>診断を1つ選ぶ</span></div><p class="ptline">${ptBlock(G.pt)}${tl}</p>${cardsHTML(list)}`);
+  sheet.querySelectorAll('.card').forEach(b=>b.addEventListener('click',()=>chooseDx(list[+b.dataset.i].id)));
+}
+function chooseDx(id){
+  const c=G.case,ok=id===c.dx,C=DXC();
+  if(c.key){const has=G.tests.has(c.key);G.grades.push({q:'情報の集め方',a:G.tests.size?testK().filter(k=>G.tests.has(k)).map(testN).join('・'):'何も調べずに見立てた',
+    g:has?'◎':G.tests.size?'△':'×',why:has?`決め手になる「${testN(c.key)}」を確かめた。`:`決め手は「${testN(c.key)}」だった。`});}
+  G.grades.push({q:'見立て',a:dxName(id),g:ok?'◎':'×',why:ok?c.dxWhy:`正しくは${dxName(c.dx)}。${c.dxWhy}`});
+  if(ok){G.dxOK=true;G.main='assess';G.effLv=1;G.effAt=G.t;G.effToast=true;unlockD('dx:'+id);}
+  else{
+    G.dxOK=false;switchTo(C.std[id]);G.effLv=((C.near||{})[c.dx]||[]).includes(id)?1:0;
+    if(c.wrongHarm&&c.wrongHarm[id])applyHarm(c.wrongHarm[id]);
+  }
+  G.dxPick=id;closeModal();renderHUD(true);sfx('rx');
+  toast('見立て：'+dxName(id),ok?'次のRxブロックで治療を選ぼう':'この見立てに沿って治療を始めた');
+}
+function applyTx(o){
+  switchTo(o.drug);if(o.add)addDrug(o.add);
+  G.effLv=o.eff??2;
+  if(o.harm)applyHarm(o.harm);
+  return G.effLv>=2?'症状が改善してきた':G.effLv===1?'一部だけ改善した':'改善しない';
+}
+function diagEvent(){
+  const c=G.case,C=DXC();
+  if(G.dxOK)return {title:'治療の選択',line:`見立て：${dxName(c.dx)}。治療はどうする？`,opts:c.tx.map((o,i)=>({id:'tx'+i,name:o.name,cls:o.cls,mg:o.mg,g:o.g,why:o.why,fn(){return applyTx(o);}}))};
+  for(const k of testK())G.tests.add(k);renderTests();
+  const all=testK().map(k=>`<br>${testN(k)}：${c.tests[k]}`).join('');
+  return {title:'見立ての見直し',line:`治療に十分反応しない。改めて話を聞き、検査をした。${all}`,opts:dxSet().map(id=>({id:'dx_'+id,name:dxName(id),cls:'診断',
+    g:id===c.dx?'○':'×',why:id===c.dx?'見直して、正しい診断にたどり着いた。'+c.dxWhy:`正しくは${dxName(c.dx)}。${c.dxWhy}`,
+    fn(){if(id===c.dx){G.fx={};switchTo(C.std[c.dx]);G.dxOK=true;unlockD('dx:'+id);return '治療を切り替えて改善してきた';}return '改善しない';}}))};
+}
+function diagFollow(){
+  const c=G.case,f=c.fu;
+  return {title:'再診',line:(G.dxOK?'':`（正しい診断は${dxName(c.dx)}）<br>`)+f.line,opts:f.opts.map((o,i)=>({id:'fu'+i,name:o.name,cls:o.cls||'方針',g:o.g,why:o.why,
+    fn(){if(GS[o.g]>=2){G.hearts=Math.min(MAXH,G.hearts+1);return '経過は順調。ハートが1つ回復';}G.hearts--;sfx('hurt');return '状態が悪くなった';}}))};
+}
+const diagPoints=()=>[G.st.dxIntro,G.case.dxWhy,G.case.teach].filter(Boolean);
+const diagNote=()=>`正しい診断：${dxName(G.case.dx)}`;
+function ptBlock(pt){return `<b>${pt.who}</b><br>経過：${pt.course}<br>主訴：${pt.cc}<br>既往歴：${pt.hx}${G.loop===2&&pt.hist?`<br>治療歴：${pt.hist}`:''}`;}
+
+
+/* ========== 図鑑・クリア記録（このブラウザに保存） ========== */
+const ZK=EDITION.store;
+/*@ZUKAN-BEGIN*/
+const ZD=[['曝露療法の基本',['cp:sudsc','cp:hier','cp:graded','cp:flood','cp:hab','cp:avoid','cp:safety'],'cp'],['技法と原則',['cp:intero','cp:erp','cp:reass','cp:behexp','cp:pe','cp:safefirst','cp:ba'],'cp']];
+const ZF=[];
+/*@ZUKAN-END*/
+let Z={d:[],f:[],c:[],c2:[],a:[]};
+const AK=EDITION.adv;let ADV=false;try{ADV=localStorage.getItem(AK)==='on';}catch(e){}
+try{const s=localStorage.getItem(ZK);if(s){const o=JSON.parse(s);if(o&&Array.isArray(o.d)&&Array.isArray(o.f))Z={d:o.d,f:o.f,c:Array.isArray(o.c)?o.c:[],c2:Array.isArray(o.c2)?o.c2:[],a:Array.isArray(o.a)?o.a:[]};}}catch(e){}
+function saveZ(){try{localStorage.setItem(ZK,JSON.stringify(Z))}catch(e){}}
+function unlockD(id){if((id.startsWith('dx:')||id.startsWith('cp:')||DRUGS[id]||EXTRA[id])&&!Z.d.includes(id)){Z.d.push(id);saveZ();renderZukan();}}
+function unlockF(id){if(!Z.f.includes(id)){Z.f.push(id);saveZ();renderZukan();}}
+const allClear=(k,ids)=>(ids||STAGES.map(s=>s.id)).every(id=>Z[k].includes(id));
+const CORE=['scz','mdd','bp','anx','dlr','alc'];
+function renderZukan(){
+  const card=(on,b,t,lockT)=>on?`<div class="z"><b>${b}</b>${t}</div>`:`<div class="z lock"><b>？？？</b>${lockT}</div>`;
+  let html='',n=0,tot=0;
+  for(const [title,ids,kind] of ZD){
+    html+=`<div class="zgroup"><h3>${title}</h3><div class="zgrid">${ids.map(id=>{const on=Z.d.includes(id);n+=on;tot++;
+      if(kind==='dx')return card(on,dxName(id.slice(3)),'正しく診断できた','まだ診断していない');
+      if(kind==='cp'){const c=CP[id.slice(3)];return card(on,c.name,c.why,'まだ体験していない');}
+      const o=DRUGS[id]||EXTRA[id];return card(on,o.name,o.cls,'まだ使っていない');}).join('')}</div></div>`;
+  }
+  if(ZF.length)html+=`<div class="zgroup"><h3>副作用・できごと</h3><div class="zgrid">${ZF.map(id=>{const on=Z.f.includes(id);n+=on;tot++;return card(on,FX[id].label,FX[id].why,'まだ体験していない');}).join('')}</div></div>`;
+  $('zbody').innerHTML=html;$('zcount').textContent=`${n} / ${tot}`;
+}
+function renderTabs(){
+  const open2=allClear('c',CORE),key=loop===2?'c2':'c';
+  const loops=EDITION.loops?`<button type="button" class="tab loop" data-loop="1" aria-pressed="${loop===1}">1周目</button><button type="button" class="tab loop l2" data-loop="2" aria-pressed="${loop===2}" ${open2?'':'disabled'}>2周目</button>${open2?'':'<span class="lockmsg">第1〜6面をクリアすると2周目が開きます</span>'}`:'';
+  $('tabs').innerHTML=`<div class="row">${loops}</div>
+    <div class="row">${STAGES.map((s,i)=>`<button type="button" class="tab" data-i="${i}" aria-pressed="${i===cur}">第${s.no}面 ${s.short}${Z[key].includes(s.id)?'<span class="ok">✓</span>':''}${Z.a.includes(s.id+':'+loop)?'<span class="ok">★</span>':''}</button>`).join('')}</div>`;
+  $('tabs').querySelectorAll('[data-i]').forEach(b=>b.addEventListener('click',()=>{if(!modal.hidden)return;newGame(+b.dataset.i);}));
+  $('tabs').querySelector('.row').insertAdjacentHTML('beforeend',`<button type="button" class="tab adv" id="advbtn" aria-pressed="${ADV}">上級者モード</button><span class="lockmsg">${ADV?'解説・その場の採点・副作用の名前を伏せる（★がつく）':''}</span>`);
+  $('advbtn').addEventListener('click',()=>{if(!modal.hidden)return;ADV=!ADV;try{localStorage.setItem(AK,ADV?'on':'off');}catch(e){}newGame(cur);});
+  $('tabs').querySelectorAll('[data-loop]').forEach(b=>b.addEventListener('click',()=>{if(!modal.hidden||b.disabled)return;loop=+b.dataset.loop;newGame(cur);}));
+}
+
+/* ========== 地形 ========== */
+const grid=new Uint8Array(COLS*ROWS); // 1地面 2レンガ 3Rx 4使用済み 5石
+const get=(x,y)=>(x<0||x>=COLS)?1:((y<0||y>=ROWS)?0:grid[y*COLS+x]);
+const set=(x,y,t)=>{if(x>=0&&x<COLS&&y>=0&&y<ROWS)grid[y*COLS+x]=t;};
+const fill=(x0,x1,y0,y1,t)=>{for(let x=x0;x<=x1;x++)for(let y=y0;y<=y1;y++)set(x,y,t);};
+let RX={};
+function build(st,l2){
+  const L=st.L;
+  grid.fill(0);
+  fill(0,COLS-1,15,16,1);
+  for(const [a,b] of L.pits)fill(a,b,15,16,0);
+  for(const [a,b,y] of L.bricks)fill(a,b,y,y,2);
+  for(const [x,h] of L.pillars)fill(x,x,15-h,14,5);
+  for(let i=0;i<4;i++)fill(99+i,99+i,14-i,14,5);
+  fill(103,107,11,14,5);
+  RX={};if(L.rx){RX[L.rx.join(',')]='main';set(L.rx[0],L.rx[1],3);}if(L.adj){RX[L.adj.join(',')]='adj';set(L.adj[0],L.adj[1],3);}
+  if((l2||st.followup)&&L.rx3){RX[L.rx3.join(',')]='rx3';set(L.rx3[0],L.rx3[1],3);}
+  TESTPOS={};const tk=st.dc?DXCFG[st.dc].testk:[];(L.tests||[]).forEach(([x,y],k)=>{TESTPOS[x+','+y]=tk[k];set(x,y,6);});
+}
+const BLD=[];for(let i=0;i<40;i++)BLD.push({x:i*72+(i*37%30),w:38+(i*53%34),h:50+(i*29%80)});
+const CLOUDS=[{x:40,y:30,w:50},{x:210,y:52,w:38},{x:360,y:24,w:60},{x:520,y:44,w:44}];
+
+/* ========== 状態 ========== */
+let G,P,EN,IT,cur=0,loop=1;const lastPt={};
+const keys={l:false,r:false,j:false};
+function clearKeys(){keys.l=keys.r=keys.j=false;document.querySelectorAll('.pad button').forEach(b=>b.classList.remove('on'));}
+function dose(id){return (G&&DOSE[G.st.id+':'+id])||DOSE[id]||{};}
+function newGame(si,retry){
+  if(si!=null)cur=si;
+  const st=STAGES[cur],l2=loop===2;
+  const pool=l2&&st.patients2?st.patients.concat(st.patients2):st.patients;
+  let ptSel=retry&&retry.pt;
+  if(!ptSel){const key=st.id+loop;let i;do{i=Math.floor(Math.random()*pool.length)}while(i===lastPt[key]&&pool.length>1);lastPt[key]=i;ptSel=pool[i];}
+  if(typeof musicStop==='function')musicStop();
+  build(st,l2);
+  G={st,loop,t:0,state:'intro',hearts:MAXH,water:st.water==='balance'?60:100,retry:retry||null,overWarn:false,wiT:0,main:null,mg:'',hist:[],added:[],adj:null,adjName:'',contra:[],contraTags:[],fx:{},seen:new Set(),weight:0,cam:0,cp:2,jbuf:0,
+     blackout:0,lastOrtho:-9,dehydT:0,stomps:0,pt:ptSel,end:null,hints:new Set(),lowWarn:false,pops:[],bump:null,grades:[],done:new Set(),
+     ev:retry?retry.ev:st.events?st.events[Math.floor(Math.random()*st.events.length)]:null,resp:null,effLv:2,
+     effAt:0,effToast:true,li:0,liBase:.7,liAdd:0,liTox:false,vpaDrop:false,ss:0,ssHit:0,freeze:0,nzT:1,wdT:1,dash:0,dashDir:1,avT:3,
+     relapse:0,worse:0,seizAt:0,onSeiz:null,flash:0,mh:0,darkNow:0};
+  P={x:2*T+2,y:15*T-22,w:12,h:22,vx:0,vy:0,on:false,face:1,inv:0,stillT:0,akDir:1,akT:0,walkT:0,coy:0,jumping:false};
+  if(st.diag){G.case=G.pt;G.tests=new Set();G.dxOK=false;if(G.case.syn==='dep')G.st=Object.assign({},st,{walker:{skin:'blob',vx:.35,label:'意欲低下'},floater:{skin:'cloud',speed:.8,amp:30,label:'抑うつ気分',txt:[]},sky:['#a9aebd','#e2e4ea'],bld:['#b3b7c4','#d3d6de']});}
+  else{G.case=null;G.tests=new Set();}
+  const L=st.L,wk=G.st.walker,fl=G.st.floater;
+  EN=L.walkers.map(tx=>({type:'walker',x:tx*T,y:15*T-14,w:16,h:14,vx:-wk.vx,vy:0,on:false,alive:true,dead:0,act:false}))
+    .concat(L.floaters.map(([tx,ty],k)=>({type:'floater',bx:tx*T,by:ty*T,x:tx*T,y:ty*T,w:fl.skin==='cloud'?28:fl.skin==='bugs'?24:26,h:13,ph:k*1.7,txt:fl.txt[k%(fl.txt.length||1)]||'',alive:true,dead:0})));
+  IT=st.water==='none'?[]:L.waters.map(([tx,ty])=>({x:tx*T+3,y:ty*T+2,w:10,h:14,taken:false}));
+  $('waterbox').hidden=st.water==='none';meter.classList.toggle('bal',st.water==='balance');
+  tq.length=0;clearTimeout(tTimer);tBusy=false;toastEl.hidden=true;
+  cv.style.filter='none';lastBlur='';
+  clearKeys();
+  const pt=G.pt;
+  $('kWho').textContent=pt.who;$('kCourse').textContent=pt.course;$('kCc').textContent=pt.cc;$('kHx').textContent=pt.hx;
+  const sh=(a,b,v)=>{$(a).hidden=$(b).hidden=!v;$(b).textContent=v||'';};
+  $('kHierT').hidden=$('kHier').hidden=true;$('sudsbox').hidden=!st.expo;
+  {const ab=$('actbtn'),a=st.act;ab.hidden=!a;ab.textContent=a?a.label:'行動';$('pad').classList.toggle('act4',!!a);}
+  if(st.expo)expoInit();
+  sh('kHistT','kHist',pt.hist);sh('kGoalT','kGoal',l2?pt.goal:'');renderTests();
+  $('ovNo').textContent=`第${st.no}面${l2?'　2周目':''}`;$('ovName').textContent=st.name;
+  $('startbtn').classList.toggle('night',l2);
+  $('startov').hidden=false;
+  renderTabs();renderHUD(true);
+}
+function start(){if(G.state!=='intro')return;if(G.st.expo)return expoStart();G.state='play';audioInit();if(SND.ctx&&SND.ctx.state!=='running')SND.ctx.resume();musicStart();$('startov').hidden=true;last=performance.now();toast(`第${G.st.no}面${G.loop===2?'（2周目）':''} スタート`,G.st.diag?'「検」ブロックで情報を集めてから、Rxで見立てよう':'金色のRxブロックを下から叩いて処方しよう');}
+
+/* ========== 補助 ========== */
+const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
+const overlap=(a,b)=>a.x<b.x+b.w&&a.x+a.w>b.x&&a.y<b.y+b.h&&a.y+a.h>b.y;
+function fxI(n){const f=G.fx[n];return f&&f.i>0&&G.t>=f.at&&!(f.dur&&G.t>=f.at+f.dur)?f.i:0;}
+function see(n){if(!G.seen.has(n)){G.seen.add(n);unlockF(n);}}
+function effLv(){if(!G.main||G.t<G.effAt||G.vpaDrop||G.relapse>0||G.worse>0)return 0;return G.effLv;}
+const canStomp=e=>e.type==='floater'?effLv()>=1:effLv()>=2;
+function liTox(){return G.main==='li'||G.added.includes('li')?clamp((G.li-1.5)/.5,0,1):0;}
+const hasLi=()=>G.main==='li'||G.added.includes('li');
+function scaleFx(k){for(const f of Object.values(G.fx))f.i=Math.min(1.8,f.i*k);}
+function applyFx(id,k,stack){
+  for(const [n,v] of Object.entries(DRUGS[id].fx)){const c=G.fx[n],i=v.i*k;
+    if(stack&&c&&c.i>0)c.i=Math.min(1.8,c.i+i);else G.fx[n]={i,at:G.t+v.on,period:v.period||0,dur:v.dur||0};}
+  if(DRUGS[id].act&&G.pt.tags.includes('young')&&!G.fx.activation)G.fx.activation={i:1,at:G.t+5,period:0,dur:0};
+}
+function switchTo(id){
+  const d=DRUGS[id];if(G.main)G.hist.push(G.main);
+  G.fx={};G.main=id;G.mg=dose(id).start||'';unlockD(id);applyFx(id,1,false);
+  G.effLv=2;G.vpaDrop=false;G.effAt=G.t+(d.delay?Math.min(d.delay,5):0);G.effToast=!d.delay;
+  if(id==='li'){G.li=Math.max(G.li,.6);G.liBase=.7;}
+}
+function addDrug(id,k){G.added.push(id);unlockD(id);applyFx(id,k||1,true);}
+function contraHit(id,tag){if(!G.contraTags.includes(tag))G.contraTags.push(tag);if(!G.contra.includes(id))G.contra.push(id);G.hearts--;see('contra');}
+function pop(x,y,txt,col){G.pops.push({x,y,txt,col:col||'#1d7566',t:1.1});}
+const tq=[];let tBusy=false,tTimer=0;
+const FXL=Object.values(FX).map(f=>f.label).concat(['セロトニン','悪性症候群','リチウム']);
+function toast(a,b,raw){if(ADV&&!raw&&G&&G.state!=='intro'&&FXL.some(l=>(a+(b||'')).includes(l))){a='体の様子がおかしい…';b='何が起きているか考えよう';}tq.push([a,b]);if(!tBusy)nextToast();}
+function nextToast(){clearTimeout(tTimer);const it=tq.shift();if(!it){tBusy=false;toastEl.hidden=true;return;}tBusy=true;toastEl.querySelector('b').textContent=it[0];toastEl.querySelector('span').textContent=it[1];toastEl.hidden=false;tTimer=setTimeout(nextToast,clamp(1500+(it[0]+it[1]).length*55,2700,6500));}
+function hint(key,a,b){if(!G.hints.has(key)){G.hints.add(key);toast(a,b);}}
+
+function moveBody(b,onHead){
+  let hitX=false;
+  b.x+=b.vx;
+  const y0=Math.floor(b.y/T),y1=Math.floor((b.y+b.h-.01)/T);
+  if(b.vx>0){const tx=Math.floor((b.x+b.w-.01)/T);for(let ty=y0;ty<=y1;ty++)if(get(tx,ty)>0){b.x=tx*T-b.w;b.vx=0;hitX=true;break;}}
+  else if(b.vx<0){const tx=Math.floor(b.x/T);for(let ty=y0;ty<=y1;ty++)if(get(tx,ty)>0){b.x=(tx+1)*T;b.vx=0;hitX=true;break;}}
+  b.y+=b.vy;b.on=false;
+  const x0=Math.floor(b.x/T),x1=Math.floor((b.x+b.w-.01)/T);
+  if(b.vy>0){const ty=Math.floor((b.y+b.h-.01)/T);for(let tx=x0;tx<=x1;tx++)if(get(tx,ty)>0){b.y=ty*T-b.h;b.vy=0;b.on=true;break;}}
+  else if(b.vy<0){const ty=Math.floor(b.y/T);let best=-1,bd=1e9;for(let tx=x0;tx<=x1;tx++)if(get(tx,ty)>0){const d=Math.abs((tx+.5)*T-(b.x+b.w/2));if(d<bd){bd=d;best=tx;}}
+    if(best>=0){b.y=(ty+1)*T;b.vy=0;if(onHead)onHead(best,ty);}}
+  return hitX;
+}
+function hitBlock(tx,ty){
+  const tt=get(tx,ty);
+  if(tt===6){set(tx,ty,4);G.bump={tx,ty,t:.15};sfx('rx');hitTest(TESTPOS[tx+','+ty]);return;}
+  if(tt!==3)return;
+  set(tx,ty,4);G.bump={tx,ty,t:.15};sfx('rx');
+  if(G.st.expo){if(!G.done.has('event'))openDecision('event');return;}
+  if(!G.main){openMain();return;}
+  const seq=G.loop===2&&G.st.plan?(G.st.planLast?['event','plan']:['plan','event']):G.st.followup&&G.case&&G.case.fu?['event','followup']:['event'];
+  const next=seq.find(k=>!G.done.has(k));
+  if(next)openDecision(next);
+}
+function hurt(fell){
+  if(!fell&&P.inv>0)return;
+  G.hearts--;sfx('hurt');
+  if(G.hearts<=0){end('dead');return;}
+  if(fell){P.x=G.cp*T+2;P.y=12*T;P.vx=P.vy=0;}else{P.vy=-4.5;P.vx=-P.face*2;}
+  P.inv=1.6;
+}
+function grow(nw){
+  if(nw<=P.w+.01)return;
+  const y0=Math.floor(P.y/T),y1=Math.floor((P.y+P.h-.01)/T),tx=Math.floor((P.x+nw-.01)/T);
+  for(let ty=y0;ty<=y1;ty++)if(get(tx,ty)>0)return;
+  P.w=nw;
+}
+let justUnlocked=false;
+function end(r){
+  if(G.state==='end')return;
+  G.state='end';G.end=r;if(G.st.expo)expoFinal();renderHUD(true);musicStop();sfx(r==='clear'?'clear':'over');
+  if(r==='nms')see('nms');
+  if(r==='litox')see('litox');
+  justUnlocked=false;
+  if(r==='clear'){const k=G.loop===2?'c2':'c';const before=allClear('c',CORE);
+    if(!Z[k].includes(G.st.id)){Z[k].push(G.st.id);saveZ();}
+    if(ADV&&!Z.a.includes(G.st.id+':'+G.loop)){Z.a.push(G.st.id+':'+G.loop);saveZ();}
+    if(G.loop===1&&!before&&allClear('c',CORE))justUnlocked=true;
+    renderTabs();}
+  clearKeys();
+  setTimeout(openResult,r==='clear'?500:350);
+}
+
+/* ========== 更新 ========== */
+function updPlayer(dt){
+  const ak=fxI('akathisia'),pk=fxI('parkinson'),lt=liTox(),wk=fxI('wernicke');
+  let spd=2.3*Math.max(.5,1-.38*pk);
+  if(G.st.expo)spd*=expoSpeed();
+  const jmp=7.6*Math.max(.8,(1-.12*pk)*(1-.17*G.weight)*(1-.15*lt)*(1-.15*wk));
+  if(G.freeze>0)G.freeze-=dt;
+  const moving=keys.l!==keys.r&&G.freeze<=0;
+  if(moving){
+    if(P.stillT>.8&&fxI('ortho')>0&&G.t-G.lastOrtho>2.5){G.blackout=.75;G.lastOrtho=G.t;pop(P.x+P.w/2,P.y-6,'立ちくらみ','#bb3333');}
+    P.stillT=0;
+    P.vx+=(keys.r?1:-1)*(P.on?.32:.2);P.face=keys.r?1:-1;
+  }else{
+    P.stillT+=dt;
+    if(ak>0&&P.on&&G.freeze<=0){
+      P.akT-=dt;
+      if(P.akT<=0){P.akDir=Math.random()<.5?-1:1;P.akT=.25+Math.random()*.45;}
+      P.vx+=P.akDir*.25*ak;const m=1.1*ak;P.vx=clamp(P.vx,-m,m);P.face=P.akDir;
+      if(Math.random()<.006)pop(P.x+P.w/2,P.y-6,'そわそわ','#bb3333');
+    }else{
+      P.vx*=P.on?(G.freeze>0?.5:.72):.96;if(Math.abs(P.vx)<.05)P.vx=0;
+    }
+  }
+  const nz=fxI('nausea');
+  if(nz>0){G.nzT-=dt;if(G.nzT<=0){G.nzT=3.2;G.freeze=.6*nz;pop(P.x+P.w/2,P.y-6,'うっ…','#6b5a2a');}}
+  const wd=fxI('withdrawal');
+  if(wd>0){G.wdT-=dt;if(G.wdT<=0){G.wdT=2.4;G.freeze=.5*wd;pop(P.x+P.w/2,P.y-6,'ビリッ','#bb3333');}}
+  const stg=Math.max(lt,fxI('ataxia')*.6,wk*.8);
+  if(stg>0&&P.on&&Math.random()<.05*stg)P.vx+=(Math.random()-.5)*3*stg;
+  if(G.ss>0){
+    spd=3.2;
+    if(P.on&&Math.random()<.05)P.vy=-4.2;
+    P.vx+=(Math.random()-.5)*1.2;
+    if(Math.random()<.03)pop(P.x+P.w/2,P.y-6,'ピクッ','#bb3333');
+  }
+  if(G.st.expo)expoPush();
+  P.vx=clamp(P.vx,-spd,spd);
+  const av=Math.max(fxI('activation'),fxI('manicsw'));
+  if(av>0){G.avT-=dt;if(G.avT<=0){G.avT=3+Math.random()*2;G.dash=.7;G.dashDir=P.face||1;pop(P.x+P.w/2,P.y-6,'イライラ','#bb3333');}}
+  if(G.dash>0){G.dash-=dt;P.vx=G.dashDir*3.3;}
+  if(P.on)P.coy=.08;else P.coy-=dt;
+  if(G.jbuf>0)G.jbuf-=dt;
+  if(G.jbuf>0&&P.coy>0&&G.freeze<=0){P.vy=-jmp;P.coy=0;G.jbuf=0;P.jumping=true;G.jumpedNow=true;sfx('jump');}
+  if(!keys.j&&P.jumping&&P.vy<-3)P.vy=-3;
+  if(P.vy>=0)P.jumping=false;
+  P.vy=Math.min(P.vy+.45,7.5);
+  moveBody(P,hitBlock);
+  if(G.st.expo)expoWall();
+  P.walkT+=Math.abs(P.vx)*.35;
+  if(P.inv>0)P.inv-=dt;
+  if(P.y>ROWS*T+30){hurt(true);if(G.state==='end')return;}
+  const tx=Math.floor(P.x/T);if(P.on)for(const c of G.st.L.cps)if(tx>=c)G.cp=Math.max(G.cp,c);
+  const wi=fxI('weight');
+  if(wi>0&&G.weight<1){G.weight=Math.min(1,G.weight+dt*wi/40);grow(12+6*G.weight);}
+  if(P.x+P.w>=FLAGX)end('clear');
+}
+function updEnemies(dt){
+  const wk=G.st.walker,fl=G.st.floater,sp=(G.loop===2?1.25:1)*(G.worse>0?1.6:1);
+  for(const e of EN){
+    if(e.dead>0){e.dead-=dt;continue;}
+    if(!e.alive)continue;
+    if(e.type==='walker'){
+      if(!e.act){if(e.x-G.cam<W+24)e.act=true;else continue;}
+      e.vy=Math.min(e.vy+.45,7);
+      if(wk.hop&&e.on&&Math.random()<.012)e.vy=-5;
+      const base=e.vx;e.vx=base*sp;const hit=moveBody(e);e.vx=hit?-base:base;
+      if(e.on){const fx=e.vx>0?e.x+e.w+1:e.x-1;if(get(Math.floor(fx/T),Math.floor((e.y+e.h+2)/T))===0)e.vx=-e.vx;}
+      if(e.y>ROWS*T+40){e.alive=false;continue;}
+    }else{
+      e.ft=(e.ft||0)+dt*sp;
+      e.x=e.bx+Math.sin(e.ft*.9*fl.speed+e.ph)*fl.amp;e.y=e.by+Math.sin(e.ft*2.3+e.ph)*6;
+    }
+    if(overlap(P,e)){
+      const stomp=P.vy>0&&(P.y+P.h-P.vy)<=e.y+6;
+      if(canStomp(e)&&stomp){
+        e.alive=false;e.dead=.35;sfx('stomp');P.vy=keys.j?-7:-5;P.jumping=keys.j;G.stomps++;
+        pop(e.x+e.w/2,e.y-4,(e.type==='walker'?wk.label:fl.label)+' 改善');
+      }else{
+        if(stomp){
+          if(!G.main)hint('norx','症状が踏めない','治療していないので効かない。Rxブロックを下から叩こう');
+          else if(G.worse>0)hint('worse','症状が踏めない','せん妄が悪化している');
+          else if(G.relapse>0)hint('relapse','症状が踏めない','再発している');
+          else if(G.vpaDrop)hint('drop','症状が踏めない','バルプロ酸の濃度が下がって効かなくなった');
+          else if(G.t<G.effAt)hint('wait','まだ効いていない',`効果が出るまで時間がかかる（実際は${DRUGS[G.main].delayText||''}）`);
+          else hint('partial','効きが不十分','一部の症状が残っている。次のRxブロックで見直そう');
+        }
+        hurt(false);if(G.state!=='play')return;
+      }
+    }
+  }
+}
+function update(dt){
+  G.t+=dt;
+  for(const [n,f] of Object.entries(G.fx)){
+    if(!f.seen&&G.t>=f.at&&f.i>0){f.seen=true;see(n);toast(FX[n].label+'が出てきた',FX[n].game);}
+    if(f.dur&&f.seen&&!f.ended&&G.t>=f.at+f.dur){f.ended=true;if(n==='nausea'&&!ADV)toast('悪心が軽くなった','体が慣れてきた（実際は1〜2週）');}
+  }
+  if(G.main&&!G.effToast&&G.t>=G.effAt){G.effToast=true;toast('効果が出てきた','症状（敵）を踏んで改善できるようになった');}
+  if(G.ss>0){
+    G.ss-=dt;G.ssHit-=dt;
+    if(G.ssHit<=0){G.ssHit=2.5;G.hearts--;pop(P.x+P.w/2,P.y-14,'発熱・頻脈','#bb3333');if(G.hearts<=0){end('dead');return;}}
+    if(G.ss<=0)toast('原因薬を中止して改善','セロトニン症候群の多くは、中止後24時間以内に軽快する');
+  }
+  if(G.relapse>0){G.relapse-=dt;if(G.relapse<=0)toast('治療を再開して改善','再発を防ぐには、治療を続けることが大切');}
+  if(G.worse>0){G.worse-=dt;if(G.worse<=0)toast('原因の薬をやめて改善','せん妄が落ち着いてきた');}
+  if(G.seizAt&&G.t>=G.seizAt){
+    G.seizAt=0;see('seizure');sfx('seizure');G.freeze=1.5;G.flash=.5;G.hearts--;toast('けいれん発作','しばらく動けない');
+    if(G.hearts<=0){end('dead');return;}
+    if(G.onSeiz){const f=G.onSeiz;G.onSeiz=null;f();}
+  }
+  if(G.flash>0)G.flash-=dt;
+  updPlayer(dt);if(G.state!=='play')return;
+  updEnemies(dt);if(G.state!=='play')return;
+  if(G.st.expo){expoUpdate(dt);if(G.state!=='play')return;}
+  const WM=G.st.water,bal=WM==='balance';
+  if(WM!=='none'){
+  for(const it of IT)if(!it.taken&&overlap(P,it)){it.taken=true;sfx('water');G.water=Math.min(bal?150:100,G.water+(bal?30:40));G.lowWarn=false;G.dehydT=0;pop(it.x+5,it.y-4,'+水分','#2f7fc0');}
+  G.water=Math.max(0,G.water-dt*(bal?.6:1.1)*(1+2*fxI('anticho'))*(1+.6*fxI('polyuria')));
+  if(bal){ // 統合失調症：多飲水による水中毒
+    if(G.water>105&&!G.overWarn){G.overWarn=true;toast('水の取りすぎに注意','統合失調症では多飲水から水中毒になることがある');}
+    if(G.water<95)G.overWarn=false;
+    if(G.water>120){G.wiT+=dt;if(G.wiT>=2.5){G.wiT=0;see('waterint');G.freeze=.8;G.hearts--;sfx('hurt');pop(P.x+P.w/2,P.y-14,'頭痛・嘔吐','#bb3333');
+      toast('水中毒','低ナトリウム血症で頭痛・嘔吐。さらに進むとけいれん');if(G.hearts<=0){end('dead');return;}if(G.water>140)G.seizAt=G.t+.3;G.water-=15;}}
+    else G.wiT=0;
+  }
+  if(G.water<25&&G.water>0&&!G.lowWarn){G.lowWarn=true;toast('水分が少ない','水のボトルを取ろう');}
+  if(G.water<=0){
+    if(G.main&&DRUGS[G.main].nms){see('dehyd');end('nms');return;}
+    G.dehydT+=dt;
+    if(G.dehydT>=2.5){
+      G.dehydT=0;see('dehyd');
+      toast('脱水',hasLi()?'脱水でリチウム濃度が上がる。水を取ろう':G.st.id==='dlr'?'脱水はせん妄の原因になる。水を取ろう':'脱水は悪性症候群の危険因子。水を取ろう');
+      G.hearts--;if(G.hearts<=0){end('dead');return;}
+    }
+  }
+  }
+  if(hasLi()){
+    const target=G.liBase+1.0*(1-G.water/100)+G.liAdd;
+    G.li+=clamp(target-G.li,-.12*dt,.12*dt);
+    if(G.li>=1.5&&!G.liTox){G.liTox=true;see('litox');toast('リチウム中毒の症状','粗大振戦・ふらつき。水を取って濃度を下げよう');}
+    if(G.li<1.4)G.liTox=false;
+    if(G.li>=2){end('litox');return;}
+  }
+  if(G.blackout>0)G.blackout-=dt;
+  if(G.bump){G.bump.t-=dt;if(G.bump.t<=0)G.bump=null;}
+  for(const p of G.pops){p.t-=dt;p.y-=dt*18;}
+  G.pops=G.pops.filter(p=>p.t>0);
+  G.cam=clamp(P.x+P.w/2-W*.4,0,COLS*T-W);
+  // BGMの回復度：治療の効き（0〜1）を土台に、ステージを進むほど整っていく。未治療だと崩れたまま
+  if(G.st.expo)G.mh+=((G.st.expo==='ba'?G.mood/100:1-G.suds/100)-G.mh)*Math.min(1,dt*2);
+  else{const prog=clamp(P.x/FLAGX,0,1),trt=effLv()/2;
+  G.mh+=(clamp(trt*.6+prog*trt*.3+prog*.1+Math.min(G.stomps,10)*.008,0,1)-G.mh)*Math.min(1,dt*.8);}
+  renderHUD();
+}
+
+/* ========== HUD ========== */
+let hudSig='',lastBlur='',lastHearts=-1;
+const chipsEl=$('chips'),wfill=$('wfill'),meter=$('meter'),lvEl=$('lv');
+function renderHUD(force){
+  if(force||G.hearts!==lastHearts){lastHearts=G.hearts;const h=clamp(G.hearts,0,MAXH);$('hearts').textContent='♥'.repeat(h)+'♡'.repeat(MAXH-h);}
+  const bal=G.st.water==='balance';wfill.style.width=(G.water/(bal?150:100)*100).toFixed(1)+'%';meter.classList.toggle('low',G.water<25);meter.classList.toggle('hi',bal&&G.water>105&&G.water<=120);meter.classList.toggle('over',bal&&G.water>120);
+  lvEl.hidden=!hasLi();
+  if(hasLi()){$('lvv').textContent=G.li.toFixed(2);lvEl.classList.toggle('hi',G.li>1.2&&G.li<1.5);lvEl.classList.toggle('tox',G.li>=1.5);}
+  const c=[];
+  if(G.main){c.push(['drug',G.main==='assess'?'見立て：'+dxName(G.dxPick):DRUGS[G.main].name+(G.loop===2&&G.mg&&G.mg!=='—'?' '+G.mg:'')]);if(G.t<G.effAt)c.push(['wait',`効果まで あと${Math.ceil(G.effAt-G.t)}秒`]);else if(G.effLv<2&&!G.worse&&!G.relapse)c.push(['wait','効きが不十分']);}
+  else if(G.st.expo)expoHUD(c);
+  else c.push(['none',G.case?'見立て前':'未治療']);
+  if(G.case&&!G.main&&DXC().tickets)c.push(['wait',`検査券 あと${ticketsLeft()}枚`]);
+  for(const a of G.added)c.push(['adj','＋'+nm(a)]);
+  if(G.adjName)c.push(['adj',G.adjName]);
+  const L=t=>ADV?'？':t;
+  if(G.vpaDrop)c.push(['fx',L('躁症状が再燃')]);
+  if(G.ss>0)c.push(['fx',L('セロトニン症候群')]);
+  if(G.worse>0)c.push(['fx',L('せん妄の悪化')]);
+  if(G.relapse>0)c.push(['fx',L('再発')]);
+  for(const n of Object.keys(G.fx)){const v=fxI(n);if(v>0)c.push(['fx',ADV?'？':FX[n].label+(v<.75?'（軽）':'')]);}
+  if(liTox()>0)c.push(['fx',L('リチウム中毒')]);
+  const sig=JSON.stringify(c);
+  if(force||sig!==hudSig){hudSig=sig;chipsEl.innerHTML=c.map(([k,t])=>`<span class="chip ${k}">${t}</span>`).join('');}
+  const ac=fxI('anticho');const b=ac>0?`blur(${(1.3*ac).toFixed(2)}px) saturate(.8)`:'none';
+  if(b!==lastBlur){lastBlur=b;cv.style.filter=b;}
+}
+
+/* ========== 処方の画面 ========== */
+function openSheet(html){G.state='modal';SND.duck=true;clearKeys();sheet.innerHTML=html;modal.hidden=false;const f=sheet.querySelector('button:not(:disabled)');if(f)f.focus();}
+function closeModal(){modal.hidden=true;sheet.innerHTML='';G.state='play';SND.duck=false;last=performance.now();
+  keys.l=held.l;keys.r=held.r;document.querySelectorAll('.pad button').forEach(b=>b.classList.toggle('on',!!keys[b.dataset.k]));}
+function cardsHTML(list){
+  const w=list.length===3?180:260,l2=G.loop===2;
+  return `<div class="cards" style="grid-template-columns:repeat(auto-fit,minmax(min(100%,${w}px),1fr))">${list.map((o,i)=>`<button type="button" class="card" data-i="${i}"><span class="k">[${i+1}]${ADV?'':'　'+(o.cls||'')}</span><span class="n">${o.name}</span>${!ADV&&o.rec?`<span class="r">${o.rec}</span>`:''}${(l2||EDITION.showMg)&&o.mg?`<span class="mg">${o.mg}</span>`:''}${!ADV&&o.note?`<span class="t">${o.note}</span>`:''}</button>`).join('')}</div>`;
+}
+function openMain(){
+  if(G.st.diag)return openDiag();
+  const pt=G.pt,l2=G.loop===2;
+  const list=G.st.drugs.map(id=>{const d=DRUGS[id],ds=dose(id);return {id,cls:d.cls,name:d.name,rec:d.rec,note:d.note,mg:ds.start&&ds.start!=='—'?`開始量 ${ds.start}${/週|回/.test(ds.start)?'':'/日'}`:''};});
+  openSheet(`<div class="rxhead"><h2>処方箋</h2><span>${G.st.rxWhat}</span></div>
+    <p class="ptline">${ptBlock(pt)}</p>
+    ${cardsHTML(list)}<p class="warn" id="warn" hidden></p>`);
+  sheet.querySelectorAll('.card').forEach(b=>b.addEventListener('click',()=>chooseMain(list[+b.dataset.i].id,b)));
+}
+function chooseMain(id,btn){
+  const d=DRUGS[id];
+  const tag=(d.contra||[]).find(t=>G.pt.tags.includes(t));
+  if(tag){
+    if(!G.contra.includes(id)){G.contra.push(id);if(!G.contraTags.includes(tag))G.contraTags.push(tag);G.hearts=Math.max(1,G.hearts-1);see('contra');renderHUD(true);}
+    sfx('stamp');btn.disabled=true;btn.insertAdjacentHTML('beforeend','<span class="stamp" aria-hidden="true">禁忌</span>');
+    const w=$('warn');w.hidden=false;w.textContent='禁忌です。'+(ADV?'':cwhy(id,tag))+'ハートが1つ減りました。';
+    const f=sheet.querySelector('.card:not(:disabled)');if(f)f.focus();
+    return;
+  }
+  G.main=id;G.mg=dose(id).start||'';unlockD(id);
+  applyFx(id,1,false);
+  if(id==='li'){G.li=.6;G.liBase=.7;}
+  G.effAt=G.t+(d.delay||0);G.effToast=!d.delay;G.effLv=2;
+  // 2周目：反応のしかた（不十分・無効・副作用）を決める
+  const st=G.st;
+  if(G.loop===2&&st.resp&&(!st.respOnly||st.respOnly.includes(id))){
+    const r=Math.random();G.resp=G.pt.tags.includes('trs')?'none':G.retry&&G.retry.main===id&&G.retry.resp?G.retry.resp:r<.4?'partial':r<.7?'none':'se';
+    if(G.resp==='se'){scaleFx(1.5);}else G.effLv=1;
+    if(id==='li')G.liBase={partial:.4,none:.8,se:1.05}[G.resp];
+  }
+  if(st.onMain)st.onMain(id);
+  if(st.gradeMain){const [g,why]=st.gradeMain(id);G.grades.push({q:'最初の処方',a:d.name,g,why});}
+  closeModal();renderHUD(true);
+  if(d.delay){see('delay');toast(d.name+'を開始',`効果が出るまで時間がかかる（実際は${d.delayText}）`);}
+  else if(effLv()>=2)toast(d.name+'を開始','症状（敵）を踏んで改善できるようになった');
+  else if(G.effLv===1)toast(d.name+'を開始','一部の症状だけ踏めるようになった');
+}
+function openDecision(kind){
+  G.done.add(kind);
+  const D=kind==='plan'?G.st.plan():kind==='followup'?G.st.followup():kind==='pre'?G.st.pre():G.st.event();
+  const sub=G.main==='assess'?'見立て：'+dxName(G.dxPick):G.main?nm(G.main)+(G.loop===2&&G.mg&&G.mg!=='—'?' '+G.mg:'')+' 使用中':'';
+  openSheet(`<div class="rxhead"><h2>${D.ic&&G.st.expo?iconImg(D.ic,'dic'):''}${D.title}</h2><span>${sub}</span></div>
+    <p class="ptline">${D.line}</p>${cardsHTML(D.opts)}`);
+  sheet.querySelectorAll('.card').forEach(b=>b.addEventListener('click',()=>{
+    const o=D.opts[+b.dataset.i];
+    if(EXTRA[o.id])unlockD(o.id);
+    if(kind==='event'){G.adj=o.id;if(EXTRA[o.id])G.adjName=EXTRA[o.id].name;}
+    const best=D.opts.reduce((m,x)=>Math.max(m,GS[x.g]),0);
+    G.grades.push({q:D.title,a:o.name,g:o.g,why:o.why,best});
+    const msg=o.fn();sfx(ADV?'rx':GS[o.g]>=2?'good':'bad');
+    if(G.st.expo&&G.xf&&!ADV)xfStamp(`${o.g} ${o.cls}`,GS[o.g]>=2?'#1d7566':GS[o.g]===1?'#a8720c':'#bb3333','');
+    closeModal();renderHUD(true);if(ADV)toast(o.name,'判断の結果は退院のときに');else toast(`${o.g}　${o.name}`,msg);
+    if(G.hearts<=0)end('dead');
+  }));
+}
+function openResult(){
+  const r=G.end,t=G.t,mm=Math.floor(t/60),ss=Math.floor(t%60),l2=G.loop===2;
+  const title={clear:G.st.expo?'練習をやりきった':'退院おめでとう',dead:'ゲームオーバー',nms:'悪性症候群',litox:'リチウム中毒'}[r];
+  const sub={clear:'旗まで到達しました',dead:'ハートがなくなりました',nms:'ハロペリドール使用中に脱水が進みました',litox:'リチウムの血中濃度が2.0 mEq/Lを超えました'}[r];
+  const used=[...new Set([...G.hist,G.main,...G.added].filter(x=>x&&x!=='assess'))];
+  let rx=used.length?used.map(id=>nm(id)+(l2&&id===G.main&&G.mg&&G.mg!=='—'?' '+G.mg:'')).join('　→　'):'未治療のまま';
+  if(G.adjName)rx+='　＋　'+G.adjName;
+  if(G.contra.length)rx+=`<br><span class="muted">${G.contra.map(nm).join('・')}は禁忌で選べなかった</span>`;
+  if(G.st.resultNote)rx+=`<br><b>${G.st.resultNote()}</b>`;
+  const seen=[...G.seen];
+  const fxl=seen.length?`<dl class="fxl">${seen.map(n=>`<div><dt>${FX[n].label}</dt><dd><span class="g">ゲームでは：${FX[n].game}</span>${FX[n].why}</dd></div>`).join('')}</dl>`:'<p class="muted">なし</p>';
+  const sc=G.grades.reduce((a,g)=>a+GS[g.g],0),mx=G.grades.reduce((a,g)=>a+(g.best??3),0);
+  const gl=G.grades.length?`<ul class="grades">${G.grades.map(g=>`<li><span class="mark ${GC[g.g]}">${g.g}</span><div><span class="q">${g.q}：${g.a}</span>${g.why}</div></li>`).join('')}</ul>`:'<p class="muted">判断の機会はなかった</p>';
+  const pts=G.st.points();
+  const ct=new Set(G.contraTags);for(const tg of G.pt.tags)if(CONTRA_WHY[tg])ct.add(tg);
+  for(const tg of ct){const w=CONTRA_WHY[tg];if(!pts.includes(w))pts.push(w);}
+  const doses=l2?used.map(id=>dose(id).range?`<li><b>${nm(id)}</b>：${dose(id).range}</li>`:'').join(''):'';
+  const last=cur===STAGES.length-1;
+  let banner='';
+  if(justUnlocked)banner='<p class="banner">第1〜6面をクリア！ 2周目が開きました。mg単位の判断に挑戦しよう</p>';
+  else if(l2&&r==='clear'&&allClear('c2'))banner='<p class="banner">2周目も全面クリア！</p>';
+  const fail=r!=='clear',nc=fail?'btn sub':'btn';
+  const nextBtn=(justUnlocked?'<button type="button" class="btn night" id="go2">2周目へ</button>':'')+(!last?`<button type="button" class="${nc}" id="next">第${STAGES[cur+1].no}面へ</button>`:`<button type="button" class="${nc}" id="first">第1面へ</button>`);
+  openSheet(`<div class="rxhead${r==='clear'?'':' bad'}"><h2>${title}</h2><span>第${G.st.no}面${l2?'（2周目）':''}${ADV?'・上級者モード':''}　${sub}</span></div>${banner}
+    <div class="stats"><div><span>タイム</span><b>${mm}:${String(ss).padStart(2,'0')}</b></div><div><span>${G.st.expo?'乗り越えた場面':'改善した症状'}</span><b>${G.st.expo?expoCleared():G.stomps}</b></div><div><span>残りハート</span><b>${Math.max(0,G.hearts)}</b></div>${G.grades.length?`<div><span>判断スコア</span><b>${sc} / ${mx}</b></div>`:''}</div>
+    ${G.st.expo?expoChart():''}<h3>${G.st.expo?'今回の練習':'今回の処方'}</h3><p>${G.st.expo?expoSummary():rx}</p>
+    <h3>${G.st.expo?'判断と行動':'処方の判断'}</h3>${gl}
+    ${G.st.expo?'':`<h3>体験した副作用・できごと</h3>${fxl}`}
+    ${doses?`<h3>用量の目安</h3><ul class="doses">${doses}</ul><p class="note">日本の添付文書の通常用量をもとにした目安です。</p>`:''}
+    <h3>試験に出るポイント</h3><ul class="pts">${pts.map(p=>`<li>${p}</li>`).join('')}</ul>
+    <div class="actions"><button type="button" class="btn sub" id="again">別の患者でもう一度</button>${nextBtn}${fail?'<button type="button" class="btn" id="same">同じ患者でもう一度</button>':''}</div>`);
+  G.state='end';
+  const go=(i,rt)=>{modal.hidden=true;sheet.innerHTML='';newGame(i,rt);};
+  $('again').addEventListener('click',()=>go(cur));
+  if($('same')){const rt={pt:G.pt,ev:G.ev,main:G.main,resp:G.resp};$('same').addEventListener('click',()=>go(cur,rt));}
+  if($('next'))$('next').addEventListener('click',()=>go(cur+1));
+  if($('first'))$('first').addEventListener('click',()=>go(0));
+  if($('go2'))$('go2').addEventListener('click',()=>{loop=2;go(0);});
+}
+
+/* ========== 描画 ========== */
+function drawBg(){
+  const st=G.st;
+  const g=ctx.createLinearGradient(0,0,0,H);g.addColorStop(0,st.sky[0]);g.addColorStop(1,st.sky[1]);
+  ctx.fillStyle=g;ctx.fillRect(0,0,W,H);
+  if(st.sun){ctx.fillStyle='rgba(255,236,170,.9)';ctx.beginPath();ctx.arc(392,58,22,0,Math.PI*2);ctx.fill();}
+  if(st.moon||G.loop===2){ctx.fillStyle='rgba(250,244,210,.95)';ctx.beginPath();ctx.arc(400,48,14,0,Math.PI*2);ctx.fill();ctx.fillStyle=st.sky[0];ctx.beginPath();ctx.arc(406,44,12,0,Math.PI*2);ctx.fill();}
+  ctx.fillStyle=st.cloud;
+  for(const c of CLOUDS){const span=W+140;const x=((c.x-G.cam*.12)%span+span)%span-70;ctx.fillRect(x,c.y,c.w,8);ctx.fillRect(x+7,c.y-5,c.w-16,6);}
+  const off=G.cam*.3;
+  for(const b of BLD){
+    const x=Math.round(b.x-off);if(x>W||x+b.w<0)continue;
+    ctx.fillStyle=st.bld[0];ctx.fillRect(x,240-b.h,b.w,b.h);
+    ctx.fillStyle=G.loop===2&&!st.moon?'#f3df98':st.bld[1];
+    for(let wy=240-b.h+8;wy<232;wy+=12)for(let wx=x+6;wx<x+b.w-8;wx+=10)if(G.loop===1||st.moon||((wx*7+wy*3)%5<3))ctx.fillRect(wx,wy,5,6);
+  }
+  if(G.loop===2&&!st.moon){ctx.fillStyle='rgba(16,20,56,.42)';ctx.fillRect(0,0,W,240);}
+}
+function drawTile(x,y,t){
+  const px=x*T;let py=y*T;
+  if(G.bump&&G.bump.tx===x&&G.bump.ty===y)py-=Math.round(Math.sin((.15-G.bump.t)/.15*Math.PI)*4);
+  if(t===1){
+    const top=get(x,y-1)!==1;
+    ctx.fillStyle='#9b7653';ctx.fillRect(px,py,T,T);
+    ctx.fillStyle='#85613f';ctx.fillRect(px+3,py+(top?8:3),2,2);ctx.fillRect(px+10,py+(top?12:9),2,2);
+    if(top){ctx.fillStyle='#5f9e6e';ctx.fillRect(px,py,T,5);ctx.fillStyle='#7dbf88';ctx.fillRect(px,py,T,2);}
+  }else if(t===2){
+    ctx.fillStyle='#c46f48';ctx.fillRect(px,py,T,T);
+    ctx.fillStyle='#8f4a2e';ctx.fillRect(px,py+7,T,1);ctx.fillRect(px,py+15,T,1);ctx.fillRect(px+7,py,1,7);ctx.fillRect(px+3,py+8,1,7);ctx.fillRect(px+12,py+8,1,7);
+  }else if(t===3&&G.st.expo&&G.xf){xfEventBlock(px,py);
+  }else if(t===3){
+    const sh=.5+.5*Math.sin(G.t*4);
+    ctx.fillStyle='#e2b03a';ctx.fillRect(px,py,T,T);
+    ctx.fillStyle='#a87818';ctx.fillRect(px,py+T-2,T,2);ctx.fillRect(px+T-2,py,2,T);
+    ctx.fillStyle=`rgba(255,240,190,${.6+.4*sh})`;ctx.fillRect(px,py,T,2);ctx.fillRect(px,py,2,T);
+    ctx.fillStyle='#7a5410';ctx.font=`10px ${PF}`;ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText('Rx',px+8,py+9);
+    ctx.fillStyle='#ffffff';ctx.fillText('Rx',px+7.5,py+8.5);
+  }else if(t===4){
+    ctx.fillStyle='#8d8676';ctx.fillRect(px,py,T,T);ctx.fillStyle='#6d675a';ctx.fillRect(px,py+T-2,T,2);ctx.fillRect(px+T-2,py,2,T);
+    ctx.fillStyle='#a59e8d';ctx.fillRect(px+3,py+3,2,2);ctx.fillRect(px+11,py+3,2,2);ctx.fillRect(px+3,py+11,2,2);ctx.fillRect(px+11,py+11,2,2);
+  }else if(t===6){
+    ctx.fillStyle='#3f8f86';ctx.fillRect(px,py,T,T);ctx.fillStyle='#2a6660';ctx.fillRect(px,py+T-2,T,2);ctx.fillRect(px+T-2,py,2,T);
+    ctx.fillStyle='#8fd0c6';ctx.fillRect(px,py,T,2);ctx.fillRect(px,py,2,T);
+    ctx.fillStyle='#ffffff';ctx.font=`11px ${PF}`;ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText('検',px+8,py+8.5);
+  }else if(t===5){
+    ctx.fillStyle='#8ea2a6';ctx.fillRect(px,py,T,T);ctx.fillStyle='#b8c8ca';ctx.fillRect(px,py,T,2);ctx.fillRect(px,py,2,T);
+    ctx.fillStyle='#6a7d81';ctx.fillRect(px,py+T-2,T,2);ctx.fillRect(px+T-2,py,2,T);
+  }
+}
+function ghost(tr,seed){ctx.globalAlpha=tr?1:.42+.2*Math.sin(G.t*9+seed);}
+function drawWalker(e,tr){
+  const skin=G.st.walker.skin,cx=e.x+e.w/2,st=Math.sin(G.t*10+e.x)>0?1:0;
+  ghost(tr,e.x);
+  if(e.dead>0){const col={eye:'#4a2f5c',blob:'#5f6278',crown:'#e2b03a',heart:'#d0435b',qmark:'#c9c2a2',bottle:'#3f6b3a'}[skin];ctx.fillStyle=col;ctx.fillRect(e.x,e.y+10,e.w,4);ctx.globalAlpha=1;return;}
+  if(skin==='eye'){
+    const cy=e.y+6;
+    ctx.fillStyle='#4a2f5c';ctx.fillRect(e.x+2+st,e.y+11,4,3);ctx.fillRect(e.x+e.w-6-st,e.y+11,4,3);
+    ctx.beginPath();ctx.ellipse(cx,cy,8,6.5,0,0,Math.PI*2);ctx.fill();
+    ctx.fillStyle='#fbf8fc';ctx.beginPath();ctx.ellipse(cx,cy,7,5.5,0,0,Math.PI*2);ctx.fill();
+    ctx.fillStyle='#e6a3a3';ctx.fillRect(cx-6,cy,2,1);ctx.fillRect(cx+4,cy-1,2,1);
+    const dx=clamp((P.x+P.w/2-cx)/20,-3,3),dy=clamp((P.y+8-cy)/30,-1.5,1.5);
+    ctx.fillStyle='#8a3fb0';ctx.beginPath();ctx.arc(cx+dx,cy+dy,3.2,0,Math.PI*2);ctx.fill();
+    ctx.fillStyle='#1b1020';ctx.beginPath();ctx.arc(cx+dx,cy+dy,1.5,0,Math.PI*2);ctx.fill();
+  }else if(skin==='blob'){
+    ctx.fillStyle='#4b4d62';ctx.beginPath();ctx.ellipse(cx,e.y+9,8.5,6,0,Math.PI,0);ctx.fill();ctx.fillRect(e.x-.5,e.y+9,e.w+1,5);
+    ctx.fillStyle='#7d809b';ctx.beginPath();ctx.ellipse(cx,e.y+9,7.5,5,0,Math.PI,0);ctx.fill();ctx.fillRect(e.x+.5,e.y+9,e.w-1,4);
+    ctx.fillStyle='#2a2b38';ctx.fillRect(cx-5,e.y+7,3,1);ctx.fillRect(cx+2,e.y+7,3,1);ctx.fillRect(cx-4,e.y+8,1,1);ctx.fillRect(cx+4,e.y+8,1,1);ctx.fillRect(cx-2,e.y+11,4,1);
+    ctx.fillStyle='#9fb6d8';ctx.fillRect(cx+6,e.y+4+((G.t*6|0)%4),1,2);
+  }else if(skin==='crown'){
+    ctx.fillStyle='#5a3c12';ctx.fillRect(e.x+3+st,e.y+11,3,3);ctx.fillRect(e.x+e.w-6-st,e.y+11,3,3);
+    ctx.fillStyle='#8a5b12';ctx.fillRect(e.x,e.y+3,e.w,9);
+    ctx.fillStyle='#f0c13e';ctx.fillRect(e.x+1,e.y+5,e.w-2,6);
+    ctx.fillRect(e.x+1,e.y,3,5);ctx.fillRect(cx-1.5,e.y-2,3,7);ctx.fillRect(e.x+e.w-4,e.y,3,5);
+    ctx.fillStyle='#d33a3a';ctx.fillRect(cx-1,e.y+1,2,2);
+    ctx.fillStyle='#3a2508';const dx=P.x>e.x?1:0;ctx.fillRect(cx-4+dx,e.y+7,2,2);ctx.fillRect(cx+2+dx,e.y+7,2,2);
+  }else if(skin==='heart'){
+    const b=1+.12*Math.max(0,Math.sin(G.t*14+e.x));
+    ctx.fillStyle='#7a1d2e';ctx.fillRect(e.x+3+st,e.y+11,3,3);ctx.fillRect(e.x+e.w-6-st,e.y+11,3,3);
+    ctx.save();ctx.translate(cx,e.y+6);ctx.scale(b,b);
+    ctx.fillStyle='#7a1d2e';ctx.beginPath();ctx.arc(-3.5,-1.5,4.6,0,Math.PI*2);ctx.arc(3.5,-1.5,4.6,0,Math.PI*2);ctx.fill();ctx.beginPath();ctx.moveTo(-8,0);ctx.lineTo(8,0);ctx.lineTo(0,7.5);ctx.fill();
+    ctx.fillStyle='#e0506a';ctx.beginPath();ctx.arc(-3.5,-1.5,3.6,0,Math.PI*2);ctx.arc(3.5,-1.5,3.6,0,Math.PI*2);ctx.fill();ctx.beginPath();ctx.moveTo(-7,0);ctx.lineTo(7,0);ctx.lineTo(0,6.3);ctx.fill();
+    ctx.fillStyle='#ffffff';ctx.fillRect(-4,-2,2,2);ctx.fillRect(2,-2,2,2);ctx.restore();
+  }else if(skin==='qmark'){
+    ctx.fillStyle='#3d3a2c';ctx.fillRect(e.x+4+st,e.y+11,3,3);ctx.fillRect(e.x+e.w-7-st,e.y+11,3,3);
+    ctx.fillStyle='#3d3a2c';ctx.fillRect(e.x+1,e.y-1,e.w-2,13);
+    ctx.fillStyle='#efe6c4';ctx.fillRect(e.x+2,e.y,e.w-4,11);
+    ctx.fillStyle='#3d3a2c';ctx.font=`10px ${PF}`;ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText('？',cx,e.y+6);
+  }else{
+    const wob=Math.sin(G.t*16+e.x)*1.2;
+    ctx.fillStyle='#22381f';ctx.fillRect(e.x+4+st,e.y+12,3,2);ctx.fillRect(e.x+e.w-7-st,e.y+12,3,2);
+    ctx.save();ctx.translate(cx,e.y+12);ctx.rotate(wob*.06);
+    ctx.fillStyle='#22381f';ctx.fillRect(-5,-11,10,12);ctx.fillRect(-2,-15,4,5);
+    ctx.fillStyle='#4f8a47';ctx.fillRect(-4,-10,8,10);ctx.fillRect(-1,-14,2,4);
+    ctx.fillStyle='#e9e2c8';ctx.fillRect(-4,-7,8,4);
+    ctx.fillStyle='#22381f';ctx.fillRect(-3,-6,2,1);ctx.fillRect(1,-6,2,1);ctx.restore();
+  }
+  ctx.globalAlpha=1;
+}
+function drawFloater(e,tr){
+  const fl=G.st.floater,skin=fl.skin,x=Math.round(e.x),y=Math.round(e.y);
+  if(e.dead>0){ctx.globalAlpha=e.dead/.35;ctx.fillStyle='#ffffff';ctx.fillRect(x+6,y+4,14,5);ctx.globalAlpha=1;return;}
+  ghost(tr,e.ph*3);
+  if(skin==='cloud'){
+    ctx.fillStyle='#8fa3c0';for(let i=0;i<4;i++){const ry=(G.t*40+i*7+e.ph*10)%14;ctx.fillRect(x+4+i*6,y+e.h+ry,1,3);}
+    ctx.fillStyle='#454c5c';
+    ctx.beginPath();ctx.ellipse(x+9,y+8,9,6,0,0,Math.PI*2);ctx.ellipse(x+18,y+6,9,7,0,0,Math.PI*2);ctx.ellipse(x+24,y+9,6,5,0,0,Math.PI*2);ctx.fill();
+    ctx.fillStyle='#626b7e';ctx.beginPath();ctx.ellipse(x+17,y+5,6,4,0,0,Math.PI*2);ctx.fill();
+    ctx.fillStyle='#22252e';ctx.fillRect(x+11,y+8,2,1);ctx.fillRect(x+18,y+8,2,1);
+  }else if(skin==='bugs'){
+    ctx.fillStyle=fl.bug;
+    for(let i=0;i<6;i++){const a=G.t*6+i*1.1+e.ph,bx=x+12+Math.cos(a)*(8+i%3*2),by=y+6+Math.sin(a*1.3)*5;ctx.fillRect(bx-1.5,by-1,3,2);ctx.fillRect(bx-2.5,by-2+(i%2),1,1);ctx.fillRect(bx+1.5,by-2+((i+1)%2),1,1);}
+  }else if(skin==='wisp'){
+    ctx.fillStyle='rgba(120,90,180,.9)';
+    ctx.beginPath();ctx.ellipse(x+13,y+6,11,7,0,0,Math.PI*2);ctx.fill();
+    for(let i=0;i<3;i++)ctx.fillRect(x+5+i*7,y+11+Math.sin(G.t*8+i)*1.5,4,4);
+    ctx.fillStyle='#ffffff';ctx.font=`8px ${PF}`;ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(e.txt,x+13,y+6.5);
+  }else{
+    const ol=skin==='fast'?'#c8541f':'#3b3550';
+    if(skin==='fast'){ctx.fillStyle='rgba(200,84,31,.45)';ctx.fillRect(x-8,y+3,5,1);ctx.fillRect(x-10,y+7,7,1);ctx.fillRect(x-7,y+10,4,1);}
+    ctx.fillStyle=ol;ctx.fillRect(x-1,y-1,e.w+2,e.h+2);ctx.fillRect(x+4,y+e.h,4,4);
+    ctx.fillStyle='#ffffff';ctx.fillRect(x,y,e.w,e.h);ctx.fillRect(x+5,y+e.h,2,2);
+    ctx.fillStyle=ol;ctx.font=`8px ${PF}`;ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(e.txt,x+e.w/2,y+e.h/2+.5);
+  }
+  ctx.globalAlpha=1;
+}
+function drawPlayer(){
+  if(P.inv>0&&Math.floor(G.t*16)%2===0)return;
+  const shake=Math.max(fxI('parkinson')*.8,fxI('tremor')*.7,liTox()*1.8,G.ss>0?1.2:0,G.st.expo&&G.xf?xfTremble():0);
+  const x=Math.round(P.x+(shake?Math.sin(G.t*38)*shake:0)),y=Math.round(P.y),w=Math.round(P.w),mid=x+Math.floor(w/2);
+  const ak=(fxI('akathisia')>0&&P.on&&!(keys.l!==keys.r))||G.dash>0;
+  const walk=P.on&&Math.abs(P.vx)>.15;
+  const ph=ak?Math.sin(G.t*28):(walk?Math.sin(P.walkT):0);
+  ctx.fillStyle='#2c4766';
+  ctx.fillRect(x+2,y+18,4,ph>0?4:3);ctx.fillRect(x+w-6,y+18,4,ph<0?4:3);
+  ctx.fillStyle='#38514c';ctx.fillRect(x-1,y+7,w+2,12);
+  ctx.fillStyle=G.ss>0&&Math.floor(G.t*8)%2?'#ffd9d9':'#ffffff';ctx.fillRect(x,y+8,w,10);
+  ctx.fillStyle='#d3ddda';ctx.fillRect(mid,y+9,1,9);
+  ctx.fillStyle='#1d7566';ctx.fillRect(mid-3,y+8,1,4);ctx.fillRect(mid+2,y+8,1,4);ctx.fillRect(mid-3,y+12,6,1);
+  const hx=mid-4;
+  ctx.fillStyle='#38514c';ctx.fillRect(hx-1,y-1,10,9);
+  ctx.fillStyle=G.freeze>0?'#cfe0b4':'#f1c9a2';ctx.fillRect(hx,y,8,8);
+  ctx.fillStyle='#33251d';ctx.fillRect(hx,y,8,3);ctx.fillRect(P.face>0?hx:hx+6,y+3,2,2);
+  ctx.fillStyle='#1b1b1b';ctx.fillRect(P.face>0?hx+5:hx+2,y+4,1,2);
+  if(G.st.expo)xfFace(hx,y);
+}
+function draw(){
+  ctx.setTransform(S,0,0,S,0,0);
+  const wd=fxI('withdrawal'),wn=fxI('wernicke');
+  const ox=wd?Math.sin(G.t*2.2)*3*wd:0,oy=wd?Math.cos(G.t*1.7)*2*wd:0,nx=wn?Math.sin(G.t*30)*1.6*wn:0;
+  const ex=G.st.expo&&G.xf?xfShake():0;
+  if(ox||oy||nx||ex)ctx.translate(ox+nx+(ex?(Math.random()-.5)*2*ex:0),oy+(ex?(Math.random()-.5)*2*ex:0));
+  if(G.st.expo&&G.xf){const z=xfZoom();if(z!==1){ctx.translate(W/2,H/2);ctx.scale(z,z);ctx.translate(-W/2,-H/2);}}
+  drawBg();
+  const cam=Math.round(G.cam);
+  ctx.save();ctx.translate(-cam,0);
+  const x0=Math.max(0,Math.floor(cam/T)),x1=Math.min(COLS-1,x0+Math.ceil(W/T)+1);
+  for(let y=0;y<ROWS;y++)for(let x=x0;x<=x1;x++){const t=grid[y*COLS+x];if(t)drawTile(x,y,t);}
+  const [rx,ry]=G.st.L.rx||[-9,-9];
+  if(!G.main&&!G.st.expo&&get(rx,ry)===3){
+    const by=(ry-1)*T-4+Math.sin(G.t*5)*2;
+    ctx.font=`9px ${PF}`;ctx.textAlign='center';ctx.textBaseline='middle';
+    ctx.lineWidth=3;ctx.strokeStyle='rgba(255,255,255,.9)';ctx.strokeText('下から叩く',rx*T+8,by);
+    ctx.fillStyle='#7a5410';ctx.fillText('下から叩く',rx*T+8,by);
+  }
+  for(const it of IT){if(it.taken)continue;const yb=Math.round(it.y+Math.sin(G.t*3+it.x)*1.5);
+    ctx.fillStyle='#1f5f93';ctx.fillRect(it.x+1,yb+3,8,11);ctx.fillStyle='#2f7fc0';ctx.fillRect(it.x+2,yb+4,6,9);
+    ctx.fillStyle='#bfe1f7';ctx.fillRect(it.x+3,yb+6,2,5);ctx.fillStyle='#e8eef0';ctx.fillRect(it.x+3,yb,4,3);}
+  ctx.fillStyle='#5b6b6a';ctx.fillRect(FLAGX,6*T,2,9*T);ctx.fillStyle='#e2b03a';ctx.fillRect(FLAGX-1,6*T-3,4,4);
+  ctx.fillStyle=G.loop===2?'#2c3566':'#1d7566';ctx.fillRect(FLAGX+2,6*T+2,28,16);
+  ctx.fillStyle='#ffffff';ctx.font=`10px ${PF}`;ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText('退院',FLAGX+16,6*T+10.5);
+  if(G.st.expo)expoDraw();
+  for(const e of EN){if(!e.alive&&!(e.dead>0))continue;if(e.x<cam-40||e.x>cam+W+40)continue;e.type==='walker'?drawWalker(e,canStomp(e)):drawFloater(e,canStomp(e));}
+  drawPlayer();
+  if(G.st.expo&&G.xf)xfWorldTop();
+  ctx.font=`9px ${PF}`;ctx.textAlign='center';ctx.textBaseline='middle';ctx.lineWidth=3;
+  for(const p of G.pops){ctx.globalAlpha=Math.min(1,p.t*2);ctx.strokeStyle='rgba(255,255,255,.92)';ctx.strokeText(p.txt,p.x,p.y);ctx.fillStyle=p.col;ctx.fillText(p.txt,p.x,p.y);}
+  ctx.globalAlpha=1;
+  ctx.restore();
+  ctx.setTransform(S,0,0,S,0,0);
+  const sf=G.fx.sleepy;let dark=0;
+  if(sf&&sf.i>0&&G.t>=sf.at&&sf.period){const ph=((G.t-sf.at)%sf.period)/sf.period;if(ph<.3)dark=Math.sin(ph/.3*Math.PI)*Math.min(1,sf.i);}
+  G.darkNow=dark;
+  if(dark>0){
+    ctx.fillStyle=`rgba(10,14,34,${(dark*.88).toFixed(3)})`;ctx.fillRect(0,0,W,H);
+    if(dark>.3){ctx.globalAlpha=Math.min(1,(dark-.3)*3);ctx.fillStyle='#ffffff';ctx.font=`11px ${PF}`;ctx.textAlign='center';
+      ctx.fillText('Zzz…',P.x-cam+P.w/2+10,P.y-10+Math.sin(G.t*3)*2);ctx.globalAlpha=1;}
+  }
+  const lt=liTox();
+  if(lt>0){ctx.fillStyle=`rgba(20,20,30,${(.32*lt).toFixed(3)})`;ctx.fillRect(0,0,W,H);}
+  if(G.ss>0){ctx.fillStyle=`rgba(210,40,40,${(.1+.08*Math.sin(G.t*10)).toFixed(3)})`;ctx.fillRect(0,0,W,H);}
+  if(G.worse>0){ctx.fillStyle=`rgba(90,40,120,${(.12+.06*Math.sin(G.t*6)).toFixed(3)})`;ctx.fillRect(0,0,W,H);}
+  if(G.flash>0){ctx.fillStyle=`rgba(255,255,255,${(G.flash*1.4).toFixed(3)})`;ctx.fillRect(0,0,W,H);}
+  if(G.st.expo)expoOverlay();
+  if(G.blackout>0){const oi=fxI('ortho');const a=.92*oi*Math.min(1,G.blackout/.3);
+    const rg=ctx.createRadialGradient(W/2,H/2,20,W/2,H/2,W*.6);rg.addColorStop(0,`rgba(0,0,0,${(a*.75).toFixed(3)})`);rg.addColorStop(1,`rgba(0,0,0,${a.toFixed(3)})`);
+    ctx.fillStyle=rg;ctx.fillRect(0,0,W,H);}
+}
+
+/* ========== 音（Web Audio で合成。音源ファイルは使わない） ========== */
+// BGMはこのゲームのためのオリジナル曲。症状の重さ G.mh（0=未治療〜1=ほぼ回復）に応じて、面ごとの崩し方を変える
+const SK='fukusayo-sound',BPM=138,VOL=.22;
+const SND={ctx:null,on:true,playing:false,duck:false,next:0,step:0,lastDist:-1,hbNext:0,timer:0,amb:null};
+try{SND.on=localStorage.getItem(SK)!=='off';}catch(e){}
+const mf=m=>440*Math.pow(2,(m-69)/12);
+// 8小節（8分音符単位）：C - Am - F - G | C - Em - F - G
+const MEL=[[64,1],[67,1],[72,2],[71,1],[67,1],[69,2],[69,1],[72,1],[76,2],[74,1],[72,1],[69,2],[65,1],[69,1],[72,1],[69,1],[67,2],[65,2],[67,1],[71,1],[74,1],[71,1],[69,1],[71,1],[67,2],
+  [72,2],[76,1],[74,1],[72,1],[67,1],[64,2],[71,1],[67,1],[64,1],[67,1],[71,2],[74,2],[72,1],[69,1],[65,1],[69,1],[72,1],[74,1],[72,2],[71,1],[67,1],[74,1],[71,1],[67,2],[null,2]];
+const MST=[];{let i=0;for(const [m,l] of MEL){MST[i]=m==null?null:{m,len:l};i+=l;}}
+const MPOOL=MST.filter(Boolean);
+const BASS=[48,45,41,43,48,40,41,43];
+const minorPc=m=>[4,9,11].includes(((m%12)+12)%12)?m-1:m;
+function makeCurve(a){const n=1024,c=new Float32Array(n),k=a*40;for(let i=0;i<n;i++){const x=i/(n-1)*2-1;c[i]=k?((1+k)*x)/(1+k*Math.abs(x)):x;}return c;}
+function audioInit(ctxIn){
+  if(SND.ctx&&!ctxIn)return true;
+  const AC=window.AudioContext||window.webkitAudioContext;
+  let c=ctxIn;if(!c){if(!AC)return false;try{c=new AC();}catch(e){return false;}}
+  const g=v=>{const n=c.createGain();n.gain.value=v;return n;};
+  const master=g(SND.on?VOL:0);master.connect(c.destination);
+  const music=g(1),sfxBus=g(1);sfxBus.connect(master);
+  // 揺れ（ピッチのうねり）＝遅延時間を揺らす
+  const vdel=c.createDelay(.1);vdel.delayTime.value=.03;
+  const vibOsc=c.createOscillator();vibOsc.frequency.value=5;const vibAmt=g(0);vibOsc.connect(vibAmt);vibAmt.connect(vdel.delayTime);vibOsc.start();
+  const shaper=c.createWaveShaper();shaper.curve=makeCurve(0);
+  const lp=c.createBiquadFilter();lp.type='lowpass';lp.frequency.value=12000;lp.Q.value=.7;
+  const trem=g(1),tremLfo=c.createOscillator(),tremDepth=g(0);tremLfo.frequency.value=7;tremLfo.connect(tremDepth);tremDepth.connect(trem.gain);tremLfo.start();
+  music.connect(vdel);vdel.connect(shaper);shaper.connect(lp);lp.connect(trem);trem.connect(master);
+  const echo=c.createDelay(1);echo.delayTime.value=.27;const fb=g(0),wet=g(0);lp.connect(echo);echo.connect(fb);fb.connect(echo);echo.connect(wet);wet.connect(master);
+  const nb=c.createBuffer(1,c.sampleRate*2,c.sampleRate);const d=nb.getChannelData(0);for(let i=0;i<d.length;i++)d[i]=Math.random()*2-1;
+  Object.assign(SND,{ctx:c,master,music,sfxBus,vdel,vibOsc,vibAmt,shaper,lp,trem,tremLfo,tremDepth,echo,fb,wet,noise:nb,amb:null,lastDist:-1});
+  if(!ctxIn&&!SND.timer)SND.timer=setInterval(tick,30);
+  return true;
+}
+function noiseSrc(t,dur){const s=SND.ctx.createBufferSource();s.buffer=SND.noise;s.start(t,Math.random()*1.4,dur+.05);return s;}
+function tone(type,m,t,dur,vol,cents,dest){
+  const c=SND.ctx,o=c.createOscillator(),gn=c.createGain();
+  o.type=type;o.frequency.setValueAtTime(mf(m),t);if(cents)o.detune.setValueAtTime(cents,t);
+  gn.gain.setValueAtTime(0,t);gn.gain.linearRampToValueAtTime(vol,t+.006);gn.gain.setTargetAtTime(vol*.55,t+.02,.06);gn.gain.setTargetAtTime(0,t+Math.max(.02,dur-.03),.015);
+  o.connect(gn);gn.connect(dest||SND.music);o.start(t);o.stop(t+dur+.15);
+}
+function drum(kind,t,v){
+  const c=SND.ctx;
+  if(kind==='kick'){const o=c.createOscillator(),gn=c.createGain();o.frequency.setValueAtTime(120,t);o.frequency.exponentialRampToValueAtTime(45,t+.12);gn.gain.setValueAtTime(v,t);gn.gain.exponentialRampToValueAtTime(.001,t+.16);o.connect(gn);gn.connect(SND.music);o.start(t);o.stop(t+.18);return;}
+  const s=noiseSrc(t,kind==='hat'?.04:.12),f=c.createBiquadFilter(),gn=c.createGain();
+  f.type='highpass';f.frequency.value=kind==='hat'?7000:1300;gn.gain.setValueAtTime(v,t);gn.gain.exponentialRampToValueAtTime(.001,t+(kind==='hat'?.035:.11));
+  s.connect(f);f.connect(gn);gn.connect(SND.music);
+}
+const sid=()=>G.st.music||(G.st.diag?(G.case&&G.case.syn==='dep'?'mdd':'scz'):G.st.id);
+function musicParams(){
+  const h=G.mh,d=1-h;
+  const p={d,h,tempo:1,detune:0,rise:0,wrong:0,second:0,drop:0,minor:0,lp:12000,dist:0,trem:0,tremRate:7,echo:0,vib:0,vibRate:5,orn:0,oct:0,shuffle:0,jitter:0,gain:1};
+  switch(sid()){
+    case 'scz':p.wrong=.55*d;p.second=.55*d;p.detune=45*d;p.drop=.22*d;p.jitter=.22*d;break;       // 不協和音・音のずれ
+    case 'mdd':p.tempo=1-.42*d;p.minor=d;p.lp=500+9500*h*h;p.drop=.45*d;p.gain=.7+.3*h;break;        // 遅い・暗い・こもる・まばら
+    case 'bp':p.tempo=1+.55*d;p.orn=.7*d;p.oct=.35*d;p.dist=.6*d;p.gain=1/(1+p.dist*16);break;         // 速すぎる・音数が多い・ひずむ（ひずみで大きくなる分は下げる）
+    case 'anx':p.tempo=1+.22*d;p.trem=.75*d;p.tremRate=6+6*d;p.rise=30*d;break;                      // 震え・上ずり・鼓動
+    case 'dlr':p.vib=70*d;p.vibRate=.35;p.shuffle=.4*d;p.echo=.55*d;p.jitter=.3*d;p.lp=1500+9500*h;break; // うねり・順番が乱れる・残響
+    case 'alc':p.vib=45*d;p.vibRate=9;p.drop=.2*d;p.detune=20*d;break;                              // 細かい震え
+  }
+  const dk=G.darkNow||0,ac=fxI('anticho');
+  p.lp=Math.min(p.lp,200+12000*(1-.85*dk)*(1-.6*ac));
+  if(G.ss>0){p.jitter=Math.max(p.jitter,.5);p.tempo*=1.3;}
+  if(G.worse>0){p.shuffle=Math.max(p.shuffle,.5);p.echo=Math.max(p.echo,.5);}
+  return p;
+}
+function applyChain(p,t){
+  const s=SND;
+  s.lp.frequency.setTargetAtTime(clamp(p.lp,200,16000),t,.1);
+  s.trem.gain.setTargetAtTime(1-p.trem*.5,t,.1);s.tremDepth.gain.setTargetAtTime(p.trem*.5,t,.1);s.tremLfo.frequency.setTargetAtTime(p.tremRate,t,.2);
+  const vr=Math.max(.1,p.vibRate);s.vibOsc.frequency.setTargetAtTime(vr,t,.2);s.vibAmt.gain.setTargetAtTime(Math.min((Math.pow(2,p.vib/1200)-1)/(2*Math.PI*vr),.025),t,.1);
+  s.fb.gain.setTargetAtTime(p.echo*.45,t,.2);s.wet.gain.setTargetAtTime(p.echo*.5,t,.2);
+  if(Math.abs(p.dist-s.lastDist)>.05){s.lastDist=p.dist;s.shaper.curve=makeCurve(p.dist);}
+  s.music.gain.setTargetAtTime((s.duck?.4:1)*p.gain,t,.1);
+}
+function playStep(i,t,p,spb){
+  const bar=i>>3,R=Math.random;
+  if(!(R()<p.drop*.4)){let r=BASS[bar];if(p.minor&&R()<p.minor)r=minorPc(r);tone('triangle',(i&1)?r+12:r,t,spb*.85,.2,0);}
+  if(i%4===0)drum('kick',t,.5);if(i%8===4)drum('snare',t,.12);if(i&1)drum('hat',t,.05);
+  const n=MST[i];
+  if(n&&!(R()<p.drop)){
+    let m=n.m;
+    if(p.shuffle&&R()<p.shuffle)m=MPOOL[Math.floor(R()*MPOOL.length)].m;
+    if(p.wrong&&R()<p.wrong)m+=[1,-1,6,-6,11][Math.floor(R()*5)];
+    if(p.oct&&R()<p.oct)m+=12;
+    if(p.minor&&R()<p.minor)m=minorPc(m);
+    const dur=n.len*spb*.92;
+    tone('square',m,t,dur,.11,p.rise||(p.detune?(R()*2-1)*p.detune:0));
+    if(p.second&&R()<.85)tone('square',m+(R()<.5?6:1),t,dur,.11*p.second,(R()*2-1)*p.detune);
+    if(p.orn&&R()<p.orn)tone('square',m+(R()<.5?2:-1),t+spb*.5,spb*.45,.07,0);
+  }
+}
+/* 症状の効果音 */
+function whisper(vol,pan,t){ // 幻聴の「ざわざわ」：帯域を絞った雑音に、声の抑揚のような揺れをつける
+  const c=SND.ctx,dur=.25+Math.random()*.35,s=noiseSrc(t,dur);
+  const b1=c.createBiquadFilter(),b2=c.createBiquadFilter(),gn=c.createGain();
+  b1.type=b2.type='bandpass';b1.frequency.setValueAtTime(700+Math.random()*900,t);b1.Q.value=3;b2.frequency.setValueAtTime(1800+Math.random()*1500,t);b2.Q.value=4;
+  b1.frequency.linearRampToValueAtTime((700+Math.random()*900)*(.7+Math.random()*.6),t+dur);
+  gn.gain.setValueAtTime(0,t);const k=3+Math.floor(Math.random()*4);
+  for(let j=0;j<k;j++){const a=t+dur*j/k;gn.gain.linearRampToValueAtTime(vol*(.4+Math.random()*.6),a+dur/k*.4);gn.gain.linearRampToValueAtTime(vol*.1,a+dur/k*.95);}
+  gn.gain.linearRampToValueAtTime(0,t+dur+.03);
+  s.connect(b1);s.connect(b2);b1.connect(gn);b2.connect(gn);
+  if(c.createStereoPanner){const pn=c.createStereoPanner();pn.pan.value=pan;gn.connect(pn);pn.connect(SND.sfxBus);}else gn.connect(SND.sfxBus);
+}
+function blip(t,vol){tone('square',84+Math.floor(Math.random()*14),t,.035,vol,0,SND.sfxBus);}
+function heart(t,vol){
+  const c=SND.ctx;
+  for(const [dt,v] of [[0,1],[.2,.7]]){const o=c.createOscillator(),gn=c.createGain();o.frequency.setValueAtTime(75,t+dt);o.frequency.exponentialRampToValueAtTime(38,t+dt+.13);
+    gn.gain.setValueAtTime(vol*v,t+dt);gn.gain.exponentialRampToValueAtTime(.001,t+dt+.16);o.connect(gn);gn.connect(SND.sfxBus);o.start(t+dt);o.stop(t+dt+.18);}
+}
+function ambNodes(){ // 雨音（抑うつ気分）と虫の羽音（幻視）は鳴らしっぱなしにして音量だけ動かす
+  if(SND.amb)return SND.amb;
+  const c=SND.ctx,rs=c.createBufferSource();rs.buffer=SND.noise;rs.loop=true;
+  const hp=c.createBiquadFilter();hp.type='bandpass';hp.frequency.value=4500;hp.Q.value=.6;const rg=c.createGain();rg.gain.value=0;
+  rs.connect(hp);hp.connect(rg);rg.connect(SND.sfxBus);rs.start();
+  const bz=c.createOscillator();bz.type='sawtooth';bz.frequency.value=190;const am=c.createOscillator();am.frequency.value=31;const amg=c.createGain();amg.gain.value=.5;
+  const bg=c.createGain();bg.gain.value=.5;am.connect(amg);amg.connect(bg.gain);const bf=c.createBiquadFilter();bf.type='bandpass';bf.frequency.value=900;bf.Q.value=2;
+  const bv=c.createGain();bv.gain.value=0;bz.connect(bg);bg.connect(bf);bf.connect(bv);bv.connect(SND.sfxBus);bz.start();am.start();
+  SND.amb={rg,bv,bz};return SND.amb;
+}
+function ambSet(rain,buzz,t){const a=ambNodes();a.rg.gain.setTargetAtTime(rain*.16,t,.3);a.bv.gain.setTargetAtTime(buzz*.12,t,.15);a.bz.frequency.setTargetAtTime(170+Math.random()*50,t,.05);}
+function ambStop(){if(SND.amb&&SND.ctx){const t=SND.ctx.currentTime;SND.amb.rg.gain.setTargetAtTime(0,t,.1);SND.amb.bv.gain.setTargetAtTime(0,t,.1);}}
+function nearestFloater(){let b=1e9;for(const e of EN){if(e.type!=='floater'||!e.alive)continue;const dd=Math.hypot(e.x+e.w/2-(P.x+P.w/2),e.y-P.y);if(dd<b)b=dd;}return b;}
+function ambient(p,t){
+  if(G.state!=='play'){ambSet(0,0,t);return;}
+  const id=sid(),d=p.d,prox=clamp(1-nearestFloater()/220,0,1);
+  if(id==='scz'&&Math.random()<d*(.8+3*prox)*.03){whisper((2.2+3.2*prox)*(.45+.55*d),(Math.random()*2-1)*.8,t);if(prox>.5&&Math.random()<.5)whisper((1.6+2.4*prox)*(.45+.55*d),(Math.random()*2-1)*.8,t+.12);}
+  if(id==='bp'&&Math.random()<d*.22)blip(t,.035);
+  if(id==='anx'||(G.st.expo&&G.st.expo!=='ba')){const bpm=68+92*d;if(SND.hbNext<t-.5)SND.hbNext=t;if(t>=SND.hbNext){heart(SND.hbNext,.1+.55*d);SND.hbNext+=60/bpm;}}
+  ambSet(id==='mdd'?d:0,(id==='dlr'||id==='alc')?d*prox:0,t);
+}
+function tick(){
+  const c=SND.ctx;if(!c||!G)return;
+  if(!SND.playing||document.hidden){if(document.hidden)SND.next=c.currentTime+.05;ambStop();return;}
+  const p=musicParams();applyChain(p,c.currentTime);
+  while(SND.next<c.currentTime+.15){
+    const spb=60/(BPM*p.tempo)/2;
+    if(SND.on)playStep(SND.step,SND.next,p,spb);
+    SND.next+=spb*(1+(p.jitter?(Math.random()-.5)*p.jitter:0));
+    SND.step=(SND.step+1)%64;
+  }
+  if(SND.on)ambient(p,c.currentTime);
+}
+function musicStart(){if(!SND.ctx)return;SND.playing=true;SND.step=0;SND.next=SND.ctx.currentTime+.08;SND.hbNext=0;SND.duck=false;}
+function musicStop(){SND.playing=false;ambStop();}
+function sfx(name){
+  const c=SND.ctx;if(!c||!SND.on||c.state!=='running')return;const t=c.currentTime+.01,o=SND.sfxBus;
+  const sweep=(type,f0,f1,dur,vol)=>{const os=c.createOscillator(),gn=c.createGain();os.type=type;os.frequency.setValueAtTime(f0,t);os.frequency.exponentialRampToValueAtTime(f1,t+dur);gn.gain.setValueAtTime(vol,t);gn.gain.exponentialRampToValueAtTime(.001,t+dur);os.connect(gn);gn.connect(o);os.start(t);os.stop(t+dur+.02);};
+  const notes=(arr,type,len,vol)=>arr.forEach((m,i)=>tone(type,m,t+i*len,len*.95,vol,0,o));
+  switch(name){
+    case 'jump':sweep('square',330,700,.13,.06);break;
+    case 'stomp':sweep('square',260,70,.09,.1);break;
+    case 'hurt':sweep('square',520,110,.3,.09);break;
+    case 'rx':notes([81,86,91],'square',.06,.08);break;
+    case 'water':sweep('sine',500,950,.14,.14);break;
+    case 'good':notes([76,79,84],'triangle',.08,.18);break;
+    case 'bad':sweep('sawtooth',220,90,.35,.08);break;
+    case 'stamp':sweep('sine',140,40,.25,.4);break;
+    case 'seizure':{const s=noiseSrc(t,.6),f=c.createBiquadFilter(),gn=c.createGain();f.type='lowpass';f.frequency.value=900;gn.gain.setValueAtTime(.4,t);gn.gain.exponentialRampToValueAtTime(.001,t+.6);s.connect(f);f.connect(gn);gn.connect(o);break;}
+    case 'clear':notes([72,76,79,84,79,84,88],'square',.11,.1);notes([48,52,55,60,55,60,64],'triangle',.11,.18);break;
+    case 'over':notes([67,63,60,55],'triangle',.22,.2);break;
+  }
+}
+function setSound(on){
+  SND.on=on;try{localStorage.setItem(SK,on?'on':'off');}catch(e){}
+  if(SND.master)SND.master.gain.setTargetAtTime(on?VOL:0,SND.ctx.currentTime,.05);
+  const b=$('snd');b.textContent=on?'♪ 音あり':'♪ 音なし';b.setAttribute('aria-pressed',String(on));
+}
+/* ========== 全画面 ========== */
+const stageEl=document.querySelector('.stage');
+const nativeFs=()=>(document.fullscreenElement||document.webkitFullscreenElement)===stageEl;
+function syncFs(){
+  if(nativeFs()){stageEl.classList.add('full');stageEl.classList.remove('fs');}
+  else if(!stageEl.classList.contains('fs'))stageEl.classList.remove('full');
+  const on=stageEl.classList.contains('full');
+  $('fsbtn').textContent=on?'全画面を終了':'全画面';$('fsbtn').setAttribute('aria-pressed',String(on));
+  document.body.classList.toggle('fslock',stageEl.classList.contains('fs'));resize();
+}
+async function toggleFs(){
+  if(stageEl.classList.contains('full')){
+    if(nativeFs()){try{await (document.exitFullscreen||document.webkitExitFullscreen).call(document);}catch(e){}}
+    stageEl.classList.remove('fs','full');syncFs();return;
+  }
+  // まず表示領域いっぱいに広げ、ブラウザの全画面が使えればそちらに切り替わる（fullscreenchange で syncFs）
+  stageEl.classList.add('full','fs');syncFs();
+  const req=stageEl.requestFullscreen||stageEl.webkitRequestFullscreen;
+  if(req){try{const pr=req.call(stageEl);if(pr&&pr.catch)pr.catch(()=>{});}catch(e){}}
+}
+$('fsbtn').addEventListener('click',toggleFs);
+document.addEventListener('fullscreenchange',syncFs);document.addEventListener('webkitfullscreenchange',syncFs);
+addEventListener('keydown',e=>{if(e.key==='Escape'&&stageEl.classList.contains('fs')&&modal.hidden){stageEl.classList.remove('fs','full');syncFs();}});
+$('snd').addEventListener('click',()=>{audioInit();if(SND.ctx&&SND.ctx.state!=='running')SND.ctx.resume();setSound(!SND.on);});
+setSound(SND.on);
+
+/* ========== 曝露ランナー版の仕組み（曝露療法・曝露反応妨害法・行動活性化） ========== */
+const CP={ // 図鑑に並ぶ考え方
+  sudsc:{name:'SUDS',why:'主観的な苦痛の点数（0〜100）。曝露のあいだ、数分ごとに本人に聞いて記録する。'},
+  hier:{name:'不安階層表',why:'怖い場面を、不安の強さ（SUDS）の順に並べた表。耐えられる程度の場面から順に取り組む。'},
+  graded:{name:'段階的曝露',why:'不安階層表の下のほうから、少しずつ強い場面へ進む曝露。'},
+  flood:{name:'フラッディング',why:'いきなり最も強い場面に曝露する方法。効果はあるが負担が大きく、中断しやすい。'},
+  hab:{name:'馴化（慣れ）',why:'怖い場面にとどまると、不安は時間とともに下がる。下がるまでとどまることが学習になる。'},
+  avoid:{name:'回避',why:'逃げるとその場は楽になるが、「逃げたから助かった」と学習し、次はもっと怖くなる（負の強化）。'},
+  safety:{name:'安全行動',why:'水や薬を持つ、目をそらすなど、怖さを和らげる小さな行動。曝露の学習を妨げるので少しずつやめる。'},
+  intero:{name:'内部感覚曝露',why:'動悸・息切れなど、パニック発作に似た体の感覚をわざと起こして慣れる練習。'},
+  erp:{name:'曝露反応妨害法（ERP）',why:'強迫症の治療。不安を起こす場面にふれ（曝露）、手洗いや確認などの強迫行為をしない（反応妨害）。'},
+  reass:{name:'保証の求め',why:'「大丈夫だよね？」と何度も確かめること。答えるとその場は落ち着くが、強迫を続ける燃料になる。'},
+  behexp:{name:'行動実験',why:'「失敗したら笑われる」などの予測を、実際にやって確かめる方法。予測と結果を比べる。'},
+  pe:{name:'持続エクスポージャー療法',why:'PTSDの治療。トラウマ記憶を繰り返し語る想像曝露と、避けている場所に行く現実曝露を組み合わせる。'},
+  safefirst:{name:'安全の確保',why:'危険が続いている状況（DVなど）では、曝露より先に安全の確保と支援が必要。'},
+  ba:{name:'行動活性化',why:'うつ病の行動療法。気分を待たずに小さな活動から始め、達成感や楽しみを取り戻す。気分は行動のあとからついてくる。'},
+};
+const cp=id=>unlockD('cp:'+id);
+const expoCur=()=>G.gates&&G.gates.find(g=>!g.cleared);
+const expoCleared=()=>`${G.gates.filter(g=>g.cleared).length} / ${G.gates.length}`;
+function expoInit(){
+  const st=G.st,src=G.pt.gates||st.gates;
+  G.suds=st.base||8;G.mood=20;G.hr=0;G.safeT=0;G.safeN=0;G.compN=0;G.avoid=0;G.trace=[];G.marks=[];G.traceT=0;G.habK=1;G.urge=new Set();G.lowT=0;G.boostQ=[];G.jumpedNow=false;
+  G.gates=src.map(g=>({x:g.x*T,label:g.label,ic:g.ic,int:g.int||0,type:g.type||'exp',gain:g.gain||0,need:g.need||3,fb:g.fb||'',cue:g.cue||'',hab:1,sens:1,prog:0,cleared:false,engaged:false,wob:0,peak:0,peakShown:false}));
+  G.items=(G.pt.safety||st.safety||[]).map(([tx,ty,label,ch])=>({x:tx*T+2,y:ty*T,w:12,h:14,label,ch,taken:false}));
+  xfInit();expoKarte();
+}
+function expoKarte(){
+  const ba=G.st.expo==='ba';$('kHierT').textContent=ba?'活動の計画':'不安階層表';
+  $('kHierT').hidden=$('kHier').hidden=false;
+  $('kHier').innerHTML=G.gates.map(g=>iconImg(g.ic)+(ba||ADV?g.label:`${g.label}（${g.int}）`)).join('<br>');
+}
+function expoFlood(){ // フラッディング：強い場面から並べ替える
+  const c=G.gates.map(g=>({label:g.label,ic:g.ic,int:g.int,type:g.type})).sort((a,b)=>b.int-a.int);
+  G.gates.forEach((g,i)=>Object.assign(g,c[i]));expoKarte();
+}
+function expoStart(){
+  G.state='play';audioInit();if(SND.ctx&&SND.ctx.state!=='running')SND.ctx.resume();musicStart();$('startov').hidden=true;last=performance.now();
+  toast(`第${G.st.no}面 スタート`,G.st.expo==='ba'?'気分を待たずに、小さな活動から':'怖い場面に近づき、不安が下がるまでとどまろう');
+  if(G.st.pre)openDecision('pre');
+}
+function expoSpeed(){
+  if(G.st.expo!=='ba')return 1;
+  return (.55+.45*G.mood/100)*(G.lowT>0?.8:1);
+}
+function expoPush(){ // 不安が強いほど足取りが重い。→を押していれば必ず前へ進み、離すと押し戻される
+  if(G.st.expo==='ba')return;
+  const g=expoCur();if(!g||g.type==='intero')return;
+  const d=g.x-(P.x+P.w);if(d>=130)return;
+  const s=clamp(G.suds/100,0,1.3);
+  if(keys.r&&!keys.l){const cap=2.3*Math.max(.3,1-.55*s);if(P.vx>cap)P.vx=cap;if(P.vx<.35)P.vx=Math.min(.35,P.vx+.6);}
+  else P.vx-=.5*s;
+}
+function expoWall(){const g=expoCur();if(g&&P.x+P.w>g.x){P.x=g.x-P.w;if(P.vx>0)P.vx=0;}}
+function expoMark(k){G.marks.push([G.t,k]);}
+function expoUpdate(dt){
+  const st=G.st,ba=st.expo==='ba',g=expoCur();
+  xfUpdate(dt);
+  if(G.safeT>0)G.safeT-=dt;if(G.lowT>0)G.lowT-=dt;
+  for(const it of G.items)if(!it.taken&&overlap(P,it)){
+    it.taken=true;G.safeN++;cp('safety');expoMark('s');sfx('water');
+    if(ba){G.mood=Math.min(100,G.mood+4);G.lowT=8;xfStamp(it.label,'#6b5a2a',it.ch,'少し楽。でも、あとで沈む');hint('safe','その場しのぎ','横になると少し楽。でも、あとから気分はもっと沈む');}
+    else{G.safeT=10;G.xf.held=it.ch;xfStamp(it.label,'#a8720c',it.ch,'安全行動：慣れが止まる');hint('safe','安全行動','その場は楽になるが、慣れ（馴化）が止まる');}
+  }
+  if(ba){expoBA(dt,g);G.jumpedNow=false;return;}
+  let target=st.base||8;
+  if(g){
+    const d=g.x-(P.x+P.w),inZone=d<40;
+    let val;
+    if(g.type==='intero'){
+      if(inZone&&G.jumpedNow)G.hr=Math.min(1,G.hr+.14);
+      G.hr=Math.max(0,G.hr-dt*.09);
+      val=g.int*g.hab*g.sens*(.2+.8*G.hr)*(d<150?1:.3);
+      if(inZone&&!g.engaged){g.engaged=true;cp('sudsc');hint('intero','内部感覚曝露','その場でジャンプを続けて、わざと動悸を起こそう');}
+      if(inZone&&G.hr>.45&&G.safeT<=0)g.hab-=dt*.075*G.habK;
+    }else{
+      const prox=clamp(1-d/150,0,1);
+      val=g.int*g.hab*g.sens*(.25+.75*prox);
+      if(inZone&&!g.engaged){g.engaged=true;cp('sudsc');hint('stay','とどまろう','→を押し続けて、不安が半分に下がるまでとどまる');}
+      if(inZone&&G.safeT<=0)g.hab-=dt*.075*G.habK;
+      if(g.engaged&&!inZone)g.away=(g.away||0)+dt;else g.away=0;
+      if(g.engaged&&(d>90||g.away>1.5)){ // 回避：壁の前を離れて1.5秒たつか、大きく離れたら
+        g.away=0;
+        g.engaged=false;g.hab=1;g.sens=Math.min(1.5,g.sens*1.15);G.avoid++;cp('avoid');expoMark('a');sfx('bad');
+        xfStamp('回避','#bb3333','','次はもっと怖くなる');g.wob=1;g.peak=0;pop(g.x+20,15*T-62,'怖さ↑','#bb3333');hint('avoid','回避すると','その場は楽になるが、不安は下がらず、次はもっと怖くなる');
+      }
+    }
+    if(g.hab<=.5){
+      g.cleared=true;g.engaged=false;cp('hab');if(g.type==='intero')cp('intero');expoMark('c');sfx('good');
+      xfClear(g);G.cp=Math.max(G.cp,Math.floor(g.x/T));
+    }
+    if(G.safeT>0)val*=.6;
+    target=Math.max(target,val);
+  }
+  G.suds+=(target-G.suds)*Math.min(1,dt*2.5);
+  const act=st.act;
+  if(act&&g&&G.suds>65&&!G.urge.has(g.x)){G.urge.add(g.x);toast(act.urge,`Cキー（または「${act.label}」ボタン）で${act.label}。その場は楽になる`);}
+  G.jumpedNow=false;
+  expoTrace(dt);
+}
+function expoBA(dt,g){ // 行動活性化：気分は何もしないと少しずつ下がる。活動のあとから上がる
+  G.mood=Math.max(0,G.mood-dt*(G.lowT>0?1.4:.12));
+  for(const b of G.boostQ)b.t-=dt;
+  for(const b of G.boostQ.filter(b=>b.t<=0)){G.mood=Math.min(100,G.mood+b.v);pop(P.x+P.w/2,P.y-14,b.txt,'#1d7566');sfx('good');}
+  G.boostQ=G.boostQ.filter(b=>b.t>0);
+  if(g){
+    const d=g.x-(P.x+P.w),inZone=d<40;
+    if(inZone){
+      if(!g.engaged){g.engaged=true;hint('ba','活動を始めよう','気分を待たずに、まず動く。少しのあいだとどまると活動が終わる');}
+      g.prog+=dt*G.habK;
+      if(g.prog>=g.need){g.cleared=true;g.engaged=false;expoMark('c');cp('ba');G.cp=Math.max(G.cp,Math.floor(g.x/T));
+        G.boostQ.push({t:1.2,v:g.gain,txt:g.fb||'達成感！'});xfClear(g);}
+    }else if(g.engaged&&d>90){g.engaged=false;g.prog=0;G.avoid++;expoMark('a');sfx('bad');xfStamp('途中でやめた','#bb3333',g.ic,'達成感が得られない');}
+  }
+  expoTrace(dt);
+}
+function expoTrace(dt){G.traceT+=dt;if(G.traceT>=.25){G.traceT=0;G.trace.push([G.t,G.st.expo==='ba'?G.mood:G.suds]);if(G.trace.length>4000)G.trace.shift();}}
+function expoAct(){ // 強迫行為・安全行動のボタン
+  const act=G.st.act;if(!act||G.state!=='play')return;
+  const g=expoCur();
+  if(act.kind==='comp'){
+    if(G.suds<15)return;
+    G.suds*=.25;if(g){g.hab=1;g.sens=Math.min(1.5,g.sens*1.1);g.engaged=false;}
+    G.compN++;expoMark('k');sfx('water');G.xf.wash=1;G.xf.germ.length=0;if(g){g.wob=1;g.peak=0;pop(g.x+20,15*T-62,'怖さ↑','#bb3333');}
+    xfStamp(act.label,'#a8720c','手洗い','その場だけ楽。次はもっと強くなる');
+    hint('comp','強迫行為','その場は楽になるが、不安が自然に下がる学習が起きず、次はもっと強くなる');
+    if(G.compN>=3)hint('comp3','洗い続けると','不安が下がる体験ができない。Cを押さずに、壁の前で待ってみよう');
+  }else{
+    G.safeT=4;G.compN++;cp('safety');expoMark('k');sfx('rx');xfStamp(act.label,'#a8720c','目','安全行動：慣れが止まる');
+    hint('look','安全行動','目をそらすとその場は楽。でも慣れ（馴化）が止まる');
+  }
+}
+function expoHUD(c){
+  const ba=G.st.expo==='ba',v=ba?G.mood:G.suds;
+  $('slabel').textContent=ba?'気分':'不安';$('sval').textContent=ADV?'':Math.round(v);$('sfill').style.width=clamp(v,0,100).toFixed(1)+'%';
+  $('sudsbox').classList.toggle('ba',ba);$('sudsbox').classList.toggle('hot',!ba&&v>=70);
+  if(G.safeT>0)c.push(['wait',`安全行動中 あと${Math.ceil(G.safeT)}秒`]);
+  if(G.lowT>0)c.push(['wait','だるさが増している']);
+  const g=expoCur();
+  if(g&&g.engaged)c.push(['adj',ba?`${g.label}：あと${Math.max(0,Math.ceil(g.need-g.prog))}秒`:`とどまる：${Math.round(clamp((1-g.hab)/.5,0,1)*100)}%`]);
+  if(!g)c.push(['drug',ba?'活動をやりきった':'すべての場面を乗り越えた']);
+}
+function expoDraw(){
+  const ba=G.st.expo==='ba',gy=15*T,cur=expoCur(),f=fearLv();
+  for(const g of G.gates){
+    const gx=Math.round(g.x+(g.wob>0?Math.sin(G.t*40)*2.5*g.wob:0));
+    if(!g.cleared){const k=ba?.5:Math.min(1.5,g.int*g.sens/100); // 見えない壁：怖いほど太く濃い
+      ctx.fillStyle=ba?'rgba(90,120,160,.5)':`rgba(190,60,60,${(.3+.35*k).toFixed(2)})`;const wd=ba?3:2+Math.round(k*3);
+      for(let yy=0;yy<gy;yy+=10)ctx.fillRect(gx,yy,wd,5);}
+    if(g===cur&&!ba&&f>.05){const sc=2*(1+1.7*Math.min(1.2,f)),sz=12*sc; // 不安が強いほど、怖い対象が大きく見える
+      ctx.globalAlpha=Math.min(.55,.15+.4*f);drawIcon(g.ic,Math.round(gx+20-sz/2),Math.round(gy-sz),sc,'#3a0606');ctx.globalAlpha=1;}
+    const c=g.cleared?'#9aa7a2':ba?'#6fa883':g.int>=80?'#d0564f':g.int>=60?'#e08a3c':g.int>=40?'#d9a73a':'#c4b452';
+    const bx=gx+5,by=gy-32;
+    ctx.fillStyle='#38514c';ctx.fillRect(bx,by,30,31);ctx.fillStyle=c;ctx.fillRect(bx+1,by+1,28,29);ctx.fillStyle='#f7f4ea';ctx.fillRect(bx+3,by+3,24,24);
+    if(g.cleared)ctx.globalAlpha=.4;
+    if(!drawIcon(g.ic,bx+3,by+3,2)){ctx.fillStyle='#1c2725';ctx.font=`${g.ic.length>2?8:g.ic.length>1?10:13}px ${PF}`;ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(g.ic,gx+20,gy-17);}
+    ctx.globalAlpha=1;ctx.textAlign='center';ctx.textBaseline='middle';
+    const lab=ba||ADV?g.label:`${g.label}　${Math.round(g.int*g.sens)}`;
+    ctx.font=`9px ${PF}`;ctx.lineWidth=3;ctx.strokeStyle='rgba(255,255,255,.92)';ctx.strokeText(lab,gx+20,gy-41);ctx.fillStyle='#1c2725';ctx.fillText(lab,gx+20,gy-41);
+    if(g.cleared){ctx.beginPath();ctx.arc(gx+33,by+3,8,0,Math.PI*2);ctx.fillStyle='#ffffff';ctx.fill();ctx.strokeStyle='#1d7566';ctx.lineWidth=2;ctx.stroke();
+      ctx.fillStyle='#1d7566';ctx.font=`10px ${PF}`;ctx.fillText('済',gx+33,by+3.5);}
+    if(g.engaged&&!g.cleared){const p=ba?clamp(g.prog/g.need,0,1):clamp((1-g.hab)/.5,0,1),lk=G.safeT>0&&!ba;
+      ctx.fillStyle='rgba(0,0,0,.28)';ctx.fillRect(gx-14,gy-56,68,6);ctx.fillStyle=lk?'#a8a08a':'#1d7566';ctx.fillRect(gx-14,gy-56,Math.round(68*p),6);
+      if(lk)xfLock(gx+57,gy-59);}
+    if(g.type==='intero'&&!g.cleared&&g.x-(P.x+P.w)<150){ // 動悸メーター：ジャンプで上げ、白い線を越えると慣れが進む
+      const hb=gy-68;ctx.fillStyle='rgba(0,0,0,.28)';ctx.fillRect(gx-14,hb,68,6);ctx.fillStyle='#d0453f';ctx.fillRect(gx-14,hb,Math.round(68*clamp(G.hr,0,1)),6);
+      ctx.fillStyle='#ffffff';ctx.fillRect(gx-14+Math.round(68*.45),hb-2,1,10);
+      ctx.font=`9px ${PF}`;ctx.textAlign='right';ctx.lineWidth=3;ctx.strokeStyle='rgba(255,255,255,.92)';ctx.strokeText('動悸',gx-17,hb+3);ctx.fillStyle='#bb3333';ctx.fillText('動悸',gx-17,hb+3);ctx.textAlign='center';}
+  }
+  for(const it of G.items){
+    if(it.taken)continue;const b=Math.sin(G.t*4+it.x)*1.5,iy=Math.round(it.y+b);
+    ctx.fillStyle='rgba(255,215,90,.38)';ctx.beginPath();ctx.arc(it.x+6,iy+7,12,0,Math.PI*2);ctx.fill();
+    ctx.fillStyle='rgba(255,255,255,.92)';ctx.fillRect(it.x-1,iy,14,14);ctx.strokeStyle='#a8720c';ctx.lineWidth=1;ctx.strokeRect(it.x-.5,iy+.5,13,13);
+    if(!drawIcon(it.ch,it.x,iy+1,1)){ctx.fillStyle='#a8720c';ctx.font=`9px ${PF}`;ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(it.ch,it.x+6,iy+7);}
+    ctx.font=`8px ${PF}`;ctx.textAlign='center';ctx.textBaseline='middle';ctx.lineWidth=3;ctx.strokeStyle='rgba(255,255,255,.9)';ctx.strokeText(it.label,it.x+6,iy-6);ctx.fillStyle='#6b4a08';ctx.fillText(it.label,it.x+6,iy-6);
+  }
+}
+function expoOverlay(){
+  const X=G.xf;
+  if(G.st.expo==='ba'){const a=(1-G.mood/100)*.38;ctx.fillStyle=`rgba(70,75,90,${a.toFixed(3)})`;ctx.fillRect(0,0,W,H);
+    if(X){xfRain();if(X.relief>0){ctx.fillStyle=`rgba(255,250,225,${(X.relief*.3).toFixed(3)})`;ctx.fillRect(0,0,W,H);}xfScreenTop();}return;}
+  if(!X)return;
+  const f=fearLv(),cam=Math.round(G.cam),px=P.x+P.w/2-cam,py=P.y+10,fr=G.st.fear;
+  if(fr==='panic'&&f>.35){ctx.fillStyle=`rgba(255,255,255,${((f-.35)*.42*(.8+.2*Math.sin(G.t*3))).toFixed(3)})`;ctx.fillRect(0,0,W,H);} // 頭が真っ白
+  if(fr==='ocd')xfSmudge();
+  if(X.fbA>0)xfFlash();
+  if(f>0){const fm=Math.min(1,f),inner=Math.max(50,W*(.42-.3*fm)-X.beat*8*fm),a=Math.min(.93,.22+.68*f+X.beat*.08*fm); // 視野が狭まる＋鼓動
+    const rg=ctx.createRadialGradient(px,py,inner,px,py,inner+W*.42);
+    rg.addColorStop(0,'rgba(120,0,0,0)');rg.addColorStop(.35,`rgba(110,8,8,${(a*.5).toFixed(3)})`);rg.addColorStop(1,`rgba(30,0,0,${a.toFixed(3)})`);
+    ctx.fillStyle=rg;ctx.fillRect(0,0,W,H);}
+  if(fr==='social'&&f>.08)xfEyes(f,px,py); // まわりの目
+  if(X.relief>0){ctx.fillStyle=`rgba(235,255,240,${(X.relief*.35).toFixed(3)})`;ctx.fillRect(0,0,W,H);}
+  xfScreenTop();
+}
+function expoFinal(){
+  const st=G.st,ba=st.expo==='ba';
+  if(ba){const m=Math.round(G.mood);G.grades.push({q:'最後の気分',a:`${m}`,g:m>=70?'◎':m>=50?'○':m>=30?'△':'×',why:'小さな活動を積み重ねるほど、気分はあとから上がる。'});}
+  G.grades.push({q:ba?'途中でやめた活動':'回避',a:`${G.avoid}回`,g:G.avoid===0?'◎':G.avoid<=2?'△':'×',why:ba?'途中でやめると達成感が得られず、気分も上がりにくい。':'途中で離れると不安は下がらず、次はもっと怖くなる。'});
+  G.grades.push({q:ba?'その場しのぎ（横になる・スマホ）':'安全行動',a:`${G.safeN}回`,g:G.safeN===0?'◎':G.safeN<=1?'△':'×',why:ba?'その場は楽でも、気分はあとから沈む。':'安全行動があると、慣れ（馴化）が起きにくい。少しずつやめていく。'});
+  if(st.act)G.grades.push({q:st.act.label,a:`${G.compN}回`,g:G.compN===0?'◎':G.compN<=1?'△':'×',why:st.act.why});
+  if(st.id==='ocd'&&G.compN===0&&G.gates.every(g=>g.cleared))cp('erp');
+}
+function expoSummary(){return G.gates.map(g=>`${g.cleared?'✓':'・'} ${iconImg(g.ic)}${g.label}${G.st.expo==='ba'?'':`（${g.int}）`}`).join('<br>');}
+function expoChart(){
+  const tr=G.trace;if(tr.length<2)return '';
+  const ba=G.st.expo==='ba',T1=Math.max(1,tr[tr.length-1][0]),Wd=640,Hd=210,pl=34,pr=10,pt=10,pb=26;
+  const X=t=>pl+(t/T1)*(Wd-pl-pr),Y=v=>pt+(1-clamp(v,0,100)/100)*(Hd-pt-pb);
+  const at=t=>{let b=tr[0];for(const p of tr){if(p[0]>t)break;b=p;}return b[1];};
+  const grid=[0,50,100].map(v=>`<line x1="${pl}" x2="${Wd-pr}" y1="${Y(v)}" y2="${Y(v)}" style="stroke:var(--line)"/><text x="${pl-6}" y="${Y(v)+4}" text-anchor="end" style="fill:var(--muted);font-size:11px">${v}</text>`).join('');
+  const pts=tr.map(([t,v])=>`${X(t).toFixed(1)},${Y(v).toFixed(1)}`).join(' ');
+  const col={c:'var(--accent)',a:'var(--seal)',s:'var(--warn)',k:'var(--warn)'};
+  const mk=G.marks.map(([t,k])=>`<circle cx="${X(t).toFixed(1)}" cy="${Y(at(t)).toFixed(1)}" r="5" style="fill:${col[k]};stroke:var(--panel);stroke-width:1.5"/>`).join('');
+  const lg=ba?'緑：活動ができた　赤：途中でやめた　黄：横になる・スマホ':'緑：不安が半分に下がった　赤：回避　黄：安全行動・強迫行為';
+  return `<h3>${ba?'気分':'不安（SUDS）'}の変化</h3><div class="chartwrap"><svg viewBox="0 0 ${Wd} ${Hd}" role="img" aria-label="${ba?'気分':'不安'}の時間変化のグラフ">${grid}
+    <text x="${Wd-pr}" y="${Hd-6}" text-anchor="end" style="fill:var(--muted);font-size:11px">時間 →</text>
+    <polyline points="${pts}" style="fill:none;stroke:var(--ink);stroke-width:2"/>${mk}</svg></div><p class="note">${lg}</p>`;
+}
+
+/* ---- 曝露ランナー：不安の見える化（揺れ・視野・心拍・浮かぶ考え・アイコン・できごとの印） ---- */
+const RM=(()=>{try{return matchMedia('(prefers-reduced-motion: reduce)').matches;}catch(_){return false;}})();
+let SHK=RM?.35:1; // 揺れの強さ。「揺れ 弱く」で .35
+try{const v=localStorage.getItem('bakuro-shake');if(v==='0')SHK=.35;else if(v==='1')SHK=1;}catch(_){}
+function syncShake(){const b=$('shk');if(!b)return;const on=SHK>=1;b.textContent=on?'揺れ あり':'揺れ 弱く';b.setAttribute('aria-pressed',String(on));}
+$('shk').addEventListener('click',()=>{SHK=SHK>=1?.35:1;try{localStorage.setItem('bakuro-shake',SHK>=1?'1':'0');}catch(_){}syncShake();});
+syncShake();
+const ICC={};
+function drawIcon(id,x,y,sc,sil){ // 12×12のドット絵。sil を渡すと影絵
+  if(typeof ICONS==='undefined'||!ICONS[id])return false;
+  const ic=ICONS[id];
+  for(let r=0;r<12;r++){const row=ic[r];let c0=0;
+    while(c0<12){const ch=row[c0];if(ch==='.'){c0++;continue;}let c1=c0+1;while(c1<12&&row[c1]===ch)c1++;
+      ctx.fillStyle=sil||IPAL[ch];ctx.fillRect(x+c0*sc,y+r*sc,(c1-c0)*sc,sc);c0=c1;}}
+  return true;
+}
+function iconURL(id){ // 選択画面・カルテ・結果画面の <img> 用
+  if(typeof ICONS==='undefined'||!ICONS[id])return '';
+  if(ICC[id])return ICC[id];
+  const c=document.createElement('canvas');c.width=c.height=12;const x=c.getContext('2d');
+  ICONS[id].forEach((row,r)=>{for(let i=0;i<12;i++){const ch=row[i];if(ch!=='.'){x.fillStyle=IPAL[ch];x.fillRect(i,r,1,1);}}});
+  return ICC[id]=c.toDataURL();
+}
+const iconImg=(id,cls)=>{const u=iconURL(id);return u?`<img class="${cls||'xic'}" src="${u}" alt="">`:'';};
+const fearLv=()=>G.st.expo==='ba'?0:clamp((G.suds-30)/70,0,1.3);
+function xfInit(){
+  const eyes=[];for(let i=0;i<18;i++)eyes.push({x:24+((i*137)%432),y:22+((i*71)%118),bl:(i*1.7)%4});
+  const smud=[];for(let i=0;i<8;i++)smud.push({x:30+((i*163)%420),y:24+((i*89)%190),r:9+(i*5)%13});
+  G.xf={ph:0,beat:0,bpm:70,jolt:0,th:2.5,ths:[],sw:[],germ:[],eyes,smud,ecg:new Array(64).fill(0),fb:5,fbA:0,fbSeed:1,cue:1.5,
+    relief:0,stamps:[],shards:[],wash:0,held:'',urge:false};
+}
+function ecgAt(p){ // 心電図の形（P波・QRS・T波）
+  if(p<.06)return Math.sin(p/.06*Math.PI)*.12;
+  if(p<.10)return 0;if(p<.12)return -.15;if(p<.15)return 1;if(p<.18)return -.35;if(p<.30)return 0;
+  if(p<.42)return Math.sin((p-.3)/.12*Math.PI)*.22;return 0;
+}
+function xfStamp(txt,col,ic,sub){ // パッと見て分かる印（回避・安全行動・乗り越えた など）
+  const X=G.xf;if(!X)return;
+  for(const s of X.stamps)s.t=Math.min(s.t,.25); // 新しい印が出たら、前の印はすぐ消す
+  X.stamps.push({txt,col,ic:ic||'',sub:ADV?'':(sub||''),t:1.8,x:P.x+P.w/2,y:P.y-66});
+}
+function xfThought(txt,calm){const X=G.xf;if(!X)return;X.ths.push({txt,calm:!!calm,x:P.x+P.w/2-(calm?44:20+Math.random()*50),y:calm?P.y-18:P.y-26-Math.random()*26,t:calm?2.6:2.4,w:Math.random()*6});}
+function xfUpdate(dt){
+  const X=G.xf;if(!X)return;const st=G.st,ba=st.expo==='ba',f=fearLv(),g=expoCur();
+  X.bpm=ba?64:Math.round(68+92*clamp(G.suds/100,0,1.2));
+  X.ph+=dt*X.bpm/60;if(X.ph>=1){X.ph-=1;X.beat=1;}X.beat=Math.max(0,X.beat-dt*5);
+  X.ecg.push(ecgAt(X.ph));if(X.ecg.length>64)X.ecg.shift();
+  X.jolt=Math.max(0,X.jolt-dt*3);X.relief=Math.max(0,X.relief-dt*.8);X.fbA=Math.max(0,X.fbA-dt*1.6);X.wash=Math.max(0,X.wash-dt*.9);
+  if(G.safeT<=0)X.held='';
+  for(const q of G.gates)if(q.wob>0)q.wob=Math.max(0,q.wob-dt*2);
+  // 汗
+  if(!ba&&f>.35&&Math.random()<dt*f*7)X.sw.push({x:P.x+P.w/2+(Math.random()*10-5),y:P.y+1,vx:(Math.random()-.5)*.8,vy:-.8-Math.random()*.6,t:.9});
+  for(const d of X.sw){d.x+=d.vx;d.y+=d.vy;d.vy+=.12;d.t-=dt;}X.sw=X.sw.filter(d=>d.t>0);
+  for(const d of X.shards){d.x+=d.vx;d.y+=d.vy;d.vy+=.15;d.t-=dt;}X.shards=X.shards.filter(d=>d.t>0);
+  for(const s of X.stamps){s.t-=dt;s.y-=dt*5;}X.stamps=X.stamps.filter(s=>s.t>0);
+  // 浮かぶ考え（自動思考）：不安が強い・気分が低いほどよく浮かぶ
+  const thr=ba?clamp((60-G.mood)/60,0,1):clamp((G.suds-35)/60,0,1);
+  X.th-=dt*(.25+thr*1.3);
+  if(st.thoughts&&thr>.15&&X.th<=0&&X.ths.filter(o=>!o.calm).length<3){
+    X.th=1.1+Math.random()*1.3;xfThought(st.thoughts[Math.floor(Math.random()*st.thoughts.length)]);
+    hint('thought',ba?'沈んだときに浮かぶ考え':'不安なときに浮かぶ考え',ba?'「どうせ無理」と浮かんでも、小さく動いてみる':'頭に浮かぶ考え（自動思考）。とどまって、本当にそうなるか確かめよう');}
+  for(const o of X.ths){o.t-=dt;o.y-=dt*9;}X.ths=X.ths.filter(o=>o.t>0);
+  // 強迫症：ばい菌が体にまとわりつく
+  if(st.fear==='ocd'){const n=X.wash>0?0:Math.floor(clamp((G.suds-25)/70,0,1.2)*34);
+    while(X.germ.length<n)X.germ.push({ox:Math.random()*28-14,oy:3+Math.random()*17,ph:Math.random()*6});
+    if(X.germ.length>n)X.germ.length=Math.max(n,X.germ.length-2);}
+  // 怖い場面の合図（ほえる・電車の音・ひそひそ・鼓動）
+  if(!ba&&g&&g.cue&&!g.cleared){const d=g.x-(P.x+P.w);
+    if(d<170){X.cue-=dt*(.35+f*1.1);if(X.cue<=0){X.cue=1.3+Math.random()*1.5;xfCue(g,f);}}}
+  // PTSD：フラッシュバック
+  if(st.fear==='ptsd'&&f>.4){X.fb-=dt*(.4+f*.8);
+    if(X.fb<=0){X.fb=4.5+Math.random()*3;X.fbA=1;X.fbSeed=1+Math.floor(Math.random()*9999);X.jolt=Math.max(X.jolt,1);
+      const dv=G.pt.tags&&G.pt.tags.includes('unsafe');expoSnd(dv?'bang':'screech');pop(P.x+P.w/2,P.y-24,dv?'ドン！':'キキーッ！','#8e2a26');
+      hint('flash','フラッシュバック','トラウマの場面が、いま起きているかのようによみがえる');}}
+  // 不安のピーク：とどまっていると、ピークを越えて下がっていく
+  if(!ba&&g&&g.engaged){g.peak=Math.max(g.peak||0,G.suds);
+    if(!g.peakShown&&g.peak>40&&G.suds<g.peak-8&&g.hab<.95){g.peakShown=true;xfStamp('ピークを越えた','#1d7566','','とどまれば、不安は自然に下がる');
+      hint('peak','不安のピーク','とどまっていれば、不安はピークを越えて自然に下がっていく');}}
+  // 強迫行為・目をそらしたい衝動（Cボタンがせかすように光る）
+  const urge=!!(st.act&&g&&!g.cleared&&G.suds>60&&G.safeT<=0);
+  if(urge!==X.urge){X.urge=urge;const b=$('actbtn');if(b)b.classList.toggle('urge',urge);}
+}
+function xfCue(g,f){
+  const gy=15*T,X=G.xf;
+  if(g.cue==='bark'){expoSnd('bark',.5+.5*Math.min(1,f));pop(g.x+20+(Math.random()*16-8),gy-60,'ワン！','#8e2a26');X.jolt=Math.max(X.jolt,.3+.6*f);}
+  else if(g.cue==='train'){expoSnd('train',.6+.4*Math.min(1,f));pop(g.x+20,gy-60,'ガタン…','#3a4556');X.jolt=Math.max(X.jolt,.25);}
+  else if(g.cue==='whisper'){const n=Math.max(1,Math.floor(f*18)),e=X.eyes[Math.floor(Math.random()*n)];
+    if(SND.ctx&&SND.on&&SND.ctx.state==='running')whisper(.9+1.6*f,(Math.random()*2-1)*.8,SND.ctx.currentTime+.01);
+    if(f>.2)pop(e.x+Math.round(G.cam),e.y+16,'ひそひそ','#5b3f7a');}
+  else if(g.cue==='heart'&&f>.2)pop(P.x+P.w/2+8,P.y-6,'ドクン','#bb3333');
+}
+function xfClear(g){ // 壁が消えた：くだけるかけら・ほっとする光・落ち着いた考え
+  const X=G.xf;if(!X)return;const gy=15*T;
+  for(let i=0;i<22;i++)X.shards.push({x:g.x+Math.random()*4,y:Math.random()*gy,vx:(Math.random()-.25)*3,vy:(Math.random()-.6)*3,t:.7+Math.random()*.5});
+  X.relief=1;xfStamp(G.st.expo==='ba'?g.label+'：できた':'乗り越えた！','#1d7566',g.ic,G.st.expo==='ba'?'気分はあとから上がる':'不安が半分に下がった');
+  if(G.st.calm)xfThought(G.st.calm[Math.floor(Math.random()*G.st.calm.length)],true);
+}
+function xfShake(){const X=G.xf;if(!X||G.st.expo==='ba')return 0;const f=fearLv();return SHK*(Math.pow(Math.max(0,f-.25),1.3)*4.5+X.jolt*3+X.beat*f*1.2);}
+function xfZoom(){const X=G.xf;if(!X||SHK<1||G.st.expo==='ba')return 1;return 1+.014*X.beat*Math.min(1,fearLv());}
+function xfTremble(){const f=fearLv();return f>.4?(f-.4)*1.8*(SHK<1?.4:1):0;}
+function xfFace(hx,y){ // 顔：見開いた目・こわばった口・赤面・目をそらす
+  if(!G.xf)return;const f=fearLv(),fr=P.face>0,ex=fr?hx+5:hx+2;
+  if(G.st.fear==='social'&&f>.3){ctx.fillStyle=`rgba(230,70,90,${Math.min(.85,(f-.3)*1.3).toFixed(2)})`;ctx.fillRect(fr?hx+2:hx+4,y+5,2,2);}
+  if(G.st.act&&G.st.act.kind==='look'&&G.safeT>0){ctx.fillStyle='#f1c9a2';ctx.fillRect(ex-1,y+3,3,3);ctx.fillStyle='#1b1b1b';ctx.fillRect(ex-1,y+5,3,1);}
+  else if(f>.5){ctx.fillStyle='#ffffff';ctx.fillRect(ex-1,y+3,3,3);ctx.fillStyle='#1b1b1b';ctx.fillRect(ex,y+4,1,1);}
+  if(f>.65){ctx.fillStyle='#5a2a2a';ctx.fillRect(fr?hx+5:hx,y+6,3,1);}
+  if(G.st.expo==='ba'&&G.mood<35){ctx.fillStyle='#5a4a40';ctx.fillRect(fr?hx+5:hx,y+6,3,1);}
+}
+function xfWorldTop(){ // プレイヤーの上に重ねる：汗・ばい菌・手洗いの水・くだけた壁・手にした安全行動
+  const X=G.xf;if(!X)return;
+  ctx.fillStyle='#8fd0f5';for(const d of X.sw)ctx.fillRect(Math.round(d.x),Math.round(d.y),1,2);
+  for(const q of X.germ){const x=Math.round(P.x+P.w/2+q.ox+Math.sin(G.t*6+q.ph)),y=Math.round(P.y+q.oy+Math.cos(G.t*5+q.ph));
+    ctx.fillStyle='#5f8f2a';ctx.fillRect(x,y,2,2);ctx.fillStyle='#34521a';ctx.fillRect(Math.floor(G.t*8+q.ph)%2?x-1:x+2,y+(Math.floor(G.t*8+q.ph)%2?2:-1),1,1);}
+  if(X.wash>0){const cx=P.x+P.w/2,cy=P.y+13;
+    for(let k=0;k<12;k++){const a=k/12*Math.PI*2+G.t*3,r=8+(1-X.wash)*14;ctx.fillStyle=k%3?'#7fc4f0':'#ffffff';ctx.fillRect(Math.round(cx+Math.cos(a)*r),Math.round(cy+Math.sin(a)*r*.6),2,2);}}
+  for(const d of X.shards){ctx.fillStyle=`rgba(190,60,60,${Math.min(1,d.t*1.5).toFixed(2)})`;ctx.fillRect(Math.round(d.x),Math.round(d.y),3,5);}
+  if(X.held&&G.safeT>0){const x=Math.round(P.x-17),y=Math.round(P.y-1);
+    ctx.fillStyle='rgba(255,255,255,.9)';ctx.fillRect(x-1,y-1,16,15);ctx.strokeStyle='#a8720c';ctx.lineWidth=1;ctx.strokeRect(x-.5,y-.5,15,14);drawIcon(X.held,x+1,y+1,1);}
+}
+function xfEventBlock(px,py){ // できごとブロック（吹き出し）
+  const sh=.5+.5*Math.sin(G.t*4);
+  ctx.fillStyle='#4f86c6';ctx.fillRect(px,py,T,T);ctx.fillStyle='#2f5a8f';ctx.fillRect(px,py+T-2,T,2);ctx.fillRect(px+T-2,py,2,T);
+  ctx.fillStyle=`rgba(220,240,255,${(.6+.4*sh).toFixed(2)})`;ctx.fillRect(px,py,T,2);ctx.fillRect(px,py,2,T);
+  ctx.fillStyle='#ffffff';ctx.fillRect(px+3,py+3,10,7);ctx.fillRect(px+4,py+10,3,2);
+  ctx.fillStyle='#2f5a8f';ctx.fillRect(px+7,py+4,2,3);ctx.fillRect(px+7,py+8,2,1);
+  const by=py-9+Math.sin(G.t*5)*2;ctx.font=`9px ${PF}`;ctx.textAlign='center';ctx.textBaseline='middle';ctx.lineWidth=3;
+  ctx.strokeStyle='rgba(255,255,255,.92)';ctx.strokeText('できごと',px+8,by);ctx.fillStyle='#2f5a8f';ctx.fillText('できごと',px+8,by);
+}
+const HEARTPX=[".rr.rr.","rrrrrrr","rrrrrrr",".rrrrr.","..rrr..","...r..."];
+function xfScreenTop(){ // 画面に重ねる：浮かぶ考え・印・衝動の吹き出し・心拍モニター
+  const X=G.xf;if(!X)return;const cam=Math.round(G.cam),ba=G.st.expo==='ba';
+  ctx.textBaseline='middle';
+  for(const o of X.ths){const al=Math.min(1,o.t*1.5,(2.6-o.t)*4);if(al<=0)continue;
+    ctx.globalAlpha=al;ctx.font=`10px ${PF}`;ctx.textAlign='center';const tw=ctx.measureText(o.txt).width+10;
+    const x=Math.round(clamp(o.x-cam+Math.sin(G.t*2+o.w)*2,tw/2+2,W-tw/2-2)),y=Math.round(o.y),col=o.calm?'#1d7566':ba?'#3d4a63':'#a01818';
+    ctx.fillStyle='rgba(255,255,255,.9)';ctx.fillRect(x-tw/2,y-8,tw,16);ctx.strokeStyle=col;ctx.lineWidth=1;ctx.strokeRect(x-tw/2+.5,y-7.5,tw-1,15);
+    ctx.fillRect(x-2,y+10,4,3);ctx.fillRect(x-4,y+15,2,2); // 考えの吹き出しのしっぽ
+    ctx.fillStyle=col;ctx.fillText(o.txt,x,y+.5);}
+  ctx.globalAlpha=1;
+  const cg=expoCur();
+  if(!ba&&cg&&cg.engaged&&!cg.cleared&&!keys.r&&G.state==='play'){
+    ctx.font=`11px ${PF}`;ctx.textAlign='center';const tw=ctx.measureText('→ 押し続ける').width+12,x=Math.round(clamp(P.x+P.w/2-cam,tw/2+2,W-tw/2-2)),y=Math.round(P.y-14);
+    ctx.fillStyle=Math.floor(G.t*4)%2?'#1d7566':'#2a9a86';ctx.fillRect(x-tw/2,y-9,tw,18);ctx.fillRect(x-3,y+9,6,3);ctx.fillStyle='#ffffff';ctx.fillText('→ 押し続ける',x,y+.5);}
+  if(X.urge){const ic=G.st.act.kind==='comp'?'手洗い':'目',x=Math.round(P.x-cam-30),y=Math.round(P.y+4),s=1+.12*X.beat;
+    ctx.save();ctx.translate(x,y);ctx.scale(s,s);ctx.fillStyle='#fff5dc';ctx.fillRect(-9,-9,32,18);ctx.strokeStyle='#a8720c';ctx.lineWidth=1.5;ctx.strokeRect(-9,-9,32,18);
+    drawIcon(ic,-7,-6,1);ctx.fillStyle='#a8720c';ctx.font=`10px ${PF}`;ctx.textAlign='center';ctx.fillText('C?',15,.5);ctx.restore();}
+  for(const s of X.stamps){const age=1.8-s.t,sc=age<.15?1.7-age/.15*.7:1,al=Math.min(1,s.t*2.5);
+    ctx.font=`12px ${PF}`;const tw=ctx.measureText(s.txt).width,iw=s.ic?15:0,bw=tw+iw+14,bh=20;
+    ctx.font=`9px ${PF}`;const half=Math.max(bw,s.sub?ctx.measureText(s.sub).width+6:0)/2;ctx.font=`12px ${PF}`;
+    ctx.save();ctx.globalAlpha=al;ctx.translate(Math.round(clamp(s.x-cam,half+4,W-half-4)),Math.round(Math.max(14,s.y)));ctx.scale(sc,sc);
+    ctx.fillStyle='rgba(255,255,255,.96)';ctx.fillRect(-bw/2,-bh/2,bw,bh);ctx.strokeStyle=s.col;ctx.lineWidth=2;ctx.strokeRect(-bw/2,-bh/2,bw,bh);
+    if(s.ic)drawIcon(s.ic,Math.round(-bw/2+6),-6,1);
+    ctx.fillStyle=s.col;ctx.textAlign='left';ctx.fillText(s.txt,-bw/2+7+iw,1);
+    if(s.sub){ctx.font=`9px ${PF}`;ctx.textAlign='center';ctx.lineWidth=3;ctx.strokeStyle='rgba(255,255,255,.95)';ctx.strokeText(s.sub,0,bh/2+7);ctx.fillStyle=s.col;ctx.fillText(s.sub,0,bh/2+7);}
+    ctx.restore();}
+  if(!ba){const x0=W-88,y0=6,w=82,h=26;
+    ctx.fillStyle='rgba(14,20,20,.8)';ctx.fillRect(x0,y0,w,h);
+    ctx.strokeStyle=G.suds>70?'#ff8a7a':'#7dffa6';ctx.lineWidth=1;ctx.beginPath();
+    X.ecg.forEach((v,i)=>{const xx=x0+30+i*(w-34)/63,yy=y0+16-v*10;i?ctx.lineTo(xx,yy):ctx.moveTo(xx,yy);});ctx.stroke();
+    const hs=1+X.beat*.45;ctx.save();ctx.translate(x0+10,y0+8);ctx.scale(hs,hs);ctx.fillStyle='#ff5a5a';
+    HEARTPX.forEach((r,yy)=>{for(let xx=0;xx<7;xx++)if(r[xx]==='r')ctx.fillRect(xx-3.5,yy-3,1,1);});ctx.restore();
+    ctx.fillStyle='#ffffff';ctx.font=`10px ${PF}`;ctx.textAlign='center';ctx.fillText(String(X.bpm),x0+11,y0+19);}
+}
+function xfEyes(f,px,py){ // 社交不安：まわりの目
+  const X=G.xf,n=Math.floor(Math.min(1.2,f)*15);
+  for(let i=0;i<n;i++){const e=X.eyes[i];
+    ctx.fillStyle=`rgba(30,22,44,${(.18+.22*Math.min(1,f)).toFixed(2)})`;ctx.beginPath();ctx.arc(e.x,e.y+3,9,0,Math.PI*2);ctx.fill();ctx.fillRect(e.x-13,e.y+11,26,8);
+    if((G.t+e.bl)%4<.13){ctx.fillStyle='#1b1b1b';ctx.fillRect(e.x-6,e.y+1,4,1);ctx.fillRect(e.x+2,e.y+1,4,1);continue;}
+    ctx.fillStyle='#ffffff';ctx.fillRect(e.x-6,e.y-1,4,3);ctx.fillRect(e.x+2,e.y-1,4,3);
+    const dx=px>e.x+4?1:px<e.x-4?-1:0,dy=py>e.y?1:0;ctx.fillStyle='#1b1b1b';ctx.fillRect(e.x-5+dx,e.y-1+dy,2,2);ctx.fillRect(e.x+3+dx,e.y-1+dy,2,2);}
+}
+function xfSmudge(){const n=Math.floor(clamp((G.suds-40)/50,0,1)*8);
+  for(let i=0;i<n;i++){const s=G.xf.smud[i];ctx.fillStyle='rgba(95,115,40,.16)';ctx.beginPath();ctx.arc(s.x,s.y,s.r,0,Math.PI*2);ctx.fill();
+    ctx.fillStyle='rgba(60,80,20,.35)';ctx.fillRect(s.x-3,s.y-2,2,2);ctx.fillRect(s.x+4,s.y+3,2,2);ctx.fillRect(s.x,s.y+6,1,1);}}
+function xfFlash(){ // フラッシュバック：色が抜け、ひびが入る（点滅はしない）
+  const X=G.xf,a=X.fbA;
+  ctx.save();ctx.globalAlpha=Math.min(1,a*1.3);ctx.globalCompositeOperation='saturation';ctx.fillStyle='#808080';ctx.fillRect(0,0,W,H);ctx.restore();
+  ctx.fillStyle=`rgba(70,45,25,${(a*.32).toFixed(3)})`;ctx.fillRect(0,0,W,H);
+  let s=X.fbSeed;const rnd=()=>{s=(s*9301+49297)%233280;return s/233280;};
+  const cx=W*(.25+.5*rnd()),cy=H*(.15+.45*rnd());ctx.strokeStyle=`rgba(255,255,255,${(a*.85).toFixed(3)})`;ctx.lineWidth=1.5;
+  for(let k=0;k<7;k++){let x=cx,y=cy;const ang=rnd()*Math.PI*2;ctx.beginPath();ctx.moveTo(x,y);
+    for(let j=0;j<5;j++){x+=Math.cos(ang+(rnd()-.5)*1)*20;y+=Math.sin(ang+(rnd()-.5)*1)*20;ctx.lineTo(x,y);}ctx.stroke();}
+}
+function xfRain(){const n=Math.floor((1-G.mood/100)*44);ctx.fillStyle='rgba(205,214,228,.45)';
+  for(let i=0;i<n;i++){const x=(i*97+G.t*50)%W,y=(i*53+G.t*230)%H;ctx.fillRect(Math.round(x),Math.round(y),1,6);}}
+function expoSnd(k,v){ // 曝露ランナーの効果音（合成）
+  const c=SND.ctx;if(!c||!SND.on||c.state!=='running')return;const t=c.currentTime+.01,o=SND.sfxBus;v=v||1;
+  if(k==='bark'){for(const [dt,f0] of [[0,560],[.17,500]]){const os=c.createOscillator(),fl=c.createBiquadFilter(),gn=c.createGain();
+      os.type='sawtooth';os.frequency.setValueAtTime(f0,t+dt);os.frequency.exponentialRampToValueAtTime(f0*.5,t+dt+.1);fl.type='bandpass';fl.frequency.value=1100;fl.Q.value=1.4;
+      gn.gain.setValueAtTime(.0001,t+dt);gn.gain.exponentialRampToValueAtTime(.4*v,t+dt+.012);gn.gain.exponentialRampToValueAtTime(.001,t+dt+.12);
+      os.connect(fl);fl.connect(gn);gn.connect(o);os.start(t+dt);os.stop(t+dt+.14);}return;}
+  if(k==='train'){const s=noiseSrc(t,.5),fl=c.createBiquadFilter(),gn=c.createGain();fl.type='lowpass';fl.frequency.value=260;gn.gain.setValueAtTime(.0001,t);
+    for(const dt of [0,.17]){gn.gain.exponentialRampToValueAtTime(1.2*v,t+dt+.02);gn.gain.exponentialRampToValueAtTime(.01,t+dt+.15);}
+    s.connect(fl);fl.connect(gn);gn.connect(o);return;}
+  if(k==='screech'){const os=c.createOscillator(),os2=c.createOscillator(),gn=c.createGain();os.type=os2.type='square';
+    os.frequency.setValueAtTime(1900,t);os.frequency.linearRampToValueAtTime(1500,t+.7);os2.frequency.setValueAtTime(1937,t);os2.frequency.linearRampToValueAtTime(1540,t+.7);
+    gn.gain.setValueAtTime(.0001,t);gn.gain.exponentialRampToValueAtTime(.035*v,t+.03);gn.gain.setValueAtTime(.035*v,t+.55);gn.gain.exponentialRampToValueAtTime(.001,t+.75);
+    os.connect(gn);os2.connect(gn);gn.connect(o);os.start(t);os2.start(t);os.stop(t+.78);os2.stop(t+.78);
+    const s=noiseSrc(t+.6,.4),fl=c.createBiquadFilter(),g2=c.createGain();fl.type='lowpass';fl.frequency.value=500;g2.gain.setValueAtTime(.7*v,t+.6);g2.gain.exponentialRampToValueAtTime(.001,t+1);
+    s.connect(fl);fl.connect(g2);g2.connect(o);return;}
+  if(k==='bang'){const s=noiseSrc(t,.4),fl=c.createBiquadFilter(),gn=c.createGain();fl.type='lowpass';fl.frequency.value=420;gn.gain.setValueAtTime(.7*v,t);gn.gain.exponentialRampToValueAtTime(.001,t+.35);
+    s.connect(fl);fl.connect(gn);gn.connect(o);const os=c.createOscillator(),g2=c.createGain();os.frequency.setValueAtTime(90,t);os.frequency.exponentialRampToValueAtTime(40,t+.25);
+    g2.gain.setValueAtTime(.5*v,t);g2.gain.exponentialRampToValueAtTime(.001,t+.3);os.connect(g2);g2.connect(o);os.start(t);os.stop(t+.32);return;}
+}
+function xfLock(x,y){ // 安全行動中：慣れが止まっている印
+  ctx.fillStyle='#6b5a2a';ctx.fillRect(x+1,y,4,1);ctx.fillRect(x,y+1,1,3);ctx.fillRect(x+5,y+1,1,3);ctx.fillStyle='#a8720c';ctx.fillRect(x-1,y+4,8,6);ctx.fillStyle='#ffffff';ctx.fillRect(x+2,y+6,2,2);
+  ctx.font=`8px ${PF}`;ctx.textAlign='left';ctx.textBaseline='middle';ctx.lineWidth=3;ctx.strokeStyle='rgba(255,255,255,.92)';ctx.strokeText('慣れストップ',x+9,y+6);ctx.fillStyle='#a8720c';ctx.fillText('慣れストップ',x+9,y+6);ctx.textAlign='center';
+}
+
+/* ========== ループ ========== */
+let last=performance.now(),acc=0;
+function frame(now){
+  let d=(now-last)/1000;last=now;if(d>.1)d=.1;
+  if(G.state==='play'){acc+=d;while(acc>=1/60){update(1/60);acc-=1/60;if(G.state!=='play'){acc=0;break;}}}else acc=0;
+  draw();
+  requestAnimationFrame(frame);
+}
+
+/* ========== 入力 ========== */
+const KM={ArrowLeft:'l',KeyA:'l',ArrowRight:'r',KeyD:'r',ArrowUp:'j',KeyW:'j',Space:'j',KeyZ:'j',KeyC:'act'};
+const held={l:false,r:false,j:false}; // 実際に押されているキー（選択画面のあいだも追う）
+addEventListener('keydown',e=>{
+  const kh=KM[e.code];if(kh&&kh!=='act')held[kh]=true;
+  if(!modal.hidden){
+    const n=parseInt(e.key,10);
+    if(n>=1&&n<=4){const b=sheet.querySelectorAll('.card')[n-1];if(b&&!b.disabled){e.preventDefault();b.click();}}
+    return;
+  }
+  if(G.state==='intro'&&e.key==='Enter'&&!(e.target&&e.target.closest&&e.target.closest('.tab'))){e.preventDefault();start();return;}
+  const k=KM[e.code];if(!k)return;
+  if(G.state==='play'){e.preventDefault();if(k==='act'){if(!e.repeat&&G.st.expo)expoAct();return;}if(k==='j'&&!keys.j&&!e.repeat)G.jbuf=.12;keys[k]=true;}
+});
+addEventListener('keyup',e=>{const k=KM[e.code];if(k){keys[k]=false;if(k!=='act')held[k]=false;}});
+addEventListener('blur',()=>{clearKeys();held.l=held.r=held.j=false;});
+document.querySelectorAll('.pad button').forEach(b=>{
+  const k=b.dataset.k;
+  const on=e=>{e.preventDefault();try{b.setPointerCapture(e.pointerId)}catch(_){}if(k!=='act')held[k]=true;if(G.state!=='play')return;if(k==='act'){if(G.st.expo)expoAct();b.classList.add('on');return;}if(k==='j'&&!keys.j)G.jbuf=.12;keys[k]=true;b.classList.add('on');};
+  const off=()=>{keys[k]=false;if(k!=='act')held[k]=false;b.classList.remove('on');};
+  b.addEventListener('pointerdown',on);b.addEventListener('pointerup',off);b.addEventListener('pointercancel',off);b.addEventListener('lostpointercapture',off);
+  b.addEventListener('contextmenu',e=>e.preventDefault());
+});
+$('startbtn').addEventListener('click',start);
+
+renderZukan();
+newGame(0);
+requestAnimationFrame(frame);
+})();
+</script>
+
+</body>
+</html>

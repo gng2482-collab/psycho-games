@@ -1,0 +1,681 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="精神科試験ゲーム">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icon-180.png">
+<style>
+:root{color-scheme:light; padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px)}
+body{margin:0; font:14px system-ui,-apple-system,sans-serif}
+img{max-width:100%}
+[hidden]{display:none!important}
+.ipad-bar{display:flex; flex-wrap:wrap; gap:6px 14px; align-items:center; justify-content:space-between;
+  padding:8px max(16px, env(safe-area-inset-right,0px)) 8px max(16px, env(safe-area-inset-left,0px));
+  font:600 14px system-ui,-apple-system,"Hiragino Sans",sans-serif; background:#1d2a33; color:#f3f6f8}
+.ipad-bar a{color:#f3f6f8; text-decoration:none; padding:6px 10px; border:1px solid #4a5d6a; border-radius:6px}
+.ipad-bar span{opacity:.85; font-weight:400}
+</style>
+<script>
+/* プレイヤーごとに記録を分ける（自分は今までどおり、ゲストは頭に印をつける） */
+(function () {
+  try {
+    var P = window.localStorage.getItem('ipad-player') || 'me';
+    window.__ipadPlayer = P;
+    if (P === 'me') return;
+    var pre = 'p:' + P + ':', S = Storage.prototype, g = S.getItem, s = S.setItem, r = S.removeItem;
+    var map = function (k) { return k === 'ipad-player' ? k : pre + k; };
+    S.getItem = function (k) { return g.call(this, map(k)); };
+    S.setItem = function (k, v) { return s.call(this, map(k), v); };
+    S.removeItem = function (k) { return r.call(this, map(k)); };
+  } catch (e) { /* 保存できない環境 */ }
+})();
+if ('serviceWorker' in navigator) { window.addEventListener('load', function () { navigator.serviceWorker.register('sw.js').catch(function () {}); }); }
+</script>
+</head>
+<body>
+<nav class="ipad-bar" aria-label="アプリ"><a href="index.html">← ゲーム一覧</a><span id="ipadWho"></span></nav>
+<script>(function(){var P=window.__ipadPlayer||'me';document.getElementById('ipadWho').textContent='プレイヤー：'+(P==='me'?'自分':P);})();</script>
+<title>当直明けの病棟</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=BIZ+UDPGothic:wght@400;700&family=DotGothic16&display=swap">
+<style>
+/* Layout: 朝の回診の順番を上に帯で置き、その下に患者1人分のカルテの要点と3つの問い。最後に行動制限の早見表。最大幅920px */
+:root{
+  --paper:#e9edf3; --panel:#f8f9fc; --ink:#1b2133; --muted:#5a6377; --line:#c5ccd9;
+  --accent:#34489a; --accent-ink:#fff; --seal:#c0352b; --lamp:#a36a0a; --ok:#25744f;
+  --accent-soft:color-mix(in srgb, var(--accent) 10%, var(--panel));
+  --seal-soft:color-mix(in srgb, var(--seal) 9%, var(--panel));
+  --ok-soft:color-mix(in srgb, var(--ok) 11%, var(--panel));
+  --night:color-mix(in srgb, var(--accent) 22%, var(--panel));
+  --shadow:color-mix(in srgb, var(--ink) 20%, transparent);
+  --f-display:"DotGothic16","BIZ UDPGothic","Hiragino Sans","Yu Gothic",system-ui,sans-serif;
+  --f-body:"BIZ UDPGothic","Hiragino Sans","Hiragino Kaku Gothic ProN","Yu Gothic",Meiryo,system-ui,sans-serif;
+  --fs-xs:.78rem; --fs-s:.875rem; --fs-m:1rem; --fs-l:1.15rem; --fs-xl:1.45rem;
+  --r:5px;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --paper:#10131d; --panel:#181d2a; --ink:#e3e7f1; --muted:#97a0b5; --line:#2b3346;
+    --accent:#8fa3ec; --accent-ink:#10131d; --seal:#ec6a5f; --lamp:#e7b24e; --ok:#5fc495;
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --paper:#10131d; --panel:#181d2a; --ink:#e3e7f1; --muted:#97a0b5; --line:#2b3346;
+  --accent:#8fa3ec; --accent-ink:#10131d; --seal:#ec6a5f; --lamp:#e7b24e; --ok:#5fc495;
+  color-scheme:dark;
+}
+[hidden]{display:none!important}
+*,*::before,*::after{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{
+  margin:0; background:var(--paper); color:var(--ink);
+  font-family:var(--f-body); font-size:var(--fs-m); line-height:1.75;
+  padding-left:max(16px, env(safe-area-inset-left, 0px)); padding-right:max(16px, env(safe-area-inset-right, 0px));
+  padding-block:0 56px; overflow-wrap:anywhere;
+}
+:focus-visible{outline:3px solid var(--accent); outline-offset:2px}
+h1,h2,h3{text-wrap:balance; line-height:1.35}
+p{margin:0}
+.wrap{max-width:920px; margin:0 auto}
+.muted{color:var(--muted)}
+
+/* 見出し */
+.top{padding-block:36px 6px; display:grid; gap:14px}
+.eyebrow{font-size:var(--fs-xs); letter-spacing:.16em; color:var(--muted)}
+h1{
+  font-family:var(--f-display); font-weight:400; margin:0;
+  font-size:clamp(2.1rem, 8vw, 3.2rem); letter-spacing:.08em; line-height:1.15;
+  text-shadow:3px 3px 0 var(--line);
+}
+.lead{max-width:40em}
+.rule a{color:var(--accent)}
+.rule{font-size:var(--fs-xs); color:var(--muted)}
+
+/* 当直表 */
+.board{margin-top:22px; display:grid; gap:6px}
+.board-h{display:flex; justify-content:space-between; gap:8px 14px; flex-wrap:wrap; font-size:var(--fs-xs); color:var(--muted); letter-spacing:.06em}
+.board-h b{color:var(--ink); font-weight:700}
+.slots{list-style:none; margin:0; padding:0; display:grid; grid-template-columns:repeat(8, minmax(0,1fr)); gap:5px}
+.slot{
+  position:relative; border:1px solid var(--line); border-radius:var(--r); background:var(--panel);
+  padding:6px 4px 4px; display:grid; justify-items:center; gap:2px; min-height:70px; font-variant-numeric:tabular-nums;
+}
+.slot.night{background:var(--night)}
+.slot .t{font-family:var(--f-display); font-size:var(--fs-s); color:var(--lamp); letter-spacing:.02em}
+.slot .m{font-size:var(--fs-xs); color:var(--muted)}
+.slot[aria-current="step"]{border-color:var(--accent); box-shadow:inset 0 0 0 1px var(--accent)}
+.slot .mini{
+  width:34px; height:34px; border-radius:50%; border:2px solid var(--seal); color:var(--seal);
+  display:grid; place-items:center; font-weight:700; font-size:.66rem; line-height:1; transform:rotate(-10deg);
+}
+.slot .mini.miss{border-style:dashed}
+.slot .dot{width:34px; height:34px; display:grid; place-items:center; color:var(--muted); font-family:var(--f-display)}
+@media (max-width:620px){
+  .slots{grid-template-columns:repeat(4, minmax(0,1fr))}
+}
+
+/* 患者1人分 */
+.case{margin-top:26px; background:var(--panel); border:1px solid var(--line); border-radius:var(--r); position:relative; overflow:hidden}
+.case-top{display:flex; flex-wrap:wrap; align-items:baseline; gap:4px 16px; padding:16px 120px 12px 18px; border-bottom:3px double var(--line)}
+@media (max-width:620px){
+  .case-top{padding-right:92px}
+  .stamp{width:74px; height:74px; top:10px; right:10px}
+  .stamp .s1{font-size:.98rem}
+}
+.clock{font-family:var(--f-display); font-size:2.3rem; line-height:1; color:var(--lamp); font-variant-numeric:tabular-nums; letter-spacing:.04em}
+.where{font-size:var(--fs-s); color:var(--muted)}
+.case-top h2{flex-basis:100%; margin:6px 0 0; font-family:var(--f-display); font-weight:400; font-size:var(--fs-xl); letter-spacing:.04em}
+.case-top h2:focus{outline:none}
+.case-body{padding:16px 18px 20px; display:grid; gap:18px}
+.story{max-width:40em}
+.memo-box{border:1px solid var(--line); border-radius:var(--r); font-size:var(--fs-s); overflow:hidden}
+.memo{display:grid; grid-template-columns:auto minmax(0,1fr); margin:0}
+.memo-cap{font-size:var(--fs-xs); letter-spacing:.14em; color:var(--muted); padding:5px 12px; border-bottom:1px solid var(--line); background:var(--accent-soft)}
+.memo dt, .memo dd{margin:0; padding:6px 12px; border-bottom:1px dashed var(--line)}
+.memo dt{color:var(--muted); white-space:nowrap}
+.memo dd{font-weight:700}
+.memo dt:last-of-type, .memo dd:last-of-type{border-bottom:0}
+
+.q{display:grid; gap:10px; border-top:1px solid var(--line); padding-top:16px}
+.q-h{margin:0; font-size:var(--fs-l); display:flex; gap:10px; align-items:baseline}
+.q-h:focus{outline:none}
+.q-h:focus-visible{outline:3px solid var(--accent); outline-offset:3px}
+.q-n{font-family:var(--f-display); font-weight:400; font-size:var(--fs-s); color:var(--accent); border:1.5px solid var(--accent); padding:0 7px; flex:none}
+.opts{list-style:none; margin:0; padding:0; display:grid; gap:8px}
+.opt{
+  font:inherit; width:100%; text-align:left; color:var(--ink); background:var(--paper); cursor:pointer;
+  border:1px solid var(--line); border-radius:var(--r); padding:10px 12px; min-height:48px;
+  display:grid; grid-template-columns:1.6em minmax(0,1fr) auto; gap:8px; align-items:start; line-height:1.55;
+}
+.opt:hover:not(:disabled){border-color:var(--accent); background:var(--accent-soft)}
+.opt .k{font-family:var(--f-display); color:var(--muted)}
+.opt .v{font-weight:700; font-size:var(--fs-s); white-space:nowrap}
+.opt:disabled{cursor:default}
+.opt.right{border-color:var(--ok); background:var(--ok-soft)}
+.opt.right .v{color:var(--ok)}
+.opt.wrong{border-color:var(--seal); background:var(--seal-soft)}
+.opt.wrong .v{color:var(--seal)}
+.opt.dim{opacity:.62}
+.why{border-left:3px solid var(--accent); padding:4px 0 4px 12px; font-size:var(--fs-s); max-width:44em}
+.why b{font-weight:700}
+.why .law{display:block; margin-top:4px; font-size:var(--fs-xs); color:var(--muted)}
+.done-q{font-size:var(--fs-s); color:var(--muted); display:flex; gap:8px; align-items:baseline}
+.done-q .mk{font-weight:700}
+.done-q .mk.o{color:var(--ok)} .done-q .mk.x{color:var(--seal)}
+
+.next{
+  font:inherit; font-weight:700; justify-self:start; cursor:pointer; min-height:46px; padding:8px 20px;
+  border:0; border-radius:var(--r); background:var(--accent); color:var(--accent-ink);
+}
+.next:hover{filter:brightness(1.08)}
+.ghost{
+  font:inherit; font-size:var(--fs-s); cursor:pointer; min-height:44px; padding:8px 14px;
+  border:1px solid var(--line); border-radius:var(--r); background:var(--panel); color:var(--ink);
+}
+.ghost:hover{border-color:var(--accent)}
+
+/* 判子 */
+.stamp{
+  position:absolute; top:12px; right:14px; width:92px; height:92px; border-radius:50%;
+  border:3px solid var(--seal); color:var(--seal); display:grid; place-items:center; text-align:center;
+  font-weight:700; line-height:1.15; transform:rotate(-12deg); pointer-events:none;
+  box-shadow:inset 0 0 0 3px var(--panel), inset 0 0 0 4.5px var(--seal);
+  background:color-mix(in srgb, var(--panel) 70%, transparent);
+}
+.stamp .s1{font-size:1.15rem; letter-spacing:.06em}
+.stamp .s2{font-size:.62rem; letter-spacing:.1em}
+.stamp.press{animation:press .42s cubic-bezier(.2,1.4,.4,1) both}
+@keyframes press{from{transform:scale(1.9) rotate(-2deg); opacity:0} to{transform:scale(1) rotate(-12deg); opacity:1}}
+@media (prefers-reduced-motion: reduce){ .stamp.press{animation:none} }
+
+/* 回診の記録（結果） */
+.result{margin-top:26px; background:var(--panel); border:1px solid var(--line); border-radius:var(--r); padding:20px 18px; display:grid; gap:16px}
+.result h2{margin:0; font-family:var(--f-display); font-weight:400; font-size:var(--fs-xl)}
+.result h2:focus{outline:none}
+.rank{display:flex; align-items:center; gap:18px; flex-wrap:wrap}
+.rank .big{font-family:var(--f-display); font-size:4.4rem; line-height:1; color:var(--seal); text-shadow:3px 3px 0 var(--line)}
+.rank .pts{font-family:var(--f-display); font-size:1.4rem; font-variant-numeric:tabular-nums}
+.rank .best{font-size:var(--fs-xs); color:var(--muted)}
+.log{list-style:none; margin:0; padding:0; display:grid; gap:10px}
+.log li{border-top:1px dashed var(--line); padding-top:10px; display:grid; gap:4px}
+.log .lh{display:flex; gap:10px; align-items:baseline; flex-wrap:wrap}
+.log .lt{font-family:var(--f-display); color:var(--lamp); font-variant-numeric:tabular-nums}
+.log .ls{font-weight:700}
+.log .lm{font-size:var(--fs-s)}
+.log .miss{font-size:var(--fs-s); color:var(--seal)}
+.row{display:flex; flex-wrap:wrap; gap:10px}
+
+/* 判子帳 */
+.hanko{margin-top:34px; display:grid; gap:10px}
+.hanko h2{margin:0; font-family:var(--f-display); font-weight:400; font-size:var(--fs-xl); letter-spacing:.04em; display:flex; flex-wrap:wrap; gap:4px 14px; align-items:baseline}
+.hanko h2 small{font-family:var(--f-body); font-size:var(--fs-s); color:var(--muted); letter-spacing:0}
+.hk-title{font-size:var(--fs-s)}
+.hk-title b{font-family:var(--f-display); font-weight:400; font-size:var(--fs-l); color:var(--seal); letter-spacing:.06em}
+.hk-meter{height:8px; max-width:420px; border-radius:4px; border:1px solid var(--line); background:var(--panel); overflow:hidden}
+.hk-meter span{display:block; height:100%; background:linear-gradient(90deg, var(--seal), var(--lamp))}
+.hk-grid{list-style:none; margin:0; padding:0; display:grid; grid-template-columns:repeat(auto-fill, minmax(120px, 1fr)); gap:8px}
+.hk{border:1px solid var(--line); border-radius:var(--r); background:var(--panel); padding:10px 8px 8px; display:grid; justify-items:center; gap:4px; text-align:center}
+.hk-st{width:62px; height:62px; border-radius:50%; display:grid; place-items:center; align-content:center; line-height:1.1; font-weight:700; transform:rotate(-10deg)}
+.hk-st b{font-size:.95rem; letter-spacing:.04em} .hk-st small{font-size:.55rem; letter-spacing:.06em}
+.hk.t0 .hk-st{border:2px dashed var(--line); color:var(--muted); transform:none}
+.hk.t1 .hk-st{border:2.5px solid var(--seal); color:var(--seal)}
+.hk.t2{border-color:var(--lamp); background:color-mix(in srgb, var(--lamp) 9%, var(--panel))}
+.hk.t2 .hk-st{border:2.5px solid var(--lamp); color:var(--lamp); box-shadow:inset 0 0 0 3px var(--panel), inset 0 0 0 4.5px var(--lamp)}
+.hk-t{font-family:var(--f-display); font-size:var(--fs-xs); color:var(--lamp); font-variant-numeric:tabular-nums}
+.hk-n{font-size:var(--fs-xs); line-height:1.45}
+.hk.t0 .hk-n{color:var(--muted)}
+.hk-tag{font-size:.66rem; font-weight:700; color:var(--muted)}
+.hk.t2 .hk-tag{color:var(--lamp)}
+.toast{
+  position:fixed; z-index:20; right:max(16px, env(safe-area-inset-right, 0px)); bottom:calc(16px + env(safe-area-inset-bottom, 0px));
+  max-width:min(340px, calc(100vw - 32px)); background:var(--panel); color:var(--ink); border:2px solid var(--seal);
+  border-radius:var(--r); padding:10px 14px; box-shadow:0 6px 24px var(--shadow); font-size:var(--fs-s);
+}
+.toast b{color:var(--seal)}
+@media (prefers-reduced-motion: no-preference){ .toast:not([hidden]){animation:tpop .35s cubic-bezier(.2,1.4,.4,1)} }
+@keyframes tpop{from{transform:translateY(12px) scale(.96); opacity:0} to{transform:none; opacity:1}}
+
+/* 早見表 */
+.ref{margin-top:40px; display:grid; gap:10px}
+.ref h2{margin:0; font-family:var(--f-display); font-weight:400; font-size:var(--fs-xl); letter-spacing:.04em}
+.tbl-wrap{overflow-x:auto; border:1px solid var(--line); border-radius:var(--r); background:var(--panel)}
+table{border-collapse:collapse; width:100%; min-width:680px; font-size:var(--fs-s); line-height:1.55}
+th, td{padding:8px 10px; text-align:left; vertical-align:top; border-bottom:1px solid var(--line)}
+thead th{font-size:var(--fs-xs); letter-spacing:.08em; color:var(--muted); font-weight:400; background:var(--accent-soft)}
+tbody th{white-space:nowrap}
+tbody tr:last-child th, tbody tr:last-child td{border-bottom:0}
+.foot{margin-top:28px; font-size:var(--fs-xs); color:var(--muted); max-width:52em}
+</style>
+
+<div class="wrap">
+  <header class="top">
+    <p class="eyebrow">精神科試験ゲーム ・ 精神保健福祉法（2024年4月施行の改正に対応）</p>
+    <h1>当直明けの病棟</h1>
+    <p class="lead">当直が明けた朝、病棟を回ります。ゆうべ入院した患者さんたちの、隔離・身体的拘束・手紙・電話・面会・外出をどう扱うか、1人3問ずつ決めていきます。あなたは病棟の主治医で、精神保健指定医です。</p>
+    <p class="rule">全8人・24問。1問1回きりで、答えるとすぐ解説が出ます。数字キー1〜4で選び、Enterで次へ進めます。ゆうべの当直は<a href="touchoku.html">当直の入院判定</a>で遊べます。</p>
+  </header>
+
+  <section class="board" aria-label="朝の回診の順番">
+    <div class="board-h"><span>8:40〜12:00 <b>朝の回診</b></span><span>あなた：主治医（<b>精神保健指定医</b>）</span></div>
+    <ol class="slots" id="slots"></ol>
+  </section>
+
+  <main id="main"></main>
+
+  <section class="hanko" aria-labelledby="hkh">
+    <h2 id="hkh">判子帳 <small id="hkCount"></small></h2>
+    <p class="hk-title" id="hkTitle"></p>
+    <div class="hk-meter" id="hkMeter" role="img"><span></span></div>
+    <p class="rule">患者さんごとに、処遇の判子が押されます。3問とも正解なら金の判子です。集めた判子と称号は、このブラウザに保存されます。</p>
+    <ol class="hk-grid" id="hkGrid"></ol>
+  </section>
+  <div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
+
+  <section class="ref" aria-labelledby="refh">
+    <h2 id="refh">行動制限の早見表</h2>
+    <div class="tbl-wrap">
+      <table>
+        <thead><tr><th scope="col">項目</th><th scope="col">制限できるか</th><th scope="col">判断する人</th><th scope="col">守ること</th></tr></thead>
+        <tbody>
+          <tr><th scope="row">信書を出す・受け取る</th><td>できない</td><td>－</td><td>異物が入っていそうなら、本人に開封させて異物だけ取り出す</td></tr>
+          <tr><th scope="row">人権擁護の行政機関・代理人の弁護士との電話と面会</th><td>できない</td><td>－</td><td>都道府県の担当部署や地方法務局などの電話番号を病棟に掲示する</td></tr>
+          <tr><th scope="row">そのほかの電話・面会</th><td>医療と保護に欠かせない限度でできる</td><td>医師</td><td>理由を診療録に書き、適切な時に本人と家族等に知らせる</td></tr>
+          <tr><th scope="row">隔離（12時間以内）</th><td>できる</td><td>医師</td><td rowspan="2">1人だけ入室させる。少なくとも毎日1回診察。理由を知らせるよう努め、診療録に書く。本人の意思での入室は隔離に当たらない（書面をもらう）</td></tr>
+          <tr><th scope="row">隔離（12時間を超える）</th><td>できる</td><td>指定医</td></tr>
+          <tr><th scope="row">身体的拘束</th><td>できる</td><td>指定医（時間にかかわらず）</td><td>切迫性・非代替性・一時性。原則として常に観察し、医師は頻回に診察。早く解除する</td></tr>
+          <tr><th scope="row">任意入院の人の開放処遇の制限</th><td>できる</td><td>医師が始め、おおむね72時間以内に指定医が診察</td><td>理由を書面で知らせるよう努め、診療録に書く</td></tr>
+          <tr><th scope="row">退院・処遇改善の請求</th><td>妨げられない</td><td>知事に請求し、精神医療審査会が審査</td><td>本人と家族等が請求できる</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="foot">登場する患者はすべて架空です。早見表と解説は試験勉強のための要約で、告示や条文の言い回しどおりではありません。実際の運用は、最新の法令・告示・通知と各都道府県の取り扱いに従ってください。</p>
+  </section>
+</div>
+
+<script>
+(function () {
+  'use strict';
+
+  // 各問いの a[0] が正解。表示するときに並べ替える。
+  var CASES = [
+    {
+      time: '8:40', where: '一般室（点滴中）', night: false,
+      title: '点滴を抜こうとする67歳', stamp: ['拘束', '指定医'], stampName: '身体的拘束は指定医が判断',
+      story: '昨夜2:20に特定医師の特例で入院した67歳の女性です。今朝、指定医が診察して医療保護入院を続けることにしました。脱水のため点滴をしていますが、意識がもうろうとして何度も針を抜こうとします。夜勤の看護師から「縛ってもいいですか」と相談されました。',
+      memo: [['入院の形', '医療保護入院'], ['状態', '意識がもうろう。点滴を何度も抜こうとする'], ['相談', '夜勤の看護師から身体的拘束の相談'], ['あなた', '主治医（精神保健指定医）']],
+      qs: [
+        { q: '身体的拘束を決められるのは？', a: ['指定医が診察し、必要と認めたとき', '12時間以内なら、医師なら誰でも', '看護師長が必要と判断したとき', '家族等が同意したとき'],
+          why: '身体的拘束は、時間の長さにかかわらず指定医の判断が要ります。12時間以内なら医師が判断できるのは隔離のほうです。家族等の同意は要件ではありません。',
+          law: '36条・行動制限の基準（告示）' },
+        { q: '身体的拘束をする前に確かめる3つの条件は？', a: ['切迫性・非代替性・一時性', '本人・家族・医師の同意', '安全性・効率性・経済性', '夜間・人手不足・転倒歴'],
+          why: '命や身体に危険が迫っていて（切迫性）、ほかに代わる方法がなく（非代替性）、一時的である（一時性）ことを確かめます。人手が足りないことは理由になりません。まず、点滴の時間や方法を変えられないか、付き添えないかを考えます。',
+          law: '行動制限の基準（告示）' },
+        { q: '拘束しているあいだは？', a: ['原則として常に観察し、医師は頻回に診察して、できるだけ早く解除する', '医師の診察は1日1回で足りる', '一度始めたら、最低24時間は続ける', '解除するには家族等の同意が要る'],
+          why: '身体的拘束は制限の程度が強く、肺塞栓などの二次的な障害も起こりえます。常に観察し、医師はくり返し診察して、ほかの方法に切り替えられたらすぐに解除します。',
+          law: '行動制限の基準（告示）' }
+      ]
+    },
+    {
+      time: '9:00', where: 'デイルーム', night: false,
+      title: '「静かな部屋で休みたい」', stamp: ['自室', '書面'], stampName: '本人の意思での入室（隔離に当たらない）',
+      story: '昨夜20:10に医療保護入院した24歳の女性です。「ここはうるさくて頭が割れそう。あの静かな部屋で休みたい」と、自分から保護室に入りたいと言います。扉に鍵がかかる部屋であることを説明しても、それでいいと言います。',
+      memo: [['入院の形', '医療保護入院'], ['本人の希望', '保護室で休みたい'], ['部屋', '内側からは開けられない部屋'], ['あなた', '主治医（精神保健指定医）']],
+      qs: [
+        { q: '本人の希望で保護室に入るのは？', a: ['本人の意思による入室で、隔離には当たらない', '隔離なので、指定医の判断が要る', '本人が望んでも、保護室は使えない', '隔離だが、本人が望むので記録は要らない'],
+          why: '隔離は「本人の意思では出られない部屋に1人だけ入れる」ことです。本人の意思で入るなら隔離には当たりません。ただし、本当に本人の意思かを確かめておくことが欠かせません。',
+          law: '行動制限の基準（告示）' },
+        { q: 'このとき、もらっておくものは？', a: ['本人の意思で入室したことを示す書面', '家族等の同意書', '指定医2名の診断書', '何も要らない'],
+          why: '本人の意思による入室であることを、書面で得ておきます。あとで「入れられた」とならないための記録でもあります。',
+          law: '行動制限の基準（告示）' },
+        { q: '昼に「もう出たい」と言ったが、まだ興奮が強く出せないと判断した。', a: ['そこからは隔離になる。理由を本人に知らせ、診療録に書く', '最初に本人が望んだので、そのまま入れておける', '本人の希望が取り消されたら、病状にかかわらず必ず出す', '家族等の同意をもらえば、隔離にしなくてよい'],
+          why: '出たいという本人を出さないなら、それは隔離です。隔離の理由を本人に知らせるよう努め、隔離した旨・理由・開始の日時を診療録に書きます。12時間を超えるなら指定医の判断が要ります。',
+          law: '36条・行動制限の基準（告示）' }
+      ]
+    },
+    {
+      time: '9:50', where: '保護室', night: false,
+      title: '9:30に措置入院が決まった男性', stamp: ['隔離', '1人'], stampName: '隔離（12時間を超えるので指定医）',
+      story: '昨夜23:30に緊急措置入院し、9:30の措置診察で措置入院が決まった35歳の男性です。23:40から、当直の指定医の判断で保護室に隔離しています。今朝も「隣の人を許さない」と扉を叩いています。保護室が足りなくなり、看護師から「別の患者さんと2人で入ってもらえませんか」と相談されました。',
+      memo: [['入院の形', '措置入院'], ['隔離', '23:40から（11:40で12時間）'], ['状態', '他害のおそれが続いている'], ['相談', '保護室を2人で使えないか']],
+      qs: [
+        { q: '12時間を超えて隔離を続けると決められるのは？', a: ['指定医', '医師なら誰でも', '看護師長', '措置入院なので都道府県知事'],
+          why: '12時間を超える隔離は指定医の判断が要ります。措置入院でも、入院中の処遇を決めるのは病院の医師で、知事ではありません。',
+          law: '36条・行動制限の基準（告示）' },
+        { q: '保護室が足りないので、2人で同じ部屋に隔離してよい？', a: ['いけない。隔離は1人だけを入室させる', '2人ともが同意すればよい', '同じ性別ならよい', '12時間以内ならよい'],
+          why: '隔離は、患者を1人だけ入室させるものです。2人以上の患者を同じ部屋で隔離してはいけません。',
+          law: '行動制限の基準（告示）' },
+        { q: '隔離しているあいだの診察は？', a: ['定期的に会話などで観察し、医師は少なくとも毎日1回診察する', '週に1回でよい', '隔離を解くときだけでよい', '看護師が観察していれば、医師の診察は要らない'],
+          why: '隔離中は、定期的な会話などで注意深く観察し、医師は原則として少なくとも毎日1回診察します。',
+          law: '行動制限の基準（告示）' }
+      ]
+    },
+    {
+      time: '10:10', where: '開放病棟', night: false,
+      title: '夜に外へ出ようとした男性', stamp: ['開放', '制限'], stampName: '任意入院者の開放処遇の制限',
+      story: '昨夜18:20に任意入院した42歳の男性です。4:30に退院を求めましたが、朝に指定医が診察すると落ち着いていて、本人も「もう少し入院を続ける」と言いました。ただ、希死念慮はまだ残り、「夜中にふらっと外へ出たくなる」とも話します。しばらくは職員が付き添うときだけ病棟の外に出られるようにしたいと考えています。',
+      memo: [['入院の形', '任意入院（本人が継続に同意）'], ['状態', '希死念慮が残る'], ['考えている処遇', '病棟の外へは職員が付き添うときだけ'], ['いる病棟', '開放病棟']],
+      qs: [
+        { q: '任意入院の人の処遇の原則は？', a: ['開放処遇（本人が求めれば、夜間を除いて出入りが自由）', '閉鎖処遇（出入りは主治医の許可制）', '主治医がそのつど決める', '家族等の希望に合わせる'],
+          why: '任意入院の人は、原則として開放的な環境で処遇します。本人が求めれば、夜間を除いて病院の出入りが自由にできる処遇です。',
+          law: '37条・処遇の基準（告示）' },
+        { q: '開放処遇の制限を始められるのは？', a: ['医師の判断で始め、おおむね72時間以内に指定医が診察する', '指定医でなければ始められない', '看護師の判断で始められる', '本人の書面の同意がなければ始められない'],
+          why: '開放処遇の制限は医師の判断で始められますが、その後おおむね72時間以内に指定医が診察します。本人の病状から開放処遇を続けるのが難しいときに限ります。',
+          law: '37条・処遇の基準（告示）' },
+        { q: '制限するとき、本人には？', a: ['制限する理由を書面で知らせるよう努め、制限した旨・理由・開始日時を診療録に書く', '口頭で伝えれば、記録は要らない', '本人には知らせず、家族にだけ伝える', '任意入院なので、知らせなくても本人は出ていける'],
+          why: '理由を書面で知らせるよう努め、制限した旨、理由、始めた日時を診療録に書きます。',
+          law: '37条・処遇の基準（告示）' }
+      ]
+    },
+    {
+      time: '10:30', where: '病棟の公衆電話', night: false,
+      title: '法務局に電話したい', stamp: ['電話', '自由'], stampName: '人権擁護の機関への電話は制限できない',
+      story: '医療保護入院で5年になる60歳の男性です。「法務局に電話したい。それと、退院させてほしいと県に言いたい」と言います。看護師からは「先週も何度もかけていたので、今日は止めてはどうでしょう」と相談されました。',
+      memo: [['入院の形', '医療保護入院（5年）'], ['本人の希望', '法務局に電話したい、退院したい'], ['看護師の相談', '電話を止めてはどうか'], ['病状', '落ち着いている']],
+      qs: [
+        { q: '法務局（人権擁護の行政機関）への電話は？', a: ['制限できない', '回数が多ければ制限できる', '主治医の許可があればかけられる', '医療保護入院では制限できる'],
+          why: '都道府県や地方法務局など人権擁護に関わる行政機関の職員、本人の代理人である弁護士との電話と面会は、どんな場合も制限できません。',
+          law: '36条・行動制限の基準（告示）' },
+        { q: '病棟に掲示しておくものは？', a: ['都道府県の精神保健福祉の担当部署や、地方法務局などの電話番号', '主治医の携帯電話の番号', '病院の苦情窓口の番号だけ', '何も掲示しなくてよい'],
+          why: '閉鎖病棟の中にも公衆電話などを置き、都道府県の精神保健福祉の担当部署や地方法務局などの電話番号を、見やすいところに掲げておきます。',
+          law: '行動制限の基準（告示）' },
+        { q: '「退院させてほしい」と県に求めるには？', a: ['本人や家族等が知事に退院を請求でき、精神医療審査会が審査する', '主治医の許可がないと請求できない', '医療保護入院の人は請求できない', '家族等の同意がないと請求できない'],
+          why: '入院中の本人やその家族等は、知事に退院や処遇の改善を求めることができます。請求は精神医療審査会で審査されます。',
+          law: '38条の4' }
+      ]
+    },
+    {
+      time: '10:50', where: '面会室', night: false,
+      title: '夫から届いた手紙', stamp: ['信書', '渡す'], stampName: '信書の発受は制限できない',
+      story: '昨日16:40に市町村長の同意で医療保護入院した33歳の女性です。保護命令の出ている夫から、本人あての手紙が病棟に届きました。封筒の中に硬いものが入っているようです。看護師は「読ませないほうがいいのでは」と心配しています。午後には、本人が依頼した弁護士が面会に来る予定です。',
+      memo: [['入院の形', '医療保護入院（市町村長同意）'], ['届いたもの', '夫からの手紙（硬いものが入っている様子）'], ['予定', '本人の代理人の弁護士が面会'], ['看護師の心配', '手紙を読ませないほうがよいのでは']],
+      qs: [
+        { q: '本人あての手紙は？', a: ['本人に渡す（信書の発受は制限できない）', '主治医が先に読み、内容を見て渡すか決める', '病院で預かっておく', '夫に送り返す'],
+          why: '信書を出すことと受け取ることは、制限できません。DVの事情があるなら、受け取った本人の気持ちを聞き、支援の機関と相談します。',
+          law: '36条・行動制限の基準（告示）' },
+        { q: '封筒に刃物のような硬いものが入っていそうなときは？', a: ['本人に開封してもらい、異物を取り出してから手紙を渡す', '職員が開封して中身を確認し、手紙ごと預かる', '開けずに捨てる', '警察に渡す'],
+          why: '刃物や薬物などの異物が入っていると判断される場合は、本人に開封させて異物を取り出し、手紙は本人に渡します。この経過は診療録に書きます。',
+          law: '行動制限の基準（告示）' },
+        { q: '本人が依頼した弁護士との面会は？', a: ['制限できない', '病状が悪ければ断れる', '主治医が許可したときだけ会える', '家族等の同意があるときだけ会える'],
+          why: '本人の代理人である弁護士（代理人になろうとする弁護士を含む）との面会は、制限できません。',
+          law: '36条・行動制限の基準（告示）' }
+      ]
+    },
+    {
+      time: '11:20', where: 'ナースステーション', night: false,
+      title: '新人看護師からの相談', stamp: ['通報', '県へ'], stampName: '虐待の疑いは都道府県へ通報',
+      story: '新人の看護師が、青ざめた顔で相談に来ました。「夜勤で、看護助手さんが、言うことを聞かない患者さんの頭を叩くのを見ました。先輩に話したら『大ごとにしないで』と言われて……」',
+      memo: [['見たこと', '職員が患者の頭を叩いた'], ['見た人', '新人の看護師'], ['先輩の反応', '大ごとにしないで'], ['患者', 'けがは見たところない']],
+      qs: [
+        { q: '虐待を受けたと思われる患者を見つけた人がすることは？', a: ['速やかに都道府県に通報する', '病院長に報告すれば、外への通報はしない', '患者本人が訴えたときだけ通報する', '警察にだけ届け出る'],
+          why: '2024年4月から、病院の職員などによる虐待を受けたと思われる患者を見つけた人は、速やかに都道府県に通報しなければなりません。院内で済ませる話ではありません。',
+          law: '2024年施行の虐待防止の規定' },
+        { q: '通報した看護師は？', a: ['通報を理由に、解雇など不利益な扱いを受けない', '院内の調査が終わるまで通報してはいけない', '先輩の許可がない通報は処分の対象になる', '匿名では通報できない'],
+          why: '通報したことを理由に、解雇その他の不利益な扱いを受けないことが法で定められています。',
+          law: '2024年施行の虐待防止の規定' },
+        { q: '病院に求められていることは？', a: ['職員の研修や患者の相談体制など、虐待を防ぐための措置をとる', 'すべての病室に監視カメラを置く', '虐待があった病棟を閉鎖する', '通報の前に院内調査を終わらせる'],
+          why: '病院の管理者には、職員への研修、患者や家族からの相談体制の整備など、虐待を防ぐための措置が求められます。',
+          law: '2024年施行の虐待防止の規定' }
+      ]
+    },
+    {
+      time: '11:40', where: '病室', night: false,
+      title: '「外の人に話を聞いてほしい」', stamp: ['訪問', '支援'], stampName: '入院者訪問支援事業',
+      story: '手紙を受け取った33歳の女性が、少し落ち着いた様子で話します。「誰も面会に来ないし、病院の外の人に話を聞いてもらいたい」。家族等がいないため、市町村長の同意で医療保護入院しています。',
+      memo: [['入院の形', '医療保護入院（市町村長同意）'], ['本人の希望', '病院の外の人と話したい'], ['面会', '来る人がいない'], ['病状', '少し落ち着いてきた']],
+      qs: [
+        { q: '使える仕組みは？', a: ['入院者訪問支援事業（本人が希望すると、研修を受けた訪問支援員が来る）', '成年後見の申立て', '医療観察法の鑑定入院', '生活保護の申請'],
+          why: '2024年4月に始まった入院者訪問支援事業です。市町村長の同意で医療保護入院した人などが、本人の希望で、研修を受けた訪問支援員と話すことができます。',
+          law: '入院者訪問支援事業（2024年施行）' },
+        { q: '訪問支援員がすることは？', a: ['本人の話を聞き、生活の相談にのり、必要な情報を伝える', '退院させるよう病院と交渉する', '主治医に代わって治療方針を説明する', '病状を評価して精神医療審査会に報告する'],
+          why: '訪問支援員は、本人の話を丁寧に聞き、相談にのり、必要な情報を伝える役です。治療に口を出したり、本人に代わって交渉したりはしません。',
+          law: '入院者訪問支援事業' },
+        { q: 'この事業を行うのは？', a: ['都道府県（指定都市）', '入院している病院', '市町村', '家庭裁判所'],
+          why: '都道府県（指定都市）が行う事業です。病院の職員ではない外部の人が来ることに意味があります。地域によって実施の状況は異なります。',
+          law: '入院者訪問支援事業' }
+      ]
+    }
+  ];
+
+  var NQ = CASES.reduce(function (n, c) { return n + c.qs.length; }, 0);
+  var BEST_KEY = 'byoto-asa-best';
+
+  function lsGet(k) { try { return window.localStorage.getItem(k); } catch (e) { return null; } }
+  function lsSet(k, v) { try { window.localStorage.setItem(k, v); } catch (e) { /* 保存できない環境 */ } }
+
+  function shuffled(n) {
+    var a = []; for (var i = 0; i < n; i++) a.push(i);
+    for (var j = n - 1; j > 0; j--) { var r = Math.floor(Math.random() * (j + 1)); var t = a[j]; a[j] = a[r]; a[r] = t; }
+    return a;
+  }
+  function newState() {
+    return {
+      ci: 0,
+      picks: CASES.map(function (c) { return c.qs.map(function () { return null; }); }),
+      order: CASES.map(function (c) { return c.qs.map(function (q) { return shuffled(q.a.length); }); }),
+      only: null  // まちがえた患者だけやり直すときの番号の並び
+    };
+  }
+
+  var S;
+  var slotsEl = document.getElementById('slots');
+  var mainEl = document.getElementById('main');
+
+  // ---- 判子帳
+  var HK_KEY = 'byoto-hanko-v1', HK_TITLES = [[0, '病棟の新人'], [4, '回診について行く人'], [8, '病棟の担当医'], [12, '処遇に強い主治医'], [16, '病棟医長']], HK_MAX = 8 * 2;
+  var HK = {}; try { HK = JSON.parse(lsGet(HK_KEY) || '{}') || {}; } catch (e) { HK = {}; }
+  function hkPts() { var p = 0; CASES.forEach(function (c, i) { p += HK[i] || 0; }); return p; }
+  function hkTitle(p) { var t = HK_TITLES[0]; HK_TITLES.forEach(function (x) { if (p >= x[0]) t = x; }); return t; }
+  function hkNext(p) { for (var i = 0; i < HK_TITLES.length; i++) if (HK_TITLES[i][0] > p) return HK_TITLES[i]; return null; }
+  function hkSummary() { var n = CASES.filter(function (c, i) { return HK[i]; }).length; return '判子帳 ' + n + ' / ' + CASES.length + ' ・ 称号「' + hkTitle(hkPts())[1] + '」'; }
+  function renderHanko() {
+    var p = hkPts(), t = hkTitle(p), nx = hkNext(p), n = CASES.filter(function (c, i) { return HK[i]; }).length;
+    var gold = CASES.filter(function (c, i) { return HK[i] === 2; }).length;
+    document.getElementById('hkCount').textContent = n + ' / ' + CASES.length + ' ・ 金 ' + gold;
+    document.getElementById('hkTitle').innerHTML = '称号　<b>' + esc(t[1]) + '</b>　' + (nx ? '<span class="muted">次の「' + esc(nx[1]) + '」まで あと ' + (nx[0] - p) + '</span>' : '<span class="muted">すべて金の判子です</span>');
+    var m = document.getElementById('hkMeter'); m.firstChild.style.width = Math.round(p / HK_MAX * 100) + '%'; m.setAttribute('aria-label', p + ' / ' + HK_MAX);
+    document.getElementById('hkGrid').innerHTML = CASES.map(function (c, i) {
+      var tr = HK[i] || 0;
+      var st = tr ? '<b>' + esc(c.stamp[0]) + '</b>' + (c.stamp[1] ? '<small>' + esc(c.stamp[1]) + '</small>' : '') : '<b>？</b>';
+      return '<li class="hk t' + tr + '"><span class="hk-st" aria-hidden="true">' + st + '</span><span class="hk-t">' + c.time + '</span><span class="hk-n">' + (tr ? esc(c.title) : 'まだ') + '</span><span class="hk-tag">' + ['', '押した', '金・満点'][tr] + '</span></li>';
+    }).join('');
+  }
+  var toastEl = document.getElementById('toast'), toastT = 0;
+  function toast(html) { toastEl.innerHTML = html; toastEl.hidden = false; clearTimeout(toastT); toastT = setTimeout(function () { toastEl.hidden = true; }, 3400); }
+  function awardHanko(i) {
+    var tier = caseScore(i) === CASES[i].qs.length ? 2 : 1, cur = HK[i] || 0;
+    if (tier <= cur) return;
+    var before = hkTitle(hkPts())[1];
+    HK[i] = tier; lsSet(HK_KEY, JSON.stringify(HK));
+    var after = hkTitle(hkPts())[1];
+    toast('<b>' + (tier === 2 ? '金の判子' : '判子') + 'を押しました</b><br>' + esc(CASES[i].stampName) + (after !== before ? '<br>称号が「' + esc(after) + '」になりました' : ''));
+    renderHanko();
+  }
+
+  function esc(s) { return String(s).replace(/[&<>"]/g, function (ch) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[ch]; }); }
+
+  function caseDone(i) { return S.picks[i].every(function (p) { return p !== null; }); }
+  function caseScore(i) { return S.picks[i].filter(function (p) { return p === 0; }).length; }
+  function curQ(i) { var k = S.picks[i].indexOf(null); return k; }
+  function seq() { return S.only || CASES.map(function (_, i) { return i; }); }
+  function totalRight() { var n = 0; for (var i = 0; i < CASES.length; i++) n += caseScore(i); return n; }
+
+  function stampHTML(c, cls) {
+    return '<div class="stamp ' + (cls || '') + '" aria-hidden="true"><div><div class="s1">' + esc(c.stamp[0]) + '</div>' +
+      (c.stamp[1] ? '<div class="s2">' + esc(c.stamp[1]) + '</div>' : '') + '</div></div>';
+  }
+
+  function renderSlots() {
+    slotsEl.innerHTML = CASES.map(function (c, i) {
+      var done = caseDone(i), cur = (S.ci === i);
+      var inner = done
+        ? '<span class="mini' + (caseScore(i) < c.qs.length ? ' miss' : '') + '">' + esc(c.stamp[0]) + '</span>'
+        : '<span class="dot">' + (cur ? '▶' : '・') + '</span>';
+      var label = c.time + ' ' + (done ? c.stampName + '、' + caseScore(i) + '問正解' : cur ? '対応中' : 'まだ');
+      return '<li class="slot' + (c.night ? ' night' : '') + '"' + (cur ? ' aria-current="step"' : '') + ' aria-label="' + esc(label) + '">' +
+        '<span class="t">' + c.time + '</span>' + inner + '<span class="m">' + (done ? caseScore(i) + '/3' : '') + '</span></li>';
+    }).join('');
+  }
+
+  function optsHTML(i, qi, live) {
+    var q = CASES[i].qs[qi], pick = S.picks[i][qi];
+    return '<ol class="opts">' + S.order[i][qi].map(function (ai, pos) {
+      var cls = '', tag = '';
+      if (pick !== null) {
+        if (ai === 0) { cls = ' right'; tag = '正解'; }
+        else if (ai === pick) { cls = ' wrong'; tag = 'あなたの答え'; }
+        else cls = ' dim';
+      }
+      return '<li><button type="button" class="opt' + cls + '" data-q="' + qi + '" data-a="' + ai + '"' + (pick !== null || !live ? ' disabled' : '') + '>' +
+        '<span class="k">' + (pos + 1) + '</span><span>' + esc(q.a[ai]) + '</span><span class="v">' + tag + '</span></button></li>';
+    }).join('') + '</ol>';
+  }
+
+  function renderCase(pressStamp) {
+    var i = S.ci, c = CASES[i], k = curQ(i), s = seq(), pos = s.indexOf(i);
+    var html = '<article class="case" aria-labelledby="caseh">' +
+      (k === -1 ? stampHTML(c, pressStamp ? 'press' : '') : '') +
+      '<div class="case-top"><span class="clock">' + c.time + '</span><span class="where">' + esc(c.where) + ' ・ ' + (pos + 1) + '人目 / ' + s.length + '人</span>' +
+      '<h2 id="caseh" tabindex="-1">' + esc(c.title) + '</h2></div><div class="case-body">' +
+      '<p class="story">' + esc(c.story) + '</p>' +
+      '<div class="memo-box"><p class="memo-cap">カルテの要点</p><dl class="memo">' + c.memo.map(function (m) { return '<dt>' + esc(m[0]) + '</dt><dd>' + esc(m[1]) + '</dd>'; }).join('') + '</dl></div>';
+
+    c.qs.forEach(function (q, qi) {
+      var pick = S.picks[i][qi];
+      if (pick === null && qi !== k) return;
+      html += '<section class="q" aria-labelledby="q' + qi + '"><h3 class="q-h" id="q' + qi + '" tabindex="-1"><span class="q-n">問' + (qi + 1) + '</span><span>' + esc(q.q) + '</span></h3>' +
+        optsHTML(i, qi, qi === k);
+      if (pick !== null) {
+        html += '<p class="why"><b>' + (pick === 0 ? '正解。' : '正解は「' + esc(q.a[0]) + '」。') + '</b>' + esc(q.why) +
+          '<span class="law">根拠：精神保健福祉法 ' + esc(q.law) + '</span></p>';
+      }
+      html += '</section>';
+    });
+
+    if (k === -1) {
+      var isLast = pos === s.length - 1;
+      html += '<p class="done-q">判定：<b>' + esc(c.stampName) + '</b>（' + caseScore(i) + ' / 3 問正解）</p>' +
+        '<button type="button" class="next" id="nextBtn">' + (isLast ? '回診を終える' : '次の患者へ（' + CASES[s[pos + 1]].time + '）') + '</button>';
+    }
+    html += '</div></article>';
+    mainEl.innerHTML = html;
+  }
+
+  function renderResult() {
+    var right = totalRight(), pts = Math.round(right / NQ * 100);
+    var rank = pts >= 90 ? 'S' : pts >= 75 ? 'A' : pts >= 60 ? 'B' : pts >= 40 ? 'C' : 'D';
+    var best = parseInt(lsGet(BEST_KEY) || '0', 10) || 0;
+    if (!S.only && pts > best) { lsSet(BEST_KEY, String(pts)); best = pts; }
+    var missed = CASES.map(function (_, i) { return i; }).filter(function (i) { return caseScore(i) < CASES[i].qs.length; });
+
+    mainEl.innerHTML = '<section class="result" aria-labelledby="resh"><h2 id="resh" tabindex="-1">回診の記録</h2>' +
+      '<div class="rank"><span class="big">' + rank + '</span><span class="pts">' + pts + '<small class="muted"> ／100</small></span>' +
+      '<span class="best">' + right + ' / ' + NQ + ' 問正解' + (best ? '　自己ベスト ' + best + '点' : '') + '</span></div>' +
+      '<ol class="log">' + CASES.map(function (c, i) {
+        var miss = c.qs.filter(function (q, qi) { return S.picks[i][qi] !== 0; });
+        return '<li><div class="lh"><span class="lt">' + c.time + '</span><span class="ls">' + esc(c.title) + '</span><span class="lm muted">' + esc(c.stampName) + '・' + caseScore(i) + '/3</span></div>' +
+          miss.map(function (q) { return '<p class="miss">✗ ' + esc(q.q) + ' → ' + esc(q.a[0]) + '</p>'; }).join('') + '</li>';
+      }).join('') + '</ol>' +
+      '<p class="rule">' + hkSummary() + '</p>' +
+      '<div class="row">' + (missed.length ? '<button type="button" class="next" id="retryMiss">まちがえた患者だけもう一度（' + missed.length + '人）</button>' : '') +
+      '<button type="button" class="ghost" id="restart">はじめから（選択肢を並べ替える）</button></div></section>';
+    S._missed = missed;
+  }
+
+  function render(opts) {
+    opts = opts || {};
+    renderSlots();
+    if (S.ci === -1) {
+      renderResult();
+      if (opts.focus) document.getElementById('resh').focus();
+      return;
+    }
+    renderCase(opts.press);
+    if (opts.focus === 'case') { var h = document.getElementById('caseh'); h.focus({ preventScroll: true }); h.closest('.case').scrollIntoView({ block: 'start', behavior: 'auto' }); }
+    else if (opts.focus === 'q') {
+      var k = curQ(S.ci);
+      var el = k === -1 ? document.getElementById('nextBtn') : document.getElementById('q' + k);
+      if (el) el.focus({ preventScroll: true });
+    }
+  }
+
+  function answer(qi, ai) {
+    var i = S.ci;
+    if (S.picks[i][qi] !== null || curQ(i) !== qi) return;
+    S.picks[i][qi] = ai;
+    var finished = curQ(i) === -1;
+    if (finished) awardHanko(i);
+    render({ press: finished });
+    // 解説を読めるように、答えた問いの見出しへフォーカスを戻す
+    var h = document.getElementById('q' + qi);
+    if (h) h.focus({ preventScroll: true });
+  }
+
+  function nextCase() {
+    var s = seq(), pos = s.indexOf(S.ci);
+    S.ci = pos < s.length - 1 ? s[pos + 1] : -1;
+    render({ focus: S.ci === -1 ? true : 'case' });
+    if (S.ci === -1) document.getElementById('resh').scrollIntoView({ block: 'start' });
+  }
+
+  function restart(onlyMissed) {
+    if (onlyMissed) {
+      var m = S._missed.slice();
+      m.forEach(function (i) {
+        S.picks[i] = CASES[i].qs.map(function () { return null; });
+        S.order[i] = CASES[i].qs.map(function (q) { return shuffled(q.a.length); });
+      });
+      S.only = m; S.ci = m[0];
+    } else {
+      S = newState();
+    }
+    render({ focus: 'case' });
+  }
+
+  mainEl.addEventListener('click', function (e) {
+    var b = e.target.closest('button'); if (!b) return;
+    if (b.classList.contains('opt')) answer(+b.dataset.q, +b.dataset.a);
+    else if (b.id === 'nextBtn') nextCase();
+    else if (b.id === 'retryMiss') restart(true);
+    else if (b.id === 'restart') restart(false);
+  });
+
+  document.addEventListener('keydown', function (e) {
+    if (e.altKey || e.ctrlKey || e.metaKey || S.ci === -1) return;
+    var k = curQ(S.ci);
+    if (k !== -1 && /^[1-4]$/.test(e.key)) {
+      var ai = S.order[S.ci][k][+e.key - 1];
+      if (ai !== undefined) { e.preventDefault(); answer(k, ai); }
+    } else if (k === -1 && e.key === 'Enter' && !e.target.closest('button, a, input, textarea, select')) {
+      e.preventDefault(); nextCase();
+    }
+  });
+
+  function start(data) {
+    renderHanko();
+    S = (data && data.S && data.S.picks && data.S.picks.length === CASES.length) ? data.S : newState();
+    render();
+  }
+  if (window.claude && window.claude.hot && window.claude.hot.snapshot) {
+    window.claude.hot.snapshot(function () { return { S: S }; });
+  }
+  if (window.claude && window.claude.hot && window.claude.hot.ready) window.claude.hot.ready(start);
+  else start((window.claude && window.claude.hot && window.claude.hot.data) || {});
+
+  // 確認用：全問を自動で答える（正解率 r）
+  window.__autoplay = function (r) {
+    S = newState();
+    CASES.forEach(function (c, i) { c.qs.forEach(function (q, qi) { S.picks[i][qi] = Math.random() < (r == null ? 1 : r) ? 0 : 1; }); });
+    S.ci = -1; render();
+  };
+})();
+</script>
+
+</body>
+</html>

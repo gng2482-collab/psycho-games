@@ -1,0 +1,1633 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="精神科試験ゲーム">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icon-180.png">
+<style>
+:root{color-scheme:light; padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px)}
+body{margin:0; font:14px system-ui,-apple-system,sans-serif}
+img{max-width:100%}
+[hidden]{display:none!important}
+.ipad-bar{display:flex; flex-wrap:wrap; gap:6px 14px; align-items:center; justify-content:space-between;
+  padding:8px max(16px, env(safe-area-inset-right,0px)) 8px max(16px, env(safe-area-inset-left,0px));
+  font:600 14px system-ui,-apple-system,"Hiragino Sans",sans-serif; background:#1d2a33; color:#f3f6f8}
+.ipad-bar a{color:#f3f6f8; text-decoration:none; padding:6px 10px; border:1px solid #4a5d6a; border-radius:6px}
+.ipad-bar span{opacity:.85; font-weight:400}
+</style>
+<script>
+/* プレイヤーごとに記録を分ける（自分は今までどおり、ゲストは頭に印をつける） */
+(function () {
+  try {
+    var P = window.localStorage.getItem('ipad-player') || 'me';
+    window.__ipadPlayer = P;
+    if (P === 'me') return;
+    var pre = 'p:' + P + ':', S = Storage.prototype, g = S.getItem, s = S.setItem, r = S.removeItem;
+    var map = function (k) { return k === 'ipad-player' ? k : pre + k; };
+    S.getItem = function (k) { return g.call(this, map(k)); };
+    S.setItem = function (k, v) { return s.call(this, map(k), v); };
+    S.removeItem = function (k) { return r.call(this, map(k)); };
+  } catch (e) { /* 保存できない環境 */ }
+})();
+if ('serviceWorker' in navigator) { window.addEventListener('load', function () { navigator.serviceWorker.register('sw.js').catch(function () {}); }); }
+</script>
+</head>
+<body>
+<nav class="ipad-bar" aria-label="アプリ"><a href="index.html">← ゲーム一覧</a><span id="ipadWho"></span></nav>
+<script>(function(){var P=window.__ipadPlayer||'me';document.getElementById('ipadWho').textContent='プレイヤー：'+(P==='me'?'自分':P);})();</script>
+<title>心理検査オーダー</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=BIZ+UDPGothic:wght@400;700&family=DotGothic16&display=swap">
+<style>
+/* Layout: 一列の「依頼の机」。依頼票 → 検査カード（様式） → 報告書 の順に、依頼の流れどおり縦に積む。最大幅960px */
+:root{
+  --paper:#ecf1ed; --panel:#f9fbf9; --ink:#1c2725; --muted:#59665f; --line:#c4cfc8;
+  --accent:#1d7566; --accent-ink:#fff; --seal:#bb3333; --warn:#a8720c;
+  --accent-soft:color-mix(in srgb, var(--accent) 11%, var(--panel));
+  --seal-soft:color-mix(in srgb, var(--seal) 9%, var(--panel));
+  --warn-soft:color-mix(in srgb, var(--warn) 12%, var(--panel));
+  --strip:color-mix(in srgb, var(--line) 28%, var(--panel));
+  --track:color-mix(in srgb, var(--line) 40%, var(--panel));
+  --shadow:color-mix(in srgb, var(--ink) 22%, transparent);
+  --f-display:"DotGothic16","BIZ UDPGothic","Hiragino Sans","Yu Gothic",system-ui,sans-serif;
+  --f-body:"BIZ UDPGothic","Hiragino Sans","Hiragino Kaku Gothic ProN","Yu Gothic",Meiryo,system-ui,sans-serif;
+  --fs-xs:.78rem; --fs-s:.875rem; --fs-m:1rem; --fs-l:1.15rem; --fs-xl:1.45rem; --fs-xxl:2.4rem;
+  --r:5px;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --paper:#121918; --panel:#1a2321; --ink:#e2ebe6; --muted:#93a39b; --line:#2c3a36;
+    --accent:#4db3a0; --accent-ink:#0e1615; --seal:#e5615b; --warn:#e0b04f;
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --paper:#121918; --panel:#1a2321; --ink:#e2ebe6; --muted:#93a39b; --line:#2c3a36;
+  --accent:#4db3a0; --accent-ink:#0e1615; --seal:#e5615b; --warn:#e0b04f;
+  color-scheme:dark;
+}
+[hidden]{display:none!important}
+*,*::before,*::after{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{
+  margin:0; background:var(--paper); color:var(--ink);
+  font-family:var(--f-body); font-size:var(--fs-m); line-height:1.75;
+  padding-inline:max(16px, env(safe-area-inset-left, 0px)) max(16px, env(safe-area-inset-right, 0px));
+  padding-block:0 56px; overflow-wrap:anywhere;
+}
+:focus-visible{outline:3px solid var(--accent); outline-offset:2px}
+h1,h2,h3,h4,h5{text-wrap:balance; line-height:1.35}
+p{margin:0}
+ul,ol{margin:0}
+.wrap{max-width:960px; margin:0 auto}
+.muted{color:var(--muted)}
+
+/* 見出しまわり */
+.top{padding-block:36px 8px; display:grid; gap:14px}
+.eyebrow{font-size:var(--fs-xs); letter-spacing:.16em; color:var(--muted)}
+h1{
+  font-family:var(--f-display); font-weight:400; margin:0;
+  font-size:clamp(2.1rem, 8vw, 3.2rem); letter-spacing:.08em; line-height:1.15;
+  text-shadow:3px 3px 0 var(--line);
+}
+.lead{max-width:40em; color:var(--ink)}
+.how{list-style:none; padding:0; display:grid; grid-template-columns:repeat(3, minmax(0,1fr)); gap:10px}
+.how li{border-top:3px double var(--ink); padding-top:8px; font-size:var(--fs-s); display:grid; gap:2px}
+.how b{font-family:var(--f-display); font-weight:400; font-size:var(--fs-m); letter-spacing:.04em}
+.how .n{color:var(--accent)}
+.score-rule{font-size:var(--fs-xs); color:var(--muted)}
+.toolbar{display:flex; flex-wrap:wrap; align-items:center; gap:8px 14px}
+.switch{
+  font:inherit; font-size:var(--fs-s); font-weight:700; display:inline-flex; align-items:center; gap:10px;
+  padding:8px 14px; min-height:44px; border:1px solid var(--line); border-radius:var(--r);
+  background:var(--panel); color:var(--ink); cursor:pointer;
+}
+.switch .knob{width:34px; height:18px; border:1.5px solid var(--muted); border-radius:10px; position:relative; flex:none}
+.switch .knob::after{content:""; position:absolute; top:2px; left:2px; width:11px; height:11px; border-radius:50%; background:var(--muted); transition:left .15s}
+.switch[aria-pressed="true"]{border-color:var(--accent)}
+.switch[aria-pressed="true"] .knob{border-color:var(--accent); background:var(--accent-soft)}
+.switch[aria-pressed="true"] .knob::after{left:17px; background:var(--accent)}
+.toolbar .note{font-size:var(--fs-xs); color:var(--muted); max-width:34em}
+
+/* 依頼のタブ */
+.tabs{display:grid; grid-template-columns:repeat(4, minmax(0,1fr)); gap:8px; margin-top:22px}
+.tab{
+  font:inherit; text-align:left; cursor:pointer; color:var(--ink); background:var(--panel);
+  border:1px solid var(--line); border-radius:var(--r); padding:8px 10px; display:grid; gap:1px; min-height:44px;
+}
+.tab:hover{border-color:var(--accent)}
+.tab[aria-current="true"]{border-color:var(--accent); box-shadow:inset 0 0 0 1px var(--accent); background:var(--accent-soft)}
+.tab-no{font-family:var(--f-display); font-size:var(--fs-xs); color:var(--accent); letter-spacing:.08em; display:flex; justify-content:space-between; gap:6px}
+.tab-ok{color:var(--accent); font-family:var(--f-body); font-weight:700}
+.tab-t{font-weight:700; font-size:var(--fs-s); line-height:1.45}
+.tab-s{font-size:var(--fs-xs); color:var(--muted); font-variant-numeric:tabular-nums}
+
+/* 依頼1件分 */
+.case{margin-top:26px}
+.case-h{display:grid; gap:2px; padding-bottom:6px}
+.case-no{font-family:var(--f-display); color:var(--muted); font-size:var(--fs-s); letter-spacing:.1em}
+.case-h h2{font-family:var(--f-display); font-weight:400; font-size:var(--fs-xl); margin:0; letter-spacing:.04em; scroll-margin-top:40px}
+.case-h h2:focus{outline:none}
+.case-h h2:focus-visible{outline:3px solid var(--accent)}
+.step{margin-top:34px; display:grid; gap:14px}
+.step-h{font-family:var(--f-display); font-weight:400; font-size:var(--fs-xl); margin:0; display:flex; flex-wrap:wrap; align-items:center; gap:6px 12px; scroll-margin-top:16px}
+.step-h:focus{outline:none}
+.step-h:focus-visible{outline:3px solid var(--accent); outline-offset:4px}
+.step-n{font-size:var(--fs-s); color:var(--accent); border:1.5px solid var(--accent); padding:0 8px; letter-spacing:.06em}
+.step.locked .step-h{color:var(--muted)}
+.step.locked .step-n{color:var(--muted); border-color:var(--line)}
+.locked-note{color:var(--muted); font-size:var(--fs-s); border:1px dashed var(--line); padding:12px 14px; border-radius:var(--r)}
+.step-lead{font-size:var(--fs-s); max-width:46em}
+
+/* 依頼票 */
+.slip{
+  background:var(--panel); border:1px solid var(--line); padding:18px clamp(14px, 3vw, 28px) 20px;
+  box-shadow:0 12px 26px -20px var(--shadow); display:grid; gap:14px;
+}
+.slip-head{display:flex; flex-wrap:wrap; justify-content:space-between; align-items:flex-end; gap:4px 16px; border-bottom:4px double var(--ink); padding-bottom:8px}
+.slip-title{font-family:var(--f-display); font-size:var(--fs-xl); letter-spacing:.22em}
+.slip-meta{font-size:var(--fs-xs); color:var(--muted)}
+.slip-grid{display:grid; grid-template-columns:repeat(2, minmax(0,1fr)); margin:0; column-gap:24px}
+.slip-grid > div{display:grid; grid-template-columns:6.5em minmax(0,1fr); gap:10px; border-bottom:1px solid var(--line); padding:8px 0}
+.slip-grid > .wide{grid-column:1 / -1}
+.slip-grid dt{font-size:var(--fs-xs); color:var(--muted); letter-spacing:.08em; padding-top:3px}
+.slip-grid dd{margin:0; min-width:0}
+.slip-q{display:grid; gap:10px}
+.slip-qh{font-size:var(--fs-xs); color:var(--muted); letter-spacing:.08em}
+.written{display:flex; align-items:center; gap:16px; border-bottom:1px dashed var(--line); padding:6px 0 12px}
+.written-t{flex:1; min-width:0; font-size:var(--fs-l); line-height:1.7}
+.stamp{
+  flex:none; display:inline-grid; place-items:center; width:64px; height:64px; border:3px solid var(--seal); border-radius:50%;
+  color:var(--seal); font-family:var(--f-display); font-size:1.1rem; transform:rotate(-12deg);
+  animation:stamp .32s ease-out both;
+}
+@keyframes stamp{from{transform:rotate(-12deg) scale(1.7); opacity:0} to{transform:rotate(-12deg) scale(1); opacity:1}}
+
+/* 選択肢 */
+.opts{display:grid; gap:8px}
+.opt{
+  font:inherit; text-align:left; width:100%; display:flex; align-items:flex-start; gap:10px;
+  padding:10px 12px; min-height:44px; border:1px solid var(--line); border-radius:var(--r);
+  background:var(--panel); color:var(--ink); cursor:pointer; line-height:1.65;
+}
+.opt::before{content:""; flex:none; width:1.05em; height:1.05em; margin-top:.32em; border:1.5px solid var(--muted); border-radius:2px}
+.opt.round::before{border-radius:50%}
+.opt:hover:not(:disabled){border-color:var(--accent)}
+.opt[aria-pressed="true"]{border-color:var(--accent); background:var(--accent-soft); box-shadow:inset 0 0 0 1px var(--accent)}
+.opt[aria-pressed="true"]::before{background:var(--accent); border-color:var(--accent); box-shadow:inset 0 0 0 2.5px var(--panel)}
+.opt:disabled{cursor:default}
+.opt:disabled:not([aria-pressed="true"]){color:var(--muted)}
+.opt .gr{flex:none; margin-top:-.05em}
+.actions{display:flex; flex-wrap:wrap; align-items:center; gap:10px 14px}
+.hint{font-size:var(--fs-xs); color:var(--muted)}
+.btn{
+  font:inherit; font-weight:700; padding:10px 18px; min-height:44px; border-radius:var(--r); cursor:pointer;
+  border:1.5px solid var(--accent); background:var(--panel); color:var(--accent);
+}
+.btn.primary{background:var(--accent); color:var(--accent-ink)}
+.btn:disabled{opacity:.45; cursor:not-allowed}
+.btn:hover:not(:disabled){filter:brightness(1.06)}
+
+/* 採点のしるし */
+.gr{font-family:var(--f-display); font-size:1.25em; line-height:1; display:inline-block; min-width:1.1em; text-align:center}
+.g-a,.g-b{color:var(--accent)}
+.g-c{color:var(--warn)}
+.g-d{color:var(--seal)}
+.fb{border:1px dashed var(--line); background:var(--panel); border-radius:var(--r); padding:14px 16px; display:grid; gap:10px; font-size:var(--fs-s)}
+.fb:focus{outline:none}
+.fb-h{display:flex; flex-wrap:wrap; align-items:center; gap:6px 12px; font-weight:700; font-size:var(--fs-m)}
+.fb-h .tag{font-family:var(--f-display); font-weight:400; font-size:var(--fs-xs); letter-spacing:.12em; color:var(--accent); border:1px solid var(--accent); padding:0 6px}
+.fb-pts{font-family:var(--f-display); font-weight:400; font-variant-numeric:tabular-nums}
+.all{list-style:none; padding:0; display:grid; gap:8px}
+.all li{display:grid; grid-template-columns:1.6em minmax(0,1fr); gap:4px 8px; padding-top:8px; border-top:1px dotted var(--line)}
+.all .why{grid-column:2; color:var(--muted)}
+.pending{font-size:var(--fs-s); color:var(--muted)}
+
+/* 検査を組む */
+.needs{display:grid; gap:6px; background:var(--panel); border:1px solid var(--line); padding:12px 14px; border-radius:var(--r)}
+.needs-h{font-size:var(--fs-xs); color:var(--muted); letter-spacing:.08em}
+.needs ul{list-style:none; padding:0; display:flex; flex-wrap:wrap; gap:6px 18px}
+.needs li{font-weight:700; display:flex; gap:6px; align-items:baseline}
+.needs li::before{content:"□"; color:var(--muted); font-weight:400}
+.needs li.ok::before{content:"✓"; color:var(--accent)}
+.needs li.ng::before{content:"✗"; color:var(--seal)}
+.needs li.ng{color:var(--seal)}
+.limit{font-size:var(--fs-s)}
+.limit b{font-variant-numeric:tabular-nums}
+.hand{display:grid; grid-template-columns:repeat(auto-fill, minmax(min(100%, 212px), 1fr)); gap:12px}
+.card{
+  font:inherit; text-align:left; color:var(--ink); background:var(--panel); cursor:pointer;
+  border:1px solid var(--line); border-radius:3px; padding:0; display:flex; flex-direction:column;
+  box-shadow:0 1px 0 var(--line); min-width:0; line-height:1.55;
+}
+.card:hover:not(:disabled){border-color:var(--accent)}
+.card[aria-pressed="true"]{border-color:var(--accent); box-shadow:inset 0 0 0 1.5px var(--accent); background:var(--accent-soft)}
+.card:disabled{cursor:default}
+.card.dim{opacity:.6}
+.card-top{display:flex; justify-content:space-between; align-items:center; gap:8px; padding:5px 10px; border-bottom:1px solid var(--line); background:var(--strip); font-size:var(--fs-xs); color:var(--muted); letter-spacing:.05em}
+.card[aria-pressed="true"] .card-top{background:transparent}
+.card.special .card-top{background:var(--warn-soft); color:var(--warn)}
+.card-name{display:block; padding:9px 10px 4px; font-weight:700; font-size:1.02rem; line-height:1.45}
+.card-rows{display:block; padding:0 10px 8px}
+.row{display:grid; grid-template-columns:4.7em minmax(0,1fr); gap:6px; padding:4px 0; border-top:1px dotted var(--line); font-size:var(--fs-s)}
+.row .k{color:var(--muted); font-size:var(--fs-xs); padding-top:1px}
+.card-foot{margin-top:auto; display:flex; flex-wrap:wrap; justify-content:space-between; align-items:center; gap:6px; padding:6px 10px; border-top:1px solid var(--line); font-size:var(--fs-xs)}
+.pick{color:var(--accent); font-weight:700}
+.card[aria-pressed="true"] .pick{background:var(--accent); color:var(--accent-ink); padding:0 8px; border-radius:3px}
+.px-wrap{display:inline-flex; gap:3px; align-items:center}
+.px-l{font-size:var(--fs-xs); color:var(--muted); margin-right:3px; letter-spacing:0}
+.ct-cat{display:inline-flex; align-items:center; gap:6px}
+.cic{width:18px; height:18px; image-rendering:pixelated; flex:none}
+.zk-cat .cic{width:22px; height:22px; vertical-align:-5px; margin-right:6px}
+.px{width:9px; height:9px; border:1.5px solid var(--muted); display:inline-block}
+.px.on{background:var(--ink); border-color:var(--ink)}
+.vb{display:inline-block; font-size:var(--fs-xs); font-weight:700; line-height:1.5; padding:1px 8px; border-radius:3px; border:1px solid currentColor; white-space:nowrap}
+.v-need{background:var(--accent); color:var(--accent-ink); border-color:var(--accent)}
+.v-good{color:var(--accent); background:var(--panel)}
+.v-no{color:var(--muted); background:var(--panel)}
+.v-age{background:var(--seal); color:var(--panel); border-color:var(--seal)}
+.v-heavy{color:var(--warn); background:var(--warn-soft)}
+.v-miss{color:var(--seal); border-style:dashed; background:var(--panel)}
+.tray{display:grid; gap:8px}
+.tray-h{font-size:var(--fs-xs); color:var(--muted); letter-spacing:.08em}
+.tray-h:focus{outline:none}
+.chips{display:flex; flex-wrap:wrap; gap:6px}
+.chip{
+  font:inherit; font-size:var(--fs-s); padding:5px 12px; min-height:36px; border-radius:999px; cursor:pointer;
+  border:1px solid var(--accent); color:var(--accent); background:var(--panel); display:inline-flex; align-items:center; gap:6px;
+}
+.chip.static{cursor:default; color:var(--ink); border-color:var(--line)}
+.chip .x{font-size:1.05em; line-height:1}
+.empty{font-size:var(--fs-s); color:var(--muted)}
+.budget{
+  position:sticky; bottom:0; z-index:5; background:var(--panel);
+  border:1px solid var(--line); border-top:4px double var(--ink);
+  padding:10px 14px calc(10px + env(safe-area-inset-bottom, 0px));
+  display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1fr) auto; gap:8px 18px; align-items:center;
+  box-shadow:0 -12px 24px -20px var(--shadow);
+}
+.budget.static{position:static}
+.meter{display:grid; gap:4px; min-width:0}
+.m-top{display:flex; justify-content:space-between; gap:8px; font-size:var(--fs-xs); color:var(--muted)}
+.m-val{font-family:var(--f-display); color:var(--ink); font-variant-numeric:tabular-nums; font-size:var(--fs-s); white-space:nowrap}
+.m-track{height:12px; background:var(--track); border:1px solid var(--line); position:relative; overflow:hidden}
+.m-fill{position:absolute; inset:0 auto 0 0; background:var(--accent); transition:width .25s ease}
+.meter.over .m-fill{background:var(--seal)}
+.meter.over .m-val{color:var(--seal)}
+.pips{display:flex; gap:3px; height:12px}
+.pip{flex:1; max-width:22px; border:1px solid var(--line); background:var(--track)}
+.pip.on{background:var(--accent); border-color:var(--accent)}
+.pip.ov{background:var(--seal); border-color:var(--seal)}
+.over-note{grid-column:1 / -1; color:var(--seal); font-size:var(--fs-xs); font-weight:700}
+.trap{display:flex; flex-wrap:wrap; gap:6px 10px; align-items:baseline; color:var(--ink)}
+.trap-tag{font-family:var(--f-display); color:var(--seal); border:2px solid var(--seal); padding:0 6px; letter-spacing:.1em; transform:rotate(-3deg); display:inline-block}
+.verdicts{list-style:none; padding:0; display:grid; gap:0}
+.verdicts li{display:grid; grid-template-columns:minmax(0,1fr) auto; gap:2px 10px; padding:8px 0; border-top:1px dotted var(--line)}
+.verdicts .nm{font-weight:700}
+.verdicts .rs{grid-column:1 / -1; color:var(--muted)}
+.breakdown{font-size:var(--fs-xs); color:var(--muted); font-variant-numeric:tabular-nums}
+.subh{font-weight:700; font-size:var(--fs-s)}
+
+/* 報告書 */
+.mul{font-size:var(--fs-s); background:var(--panel); border:1px solid var(--line); border-radius:var(--r); padding:8px 12px}
+.mul b{font-family:var(--f-display); font-weight:400; color:var(--accent); font-size:var(--fs-m)}
+.report{
+  background:var(--panel); border:1px solid var(--line); padding:18px clamp(14px, 3vw, 30px) 16px;
+  box-shadow:0 12px 26px -20px var(--shadow); display:grid; gap:0; font-size:var(--fs-s);
+}
+.rep-head{display:flex; flex-wrap:wrap; justify-content:space-between; align-items:flex-end; gap:4px 16px; border-bottom:4px double var(--ink); padding-bottom:8px; margin-bottom:6px}
+.rep-title{font-family:var(--f-display); font-size:var(--fs-xl); letter-spacing:.22em}
+.rep-meta{font-size:var(--fs-xs); color:var(--muted)}
+.rep-info{margin:0; display:grid}
+.rep-info > div{display:grid; grid-template-columns:7em minmax(0,1fr); gap:10px; padding:6px 0; border-bottom:1px solid var(--line)}
+.rep-info dt{font-size:var(--fs-xs); color:var(--muted); padding-top:2px}
+.rep-info dd{margin:0}
+.rep-note{margin-top:10px; background:var(--warn-soft); color:var(--ink); border:1px solid var(--warn); padding:8px 12px; border-radius:3px}
+.rep-sec{padding:12px 0; border-bottom:1px solid var(--line); display:grid; gap:6px}
+.rep-sec h5,.rep-miss h5,.rep-sum h5{margin:0; font-size:var(--fs-m)}
+.rep-sec.skip{color:var(--muted)}
+.rep-miss{margin-top:12px; border:1px dashed var(--seal); background:var(--seal-soft); padding:10px 14px; display:grid; gap:6px; border-radius:3px}
+.rep-miss ul{padding-left:1.2em}
+.rep-sum{padding-top:14px; display:grid; gap:6px}
+.rep-sum h5{font-family:var(--f-display); font-weight:400; letter-spacing:.06em}
+.rep-sign{margin-top:12px; text-align:right; color:var(--muted); font-size:var(--fs-xs)}
+.bars{display:grid; gap:6px; margin:4px 0 2px}
+.bar-row{display:grid; grid-template-columns:minmax(0,9em) 2.6em minmax(0,1fr); gap:8px; align-items:center}
+.bar-k{font-size:var(--fs-xs)}
+.bar-v{font-family:var(--f-display); text-align:right; font-variant-numeric:tabular-nums}
+.bar-track{position:relative; height:14px; background:var(--track); display:block}
+.bar-band{position:absolute; top:0; bottom:0; left:37.5%; width:25%; background:color-mix(in srgb, var(--accent) 16%, transparent)}
+.bar-fill{position:absolute; left:0; top:3px; bottom:3px; background:var(--accent)}
+.bar-mean{position:absolute; top:-3px; bottom:-3px; left:50%; width:2px; margin-left:-1px; background:var(--ink)}
+.bar-legend{font-size:var(--fs-xs); color:var(--muted)}
+.gauge{display:grid; gap:4px; max-width:28em}
+.g-top{display:flex; align-items:baseline; gap:6px}
+.g-v{font-family:var(--f-display); font-size:var(--fs-xl); line-height:1}
+.g-max{color:var(--muted); font-size:var(--fs-xs)}
+.g-cut{position:absolute; top:-4px; bottom:-4px; width:2px; margin-left:-1px; background:var(--seal)}
+
+/* 問い */
+.qs{display:grid; gap:0}
+.q{padding:16px 0; border-top:1px solid var(--line); display:grid; gap:10px}
+.q-h{font-weight:700}
+.q-h:focus{outline:none}
+.q-n{font-family:var(--f-display); font-weight:400; color:var(--accent); margin-right:8px}
+.q-miss{font-size:var(--fs-s); background:var(--seal-soft); border:1px dashed var(--seal); padding:8px 12px; border-radius:3px; display:grid; gap:4px}
+
+/* 結果 */
+.result-box{background:var(--panel); border:1px solid var(--ink); padding:20px clamp(14px, 3vw, 28px); display:grid; gap:18px}
+.total{display:flex; flex-wrap:wrap; align-items:center; gap:8px 18px}
+.total-n{font-family:var(--f-display); font-size:clamp(3.2rem, 14vw, 4.6rem); line-height:1; color:var(--accent); font-variant-numeric:tabular-nums}
+.total-d{font-family:var(--f-display); color:var(--muted)}
+.total-stamp{font-family:var(--f-display); border:3px solid var(--seal); color:var(--seal); padding:4px 12px; transform:rotate(-6deg); letter-spacing:.12em; animation:stamp2 .32s ease-out both}
+.total-stamp.ok{border-color:var(--accent); color:var(--accent)}
+@keyframes stamp2{from{transform:rotate(-6deg) scale(1.6); opacity:0} to{transform:rotate(-6deg) scale(1); opacity:1}}
+.sumrows{list-style:none; padding:0; display:grid}
+.sumrows li{display:grid; grid-template-columns:minmax(0,1fr) auto auto; gap:2px 12px; align-items:center; padding:10px 0; border-top:1px solid var(--line)}
+.sumrows .lbl{font-weight:700}
+.sumrows .pts{font-family:var(--f-display); font-variant-numeric:tabular-nums}
+.sumrows .rs{grid-column:1 / -1; font-size:var(--fs-s); color:var(--muted)}
+.result-box h4{margin:0 0 6px; font-family:var(--f-display); font-weight:400; font-size:var(--fs-l); letter-spacing:.04em}
+.points{padding-left:1.2em; display:grid; gap:6px; font-size:var(--fs-s)}
+
+/* 図鑑 */
+.zukan{margin-top:64px; border-top:4px double var(--ink); padding-top:18px; display:grid; gap:12px}
+.zukan h2{font-family:var(--f-display); font-weight:400; font-size:var(--fs-xl); margin:0; display:flex; flex-wrap:wrap; align-items:baseline; gap:6px 14px}
+.zk-count{font-size:var(--fs-s); color:var(--accent); font-variant-numeric:tabular-nums}
+.zk-cat{font-size:var(--fs-s); color:var(--muted); letter-spacing:.1em; margin:10px 0 0; font-weight:700}
+.zk-grid{list-style:none; padding:0; display:grid; grid-template-columns:repeat(auto-fill, minmax(min(100%, 250px), 1fr)); gap:10px}
+.zk{border:1px solid var(--line); background:var(--panel); padding:10px 12px; font-size:var(--fs-s); display:grid; gap:4px; align-content:start; border-radius:3px}
+.zk-name{font-weight:700}
+.zk.locked{background:transparent; border-style:dashed; color:var(--muted)}
+.zk.locked .zk-name{font-family:var(--f-display); font-weight:400; letter-spacing:.2em}
+.zk dl{margin:0; display:grid; gap:2px}
+.zk dl > div{display:grid; grid-template-columns:4.7em minmax(0,1fr); gap:6px}
+.zk dt{color:var(--muted); font-size:var(--fs-xs); padding-top:1px}
+.zk dd{margin:0}
+.foot{margin-top:40px; font-size:var(--fs-xs); color:var(--muted); max-width:46em}
+
+@media (max-width: 720px){
+  .tabs{grid-template-columns:repeat(2, minmax(0,1fr))}
+  .how{grid-template-columns:1fr}
+}
+@media (max-width: 600px){
+  .slip-grid{grid-template-columns:1fr}
+  .slip-grid > div{grid-template-columns:1fr; gap:0}
+  .budget{grid-template-columns:minmax(0,1fr) minmax(0,1fr); gap:6px 14px; padding-top:8px; padding-bottom:calc(8px + env(safe-area-inset-bottom, 0px))}
+  .budget .send{grid-column:1 / -1; width:100%; padding-block:8px}
+  .rep-info > div{grid-template-columns:1fr; gap:0}
+  .bar-row{grid-template-columns:minmax(0,7.5em) 2.4em minmax(0,1fr)}
+  .written{flex-direction:row}
+  .stamp{width:54px; height:54px; font-size:1rem}
+}
+@media (prefers-reduced-motion: reduce){
+  *,*::before,*::after{animation:none!important; transition:none!important; scroll-behavior:auto!important}
+}
+</style>
+
+<div class="wrap">
+  <header class="top">
+    <p class="eyebrow">精神科専門医試験の勉強に・心理検査に慣れていない医師の練習に</p>
+    <h1>心理検査オーダー</h1>
+    <p class="lead">心理検査は、頼み方しだいで返ってくる答えが変わります。主治医になったつもりで依頼票を書き、検査を組み、届いた報告書を読みます。</p>
+    <ol class="how">
+      <li><b><span class="n">その1</span> 依頼票を書く</b>検査で何を知りたいか、結果を何に使うかを書きます。</li>
+      <li><b><span class="n">その2</span> 検査を組む</b>年齢と体力（時間と負担の上限）に合わせて、検査カードを組み合わせます。</li>
+      <li><b><span class="n">その3</span> 報告書を読む</b>届いた報告書から、読み方と次の一手を選びます。</li>
+    </ol>
+    <p class="score-rule">配点は依頼票20点・検査の組み合わせ50点・報告書の読み30点。70点以上でクリア（✓）です。</p>
+    <div class="toolbar">
+      <button type="button" class="switch" id="advBtn" aria-pressed="false"><span class="knob" aria-hidden="true"></span><span id="advLabel">上級者モード：オフ</span></button>
+      <p class="note">上級者モードでは、カードの「わかること」と途中の採点を隠します。採点は最後にまとめて出ます。</p>
+    </div>
+  </header>
+
+  <nav aria-label="依頼の一覧"><div class="tabs" id="tabs"></div></nav>
+
+  <main id="case"></main>
+
+  <section class="zukan" id="zukan" aria-labelledby="zkh">
+    <h2 id="zkh">検査図鑑 <span class="zk-count" id="zkCount"></span></h2>
+    <p class="muted" style="font-size:var(--fs-s)">組み合わせに入れて依頼を出した検査が載ります。</p>
+    <div id="zkBody"></div>
+  </section>
+
+  <p class="foot">登場する患者、点数、報告書はすべて架空です。実在の検査の問題・図版・採点表・基準値は載せていません。所要時間は目安で、施設や本人の状態によって変わります。実際の実施と解釈は、それぞれの手引きと研修に従ってください。</p>
+</div>
+
+<script>
+(function () {
+  'use strict';
+
+  /* ---------- 保存（使えなくても動く） ---------- */
+  var LS_KEY = 'kensa-order-v1', ADV_KEY = 'kensa-order-adv', CLEAR = 70;
+  function lsGet(k) { try { return window.localStorage.getItem(k); } catch (e) { return null; } }
+  function lsSet(k, v) { try { window.localStorage.setItem(k, v); } catch (e) { /* 保存できない環境 */ } }
+  var saved = { clear: {}, seen: [] };
+  try {
+    var raw = lsGet(LS_KEY);
+    if (raw) {
+      var o = JSON.parse(raw);
+      if (o && typeof o === 'object') {
+        if (o.clear && typeof o.clear === 'object') saved.clear = o.clear;
+        if (Array.isArray(o.seen)) saved.seen = o.seen;
+      }
+    }
+  } catch (e) { /* 壊れた記録は無視 */ }
+  function persist() { lsSet(LS_KEY, JSON.stringify(saved)); }
+  var adv = lsGet(ADV_KEY) === '1';
+
+  /* ---------- 検査カード ---------- */
+  var CATS = ['知能・発達', '神経心理・認知症', '症状評価・質問紙', '人格・投影法', '情報収集', '特別'];
+  function K(name, cat, age, time, min, burden, know) { return { name: name, cat: cat, age: age, time: time, min: min, burden: burden, know: know }; }
+  var CARDS = {
+    wais: K('WAIS-IV', '知能・発達', '16歳0か月〜90歳11か月', '約60〜90分', 75, 2, '成人の知能と得意・不得意。言語理解・知覚推理・ワーキングメモリー・処理速度の4つの群指数（知能をいくつかの側面に分けた得点）と全検査IQ'),
+    wisc: K('WISC-V', '知能・発達', '5歳0か月〜16歳11か月', '約60〜80分', 70, 2, '子どもの知能と得意・不得意。言語理解・視空間・流動性推理・ワーキングメモリー・処理速度の5つの主要指標'),
+    binet: K('田中ビネー知能検査V', '知能・発達', '2歳〜成人', '約60分', 60, 2, 'IQと精神年齢（どの年齢の問題まで解けるか）。14歳以上は偏差IQ（同じ年齢の人の中での位置）'),
+    kshiki: K('新版K式発達検査2020', '知能・発達', '0歳〜成人', '約30〜60分', 45, 1, '発達年齢と発達指数。姿勢・運動／認知・適応／言語・社会の3つの領域ごとに出る'),
+    pars: K('PARS-TR', '知能・発達', '3歳以上', '約60分（保護者面接）', 0, 0, '保護者から聞く発達歴。幼児期のようすと今のようすから、自閉スペクトラム症の特性をみる'),
+    ados: K('ADOS-2', '知能・発達', '12か月〜成人', '約40〜60分', 50, 2, '自閉スペクトラム症の行動観察。決まった遊びや会話の場面で反応をみる（実施に研修が必要）'),
+    straw: K('STRAW-R（改訂版 標準読み書きスクリーニング検査）', '知能・発達', '小学生以上（学齢期）', '約15分', 15, 1, '読み書きの速さと正確さ'),
+    mmse: K('MMSE', '神経心理・認知症', '成人（主に高齢者）', '約10分', 10, 1, '認知機能のスクリーニング（ふるいわけ）。30点満点で、23点以下は認知症の疑い'),
+    hdsr: K('HDS-R（改訂長谷川式簡易知能評価スケール）', '神経心理・認知症', '成人（主に高齢者）', '約10分', 10, 1, '認知症のスクリーニング。30点満点で、20点以下は認知症の疑い'),
+    wmsr: K('WMS-R（ウェクスラー記憶検査）', '神経心理・認知症', '16〜74歳', '約45〜60分', 50, 2, '記憶をくわしくみる。言語性記憶・視覚性記憶・遅延再生（時間をおいて思い出す力）など'),
+    tmt: K('TMT（Trail Making Test）', '神経心理・認知症', '主に成人', '約10分', 10, 1, '注意・処理速度・切り替え。紙の上の数字などを線で順につなぐ'),
+    wcst: K('WCST（ウィスコンシンカード分類検査）', '神経心理・認知症', '主に成人', '約20分', 20, 1, '遂行機能（段取りを立てて実行する力）のうち、ルールの切り替え'),
+    bads: K('BADS（遂行機能障害症候群の行動評価）', '神経心理・認知症', '主に成人', '約40分', 40, 2, '生活場面に近い課題で遂行機能をみる'),
+    fab: K('FAB（前頭葉機能検査）', '神経心理・認知症', '主に成人', '約10分', 10, 1, '前頭葉機能のスクリーニング'),
+    gds: K('GDS-15（高齢者抑うつ尺度）', '症状評価・質問紙', '高齢者', '約5分', 5, 1, '高齢者の抑うつ。はい・いいえで答える自己記入式'),
+    bdi: K('BDI-II', '症状評価・質問紙', '青年〜成人', '約10分', 10, 1, '抑うつの重さ（自己記入）'),
+    caars: K('CAARS', '症状評価・質問紙', '18歳以上', '約20分', 20, 1, '成人のADHD症状。本人用と観察者用（家族など）があり、見え方を比べられる'),
+    asrs: K('ASRS', '症状評価・質問紙', '成人', '約5分', 5, 1, '成人ADHDのスクリーニング（自己記入）'),
+    conners: K('Conners 3', '症状評価・質問紙', '6〜18歳', '約20分', 20, 1, '子どものADHD症状。保護者用・教師用・本人用がある'),
+    aq: K('AQ（自閉症スペクトラム指数）', '症状評価・質問紙', '成人版と児童版', '約10分', 10, 1, '自閉スペクトラム特性のスクリーニング（質問紙）。これだけでは診断できない'),
+    panss: K('PANSS', '症状評価・質問紙', '成人', '約40分（面接）', 40, 1, '統合失調症の症状の重さ。面接で評価者が点をつける'),
+    mmpi: K('MMPI', '人格・投影法', '15歳以上', '約60〜90分', 75, 2, '多面的な人格の質問紙。回答の偏りをみる妥当性尺度がある'),
+    yg: K('YG性格検査', '人格・投影法', '年齢別の版がある', '約30分', 30, 1, '性格特性の質問紙'),
+    teg: K('TEG（東大式エゴグラム）', '人格・投影法', '青年〜成人', '約15分', 15, 1, '交流分析の考え方で、自我状態（心のはたらき方の5つの型）をみる'),
+    rorsch: K('ロールシャッハ・テスト', '人格・投影法', '子ども〜成人', '約60〜120分（整理・解釈にも時間）', 90, 3, '投影法（あいまいな刺激への反応から心の動きをみる方法）。人格の構造や病態水準。実施と解釈に熟練が必要'),
+    sct: K('SCT（文章完成法）', '人格・投影法', '年齢別の版がある', '約30〜60分', 45, 1, '投影法。書きかけの文の続きを書く。本人の考えや対人関係のテーマ'),
+    baum: K('バウムテスト', '人格・投影法', '幼児〜成人', '約10分', 10, 1, '投影法（描画）。木の絵を描く'),
+    pf: K('P-Fスタディ', '人格・投影法', '年齢別の版がある', '約20分', 20, 1, '投影法。欲求不満の場面でどう反応するか'),
+    seiku: K('生育歴の聞き取り（保護者から）', '情報収集', '年齢を問わない', '約30分（保護者から）', 0, 0, '子どもの頃のようす、通知表、家庭や学校でのようす'),
+    obs: K('行動観察', '情報収集', '年齢を問わない', '検査の場面や日常で並行して', 0, 0, '検査場面や日常のようす（答え方、集中、やりとり）'),
+    defer: K('今は検査を延期する', '特別', '—', '0分', 0, 0, '今は検査をせず、時期と目的を改めて決める')
+  };
+
+
+  /* ---------- 検査の種類のアイコン（12×12のドット絵） ---------- */
+  var CPAL = {"k": "#2b2b2b", "w": "#ffffff", "r": "#d0453f", "u": "#4f86c6", "U": "#a9d0f0", "y": "#efc944", "g": "#56a35f", "p": "#ef9fb6", "e": "#8c9799"};
+  var CICON = {"知能・発達": ["............", "...kkkkkk...", "...krrrrk...", "...krrrrk...", "...krrrrk...", "kkkkkkkkkkkk", "kuuuukkyyyyk", "kuuuukkyyyyk", "kuuuukkyyyyk", "kuuuukkyyyyk", "kkkkkkkkkkkk", "............"], "神経心理・認知症": ["............", "..kkkkkkkk..", ".kppkpppppk.", "kpppkppkpppk", "kppkpppkpppk", "kpppppkppppk", "kpkppppkpppk", ".kppkpppppk.", "..kkkpppkk..", ".....kpk....", ".....kk.....", "............"], "症状評価・質問紙": ["....eeee....", ".kkkeeeekkk.", ".kwwwwwwwwk.", ".kwgwkkkkwk.", ".kwwwwwwwwk.", ".kwgwkkkkwk.", ".kwwwwwwwwk.", ".kwrwkkkkwk.", ".kwwwwwwwwk.", ".kwwwwwwwwk.", ".kkkkkkkkkk.", "............"], "人格・投影法": ["............", "....k..k....", "..kkk..kkk..", ".kkkkkkkkkk.", "kkk.kkkk.kkk", ".kkkkkkkkkk.", "..kkkkkkkk..", ".kk.kkkk.kk.", "kk..kkkk..kk", "....k..k....", "...kk..kk...", "............"], "情報収集": ["kkkkkkk.....", "kwwwwwk.....", "kwkwkwk.....", "kwwwwwk.....", "kkwkkkk.....", "....kkkkkkkk", "....kUUUUUUk", "....kUkUkUUk", "....kUUUUUUk", "....kkkkkUkk", "........kk..", "............"], "特別": [".kkkkkkkkkk.", "..kwwwwwwk..", "..kyyyyyyk..", "...kyyyyk...", "....kyyk....", ".....kk.....", "....kwyk....", "...kwwywk...", "..kwwyyywk..", "..kyyyyyyk..", ".kkkkkkkkkk.", "............"]};
+  var CICU = {};
+  function catIcon(cat) {
+    var rows = CICON[cat]; if (!rows) return '';
+    if (!CICU[cat]) {
+      try {
+        var cv = document.createElement('canvas'); cv.width = cv.height = 12; var x = cv.getContext('2d');
+        rows.forEach(function (row, r) { for (var i = 0; i < 12; i++) { var ch = row.charAt(i); if (ch !== '.') { x.fillStyle = CPAL[ch]; x.fillRect(i, r, 1, 1); } } });
+        CICU[cat] = cv.toDataURL();
+      } catch (e) { return ''; }
+    }
+    return '<img class="cic" src="' + CICU[cat] + '" alt="">';
+  }
+
+  /* ---------- 採点の決まり ---------- */
+  var G = {
+    '◎': { ref: 20, q: 15, mul: 1, mulL: '×1.0', cls: 'g-a' },
+    '○': { ref: 14, q: 10, mul: 0.85, mulL: '×0.85', cls: 'g-b' },
+    '△': { ref: 8, q: 5, mul: 0.7, mulL: '×0.7', cls: 'g-c' },
+    '×': { ref: 0, q: 0, mul: 0.5, mulL: '×0.5', cls: 'g-d' }
+  };
+  var MULTXT = {
+    '◎': '依頼の目的と使い道がはっきりしていたので、報告書は主治医の疑問にまっすぐ答えています。',
+    '○': '知りたいことは伝わりましたが、使い道が書かれていなかったので、支援の提案は省かれています。',
+    '△': '依頼の目的がはっきりしなかったので、報告書は結果の説明にとどまっています。',
+    '×': '依頼の目的がはっきりしなかったので、報告書は結果の説明にとどまっています。'
+  };
+  var V = {
+    need: { label: '必要', cls: 'v-need', pen: 0 },
+    good: { label: 'あると良い', cls: 'v-good', pen: 0 },
+    no: { label: '不要', cls: 'v-no', pen: 4 },
+    heavy: { label: '負担が大きすぎる', cls: 'v-heavy', pen: 5 },
+    age: { label: '対象年齢外', cls: 'v-age', pen: 6 }
+  };
+  var PEN_OVER = 6, PEN_TRAP = 8;
+  function gradeOf(f) { return f >= 0.9 ? '◎' : f >= 0.7 ? '○' : f >= 0.4 ? '△' : '×'; }
+  function grHTML(g) { return '<span class="gr ' + G[g].cls + '">' + g + '</span>'; }
+
+  /* ---------- 報告書の部品 ---------- */
+  function bars(rows) {
+    function pct(v) { return Math.max(0, Math.min(100, (v - 40) / 120 * 100)); }
+    return '<div class="bars">' + rows.map(function (r) {
+      return '<div class="bar-row"><span class="bar-k">' + r[0] + '</span><span class="bar-v">' + r[1] + '</span>' +
+        '<span class="bar-track" aria-hidden="true"><span class="bar-band"></span><span class="bar-fill" style="width:' + pct(r[1]).toFixed(1) + '%"></span><span class="bar-mean"></span></span></div>';
+    }).join('') + '</div><p class="bar-legend">目盛りは40〜160。縦線が平均の100、帯は平均から±15の範囲。</p>';
+  }
+  function gauge(v, max, cut, label) {
+    return '<div class="gauge"><div class="g-top"><span class="g-v">' + v + '</span><span class="g-max">/ ' + max + '点</span></div>' +
+      '<span class="bar-track" aria-hidden="true"><span class="bar-fill" style="width:' + (v / max * 100).toFixed(1) + '%"></span>' +
+      (cut != null ? '<span class="g-cut" style="left:' + ((cut + 0.5) / max * 100).toFixed(1) + '%"></span>' : '') + '</span>' +
+      (label ? '<p class="bar-legend">' + label + '</p>' : '') + '</div>';
+  }
+  function P(t) { return '<p>' + t + '</p>'; }
+
+  /* ---------- 依頼（8件） ---------- */
+  var CASES = [
+    {
+      id: 'c1', tab: '成人のADHD疑い', title: '成人のADHD疑い',
+      pt: { name: 'Aさん', age: '28歳', sex: '男性', job: '事務職' },
+      course: '入社6年目。部署が変わって仕事が増えてから、書類の記入ミスと締め切りの遅れが目立つ。上司に何度も注意され、「気をつけているのに直らない」と悩んで受診した。',
+      trouble: '指示を聞いても途中で抜ける。机の上が散らかり、書類をなくす。',
+      question: 'ADHD（注意欠如・多動症）の特性があるのか。仕事でどんな工夫ができるか。',
+      care: '体力は問題ない。仕事を休んで来るので、2回までに分けたい。母と同居している。',
+      budget: { time: 150, burden: 6, why: '成人で体力は十分。2回に分けて約150分まで' },
+      refs: [
+        { t: 'ミスと締め切りの遅れが目立ちます。ADHDの特性があるかどうか、評価をお願いします。', g: '○', why: '困りごとと知りたいことは伝わりますが、結果を何に使うかが書かれていません。使い道を添えると、支援の提案まで返ってきます。' },
+        { t: '仕事のミスが多く、上司からも注意されています。本人もとても困っているので、WAIS-IVとCAARSとロールシャッハをひととおり行い、ADHDかどうかを検査で診断してください。', g: '×', why: '詳しく書いてあっても、検査に診断を任せ、関係の薄い検査（ロールシャッハ）まで指定しています。診断は検査の結果だけでは決まらず、症状と発達歴を合わせて主治医が判断します。検査名を並べるより、知りたいことと使い道を書きます。' },
+        { t: '仕事でのミスと締め切りの遅れについて、知的な得意・不得意とADHDの特性の有無を評価してください。結果は職場での工夫（配慮）を考えるのに使います。', g: '◎', why: '困りごと、知りたいこと、結果の使い道がそろっています。検査者は目的に合わせて検査を選び、答えを返せます。' },
+        { t: '知能検査をお願いします。', g: '△', why: '検査名だけでは、何に答えればよいかが伝わりません。IQの数字だけが返ってくるおそれがあります。' }
+      ],
+      hand: ['caars', 'wisc', 'wais', 'rorsch', 'asrs', 'seiku', 'mmse', 'conners', 'aq', 'wcst', 'bdi', 'yg'],
+      v: {
+        wais: ['need', '28歳なのでWAIS-IV。得意・不得意の差から、仕事の困りごとの背景がわかる。'],
+        caars: ['need', '今のADHD症状を、本人と周り（観察者）の両方から確かめられる。'],
+        seiku: ['need', '成人のADHDは、子どもの頃から症状があったかが診断の要。母から子どもの頃のようすや通知表を聞く。'],
+        asrs: ['good', '短時間でADHDの可能性をふるいわけできる。CAARSと合わせて使える。'],
+        aq: ['good', '自閉スペクトラム症の特性が重なっていないかの確認になる。'],
+        bdi: ['good', 'ミスが続いて落ち込んでいないか、抑うつの重さを確かめられる。'],
+        wisc: ['age', '16歳11か月まで。28歳にはWAIS-IVを使う。'],
+        conners: ['age', '6〜18歳用。成人にはCAARSを使う。'],
+        rorsch: ['no', '人格の構造をみる検査で、今回の問いに答えない。負担も大きい。'],
+        mmse: ['no', '認知症のスクリーニング。若い人の注意の問題はとらえにくい。'],
+        wcst: ['no', '遂行機能の検査。今回の問いには、WAIS-IVと質問紙と発達歴で足りる。'],
+        yg: ['no', '性格の傾向はわかるが、ADHDの評価には役立たない。']
+      },
+      tags: [
+        { id: 'iq', label: '知的な得意・不得意', cards: ['wais'] },
+        { id: 'adhd', label: '今のADHD症状（本人と周りから）', cards: ['caars'] },
+        { id: 'hist', label: '子どもの頃からの経過', cards: ['seiku'] }
+      ],
+      trap: function (s) {
+        return (s.has('caars') || s.has('asrs')) && !s.has('seiku')
+          ? '質問紙だけで結論を出そうとしています。成人のADHDは、子どもの頃から症状があったかが診断の要です。発達歴を聞かないと判断できません。' : null;
+      },
+      rep: {
+        wais: '<p>群指数（知能をいくつかの側面に分けた得点。平均は100）</p>' + bars([['言語理解', 112], ['知覚推理', 106], ['ワーキングメモリー', 80], ['処理速度', 76], ['全検査IQ', 96]]) +
+          P('言語理解と知覚推理は平均から平均の上。ワーキングメモリー（聞いたことを覚えておきながら作業する力）と処理速度（簡単な作業をすばやく正確にこなす力）が低く、群指数の間の差が大きい。全検査IQ 96を、この方の力を代表する数字として扱うには注意が必要。'),
+        caars: P('本人用・観察者用（同居の母が記入）とも、不注意の得点が高い。多動・衝動性は本人用でやや高い。'),
+        seiku: P('母から：小学生の頃から忘れ物が多く、通知表には毎年「うっかりミスが多い」「話を最後まで聞けない」と書かれていた。宿題の出し忘れも多かった。'),
+        asrs: P('スクリーニングで陽性（ADHDの可能性を示す範囲）。'),
+        aq: P('カットオフ（境目の点）未満。自閉スペクトラム特性が強いことを示す所見はない。'),
+        bdi: P('軽い抑うつ。ミスが続いて自信をなくしている。'),
+        rorsch: P('実施したが、今回の問いに直接答える所見は得られなかった。2時間近くかかり、本人は強い疲れを訴えた。')
+      },
+      sum: function (x) {
+        var f = [];
+        if (x.has('wais')) f.push('ワーキングメモリーと処理速度の低さ');
+        if (x.has('caars')) f.push('本人・観察者の両方から見た不注意の高さ');
+        if (x.has('seiku')) f.push('子どもの頃から続く不注意');
+        var a = !f.length ? '今回の検査からは、ADHDの特性について判断できる材料が得られていません。'
+          : x.has('seiku') ? f.join('、') + 'がそろい、ADHDの特性と矛盾しない結果です。診断は、症状と発達歴をもとに主治医が判断してください。'
+            : f.join('、') + 'がみられます。ただし、子どもの頃からの経過を確かめていないため、ADHDの特性かどうかは判断できません。';
+        return [a, '職場では、指示を書面で短く区切ってもらう、チェックリストやリマインダーを使うなどの工夫を提案します。'];
+      },
+      qs: [
+        {
+          q: '全検査IQは96でした。この数字をどう扱いますか。', tags: ['iq'],
+          ref: 'WAIS-IVを組んでいれば、言語理解112・知覚推理106・ワーキングメモリー80・処理速度76・全検査IQ96という結果でした。',
+          opts: [
+            { t: '全検査IQ 96は平均域なので、知的には問題がなく、困りごとは不注意だけで説明できると伝える', g: '×' },
+            { t: '群指数の差が大きいので、全検査IQだけでまとめず、得意・不得意として説明する', g: '◎' },
+            { t: '全検査IQは参考にとどめ、処理速度が低いことだけを伝える', g: '○' },
+            { t: '全検査IQを主な結果として本人に伝える', g: '△' }
+          ],
+          why: '群指数の間に大きな差があると、全検査IQはその人の力を代表しにくくなります。言語理解112と処理速度76の差は大きく、ここに仕事の困りごとが表れています。得意（ことばで考える力）と不得意（すばやい作業、聞いたことを覚えておく力）の両方を伝えると、本人も工夫を考えやすくなります。'
+        },
+        {
+          q: '職場での支援として、まず勧めるのはどれですか。', tags: ['adhd'],
+          ref: 'CAARSを組んでいれば、本人・観察者とも不注意が高いという結果でした。',
+          opts: [
+            { t: '静かな席に移る、仕切りを置くなど、気が散りにくい環境を職場と相談する', g: '○' },
+            { t: '努力が足りないので、もっと注意するよう本人に伝え、ミスの記録をつけてもらう', g: '×' },
+            { t: '様子をみて、ミスが続くようなら再検査する', g: '△' },
+            { t: '指示は書面で短く区切ってもらい、チェックリストやリマインダーを使う', g: '◎' }
+          ],
+          why: 'ワーキングメモリーが低いと、口頭の長い指示は途中で抜けやすくなります。書面で短く区切る、チェックリストで確かめる、リマインダーで締め切りを知らせるなど、記憶と注意を外から補う工夫が先です。気が散りにくい環境も役立ちますが、ミスの中心には届きにくいです。努力不足と伝えると、自信をさらに失わせます。'
+        }
+      ],
+      model: { cards: ['wais', 'caars', 'seiku', 'asrs', 'aq'], note: 'WAIS-IV・CAARS・生育歴の3つで、知能の得意・不得意、今の症状（本人と周り）、子どもの頃からの経過がそろいます。ASRSやAQは短時間で足せる確認です。' },
+      points: [
+        '検査だけでADHDと診断しない。診断は、今の症状と発達歴（子どもの頃から症状があったか）から行う。',
+        '群指数の差が大きいときは、全検査IQだけで知的な力をまとめない。',
+        'WAIS-IVは16歳0か月から、WISC-Vは16歳11か月まで。年齢で使い分ける。',
+        'CAARSには本人用と観察者用があり、周りから見た様子と比べられる。'
+      ]
+    },
+    {
+      id: 'c2', tab: '認知症か、うつ病か', title: '認知症か、うつ病か',
+      pt: { name: 'Bさん', age: '72歳', sex: '女性', job: '主婦' },
+      course: '夫と二人暮らし。半年前から物忘れが増え、好きだった手芸もしなくなった。食欲が落ち、眠りが浅い。娘に付き添われて受診した。',
+      trouble: '「頭がすっかりだめになった」と本人がくり返し訴える。',
+      question: '認知症が始まっているのか、うつ病で物忘れのように見えているのか。',
+      care: '疲れやすく、長い検査は難しい。娘が付き添う。',
+      budget: { time: 40, burden: 4, why: '72歳で疲れやすい。1回で約40分まで' },
+      refs: [
+        { t: '認知症のスクリーニングをお願いします。', g: '△', why: '目的が認知症に限られ、うつ病との見分けという主治医の疑問が伝わりません。抑うつの評価が抜けるおそれがあります。' },
+        { t: '半年で物忘れと意欲低下が出ています。認知症による低下か、うつ病による見かけの低下かを見分け、治療方針を決めたいです。疲れやすいので短めでお願いします。', g: '◎', why: '見分けたいこと、使い道、配慮（短めに）がそろっています。検査者は負担の小さい検査を選べます。' },
+        { t: '72歳の女性です。物忘れがあり、付き添いの娘さんも心配しています。WAIS-IVとWMS-Rをひととおり行って、記憶と知的な力を詳しく調べてください。', g: '×', why: '詳しく書いてあっても、主治医の疑問（認知症か、うつ病か）が書かれず、疲れやすい高齢の方に負担の大きい検査を並べています。抑うつの評価も抜けてしまいます。' },
+        { t: '物忘れの程度と、抑うつがどのくらい影響しているかを評価してください。', g: '○', why: '知りたいことは伝わります。結果の使い道と、疲れやすさへの配慮を添えると、さらに良くなります。' }
+      ],
+      hand: ['wais', 'hdsr', 'bdi', 'gds', 'rorsch', 'mmse', 'wmsr', 'obs', 'wisc', 'fab', 'yg'],
+      v: {
+        hdsr: ['need', '短時間で認知機能をふるいわけできる（MMSEとどちらか一方でもよい）。'],
+        mmse: ['need', '短時間で認知機能をふるいわけできる（HDS-Rとどちらか一方でもよい）。'],
+        gds: ['need', '高齢者向けの抑うつの尺度。はい・いいえで答えられ、負担が小さい。うつ病との見分けに欠かせない。'],
+        fab: ['good', '短時間で前頭葉機能をみられる。意欲低下の背景を探る手がかりになる。'],
+        obs: ['good', '答え方（すぐに「わからない」と言うか、取りつくろうか）は、見分けの大切な手がかり。'],
+        wmsr: ['heavy', '記憶をくわしくみられるが、約45〜60分かかる。今の体力では負担が大きい。必要なら日を改めて一部だけ。'],
+        wais: ['heavy', '全部行うと約60〜90分。今回の目的に対して負担が大きすぎる。'],
+        rorsch: ['no', '今回の問い（認知症か、うつ病か）に答えない。負担も大きい。'],
+        bdi: ['no', '抑うつの尺度だが、高齢者には、はい・いいえで答えるGDS-15のほうが答えやすい。GDS-15と重なる。'],
+        wisc: ['age', '16歳11か月までの子ども用。'],
+        yg: ['no', '性格の傾向をみる検査で、今回の問いに答えない。']
+      },
+      tags: [
+        { id: 'cog', label: '認知機能の程度', cards: ['hdsr', 'mmse'] },
+        { id: 'dep', label: '抑うつの有無', cards: ['gds'] }
+      ],
+      trap: function (s) {
+        return (s.has('hdsr') || s.has('mmse')) && !s.has('gds')
+          ? '認知症の検査だけを組み、抑うつを確かめていません。高齢者の物忘れでは、うつ病による仮性認知症を見落とさないことが大切です。' : null;
+      },
+      rep: {
+        hdsr: gauge(21, 30, 20, '20点以下で認知症の疑い（境目の線）') + P('21点。日時の見当識（今がいつかがわかる力）と遅延再生（時間をおいて思い出す課題）で失点。「わからない」とすぐに答えることが多く、ヒントを出すと思い出せた。本人は物忘れを強く訴えた。'),
+        mmse: gauge(25, 30, 23, '23点以下で認知症の疑い（境目の線）') + P('25点。計算と遅延再生で失点。考える前に「できません」と言うことが多かった。'),
+        gds: gauge(11, 15, null, '') + P('11点。抑うつの疑いを示す範囲。意欲や楽しみの低下と、自分を責める気持ちが強い。'),
+        fab: P('やや低い。答えるまでに時間がかかり、意欲の低下が影響している可能性がある。'),
+        obs: P('表情が乏しく、声が小さい。物忘れを自分から強く訴え、「頭がだめになった」とくり返した。'),
+        wmsr: P('開始したが、20分ほどで疲れを訴えて中断した。結果は参考にならない。'),
+        wais: P('2回に分けて実施を試みたが、疲れが強く、最後まで実施できなかった。')
+      },
+      sum: function (x) {
+        var cog = x.has('hdsr') || x.has('mmse');
+        var a = cog
+          ? '認知機能のスクリーニングは境目のすぐ上でした。「わからない」と答えることが多くヒントで思い出せること、本人が物忘れを強く訴えることは、うつ病による仮性認知症（抑うつのために認知症のように見える状態）に合う所見です。' + (x.has('gds') ? 'GDS-15も抑うつの疑いを示しています。' : '抑うつの評価は行っていないため、確かめる必要があります。')
+          : '認知機能の程度は評価していないため、認知症かどうかは判断できません。' + (x.has('gds') ? 'GDS-15は抑うつの疑いを示しています。' : '');
+        return [a, '抑うつの治療を行い、治療後に同じ検査で再評価することを提案します。'];
+      },
+      qs: [
+        {
+          q: '結果の読み方として、最も適切なのはどれですか。', tags: ['dep'],
+          ref: 'GDS-15を組んでいれば、15点中11点で、抑うつの疑いという結果でした。',
+          opts: [
+            { t: '点数が下がっているので、認知症と確定する', g: '×' },
+            { t: 'うつ病による仮性認知症の可能性を考え、抑うつを治療してから再評価する', g: '◎' },
+            { t: '点数が境目より上なので、認知症ではないと言い切る', g: '×' },
+            { t: '認知症の始まりの可能性も残るので、抑うつと合わせて、しばらく経過をみる', g: '○' }
+          ],
+          why: '仮性認知症（抑うつのために認知症のように見える状態）では、「わからない」とすぐに答え、ヒントで思い出せ、本人が物忘れを強く訴えることが多いです。認知症では、物忘れを取りつくろう答え方が目立ちやすいです。スクリーニングの点数だけで、認知症と確定したり否定したりはできません。抑うつを治療しても低下が残るなら、認知症の始まりも考えます。'
+        },
+        {
+          q: '次の一手として、最も適切なのはどれですか。', tags: [],
+          opts: [
+            { t: '抑うつの治療を始め、治療後に同じ検査で再評価する', g: '◎' },
+            { t: '認知症の薬を始め、抑うつは認知症が落ち着くまで様子をみる', g: '×' },
+            { t: 'すぐに詳しい神経心理検査をひととおり行い、記憶を細かく調べる', g: '△' },
+            { t: '頭部の画像検査など、ほかの原因も確かめる', g: '○' }
+          ],
+          why: '抑うつがあると、検査の点は実際より低く出ます。まず抑うつを治療し、同じ検査で比べると変化がわかります。画像検査などでほかの原因を確かめるのも大切ですが、今回の結果から最初に打つ手は抑うつの治療です。抑うつが強い今、長い検査を重ねても正確な結果は出にくく、負担も大きくなります。'
+        }
+      ],
+      model: { cards: ['hdsr', 'gds', 'mmse', 'fab', 'obs'], note: 'HDS-R（またはMMSE）とGDS-15が中心です。どれも短く、組み合わせても負担は小さく済みます。答え方の観察も見分けの手がかりになります。' },
+      points: [
+        '高齢者の物忘れでは、うつ病による仮性認知症を見分ける。',
+        'HDS-Rは20点以下、MMSEは23点以下で認知症の疑い。どちらもスクリーニングで、診断ではない。',
+        '仮性認知症では「わからない」と答えやすく、本人が物忘れを強く訴える。認知症では取りつくろう答え方が多い。',
+        '高齢者は負担を小さく。短い検査を組み合わせる。'
+      ]
+    },
+    {
+      id: 'c3', tab: '子どもの学習の遅れ', title: '子どもの学習の遅れ',
+      pt: { name: 'Cくん', age: '9歳', sex: '男児', job: '小学3年生' },
+      course: '1年生の頃から音読が苦手で、教科書を読むと行を飛ばしたり、つっかえたりする。算数の計算は得意。最近、国語のテストのたびに「頭が痛い」と言う。',
+      trouble: '音読の宿題をいやがる。テストで問題文を読むのに時間がかかる。',
+      question: '知的な遅れがあるのか、読みだけの困難なのか。学校でどんな配慮を頼めるか。',
+      care: '検査が続くと飽きやすい。母が付き添う。担任から通知表と学校でのようすのメモを預かっている。',
+      budget: { time: 120, burden: 5, why: '9歳。2回に分けて約120分まで' },
+      refs: [
+        { t: '知能検査をお願いします。', g: '△', why: '検査名だけでは、何に答えればよいかが伝わりません。IQの数字だけが返り、読みの困難が評価されないおそれがあります。' },
+        { t: '小学3年生です。勉強ができず、テストの点も悪いので、原因を調べてください。家での教え方に問題がないかも、検査で判断してほしいです。', g: '×', why: '詳しく書いてあっても、困りごとの中身（音読が苦手、算数は得意）が書かれず、何を調べればよいかが伝わりません。「できない」という言い方は本人の得意を見落とし、家での教え方の良し悪しは検査で判断するものではありません。' },
+        { t: '音読が苦手です。学習障害（限局性学習症）の可能性について評価をお願いします。', g: '○', why: '知りたいことは伝わります。算数は得意なこと、全体の知的な力も知りたいこと、結果を学校での配慮に使うことを書くと、さらに良くなります。' },
+        { t: '音読が苦手で、算数は得意です。全体の知的な力と、読みに限った困難があるかを知りたいです。結果は学校での配慮を考えるのに使います。', g: '◎', why: '困りごと、知りたいこと、結果の使い道がそろっています。' }
+      ],
+      hand: ['wais', 'straw', 'kshiki', 'conners', 'wisc', 'caars', 'baum', 'seiku', 'binet', 'mmse', 'aq'],
+      v: {
+        wisc: ['need', '9歳はWISC-Vの対象。知的な力の全体と、指標ごとの得意・不得意がわかる。'],
+        straw: ['need', '読みの速さと正確さを学年と比べられる。読みに限った困難を確かめる中心の検査。'],
+        seiku: ['need', '保護者からの生育歴と、担任から見た学校のようす（通知表など）。家庭と学校の両方の情報が大切。'],
+        conners: ['good', '不注意が読みの困難に重なっていないか（ADHDの併存）を確かめられる。'],
+        wais: ['age', '16歳0か月から。9歳には使えない。'],
+        caars: ['age', '18歳以上用。子どもにはConners 3を使う。'],
+        mmse: ['age', '成人（主に高齢者）の認知症のスクリーニング。'],
+        kshiki: ['no', '全体の発達はわかるが、9歳の学習の困りごとを細かくみるならWISC-V。重なる。'],
+        binet: ['no', 'IQは出るが、得意・不得意を細かくみるならWISC-V。重なる。'],
+        aq: ['no', '自閉スペクトラム特性のスクリーニング。今回の経過からは優先度が低い。'],
+        baum: ['no', '描画の投影法。読みの困難の評価には役立たない。']
+      },
+      tags: [
+        { id: 'iq', label: '全体の知的な力と得意・不得意', cards: ['wisc'] },
+        { id: 'read', label: '読みの速さと正確さ', cards: ['straw'] },
+        { id: 'info', label: '家庭と学校でのようす', cards: ['seiku'] }
+      ],
+      trap: function (s) {
+        return s.has('wais') ? '9歳にWAIS-IVを選んでいます。WAIS-IVは16歳0か月から、WISC-Vは5歳0か月〜16歳11か月です。年齢で使い分けます。' : null;
+      },
+      rep: {
+        wisc: '<p>5つの主要指標（知能をいくつかの側面に分けた得点。平均は100）</p>' + bars([['言語理解', 108], ['視空間', 110], ['流動性推理', 104], ['ワーキングメモリー', 92], ['処理速度', 88], ['全検査IQ', 102]]) +
+          P('全検査IQは平均域。ワーキングメモリーと処理速度はやや低めだが、平均に近い範囲。'),
+        straw: P('音読の速さと正確さが、ひらがな・カタカナ・漢字のいずれでも学年の平均を大きく下回る。書き取りでも誤りが多い。'),
+        seiku: P('母から：話し始めは早く、話すのは得意。ひらがなを覚えるのに時間がかかった。担任から：算数の計算は速く正確。教科書の音読でつっかえ、問題文を読み上げてもらうと文章題も解ける。'),
+        conners: P('保護者用・教師用とも、不注意・多動性はいずれも平均の範囲。')
+      },
+      sum: function (x) {
+        var a = (x.has('wisc') && x.has('straw')) ? '知的発達は平均域で、読みの速さと正確さに限った困難があります。限局性学習症（知的発達に遅れがないのに、読み・書き・計算など特定の学習だけが難しい状態）のうち、読字の困難が考えられます。'
+          : x.has('straw') ? '読みの速さと正確さに大きな困難があります。知的発達の評価がないため、読みに限った困難かどうかはまだ判断できません。'
+            : x.has('wisc') ? '知的発達は平均域です。読みの評価がないため、音読の苦手さの中身はまだわかりません。'
+              : '知的発達と読みの評価がないため、主治医の疑問には答えられません。';
+        return [a, '学校では、読み上げ（音声教材）や試験時間の延長などの合理的配慮（学びやすくするための調整）を提案します。'];
+      },
+      qs: [
+        {
+          q: '結果の読み方として、最も適切なのはどれですか。', tags: ['iq', 'read'],
+          ref: 'WISC-Vを組んでいれば全検査IQ102（指標は88〜110）、STRAW-Rを組んでいれば音読の速さと正確さが学年の平均を大きく下回るという結果でした。',
+          opts: [
+            { t: '処理速度がやや低いので、処理速度の問題を中心に考える', g: '△' },
+            { t: '知的発達は平均域で、読みに限った困難（限局性学習症の読字の困難）を疑う', g: '◎' },
+            { t: '全検査IQが平均域なので、本人の努力の問題と考える', g: '×' },
+            { t: '読みの困難を疑いつつ、不注意の影響がないかもConners 3などで確かめる', g: '○' }
+          ],
+          why: '限局性学習症は、知的発達に遅れがないのに、読み・書き・計算など特定の学習だけが難しい状態です。全検査IQは平均域で、音読の速さと正確さだけが大きく下回っているので、読字の困難を疑います。ADHDが重なることもあるため、不注意の確認には意味があります。処理速度のやや低さだけでは、音読の大きな遅れは説明できません。'
+        },
+        {
+          q: '学校に勧める支援として、最も適切なのはどれですか。', tags: [],
+          opts: [
+            { t: '音読の宿題を増やして慣れさせる', g: '△' },
+            { t: '算数ができているので、支援はいらないと伝える', g: '×' },
+            { t: '読み上げ（音声教材）や試験時間の延長など、合理的配慮を学校と相談する', g: '◎' },
+            { t: '通級指導教室などで、読みの指導を受けられるかを学校や教育委員会と相談する', g: '○' }
+          ],
+          why: '合理的配慮（学びやすくするための調整）には、読み上げ（音声教材）、試験時間の延長、問題文へのふりがななどがあります。読む負担を減らすと、本来の理解力を発揮できます。通級指導教室などでの読みの指導も役立ちます。音読の量を増やすだけでは、苦手さと自信のなさを強めることがあります。'
+        }
+      ],
+      model: { cards: ['wisc', 'straw', 'seiku', 'conners'], note: 'WISC-Vで知的な力の全体、STRAW-Rで読みの速さと正確さ、保護者と担任の情報で家庭と学校のようすをみます。Conners 3はADHDの併存の確認です。' },
+      points: [
+        '限局性学習症は、知的発達が平均域で、読み・書き・計算など特定の学習だけが難しい状態。',
+        '9歳はWISC-Vの対象。WAIS-IVは16歳0か月から。',
+        '支援は合理的配慮（読み上げ、試験時間の延長など）。'
+      ]
+    },
+    {
+      id: 'c4', tab: '成人の自閉スペクトラム症疑い', title: '成人の自閉スペクトラム症疑い',
+      pt: { name: 'Dさん', age: '32歳', sex: '女性', job: '会社員（事務職）' },
+      course: '大学を出て事務職に就いた。仕事は丁寧だが、雑談の輪に入れず、急な予定変更があると強く混乱する。周りに合わせようと努力してきたが、疲れ切って休職を考えている。「自分は発達障害ではないか」と心配して受診した。',
+      trouble: '人間関係で疲れる。手順が変わると手が止まる。',
+      question: '自閉スペクトラム症の特性があるのか。働き方の工夫を一緒に考えたい。',
+      care: '母は遠方に住んでいて、電話か来院で話を聞ける。休職を考えるほど疲れている。',
+      budget: { time: 180, burden: 6, why: '成人。疲れがたまっているので、2回に分けて約180分まで' },
+      refs: [
+        { t: '本人が発達障害ではないかと強く心配しています。仕事はきちんとこなしていて、話していても変わったところはないので、検査で違うと言って安心させてあげてください。', g: '×', why: '詳しく書いてあっても、結論を先に決めた頼み方です。検査は安心させるための道具ではなく、本人の特性を知るために行います。「話していて変わったところはない」も、周りに合わせる努力で隠れていることがあります。' },
+        { t: 'AQをとってください。', g: '△', why: '検査名だけです。AQはスクリーニングで、これだけでは診断できません。何を知りたいかを書けば、検査者が必要な検査を組めます。' },
+        { t: '職場の人間関係とこだわりで困っています。自閉スペクトラム症の特性があるかを、子どもの頃からの経過も含めて評価してください。得意・不得意を本人と共有し、働き方の工夫に使います。', g: '◎', why: '困りごと、知りたいこと（発達歴を含む）、結果の使い道がそろっています。' },
+        { t: '職場の人間関係で困っています。自閉スペクトラム症の可能性について評価をお願いします。', g: '○', why: '知りたいことは伝わります。困りごとの中身と、結果を働き方の工夫に使うことを書くと、さらに良くなります。' }
+      ],
+      hand: ['wisc', 'ados', 'yg', 'aq', 'rorsch', 'wais', 'teg', 'pars', 'mmse', 'conners', 'baum'],
+      v: {
+        aq: ['need', '本人が感じている特性を短時間でみる入口。ただし、これだけでは診断できない。'],
+        pars: ['need', '母から幼児期のようすを聞く。大人の診断でも、子どもの頃からの特性の確認が要。'],
+        ados: ['need', '決まった場面での行動観察。社会的コミュニケーションの特徴を客観的にみられる（実施に研修が必要）。'],
+        wais: ['good', '得意・不得意がわかり、働き方の工夫を考える材料になる。'],
+        wisc: ['age', '16歳11か月まで。成人にはWAIS-IVを使う。'],
+        conners: ['age', '6〜18歳用。'],
+        rorsch: ['no', '人格の構造をみる検査。今回の問いに答えず、負担も大きい。'],
+        yg: ['no', '性格の傾向はわかるが、自閉スペクトラム症の評価には役立たない。'],
+        teg: ['no', '心のはたらき方の型はわかるが、今回の問いには答えない。'],
+        mmse: ['no', '認知症のスクリーニング。今回の問いとは関係が薄い。'],
+        baum: ['no', '描画の投影法。自閉スペクトラム症の評価には役立たない。']
+      },
+      tags: [
+        { id: 'self', label: '本人が感じている特性', cards: ['aq'] },
+        { id: 'hist', label: '幼児期からの発達歴', cards: ['pars'] },
+        { id: 'obs', label: '対人場面での行動', cards: ['ados'] }
+      ],
+      trap: function (s) {
+        return s.has('aq') && !s.has('pars') && !s.has('ados')
+          ? 'AQだけで判断しようとしています。AQはスクリーニングで、これだけでは診断できません。発達歴と行動観察を合わせます。' : null;
+      },
+      rep: {
+        aq: P('カットオフ（境目の点）以上。人とのやりとりや、変化への苦手さを本人が自覚している。'),
+        pars: P('母から：幼児期は同じ道順でないと泣いて嫌がった。掃除機など大きな音を怖がった（感覚過敏）。ひとり遊びが多かった。小学校では「おとなしくまじめな子」と言われていた。'),
+        ados: P('会話のなかで、視線や身ぶりを話に合わせて使うことが少なく、相手の話に合わせた応じ方にも所見がある（社会的コミュニケーションの所見）。一方で、丁寧なことばづかいで場に合わせようとする努力がうかがえた。'),
+        wais: bars([['言語理解', 121], ['知覚推理', 104], ['ワーキングメモリー', 98], ['処理速度', 82], ['全検査IQ', 105]]) + P('言語理解が高く、処理速度が低い。ことばの力で周りに合わせてきた一方、作業の速さを求められると疲れやすい。')
+      },
+      sum: function (x) {
+        var src = [];
+        if (x.has('aq')) src.push('本人の報告（AQ）');
+        if (x.has('pars')) src.push('幼児期からの発達歴（PARS-TR）');
+        if (x.has('ados')) src.push('行動観察（ADOS-2）');
+        var lack = [!x.has('pars') && '幼児期からの発達歴', !x.has('ados') && '行動観察'].filter(Boolean).join('と');
+        var a = !lack ? src.join('、') + 'がそろって、自閉スペクトラム症の特性を示しています。困りごとを隠して周りに合わせる（カモフラージュ）ことで、これまで目立たなかったと考えられます。'
+          : src.length ? src.join('、') + 'からは特性がうかがえますが、' + lack + 'がないため、判断の材料が足りません。'
+            : '自閉スペクトラム症の特性を評価する検査が組まれていないため、判断できません。';
+        var b = x.has('wais') ? '言語理解の高さを生かし、処理速度の低さは手順書や時間の余裕で補う働き方を提案します。' : '手順書を用意する、予定の変更は早めに伝えるなど、見通しを持てる働き方を提案します。';
+        return [a, b];
+      },
+      qs: [
+        {
+          q: '診断に向けて、結果をどう使いますか。', tags: ['hist', 'obs'],
+          ref: 'PARS-TRとADOS-2を組んでいれば、幼児期のこだわり・感覚過敏と、行動観察での社会的コミュニケーションの所見が得られていました。',
+          opts: [
+            { t: 'AQがカットオフ以上なので、自閉スペクトラム症と診断する', g: '△' },
+            { t: '職場で問題なく話せているので、自閉スペクトラム症ではないと考える', g: '×' },
+            { t: '発達歴・行動観察・本人の報告など、複数の情報を合わせて判断する', g: '◎' },
+            { t: 'ADOS-2の所見を中心にして、発達歴で裏づける', g: '○' }
+          ],
+          why: '自閉スペクトラム症の診断は、幼児期からの発達歴、行動観察、本人の報告を合わせて行います。AQはふるいわけで、これだけでは診断できません。ADOS-2は大切な情報ですが、ひとつの検査だけで決めず、発達歴と合わせます。'
+        },
+        {
+          q: 'これまで特性が見逃されてきた理由として、最も考えられるのはどれですか。', tags: [],
+          opts: [
+            { t: '子どもの頃には特性がなく、職場のストレスで大人になってから発症した', g: '×' },
+            { t: '困りごとを隠して周りに合わせる（カモフラージュ）ことで、特性が目立ちにくかった', g: '◎' },
+            { t: 'ことばの力が高く、話す力や知識で、人とのやりとりの苦手さを補ってきた', g: '○' },
+            { t: '特性は軽いので、支援はいらない', g: '△' }
+          ],
+          why: '女性は、困りごとを隠して周りに合わせる（カモフラージュ）ことが多く、見逃されやすいといわれます。周りに合わせる努力は強い疲れにつながり、うつや休職のきっかけになることもあります。ことばの力で補ってきたことも一因です。自閉スペクトラム症は生まれつきの特性で、大人になってから始まるものではありません。'
+        }
+      ],
+      model: { cards: ['aq', 'pars', 'ados', 'wais'], note: 'AQ（本人の報告）、PARS-TR（母からの発達歴）、ADOS-2（行動観察）の3方向から確かめます。WAIS-IVは働き方の工夫の材料です。' },
+      points: [
+        'AQなどのスクリーニングだけでは診断できない。',
+        '発達歴（PARS-TR）と行動観察（ADOS-2）を合わせる。ADOS-2は実施に研修が必要。',
+        '女性は、困りごとを隠して周りに合わせる（カモフラージュ）ことで見逃されやすい。'
+      ]
+    },
+    {
+      id: 'c5', tab: '人格の理解（病態水準）', title: '人格の理解（病態水準）',
+      pt: { name: 'Eさん', age: '24歳', sex: '女性', job: 'アルバイト' },
+      course: '外来に通って2年。今は状態が落ち着いている。親しくなった相手に強く頼り、急に怒りをぶつけて関係が切れることをくり返してきた。高校生の頃から自傷があり、ここ半年はない。',
+      trouble: '人との距離のとり方がわからない。',
+      question: '人格の特徴と病態水準（こころの不安定さがどのくらい深いか）を知り、治療の進め方を考えたい。',
+      care: '今は落ち着いている。長い検査も日を分ければ受けられる。',
+      budget: { time: 240, burden: 8, why: '状態が落ち着いており、日を分けて約240分まで' },
+      refs: [
+        { t: 'ロールシャッハをお願いします。', g: '△', why: '検査名だけです。何を知りたいかがないと、負担の大きい検査を行っても、治療に生かしにくい報告になります。' },
+        { t: '人格の特徴について評価をお願いします。', g: '○', why: '知りたいことは伝わります。結果を治療方針と本人への説明に使うことを書くと、さらに良くなります。' },
+        { t: '対人関係が不安定で、過去に自傷があります。境界性パーソナリティ障害だと考えていますので、ロールシャッハとMMPIで確定し、診断名を本人に伝えてください。', g: '×', why: '詳しく書いてあっても、結論を決めてから検査に確かめさせる頼み方です。検査で診断を確定することはできず、診断は面接と経過から主治医が行います。診断名を伝えるかどうかも、主治医が治療の中で決めます。' },
+        { t: '対人関係が不安定で、過去に自傷があります。人格の特徴と病態水準を知り、治療の進め方と本人への説明に使いたいです。', g: '◎', why: '困りごと、知りたいこと、結果の使い道（治療方針と本人への説明）がそろっています。' }
+      ],
+      hand: ['yg', 'rorsch', 'bdi', 'sct', 'teg', 'mmpi', 'wisc', 'baum', 'asrs', 'pf', 'mmse', 'aq'],
+      v: {
+        mmpi: ['need', '質問紙で、本人が意識している面を多面的にみる。妥当性尺度で回答の偏りも確かめられる。'],
+        rorsch: ['need', '投影法で、意識しにくい面や病態水準をみる。負担は大きいが、今は状態が落ち着いていて実施できる。'],
+        sct: ['need', '本人のことばで、考え方や対人関係のテーマがわかる。'],
+        baum: ['good', '短時間の描画で、ほかの検査を補う材料になる。'],
+        pf: ['good', '欲求不満の場面での反応がわかり、対人関係の理解を補える。'],
+        yg: ['no', '性格の傾向はわかるが、病態水準の理解にはMMPIのほうが情報が多い。MMPIと重なる。'],
+        teg: ['no', '心のはたらき方の型はわかるが、MMPIと重なり、今回の問いには足りない。'],
+        bdi: ['no', '抑うつの重さはわかるが、今回の問い（人格の理解）には答えない。'],
+        mmse: ['no', '認知症のスクリーニング。若い人の人格の理解には役立たない。'],
+        wisc: ['age', '16歳11か月まで。'],
+        asrs: ['no', 'ADHDのスクリーニング。今回の問いとは別。'],
+        aq: ['no', '自閉スペクトラム特性のスクリーニング。今回の問いとは別。']
+      },
+      tags: [
+        { id: 'q', label: '本人が意識している面（質問紙）', cards: ['mmpi'] },
+        { id: 'proj', label: '意識しにくい面と病態水準（投影法）', cards: ['rorsch'] },
+        { id: 'theme', label: '本人の考えや対人関係のテーマ', cards: ['sct'] }
+      ],
+      trap: function (s) {
+        var q = s.has('mmpi') || s.has('yg') || s.has('teg');
+        var p = s.has('rorsch') || s.has('sct') || s.has('baum') || s.has('pf');
+        if (q && !p) return '質問紙だけで組んでいます。質問紙は本人が意識している面しかみえません。投影法と組み合わせるのがテストバッテリーの基本です。';
+        if (p && !q) return '投影法だけで組んでいます。本人が自分をどうとらえているかは質問紙でみます。両方を組み合わせるのがテストバッテリーの基本です。';
+        return null;
+      },
+      rep: {
+        mmpi: P('回答の偏りをみる妥当性尺度からは、苦しさを強く訴える傾向がみられる（助けを求める気持ちの表れとも読める）。抑うつ・不安と、人との関係での傷つきやすさが高い。'),
+        rorsch: P('感情が動く場面で反応のまとまりが崩れやすく、情緒の統制が乱れやすい。人のとらえ方が、よい・悪いの両極端に揺れやすい。現実を検討する力は、おおむね保たれている。'),
+        sct: P('「人は最後には離れていく」「ひとりになるのがいちばんこわい」など、見捨てられる不安の記述が多い。母親への複雑な気持ちもくり返し書かれている。'),
+        baum: P('紙の端に寄せて小さく描かれた。描画だけで解釈せず、ほかの検査と合わせて読む。'),
+        pf: P('欲求不満の場面で自分を責める反応が多く、相手に怒りを向ける反応が急に出ることもある。')
+      },
+      sum: function (x) {
+        var qn = x.has('mmpi'), pr = x.has('rorsch'), sc = x.has('sct'), a;
+        if (qn && pr) a = '情緒の統制が乱れやすく、' + (sc ? '見捨てられる不安が強い一方で、' : '人との関係で傷つきやすい一方で、') + '現実を検討する力はおおむね保たれています。病態水準は境界水準（神経症水準と精神病水準の間）と考えられます。';
+        else if (pr) a = '情緒の統制が乱れやすい一方で、現実を検討する力はおおむね保たれています。質問紙がないため、本人が自分をどうとらえているかは確かめられていません。';
+        else if (qn) a = '苦しさの訴えが強く、人との関係で傷つきやすい傾向があります。投影法（ロールシャッハ）がないため、病態水準までは判断できません。';
+        else a = '人格の構造をみる検査が組まれていないため、病態水準は判断できません。' + (sc ? '文章完成法からは、見捨てられる不安がうかがえます。' : '');
+        return [a, '治療では、面接の時間や連絡の方法などの枠組みをはっきりさせ、見捨てられる不安に配慮して関わることを提案します。結果は本人にわかる言葉で返します。'];
+      },
+      qs: [
+        {
+          q: '結果を、どう治療に生かしますか。', tags: [],
+          opts: [
+            { t: '検査で境界性パーソナリティ障害と確定し、診断名を伝える', g: '×' },
+            { t: '結果は治療方針に生かし、本人にわかる言葉で返す', g: '◎' },
+            { t: '結果は本人を不安にさせるので、伝えない', g: '△' },
+            { t: '主治医と外来のスタッフで共有し、関わり方をそろえる', g: '○' }
+          ],
+          why: '検査の結果は治療方針（面接の枠組み、関わり方）に生かし、本人にもわかる言葉で返します（フィードバック）。本人が自分の傾向を知ることは、治療の助けになります。スタッフで関わり方をそろえるのも大切ですが、本人への説明が抜けています。検査だけで診断を確定することはできません。'
+        },
+        {
+          q: '質問紙（MMPI）と投影法（ロールシャッハ、SCT）の結果を、どう合わせて読みますか。', tags: ['q', 'proj'],
+          ref: 'MMPIとロールシャッハを組んでいれば、苦しさの訴えの強さと、情緒の統制の乱れやすさがわかっていました。',
+          opts: [
+            { t: '質問紙は本人が意識して答えた面、投影法は意識しにくい面として、両方を合わせて理解する', g: '◎' },
+            { t: '投影法のほうが本当の姿なので、質問紙の結果は使わない', g: '△' },
+            { t: 'MMPIで苦しさの訴えが強いのは大げさに答えただけなので、無視する', g: '×' },
+            { t: '食い違う部分は、どちらかを捨てずに、面接でのようすや生活歴と照らし合わせて考える', g: '○' }
+          ],
+          why: '質問紙は本人が自分をどう見ているか（意識している面）を、投影法はあいまいな課題への反応から意識しにくい面をみます。両方を組み合わせるのがテストバッテリーの基本です。MMPIで苦しさを強く訴える傾向が出たときは、妥当性尺度で回答の偏りを確かめたうえで、助けを求める気持ちとしても受けとめます。'
+        }
+      ],
+      model: { cards: ['mmpi', 'rorsch', 'sct', 'baum'], note: '質問紙（MMPI）と投影法（ロールシャッハ、SCT）を組み合わせます。バウムテストやP-Fスタディは短時間で補える材料です。' },
+      points: [
+        '質問紙（MMPI）と投影法（ロールシャッハ、SCT）を組み合わせるのが、テストバッテリーの基本。',
+        'ロールシャッハは負担が大きく、実施と解釈に熟練が必要。',
+        'MMPIには、回答の偏りをみる妥当性尺度がある。',
+        '結果は治療に生かし、本人にわかる言葉で返す（フィードバック）。検査で診断を確定しない。'
+      ]
+    },
+    {
+      id: 'c6', tab: '急性期に「人格検査を」', title: '急性期の統合失調症に「人格検査を」',
+      pt: { name: 'Fさん', age: '30歳', sex: '男性', job: '入院3日目' },
+      course: '2週間前から「隣の部屋から悪口が聞こえる」と言い、眠らなくなった。家族に連れられて受診し、入院した。抗精神病薬を始めたばかり。今も幻聴が活発で、ときどき大声を出して興奮する。',
+      trouble: '病棟のスタッフから「人格に問題があるのでは。人格検査をしてほしい」と声が上がっている。',
+      question: '今、心理検査をしてよいのか。何をいつ調べればよいか。',
+      care: '急性期。興奮すると大声を出す。長い時間座っているのは難しい。',
+      budget: { time: 45, burden: 2, why: '急性期で長くは座れない。約45分まで' },
+      refs: [
+        { t: '病棟から人格検査の希望が出ています。入院中で時間はあるので、すぐにロールシャッハとMMPIを実施して、人格の特徴をまとめてください。', g: '×', why: '詳しく書いてあっても、急性期に負担の大きい検査を求めています。幻聴や興奮が強い今は、結果が症状に左右され、人格の特徴として読めません。' },
+        { t: '入院中で幻聴が活発です。今の症状の重さを評価してください。', g: '○', why: '今の状態に合った依頼です。検査の時期についての相談も添えると、さらに良くなります。' },
+        { t: '入院3日目で幻聴が活発で、興奮もあります。病棟から人格検査の希望がありますが、今実施してよいか、何をいつ評価するのがよいかを相談させてください。', g: '◎', why: '状態と、迷っていることがそのまま書かれています。検査者は「今はしない」という答えも含めて返せます。' },
+        { t: '人格検査をお願いします。', g: '△', why: '目的がなく、今の状態への配慮もありません。' }
+      ],
+      hand: ['rorsch', 'panss', 'wais', 'mmpi', 'obs', 'sct', 'defer', 'baum', 'bdi', 'hdsr', 'wisc'],
+      v: {
+        defer: ['need', '急性期は結果が症状に左右され、負担も大きい。今は延期して、時期と目的を改めて決める。'],
+        panss: ['need', '面接で評価者が点をつけるので、本人に書いてもらう必要がない。症状の重さと経過を追える。'],
+        obs: ['good', '病棟でのようすの記録は、本人の負担なく症状の経過を知る手がかりになる。'],
+        rorsch: ['heavy', '急性期は反応が症状に左右され、人格の特徴として読めない。負担も大きい。'],
+        mmpi: ['heavy', '長い質問紙で、今は集中が続かない。回答も症状に左右される。'],
+        wais: ['no', '今は集中が続かず、本来の力が出ない。必要なら落ち着いてから。'],
+        sct: ['no', '今書いてもらっても、症状の影響が強く出る。落ち着いてから。'],
+        baum: ['no', '今は症状の影響が強く、人格の特徴として読めない。'],
+        bdi: ['no', '自己記入の抑うつ尺度。今の状態では正確に答えにくく、問いにも合わない。'],
+        hdsr: ['no', '認知症のスクリーニング。今回の問いとは関係が薄い。'],
+        wisc: ['age', '16歳11か月まで。']
+      },
+      tags: [
+        { id: 'timing', label: '今は検査をする時期か', cards: ['defer'] },
+        { id: 'sev', label: '症状の重さ', cards: ['panss'] }
+      ],
+      trap: function (s) {
+        if (!(s.has('rorsch') || s.has('mmpi'))) return null;
+        return s.has('defer')
+          ? '延期を選びながら、ロールシャッハやMMPIも入れています。延期するなら、今の症状の評価（PANSSなど）だけにします。'
+          : '急性期にロールシャッハやMMPIを入れています。今は結果が症状に左右され、人格の特徴として読めません。負担も大きく、症状を悪くすることもあります。';
+      },
+      defaultNo: '症状の影響が強く、結果は本来の状態を反映していない。',
+      rep: {
+        defer: '<p><b>延期の理由：</b>入院3日目で幻聴が活発で、興奮もある。今検査をすると、結果が症状に強く左右され、人格の特徴として読むことができない。長い検査は本人の負担も大きい。</p>' +
+          '<p><b>落ち着いてからの提案：</b>退院後の生活や仕事に向けて、知りたいことをはっきりさせてから依頼する。たとえば、生活の力に関わる認知機能（WAIS-IVなど）。人格の理解が必要なら、質問紙と投影法の組み合わせを検討する。</p>',
+        panss: P('陽性症状（幻聴・妄想・興奮など）が高い。陰性症状（意欲の低下・感情の平板化など）は中くらい。治療の効果を追うため、同じ尺度で定期的に評価する。'),
+        obs: P('病棟では、ひとりごとと空笑（周りから見て理由のない笑い）がみられる。夜は眠りが浅い。スタッフの声かけには短く応じる。'),
+        rorsch: P('開始したが、幻聴に気をとられて集中が続かず、途中で中断した。得られた反応は症状の影響が強く、人格の特徴としては読めない。'),
+        mmpi: P('記入を始めたが、「質問に自分への悪口が書いてある」と言って途中でやめた。結果は出せない。')
+      },
+      sum: function (x) {
+        if (x.has('defer')) {
+          return ['今は検査の時期ではありません。' + (x.has('panss') ? '症状の重さはPANSSで追い、' : '') + '症状が落ち着いてから、目的をはっきりさせて検査することを提案します。',
+            '退院後の生活に向けて何を知りたいかを主治医と病棟で話し合い、改めて依頼してください。病棟には、今の言動は症状によるものと考えられることを伝えます。'];
+        }
+        var a = (x.has('rorsch') || x.has('mmpi')) ? '急性期のため、検査の結果は症状に強く左右されていました。今回の結果から人格を判断することはできません。'
+          : x.has('panss') ? '陽性症状が強い状態です。今は人格を判断できる時期ではありません。' : '急性期のため、今は人格を判断できる時期ではありません。';
+        return [a, '症状が落ち着いてから、目的をはっきりさせて改めて依頼してください。'];
+      },
+      qs: [
+        {
+          q: '人格検査は、いつ行うのがよいですか。', tags: ['timing'],
+          ref: '「今は検査を延期する」を選んでいれば、延期の理由と、落ち着いてから調べることの提案が届いていました。',
+          opts: [
+            { t: '今すぐ実施して、急性期の人格の特徴を記録しておけば、回復したときと比べられる', g: '×' },
+            { t: '入院中に一度は必ず実施する', g: '△' },
+            { t: '症状が落ち着いてから、目的（何を知り、何に使うか）をはっきりさせて検査する', g: '◎' },
+            { t: '退院の準備に入る頃に、主治医と相談して、検査をするかどうかを決める', g: '○' }
+          ],
+          why: '急性期は、検査の結果が症状に強く左右され、本来の人格や力を反映しません。長い検査は負担も大きく、症状を悪くすることもあります。症状が落ち着いてから、何を知りたいか、結果を何に使うか（退院後の生活、復職など）をはっきりさせて行います。「今は検査をしない」も大切な判断です。'
+        },
+        {
+          q: '今、症状の重さを追うには、どうしますか。', tags: ['sev'],
+          ref: 'PANSSを組んでいれば、陽性症状が高いという評価が得られていました。',
+          opts: [
+            { t: 'PANSSのように、面接で評価者が点をつける尺度で経過を追う', g: '◎' },
+            { t: '病棟でのようすを記録して、経過を追う', g: '○' },
+            { t: '本人に自己記入の質問紙を毎日書いてもらい、点数の変化で経過を追う', g: '△' },
+            { t: 'ロールシャッハをくり返して、変化をみる', g: '×' }
+          ],
+          why: 'PANSSは面接で評価者が点をつける尺度で、陽性症状（幻聴・妄想など）、陰性症状（意欲の低下など）、全般的な症状を評価します。本人に書いてもらう必要がないため、急性期でも使えます。同じ尺度でくり返し評価すると、治療の効果がわかります。病棟での記録も役立ちますが、点数にすると比べやすくなります。'
+        }
+      ],
+      model: { cards: ['defer', 'panss', 'obs'], note: '人格検査は延期し、今は面接で点をつけるPANSSと病棟での観察で症状を追います。「検査をしない」を選ぶのも正解のうちです。' },
+      points: [
+        '急性期は、検査の結果が症状に左右され、負担も大きい。落ち着いてから、目的をはっきりさせて行う。',
+        'PANSSは、面接で評価者が点をつける尺度で、統合失調症の症状の重さをみる。',
+        '「今は検査をしない」も大切な判断。'
+      ]
+    },
+    {
+      id: 'c7', tab: '頭部外傷後の高次脳機能障害', title: '頭部外傷後の高次脳機能障害',
+      pt: { name: 'Gさん', age: '45歳', sex: '男性', job: '会社員（営業）' },
+      course: '8か月前、交通事故で頭を強く打ち、入院した。体は回復したが、職場に戻ると約束を忘れる、段取りが組めない、同時に2つのことができない。本人は「前と同じようにできるはず」と言う。妻は「人が変わったよう」と話す。',
+      trouble: '仕事に戻れない。',
+      question: '頭部外傷による高次脳機能障害（記憶・注意・遂行機能などの障害）があるか。リハビリや復職の支援、手帳の申請に使いたい。',
+      care: '体力は回復している。疲れると集中が落ちやすい。',
+      budget: { time: 240, burden: 9, why: '体力は回復。3回に分けて約240分まで' },
+      refs: [
+        { t: '交通事故のあと仕事に戻れていません。MMSEで認知機能に問題がないかを確認し、問題がなければ復職してよいと書いてください。', g: '×', why: '詳しく書いてあっても、MMSEは認知症のスクリーニングで、軽い高次脳機能障害は見逃しやすいです。検査をひとつに決め、復職の判断まで任せてしまうと、困りごとの原因にたどり着けません。' },
+        { t: '交通事故で頭部外傷を負い、仕事に戻れていません。記憶・注意・遂行機能（段取りを立てて実行する力）の障害があるかを調べ、リハビリと復職の支援、手帳の申請に使います。', g: '◎', why: '困りごと、調べたい機能、結果の使い道がそろっています。' },
+        { t: '知能検査をお願いします。', g: '△', why: '知能検査だけでは、記憶や遂行機能の障害がわかりません。IQが平均だと「問題なし」と受けとられるおそれもあります。' },
+        { t: '交通事故で頭部外傷を負いました。高次脳機能障害の評価をお願いします。', g: '○', why: '知りたいことは伝わります。困りごとと、結果の使い道（リハビリ、復職、手帳）を書くと、さらに良くなります。' }
+      ],
+      hand: ['mmse', 'tmt', 'wais', 'rorsch', 'bads', 'gds', 'wmsr', 'hdsr', 'fab', 'wcst', 'wisc', 'bdi'],
+      v: {
+        wais: ['need', '全体の知的な力と得意・不得意。ほかの検査を読む土台になる。'],
+        wmsr: ['need', '記憶をくわしくみる。遅延再生（時間をおいて思い出す力）まで調べられる。'],
+        tmt: ['need', '注意と切り替えを短時間でみる。'],
+        bads: ['need', '生活場面に近い課題で遂行機能をみる。仕事への影響を説明しやすい（WCSTとどちらか一方でもよい）。'],
+        wcst: ['need', 'ルールの切り替えで遂行機能をみる（BADSとどちらか一方でもよい）。'],
+        fab: ['good', '短時間で前頭葉機能のスクリーニングができる。'],
+        bdi: ['good', '事故のあとの抑うつが重なっていないかを確かめられる。'],
+        mmse: ['no', '認知症のスクリーニング。軽い高次脳機能障害は見逃しやすい。'],
+        hdsr: ['no', '認知症のスクリーニング。軽い高次脳機能障害は見逃しやすい。'],
+        rorsch: ['no', '人格の構造をみる検査。今回の問いに答えず、負担も大きい。'],
+        wisc: ['age', '16歳11か月まで。'],
+        gds: ['no', '高齢者向けの抑うつ尺度。45歳ならBDI-IIを使う。']
+      },
+      tags: [
+        { id: 'iq', label: '全体の知的な力', cards: ['wais'] },
+        { id: 'mem', label: '記憶', cards: ['wmsr'] },
+        { id: 'att', label: '注意と切り替え', cards: ['tmt'] },
+        { id: 'exe', label: '遂行機能', cards: ['bads', 'wcst'] }
+      ],
+      trap: function (s) {
+        return (s.has('mmse') || s.has('hdsr')) && !s.has('wmsr') && !s.has('bads') && !s.has('wcst')
+          ? '簡易な認知症のスクリーニングに頼っています。MMSEやHDS-Rは、軽い高次脳機能障害を見逃しやすい検査です。' : null;
+      },
+      rep: {
+        wais: bars([['言語理解', 104], ['知覚推理', 98], ['ワーキングメモリー', 90], ['処理速度', 84], ['全検査IQ', 95]]) + P('全検査IQは平均域。処理速度がやや低い。'),
+        wmsr: P('言語性記憶・視覚性記憶はやや低め。遅延再生（時間をおいて思い出す課題）が大きく低く、覚えたことを保っておくのが難しい。'),
+        tmt: P('数字を順につなぐ課題はやや遅い。2種類の順番を切り替えながらつなぐ課題では大きく遅れ、誤りもあった。'),
+        bads: P('生活場面に近い課題で、段取りを立てて進めることが難しく、全体の成績が低い。'),
+        wcst: P('分類のルールが変わったあとも、前のやり方を続けてしまう誤りが多い。'),
+        fab: P('やや低い。'),
+        bdi: P('軽い抑うつ。仕事に戻れないことへの焦りがある。'),
+        mmse: P('28点で、境目の点を上回った。ただし、この検査は軽い高次脳機能障害をとらえにくい。'),
+        hdsr: P('27点で、境目の点を上回った。ただし、この検査は軽い高次脳機能障害をとらえにくい。')
+      },
+      sum: function (x) {
+        var f = [];
+        if (x.has('wmsr')) f.push('記憶（特に遅延再生）');
+        if (x.has('tmt')) f.push('注意の切り替え');
+        if (x.has('bads') || x.has('wcst')) f.push('遂行機能');
+        var a = f.length ? (x.has('wais') ? '全検査IQは平均域ですが、' : '') + f.join('、') + 'に障害があります。頭部外傷による高次脳機能障害と考えられ、仕事に戻れない理由を説明できます。'
+          : (x.has('wais') ? '全検査IQは平均域です。' : '') + '記憶・注意・遂行機能を調べる検査がないため、高次脳機能障害の有無は判断できません。';
+        return [a, '認知リハビリテーションと就労支援を勧めます。精神障害者保健福祉手帳の対象になりうるため、申請の診断書の資料にもなります。'];
+      },
+      qs: [
+        {
+          q: '全検査IQが平均域であることを、どう考えますか。', tags: ['mem', 'exe'],
+          ref: 'WMS-RとBADS（またはWCST）を組んでいれば、遅延再生の大きな低下と、遂行機能の低さがわかっていました。',
+          opts: [
+            { t: 'IQが平均なので、高次脳機能障害はないと判断する', g: '×' },
+            { t: 'IQが平均でも、記憶・注意・遂行機能の障害で、生活や仕事が難しくなりうる', g: '◎' },
+            { t: 'IQが平均なので、仕事に戻れないのは気持ちの問題と考え、気分の落ち込みの治療だけを勧める', g: '△' },
+            { t: 'IQは保たれているので、記憶の障害だけを問題にして、ほかの検査は省く', g: '○' }
+          ],
+          why: '知能検査は、静かな場で、検査者の指示に従って課題にひとつずつ答える形です。日常で必要な、覚えておく、切り替える、段取りを立てるといった力の障害は、IQには表れにくいことがあります。記憶（WMS-R）、注意（TMT）、遂行機能（BADS、WCST）を合わせて評価すると、仕事に戻れない理由が説明できます。'
+        },
+        {
+          q: '支援として勧めるのはどれですか。', tags: [],
+          opts: [
+            { t: 'IQは平均域なので、すぐに元の仕事にフルタイムで戻るよう勧め、困ったら受診してもらう', g: '×' },
+            { t: 'メモや予定表、スマートフォンのリマインダーなど、記憶を補う道具の使い方を練習する', g: '○' },
+            { t: 'しばらく休んで、自然に戻るのを待つ', g: '△' },
+            { t: '認知リハビリテーションと就労支援を進め、精神障害者保健福祉手帳の対象になりうることを伝える', g: '◎' }
+          ],
+          why: '高次脳機能障害には、認知リハビリテーション（記憶や注意を補う練習）と、仕事に合わせた就労支援が役立ちます。高次脳機能障害は精神障害者保健福祉手帳の対象になりえ、就労や福祉サービスを使う助けになります。メモや予定表の練習もその一部です。本人は障害を自覚しにくいことがあるので、家族の話も合わせて支援を考えます。'
+        }
+      ],
+      model: { cards: ['wais', 'wmsr', 'tmt', 'bads', 'fab', 'bdi'], note: 'WAIS-IV（全体）、WMS-R（記憶）、TMT（注意）、BADSまたはWCST（遂行機能）で、日常の困りごとに対応する機能をひとつずつ確かめます。' },
+      points: [
+        '高次脳機能障害は、IQが平均でも、記憶・注意・遂行機能の障害で生活や仕事が難しくなる。',
+        '記憶はWMS-R、注意はTMT、遂行機能はBADSやWCST。MMSEなどの簡易検査は軽い障害を見逃しやすい。',
+        '精神障害者保健福祉手帳の対象になりうる。'
+      ]
+    },
+    {
+      id: 'c8', tab: '4歳児の発達相談', title: '4歳児の発達相談',
+      pt: { name: 'Hくん', age: '4歳', sex: '男児', job: '保育園の年中' },
+      course: '「ママ きた」のような2語文が出たのは3歳を過ぎてから。今も、ことばで伝えるより手を引いて伝えることが多い。友だちと遊ぶのは好き。3歳児健診で言葉の遅れを指摘された。',
+      trouble: '母親が「このまま様子をみてよいのか」と心配している。',
+      question: '発達の全体のようすと、どこに遅れがあるかを知りたい。支援につなぐべきか。',
+      care: '人見知りはない。集中が続くのは短い時間。母が付き添う。',
+      budget: { time: 60, burden: 2, why: '4歳で、集中が続く時間は短い。1回で約60分まで' },
+      refs: [
+        { t: '4歳の男の子で、3歳児健診で言葉の遅れを指摘されました。母親も心配しているので、WISCで知能指数を出し、知的障害があるかどうかをはっきりさせてください。', g: '×', why: '詳しく書いてあっても、WISC-Vは5歳0か月からで、4歳には使えません。知能指数ひとつより、領域ごとの差を知りたい場面です。検査名を指定するより、知りたいことを書きます。' },
+        { t: '発達検査をお願いします。言葉の遅れが気になります。', g: '○', why: '困りごとは伝わります。領域ごとの差を知りたいこと、結果を支援につなぐ判断に使うことを書くと、さらに良くなります。' },
+        { t: '4歳で言葉の遅れがあります。発達の全体と領域ごとの差を知り、ことばの相談や療育につなぐかを決めたいです。母親から発達歴も聞いてください。', g: '◎', why: '困りごと、知りたいこと、結果の使い道、母親からの聞き取りまでそろっています。' },
+        { t: '知能検査をお願いします。', g: '△', why: '4歳では、知能の数字よりも発達の領域ごとの差をみたいところです。何を知りたいかが伝わりません。' }
+      ],
+      hand: ['wisc', 'pars', 'binet', 'ados', 'kshiki', 'straw', 'obs', 'wais', 'aq', 'conners', 'baum'],
+      v: {
+        kshiki: ['need', '0歳から使え、3つの領域ごとに発達指数が出る。領域の差をみるのに向く（田中ビネーとどちらか一方でよい）。'],
+        binet: ['need', '2歳から使え、全体の知的水準（IQと精神年齢）がわかる（新版K式とどちらか一方でよい）。'],
+        pars: ['need', '母から幼児期のようすを聞く。ことばの遅れの背景に、自閉スペクトラム症の特性がないかも確かめられる。'],
+        obs: ['need', '検査場面や保育園でのやりとりのようす。4歳では、検査の数字だけでなく観察が大切。'],
+        wisc: ['age', '5歳0か月から。4歳には使えない。'],
+        wais: ['age', '16歳0か月から。'],
+        conners: ['age', '6〜18歳用。'],
+        straw: ['age', '小学生から（学齢期の子ども用）。4歳には使えない。'],
+        ados: ['heavy', '1歳から使えるが、約40〜60分かかる。今回は発達の全体をみるのが先で、ほかの検査と合わせると4歳には負担が大きい。'],
+        aq: ['no', '4歳には、保護者からの発達歴（PARS-TR）と行動観察のほうが向いている。'],
+        baum: ['no', '描画の投影法。ことばの遅れの評価には役立たない。']
+      },
+      tags: [
+        { id: 'dev', label: '発達の水準と領域ごとの差', cards: ['kshiki', 'binet'] },
+        { id: 'hist', label: '発達歴（母から）', cards: ['pars'] },
+        { id: 'obs', label: '行動のようす', cards: ['obs'] }
+      ],
+      trap: function (s) {
+        return (s.has('wisc') || s.has('wais'))
+          ? '4歳にWISC-VやWAIS-IVを選んでいます。WISC-Vは5歳0か月から、WAIS-IVは16歳0か月からです。幼児には新版K式や田中ビネーを使います。' : null;
+      },
+      rep: {
+        kshiki: '<p>発達指数（同じ年齢の子と比べた発達の進み具合。100が年齢相応）</p>' + bars([['認知・適応', 95], ['言語・社会', 72]]) + P('認知・適応はほぼ年齢相応。言語・社会が低く、領域の間に差がある。'),
+        binet: P('IQ 85。ことばで答える問題では年齢より下の段階からつまずき、図形や手先を使う問題は年齢相応に通過した。この年齢では領域ごとの得点は出ないため、通過した問題の内容から得意・不得意を読みとった。'),
+        pars: P('母から：初語が遅かった。指さしや、見てほしいものを持ってくることはあった。強いこだわりや感覚の過敏は目立たない。'),
+        obs: P('検査者とのやりとりを楽しみ、うまくいくと笑顔で母を振り返った。ことばで答える場面では、身ぶりや指さしで伝えようとした。'),
+        ados: P('開始したが、ほかの検査のあとで集中が切れ、最後まで実施できなかった。')
+      },
+      sum: function (x) {
+        var dev = x.has('kshiki') ? '認知・適応はほぼ年齢相応ですが、言語・社会が低く、領域の間に差があります。ことばの遅れが中心と考えられます。'
+          : x.has('binet') ? 'ことばを使う問題が苦手で、図形や手先の問題は年齢相応です。ことばの遅れが中心と考えられます。'
+            : '発達の水準を調べる検査がないため、遅れの程度と領域の差は判断できません。';
+        var asd = x.has('pars') ? '発達歴からは、自閉スペクトラム症を強く疑う所見は目立ちません。' : '';
+        return [dev + asd, 'ことばの相談（言語聴覚士など）や療育につなぎ、時期をおいて再評価することを提案します。聞こえの確認もあわせて勧めます。'];
+      },
+      qs: [
+        {
+          q: '報告書の結果を、どう読みますか。', tags: ['dev'],
+          ref: '新版K式を組んでいれば、認知・適応95、言語・社会72という結果でした。',
+          opts: [
+            { t: '2つの指数を平均して、全体として少し遅れていると説明する', g: '△' },
+            { t: '領域ごとの差をみて、言語・社会の遅れが目立つと読む', g: '◎' },
+            { t: '4歳ではまだわからないので、何もしない', g: '×' },
+            { t: '言語・社会の低さには検査場面の緊張なども影響しうるので、観察と母の話で確かめる', g: '○' }
+          ],
+          why: '新版K式では、領域ごとに発達指数が出ます。平均してしまうと、認知・適応は年齢相応で言語・社会だけが遅れている、という大切な差が見えなくなります。田中ビネーで調べた場合は、通過した問題の内容から得意・不得意を読みとります。検査の数字は、行動観察と保護者の話と合わせて読みます。'
+        },
+        {
+          q: '次の一手として、最も適切なのはどれですか。', tags: [],
+          opts: [
+            { t: '発達指数が低いので知的障害と伝え、就学に向けて特別支援学校の見学を勧める', g: '×' },
+            { t: 'ことばの相談（言語聴覚士など）や療育につなぎ、時期をおいて再評価する', g: '◎' },
+            { t: '家で絵本を読む時間を増やすよう伝えるだけにして、しばらく様子をみる', g: '△' },
+            { t: 'ことばの遅れの原因を探るため、聞こえの検査を受けてもらう', g: '○' }
+          ],
+          why: '領域の差がはっきりしているので、言語面の支援（ことばの相談、療育）につなぎます。幼児の発達は変わっていくので、時期をおいて再評価します。ことばの遅れでは、聞こえの確認も大切です。認知・適応は年齢相応で、知的障害とはいえません。'
+        }
+      ],
+      model: { cards: ['kshiki', 'pars', 'obs'], note: '新版K式（または田中ビネー）で発達の水準と領域の差、PARS-TRで母からの発達歴、行動観察でやりとりのようすをみます。本人の負担は小さく済みます。' },
+      points: [
+        '幼児の発達は、新版K式発達検査や田中ビネー知能検査で調べる。WISC-Vは5歳0か月から。',
+        '新版K式は、姿勢・運動、認知・適応、言語・社会の3つの領域で発達指数を出す。',
+        '保護者からの発達歴と行動観察を合わせて読む。'
+      ]
+    }
+  ];
+  function shuffle(a) { for (var i = a.length - 1; i > 0; i--) { var j = Math.floor(Math.random() * (i + 1)), t = a[i]; a[i] = a[j]; a[j] = t; } return a; }
+  CASES.forEach(function (c) { shuffle(c.refs); c.qs.forEach(function (q) { shuffle(q.opts); }); });
+
+  /* ---------- 状態 ---------- */
+  var cur = 0;
+  var states = {};
+  function getS(i) {
+    if (!states[i]) states[i] = { ref: null, refDone: false, sel: new Set(), sent: false, ev: null, ans: [null, null], done: false, res: null };
+    return states[i];
+  }
+  function showFb(s) { return !adv || s.done; }
+  function nameOf(id) { return CARDS[id].name; }
+
+  function evalBattery(c, sel) {
+    var ids = c.hand.filter(function (id) { return sel.has(id); });
+    var tags = c.tags.map(function (t) {
+      return { id: t.id, label: t.label, cards: t.cards, ok: t.cards.some(function (id) { return sel.has(id) && c.v[id][0] !== 'age'; }) };
+    });
+    var covered = tags.filter(function (t) { return t.ok; }).length;
+    var time = 0, burden = 0, pen = 0, counts = { need: 0, good: 0, no: 0, heavy: 0, age: 0 };
+    ids.forEach(function (id) {
+      time += CARDS[id].min; burden += CARDS[id].burden;
+      var v = c.v[id][0]; counts[v]++; pen += V[v].pen;
+    });
+    var overT = time > c.budget.time, overB = burden > c.budget.burden;
+    var trap = c.trap ? c.trap(sel) : null;
+    if (overT) pen += PEN_OVER;
+    if (overB) pen += PEN_OVER;
+    if (trap) pen += PEN_TRAP;
+    var covPts = Math.round(40 * covered / tags.length);
+    var pts = Math.max(0, Math.min(50, covPts + 10 - pen));
+    return { ids: ids, tags: tags, covered: covered, covPts: covPts, time: time, burden: burden, overT: overT, overB: overB, trap: trap, counts: counts, pen: pen, pts: pts };
+  }
+
+  function finish(i) {
+    var c = CASES[i], s = getS(i);
+    var rg = c.refs[s.ref].g;
+    var qpts = s.ans.reduce(function (a, o, k) { return a + G[c.qs[k].opts[o].g].q; }, 0);
+    var read = Math.round(qpts * G[rg].mul);
+    var total = G[rg].ref + s.ev.pts + read;
+    s.res = { ref: G[rg].ref, bat: s.ev.pts, qpts: qpts, read: read, total: total };
+    s.done = true;
+    var prev = saved.clear[c.id];
+    if (typeof prev !== 'number' || total > prev) saved.clear[c.id] = total;
+    persist();
+  }
+
+  /* ---------- 描画 ---------- */
+  var caseEl = document.getElementById('case');
+  var tabsEl = document.getElementById('tabs');
+  var zkBody = document.getElementById('zkBody');
+  var zkCount = document.getElementById('zkCount');
+  var advBtn = document.getElementById('advBtn');
+  var advLabel = document.getElementById('advLabel');
+  var RM = window.matchMedia ? window.matchMedia('(prefers-reduced-motion: reduce)') : { matches: false };
+
+  function pipsHTML(n) {
+    var lbl = n === 0 ? '負担 ほとんどなし' : '負担 ' + n + '（3段階）';
+    var h = '<span class="px-wrap" role="img" aria-label="' + lbl + '"><span class="px-l" aria-hidden="true">負担</span>';
+    for (var k = 0; k < 3; k++) h += '<span class="px' + (k < n ? ' on' : '') + '"></span>';
+    return h + '</span>';
+  }
+
+  function renderTabs() {
+    tabsEl.innerHTML = CASES.map(function (c, i) {
+      var best = saved.clear[c.id], has = typeof best === 'number', ok = has && best >= CLEAR;
+      return '<button type="button" class="tab" data-tab="' + i + '" data-k="tab-' + i + '" aria-current="' + (i === cur ? 'true' : 'false') + '">' +
+        '<span class="tab-no"><span>依頼' + (i + 1) + '</span>' + (ok ? '<span class="tab-ok" aria-label="クリア">✓</span>' : '') + '</span>' +
+        '<span class="tab-t">' + c.tab + '</span>' +
+        '<span class="tab-s">' + (has ? '最高 ' + best + '点' : '未挑戦') + '</span></button>';
+    }).join('');
+  }
+
+  function step1HTML(c, s) {
+    var p = c.pt, fb = showFb(s), body;
+    if (s.refDone) {
+      body = '<div class="written"><p class="written-t">' + c.refs[s.ref].t + '</p><span class="stamp" aria-hidden="true">依頼</span></div>';
+    } else {
+      body = '<div class="opts" role="group" aria-labelledby="refq">' + c.refs.map(function (r, k) {
+        return '<button type="button" class="opt" data-ref="' + k + '" data-k="ref-' + k + '" aria-pressed="' + (s.ref === k) + '">' + r.t + '</button>';
+      }).join('') + '</div>' +
+        '<div class="actions"><button type="button" class="btn primary" data-act="refsend" data-k="refsend"' + (s.ref == null ? ' disabled' : '') + '>この文で依頼票を出す</button>' +
+        '<span class="hint">' + (s.ref == null ? '依頼の目的を1つ選んでください。' : '出したあとは書き直せません。') + '</span></div>';
+    }
+    var fbh = '';
+    if (s.refDone && fb) {
+      var r = c.refs[s.ref];
+      fbh = '<div class="fb"><p class="fb-h"><span class="tag">講評</span>' + grHTML(r.g) + '<span class="fb-pts">' + G[r.g].ref + ' / 20点</span></p>' + P(r.why) +
+        '<p class="subh">4つの書き方の比べ</p><ul class="all">' + c.refs.map(function (o) {
+          return '<li>' + grHTML(o.g) + '<span>' + o.t + '</span><span class="why">' + o.why + '</span></li>';
+        }).join('') + '</ul></div>';
+    } else if (s.refDone) {
+      fbh = '<p class="pending">依頼票を出しました。採点は最後に表示します。</p>';
+    }
+    return '<section class="step" id="st1" aria-labelledby="st1h">' +
+      '<h3 class="step-h" id="st1h" tabindex="-1"><span class="step-n">その1</span>依頼票を書く</h3>' +
+      '<div class="slip"><div class="slip-head"><span class="slip-title">心理検査依頼票</span><span class="slip-meta">心理検査室 御中　依頼医：あなた（主治医）</span></div>' +
+      '<dl class="slip-grid">' +
+      '<div><dt>患者</dt><dd>' + p.name + '</dd></div>' +
+      '<div><dt>年齢・性別</dt><dd>' + p.age + '・' + p.sex + '（' + p.job + '）</dd></div>' +
+      '<div class="wide"><dt>経過</dt><dd>' + c.course + '</dd></div>' +
+      '<div class="wide"><dt>困りごと</dt><dd>' + c.trouble + '</dd></div>' +
+      '<div class="wide"><dt>主治医の疑問</dt><dd>' + c.question + '</dd></div>' +
+      '<div class="wide"><dt>検査での配慮</dt><dd>' + c.care + '</dd></div>' +
+      '</dl><div class="slip-q"><p class="slip-qh" id="refq">依頼の目的（依頼票に書く文を選ぶ）</p>' + body + '</div></div>' + fbh + '</section>';
+  }
+
+  function cardHTML(c, s, id) {
+    var d = CARDS[id], on = s.sel.has(id), fb = s.sent && showFb(s), v = c.v[id][0];
+    var badge = '';
+    if (fb) {
+      var tag = null;
+      s.ev.tags.forEach(function (t) { if (t.cards.indexOf(id) >= 0) tag = t; });
+      if (!on && v === 'need' && tag && !tag.ok) badge = '<span class="vb v-miss">必要・入っていない</span>';
+      else badge = '<span class="vb ' + V[v].cls + '">' + V[v].label + '</span>';
+    }
+    var pick = !s.sent ? (on ? '組み込み済' : '＋ 組み込む') : (on ? '組み込んだ' : '');
+    var cls = 'card' + (d.cat === '特別' ? ' special' : '') + (s.sent && !on ? ' dim' : '');
+    return '<button type="button" class="' + cls + '" data-card="' + id + '" data-k="card-' + id + '" aria-pressed="' + on + '"' + (s.sent ? ' disabled' : '') + '>' +
+      '<span class="card-top"><span class="ct-cat">' + catIcon(d.cat) + d.cat + '</span>' + pipsHTML(d.burden) + '</span>' +
+      '<span class="card-name">' + d.name + '</span>' +
+      '<span class="card-rows">' +
+      '<span class="row"><span class="k">対象年齢</span><span class="v">' + d.age + '</span></span>' +
+      '<span class="row"><span class="k">所要時間</span><span class="v">' + d.time + '</span></span>' +
+      (adv ? '' : '<span class="row"><span class="k">わかること</span><span class="v">' + d.know + '</span></span>') +
+      '</span><span class="card-foot"><span class="pick">' + pick + '</span>' + badge + '</span></button>';
+  }
+
+  function liveTotals(s) {
+    var t = 0, b = 0;
+    s.sel.forEach(function (id) { t += CARDS[id].min; b += CARDS[id].burden; });
+    return { time: t, burden: b };
+  }
+
+  function step2HTML(c, s) {
+    var head = '<h3 class="step-h" id="st2h" tabindex="-1"><span class="step-n">その2</span>検査を組む（テストバッテリー）</h3>';
+    if (!s.refDone) return '<section class="step locked" id="st2" aria-labelledby="st2h">' + head + '<p class="locked-note">依頼票を出すと開きます。</p></section>';
+    var fb = s.sent && showFb(s);
+    var tot = liveTotals(s), B = c.budget;
+    var needs = '<div class="needs"><p class="needs-h">この依頼で知りたいこと</p><ul>' + c.tags.map(function (t, k) {
+      var cls = '';
+      if (fb) cls = s.ev.tags[k].ok ? 'ok' : 'ng';
+      return '<li class="' + cls + '">' + t.label + '</li>';
+    }).join('') + '</ul><p class="limit">' + c.pt.name + '（' + c.pt.age + '）の上限：時間 <b>' + B.time + '分</b>・負担 <b>' + B.burden + '</b>。' + B.why + '。</p></div>';
+    var hand = '<div class="hand" role="group" aria-label="検査カード">' + c.hand.map(function (id) { return cardHTML(c, s, id); }).join('') + '</div>';
+    var chips = s.sel.size ? c.hand.filter(function (id) { return s.sel.has(id); }).map(function (id) {
+      return s.sent ? '<span class="chip static">' + nameOf(id) + '</span>'
+        : '<button type="button" class="chip" data-chip="' + id + '" data-k="chip-' + id + '" aria-label="' + nameOf(id) + 'を外す">' + nameOf(id) + '<span class="x" aria-hidden="true">×</span></button>';
+    }).join('') : '<span class="empty">まだ何も入っていません。上のカードを押して組み込みます。</span>';
+    var tray = '<div class="tray"><p class="tray-h" id="trayh" tabindex="-1">組み合わせ（' + s.sel.size + '件）</p><div class="chips">' + chips + '</div></div>';
+    var overT = tot.time > B.time, overB = tot.burden > B.burden;
+    var pips = '';
+    var nPip = Math.max(B.burden, tot.burden);
+    for (var k = 0; k < nPip; k++) pips += '<span class="pip' + (k < tot.burden ? (k >= B.burden ? ' ov' : ' on') : '') + '"></span>';
+    var budget = '<div class="budget' + (s.sent ? ' static' : '') + '" aria-label="時間と負担">' +
+      '<div class="meter' + (overT ? ' over' : '') + '"><div class="m-top"><span>時間</span><span class="m-val">' + tot.time + ' / ' + B.time + '分</span></div>' +
+      '<div class="m-track" role="img" aria-label="時間 ' + tot.time + '分、上限' + B.time + '分"><div class="m-fill" style="width:' + Math.min(100, tot.time / B.time * 100).toFixed(1) + '%"></div></div></div>' +
+      '<div class="meter' + (overB ? ' over' : '') + '"><div class="m-top"><span>負担</span><span class="m-val">' + tot.burden + ' / ' + B.burden + '</span></div>' +
+      '<div class="pips" role="img" aria-label="負担 ' + tot.burden + '、上限' + B.burden + '">' + pips + '</div></div>' +
+      (s.sent ? '<span class="hint">依頼を出しました</span>'
+        : '<button type="button" class="btn primary send" data-act="send" data-k="send"' + (s.sel.size ? '' : ' disabled') + '>この組み合わせで依頼を出す</button>') +
+      ((overT || overB) ? '<p class="over-note">' + (overT && overB ? '時間と負担' : overT ? '時間' : '負担') + 'が上限超え：疲れると結果の信頼性が下がります</p>' : '') +
+      '</div>';
+    var note = '<p class="hint">時間と負担は本人の分です。保護者面接や行動観察は数えません。</p>';
+    var fbh = '';
+    if (s.sent && fb) fbh = fb2HTML(c, s);
+    else if (s.sent) fbh = '<p class="pending">依頼を出しました。採点は最後に表示します。</p>';
+    return '<section class="step" id="st2" aria-labelledby="st2h">' + head +
+      '<p class="step-lead">テストバッテリー（目的に合わせて複数の検査を組み合わせること）を作ります。カードを押すと組み合わせに入り、もう一度押すと外れます。</p>' +
+      needs + hand + tray + note + budget + fbh + '</section>';
+  }
+
+  function fb2HTML(c, s) {
+    var e = s.ev;
+    var issues = [];
+    if (e.counts.no) issues.push('不要 ' + e.counts.no + '件（−' + e.counts.no * V.no.pen + '）');
+    if (e.counts.heavy) issues.push('負担が大きすぎる ' + e.counts.heavy + '件（−' + e.counts.heavy * V.heavy.pen + '）');
+    if (e.counts.age) issues.push('対象年齢外 ' + e.counts.age + '件（−' + e.counts.age * V.age.pen + '）');
+    if (e.overT) issues.push('時間の上限超え（−' + PEN_OVER + '）');
+    if (e.overB) issues.push('負担の上限超え（−' + PEN_OVER + '）');
+    if (e.trap) issues.push('落とし穴（−' + PEN_TRAP + '）');
+    var breakdown = '知りたいこと ' + e.covered + '/' + e.tags.length + '（' + e.covPts + '点）＋基本点10' + (issues.length ? '　' + issues.join('　') : '　減点なし');
+    var list = '<ul class="verdicts">' + e.ids.map(function (id) {
+      var v = c.v[id];
+      return '<li><span class="nm">' + nameOf(id) + '</span><span class="vb ' + V[v[0]].cls + '">' + V[v[0]].label + '</span><span class="rs">' + v[1] + '</span></li>';
+    }).join('') + '</ul>';
+    var miss = e.tags.filter(function (t) { return !t.ok; });
+    var missH = miss.length ? '<p class="subh">足りなかったこと</p><ul class="verdicts">' + miss.map(function (t) {
+      return '<li><span class="nm">' + t.label + '</span><span class="vb v-miss">入っていない</span><span class="rs">' + t.cards.map(nameOf).join(' か ') + 'が必要でした。' + c.v[t.cards[0]][1] + '</span></li>';
+    }).join('') + '</ul>' : '';
+    var over = (e.overT || e.overB) ? P('上限を超えると疲れがたまり、後半の検査は実際より低く出るなど、結果の信頼性が下がります。') : '';
+    var trap = e.trap ? '<p class="trap"><span class="trap-tag">落とし穴</span><span>' + e.trap + '</span></p>' : '';
+    return '<div class="fb" id="fb2" tabindex="-1"><p class="fb-h"><span class="tag">講評</span>' + grHTML(gradeOf(e.pts / 50)) + '<span class="fb-pts">' + e.pts + ' / 50点</span></p>' +
+      '<p class="breakdown">' + breakdown + '</p>' + trap + over +
+      '<p class="subh">組み込んだ検査の判定</p>' + list + missH + '</div>';
+  }
+
+  function reportHTML(c, s) {
+    var e = s.ev, sel = s.sel;
+    var x = { has: function (id) { return sel.has(id) && c.v[id] && c.v[id][0] !== 'age'; } };
+    var defer = sel.has('defer');
+    var order = defer ? ['defer'].concat(e.ids.filter(function (id) { return id !== 'defer'; })) : e.ids;
+    var secs = order.map(function (id) {
+      var v = c.v[id][0], body, skip = false;
+      if (v === 'age') { body = P('対象年齢外のため実施しませんでした。'); skip = true; }
+      else if (defer && id !== 'defer' && id !== 'panss' && id !== 'obs') { body = P('延期したため実施しませんでした。'); skip = true; }
+      else if (c.rep[id]) body = c.rep[id];
+      else if (v === 'heavy') body = P('途中で疲れが目立ち、最後まで実施できませんでした。結果は参考程度です。');
+      else body = P(c.defaultNo || '実施しましたが、今回の依頼に役立つ所見は特にありませんでした。');
+      return '<section class="rep-sec' + (skip ? ' skip' : '') + '"><h5>' + nameOf(id) + '</h5>' + body + '</section>';
+    }).join('');
+    var miss = e.tags.filter(function (t) { return !t.ok; });
+    var missH = miss.length ? '<section class="rep-miss"><h5>評価できなかったこと</h5><ul>' + miss.map(function (t) {
+      return '<li>「' + t.label + '」は、' + t.cards.map(nameOf).join(' か ') + 'が組まれていないため、評価できませんでした。</li>';
+    }).join('') + '</ul></section>' : '';
+    var g = c.refs[s.ref].g, sm = c.sum(x), summary;
+    if (g === '◎') summary = P(sm[0]) + P(sm[1]);
+    else if (g === '○') summary = P(sm[0]) + '<p class="muted">結果の使い道が依頼票に書かれていなかったため、支援の提案は省きました。</p>';
+    else summary = '<p class="muted">依頼の目的がはっきりしなかったため、各検査の結果の説明にとどめます。主治医の疑問への答えは書いていません。</p>';
+    var over = (e.overT || e.overB) ? '<p class="rep-note">予定していた' + (e.overT && e.overB ? '時間と負担' : e.overT ? '時間' : '負担') + 'を超えたため、後半は疲れが目立ちました。後半に行った検査の結果は、実際より低く出ている可能性があります。</p>' : '';
+    return '<article class="report" aria-label="心理検査報告書">' +
+      '<div class="rep-head"><span class="rep-title">心理検査報告書</span><span class="rep-meta">' + c.pt.name + '（' + c.pt.age + '・' + c.pt.sex + '）　心理検査室より</span></div>' +
+      '<dl class="rep-info"><div><dt>依頼の目的</dt><dd>' + c.refs[s.ref].t + '</dd></div>' +
+      '<div><dt>組んだ検査</dt><dd>' + e.ids.map(nameOf).join('、') + '</dd></div></dl>' +
+      over + secs + missH +
+      '<section class="rep-sum"><h5>まとめ（依頼への答え）</h5>' + summary + '</section>' +
+      '<p class="rep-sign">担当：公認心理師（架空）</p></article>';
+  }
+
+  function qHTML(c, s, q, k) {
+    var a = s.ans[k], fb = showFb(s);
+    var missT = (q.tags || []).map(function (tid) { return s.ev.tags.filter(function (t) { return t.id === tid; })[0]; })
+      .filter(function (t) { return t && !t.ok; });
+    var missNote = missT.length ? '<div class="q-miss"><p><span class="vb v-miss">結果なし</span> この問いに使う結果は、今回の組み合わせでは得られていません。</p><p>参考：' + q.ref + '</p></div>' : '';
+    var opts = '<div class="opts" role="group" aria-labelledby="q' + k + 'h">' + q.opts.map(function (o, j) {
+      var mark = (a != null && fb) ? grHTML(o.g) : '';
+      return '<button type="button" class="opt round" data-q="' + k + '" data-o="' + j + '" data-k="q' + k + '-' + j + '" aria-pressed="' + (a === j) + '"' + (a != null ? ' disabled' : '') + '>' + mark + '<span>' + o.t + '</span></button>';
+    }).join('') + '</div>';
+    var fbh = '';
+    if (a != null && fb) {
+      var g = q.opts[a].g;
+      fbh = '<div class="fb" id="fbq' + k + '" tabindex="-1"><p class="fb-h"><span class="tag">解説</span>' + grHTML(g) + '<span class="fb-pts">' + G[g].q + ' / 15点</span></p>' + P(q.why) +
+        (missT.length ? '<p class="muted">今回は「' + missT.map(function (t) { return t.label; }).join('」「') + '」を調べる検査（' + missT.map(function (t) { return t.cards.map(nameOf).join(' か '); }).join('、') + '）を組んでいなかったため、報告書にこの情報がありませんでした。</p>' : '') + '</div>';
+    } else if (a != null) {
+      fbh = '<p class="pending" id="fbq' + k + '" tabindex="-1">回答しました。採点は最後に表示します。</p>';
+    }
+    return '<div class="q"><p class="q-h" id="q' + k + 'h" tabindex="-1"><span class="q-n">問' + (k + 1) + '</span>' + q.q + '</p>' + missNote + opts + fbh + '</div>';
+  }
+
+  function step3HTML(c, s) {
+    var head = '<h3 class="step-h" id="st3h" tabindex="-1"><span class="step-n">その3</span>報告書を読む</h3>';
+    if (!s.sent) return '<section class="step locked" id="st3" aria-labelledby="st3h">' + head + '<p class="locked-note">検査の依頼を出すと、報告書が届きます。</p></section>';
+    var g = c.refs[s.ref].g;
+    var mul = showFb(s) ? '<p class="mul">報告書の役立ち度 <b>' + G[g].mulL + '</b>（依頼票 ' + g + '）。' + MULTXT[g] + 'この欄の点数に掛かります。</p>' : '';
+    return '<section class="step" id="st3" aria-labelledby="st3h">' + head + mul + reportHTML(c, s) +
+      '<div class="qs">' + c.qs.map(function (q, k) { return qHTML(c, s, q, k); }).join('') + '</div></section>';
+  }
+
+  function resultHTML(c, s, i) {
+    if (!s.done) return '';
+    var r = s.res, e = s.ev, rg = c.refs[s.ref].g;
+    var ok = r.total >= CLEAR;
+    var batIssues = [];
+    if (e.covered < e.tags.length) batIssues.push('足りないもの ' + (e.tags.length - e.covered) + '件');
+    if (e.counts.no) batIssues.push('不要 ' + e.counts.no + '件');
+    if (e.counts.heavy) batIssues.push('負担が大きすぎる ' + e.counts.heavy + '件');
+    if (e.counts.age) batIssues.push('対象年齢外 ' + e.counts.age + '件');
+    if (e.overT || e.overB) batIssues.push('上限超え');
+    if (e.trap) batIssues.push('落とし穴');
+    var batR = '知りたいこと ' + e.covered + '/' + e.tags.length + '。' + (batIssues.length ? batIssues.join('、') + '。' : '過不足のない組み合わせです。');
+    var g1 = c.qs[0].opts[s.ans[0]].g, g2 = c.qs[1].opts[s.ans[1]].g;
+    var readR = '問1 ' + g1 + '・問2 ' + g2 + '（' + r.qpts + '点）に、報告書の役立ち度 ' + G[rg].mulL + ' を掛けました。';
+    var refR = c.refs[s.ref].why.split('。')[0] + '。';
+    var model = '<div class="chips">' + c.model.cards.map(function (id) { return '<span class="chip static">' + nameOf(id) + '</span>'; }).join('') + '</div>' + '<p style="margin-top:8px">' + c.model.note + '</p>';
+    return '<section class="step" id="st4" aria-labelledby="st4h">' +
+      '<h3 class="step-h" id="st4h" tabindex="-1"><span class="step-n">結果</span>' + c.title + '</h3>' +
+      '<div class="result-box">' +
+      '<div class="total"><span class="total-n">' + r.total + '</span><span class="total-d">/ 100点</span><span class="total-stamp' + (ok ? ' ok' : '') + '">' + (ok ? 'クリア ✓' : 'もう一歩') + '</span>' +
+      (ok ? '' : '<span class="hint">70点以上でクリアです。</span>') + '</div>' +
+      '<ol class="sumrows">' +
+      '<li><span class="lbl">その1 依頼票を書く</span><span class="pts">' + r.ref + ' / 20</span>' + grHTML(rg) + '<span class="rs">' + refR + '</span></li>' +
+      '<li><span class="lbl">その2 検査を組む</span><span class="pts">' + r.bat + ' / 50</span>' + grHTML(gradeOf(r.bat / 50)) + '<span class="rs">' + batR + '</span></li>' +
+      '<li><span class="lbl">その3 報告書を読む</span><span class="pts">' + r.read + ' / 30</span>' + grHTML(gradeOf(r.read / 30)) + '<span class="rs">' + readR + '</span></li>' +
+      '</ol>' +
+      (adv ? '<p class="hint">上級者モードで隠していた講評と解説を、上のそれぞれの欄に出しました。</p>' : '') +
+      '<div><h4>模範の組み合わせ</h4>' + model + '</div>' +
+      '<div><h4>試験に出るポイント</h4><ul class="points">' + c.points.map(function (t) { return '<li>' + t + '</li>'; }).join('') + '</ul></div>' +
+      '<div class="actions"><button type="button" class="btn" data-act="retry" data-k="retry">もう一度</button>' +
+      '<button type="button" class="btn primary" data-act="next" data-k="next">次の依頼へ</button></div>' +
+      '</div></section>';
+  }
+
+  function renderCase() {
+    var c = CASES[cur], s = getS(cur);
+    caseEl.innerHTML = '<article class="case" aria-labelledby="caseh">' +
+      '<header class="case-h"><p class="case-no">依頼 ' + (cur + 1) + ' / ' + CASES.length + '</p><h2 id="caseh" tabindex="-1">' + c.title + '</h2></header>' +
+      step1HTML(c, s) + step2HTML(c, s) + step3HTML(c, s) + resultHTML(c, s, cur) + '</article>';
+  }
+
+  function renderZukan() {
+    var ids = Object.keys(CARDS), seen = {};
+    saved.seen.forEach(function (id) { seen[id] = true; });
+    var n = ids.filter(function (id) { return seen[id]; }).length;
+    zkCount.textContent = n + ' / ' + ids.length;
+    zkBody.innerHTML = CATS.map(function (cat) {
+      var list = ids.filter(function (id) { return CARDS[id].cat === cat; });
+      return '<h3 class="zk-cat">' + catIcon(cat) + cat + '</h3><ul class="zk-grid">' + list.map(function (id) {
+        var d = CARDS[id];
+        if (!seen[id]) return '<li class="zk locked"><p class="zk-name">？？？</p><p>まだ使っていない検査です。</p></li>';
+        return '<li class="zk"><p class="zk-name">' + d.name + '</p><dl>' +
+          '<div><dt>わかること</dt><dd>' + d.know + '</dd></div>' +
+          '<div><dt>対象年齢</dt><dd>' + d.age + '</dd></div>' +
+          '<div><dt>所要時間</dt><dd>' + d.time + '</dd></div>' +
+          '<div><dt>負担</dt><dd>' + pipsHTML(d.burden) + '</dd></div></dl></li>';
+      }).join('') + '</ul>';
+    }).join('');
+  }
+
+  function syncAdv() {
+    advBtn.setAttribute('aria-pressed', adv ? 'true' : 'false');
+    advLabel.textContent = '上級者モード：' + (adv ? 'オン' : 'オフ');
+  }
+
+  function render(keepFocus) {
+    var ae = document.activeElement, k = keepFocus && ae && ae.getAttribute ? ae.getAttribute('data-k') : null;
+    renderTabs(); renderCase(); renderZukan();
+    if (k) {
+      var el = document.querySelector('[data-k="' + k + '"]');
+      if (el && !el.disabled) el.focus({ preventScroll: true });
+    }
+  }
+
+  function focusTo(id, scroll) {
+    var el = document.getElementById(id);
+    if (!el) return;
+    el.focus({ preventScroll: true });
+    if (scroll !== false) el.scrollIntoView({ behavior: RM.matches ? 'auto' : 'smooth', block: 'start' });
+  }
+
+  /* ---------- 操作 ---------- */
+  caseEl.addEventListener('click', function (ev) {
+    var b = ev.target.closest('button');
+    if (!b || b.disabled || !caseEl.contains(b)) return;
+    var c = CASES[cur], s = getS(cur);
+    if (b.hasAttribute('data-ref')) {
+      if (s.refDone) return;
+      s.ref = +b.getAttribute('data-ref');
+      render(true); return;
+    }
+    if (b.hasAttribute('data-card')) {
+      if (!s.refDone || s.sent) return;
+      var id = b.getAttribute('data-card');
+      if (s.sel.has(id)) s.sel.delete(id); else s.sel.add(id);
+      render(true); return;
+    }
+    if (b.hasAttribute('data-chip')) {
+      if (s.sent) return;
+      s.sel.delete(b.getAttribute('data-chip'));
+      render(true);
+      if (!document.activeElement || document.activeElement === document.body) focusTo('trayh', false);
+      return;
+    }
+    if (b.hasAttribute('data-q')) {
+      if (!s.sent || s.done) return;
+      var qk = +b.getAttribute('data-q'), o = +b.getAttribute('data-o');
+      if (s.ans[qk] != null) return;
+      s.ans[qk] = o;
+      if (s.ans[0] != null && s.ans[1] != null) { finish(cur); render(false); focusTo('st4h'); }
+      else { render(false); focusTo('fbq' + qk, false); }
+      return;
+    }
+    var act = b.getAttribute('data-act');
+    if (act === 'refsend') {
+      if (s.ref == null || s.refDone) return;
+      s.refDone = true; render(false); focusTo('st2h');
+    } else if (act === 'send') {
+      if (!s.sel.size || s.sent) return;
+      s.sent = true; s.ev = evalBattery(c, s.sel);
+      s.sel.forEach(function (cid) { if (saved.seen.indexOf(cid) < 0) saved.seen.push(cid); });
+      persist(); render(false); focusTo('st3h');
+    } else if (act === 'retry') {
+      delete states[cur]; render(false); focusTo('caseh');
+    } else if (act === 'next') {
+      cur = (cur + 1) % CASES.length; render(false); focusTo('caseh');
+    }
+  });
+
+  tabsEl.addEventListener('click', function (ev) {
+    var b = ev.target.closest('[data-tab]');
+    if (!b) return;
+    cur = +b.getAttribute('data-tab');
+    render(false); focusTo('caseh');
+  });
+
+  advBtn.addEventListener('click', function () {
+    adv = !adv;
+    lsSet(ADV_KEY, adv ? '1' : '0');
+    syncAdv(); render(false);
+  });
+
+  var m = /^#c([1-8])$/.exec(location.hash || '');
+  if (m) cur = +m[1] - 1;
+  syncAdv();
+  render(false);
+})();
+</script>
+
+</body>
+</html>

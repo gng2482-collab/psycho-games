@@ -1,0 +1,1857 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="精神科試験ゲーム">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icon-180.png">
+<style>
+:root{color-scheme:light; padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px)}
+body{margin:0; font:14px system-ui,-apple-system,sans-serif}
+img{max-width:100%}
+[hidden]{display:none!important}
+.ipad-bar{display:flex; flex-wrap:wrap; gap:6px 14px; align-items:center; justify-content:space-between;
+  padding:8px max(16px, env(safe-area-inset-right,0px)) 8px max(16px, env(safe-area-inset-left,0px));
+  font:600 14px system-ui,-apple-system,"Hiragino Sans",sans-serif; background:#1d2a33; color:#f3f6f8}
+.ipad-bar a{color:#f3f6f8; text-decoration:none; padding:6px 10px; border:1px solid #4a5d6a; border-radius:6px}
+.ipad-bar span{opacity:.85; font-weight:400}
+</style>
+<script>
+/* プレイヤーごとに記録を分ける（自分は今までどおり、ゲストは頭に印をつける） */
+(function () {
+  try {
+    var P = window.localStorage.getItem('ipad-player') || 'me';
+    window.__ipadPlayer = P;
+    if (P === 'me') return;
+    var pre = 'p:' + P + ':', S = Storage.prototype, g = S.getItem, s = S.setItem, r = S.removeItem;
+    var map = function (k) { return k === 'ipad-player' ? k : pre + k; };
+    S.getItem = function (k) { return g.call(this, map(k)); };
+    S.setItem = function (k, v) { return s.call(this, map(k), v); };
+    S.removeItem = function (k) { return r.call(this, map(k)); };
+  } catch (e) { /* 保存できない環境 */ }
+})();
+if ('serviceWorker' in navigator) { window.addEventListener('load', function () { navigator.serviceWorker.register('sw.js').catch(function () {}); }); }
+</script>
+</head>
+<body>
+<nav class="ipad-bar" aria-label="アプリ"><a href="index.html">← ゲーム一覧</a><span id="ipadWho"></span></nav>
+<script>(function(){var P=window.__ipadPlayer||'me';document.getElementById('ipadWho').textContent='プレイヤー：'+(P==='me'?'自分':P);})();</script>
+<!--@TITLE-BEGIN--><title>副作用ランナー</title><!--@TITLE-END-->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=BIZ+UDPGothic:wght@400;700&family=DotGothic16&display=swap">
+<style>
+/* Layout: カルテ紙の上にゲーム画面を1枚。右（スマホでは下）にカルテと遊び方、最下段に図鑑 */
+:root{
+  --paper:#ecf1ed; --panel:#f9fbf9; --ink:#1c2725; --muted:#59665f; --line:#c4cfc8;
+  --accent:#1d7566; --accent-ink:#ffffff; --seal:#bb3333; --water:#2f7fc0; --warn:#a8720c; --night:#2c3566;
+  --f-display:"DotGothic16","Hiragino Kaku Gothic ProN","Yu Gothic",monospace;
+  --f-body:"BIZ UDPGothic","Hiragino Kaku Gothic ProN","Yu Gothic","Meiryo",sans-serif;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --paper:#121918; --panel:#1a2321; --ink:#e2ebe6; --muted:#93a39b; --line:#2c3a36;
+    --accent:#4db3a0; --accent-ink:#0e1615; --seal:#e5615b; --water:#5aa6e0; --warn:#e0b04f; --night:#8f9be0; color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --paper:#121918; --panel:#1a2321; --ink:#e2ebe6; --muted:#93a39b; --line:#2c3a36;
+  --accent:#4db3a0; --accent-ink:#0e1615; --seal:#e5615b; --water:#5aa6e0; --warn:#e0b04f; --night:#8f9be0; color-scheme:dark;
+}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+body{background:var(--paper);color:var(--ink);font-family:var(--f-body);font-size:15px;line-height:1.7;padding-inline:16px;padding-block:20px 48px}
+.wrap{max-width:1100px;margin:0 auto;display:grid;gap:18px}
+.top{display:grid;gap:4px}
+.eyebrow{margin:0;font-family:var(--f-display);font-size:13px;letter-spacing:.08em;color:var(--accent)}
+h1{margin:0;font-family:var(--f-display);font-weight:400;font-size:clamp(30px,6vw,46px);line-height:1.15;text-wrap:balance}
+.lede{margin:0;color:var(--muted);max-width:62ch}
+
+.tabs{display:grid;gap:8px}
+.row{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.tab{font:inherit;font-family:var(--f-display);font-size:14px;color:var(--ink);background:var(--panel);border:1px solid var(--line);border-radius:6px;padding:5px 12px;cursor:pointer;display:flex;gap:6px;align-items:baseline}
+.tab:hover:not(:disabled){border-color:var(--accent)}
+.tab[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.tab:disabled{cursor:not-allowed;color:var(--muted);border-style:dashed}
+.tab:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+.tab .ok{font-size:11px}
+.tab.adv[aria-pressed="true"]{background:var(--seal);border-color:var(--seal);color:#ffffff}
+.loop{font-size:15px;padding:5px 16px}
+.loop.l2[aria-pressed="true"]{background:var(--night);border-color:var(--night);color:#ffffff}
+.lockmsg{font-size:12px;color:var(--muted)}
+
+.main{display:grid;gap:16px;grid-template-columns:minmax(0,1fr)}
+@media (min-width:900px){.main{grid-template-columns:minmax(0,1fr) 290px;align-items:start}}
+
+.stage{background:var(--panel);border:1px solid var(--line);border-radius:6px;overflow:hidden;min-width:0}
+.hud{display:flex;flex-wrap:wrap;align-items:center;gap:6px 14px;padding:8px 12px;font-family:var(--f-display);border-bottom:1px solid var(--line);min-height:44px}
+.hearts{color:var(--seal);font-size:16px;letter-spacing:1px;line-height:1}
+.water{display:flex;align-items:center;gap:6px;font-size:13px}
+.meter{width:96px;height:10px;border:1px solid var(--line);background:var(--paper);display:block;position:relative}
+.meter i{position:absolute;inset:0 auto 0 0;background:var(--water);width:100%}
+.meter.low i,.meter.over i{background:var(--seal)}
+.meter.hi i{background:var(--warn)}
+.meter.bal{width:120px}
+.meter.bal::after{content:'';position:absolute;left:80%;top:-3px;bottom:-3px;width:2px;background:var(--seal)}
+.lv{font-size:13px;font-variant-numeric:tabular-nums;border:1px solid var(--line);border-radius:4px;padding:0 8px}
+.lv b{font-weight:400;font-size:15px}
+.lv.hi{border-color:var(--warn);color:var(--warn)}
+.lv.tox{border-color:var(--seal);color:var(--seal);background:color-mix(in srgb,var(--seal) 12%,transparent)}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.hudbtns{margin-left:auto;display:flex;gap:6px}
+.sndbtn{font:inherit;font-family:var(--f-display);font-size:13px;color:var(--ink);background:transparent;border:1px solid var(--line);border-radius:4px;padding:2px 10px;cursor:pointer}
+.sndbtn[aria-pressed="false"]{color:var(--muted);border-style:dashed}
+.stage.full{border:0;border-radius:0;display:flex;flex-direction:column;background:var(--panel)}
+.stage.full:not(.fs){width:100%;height:100%}
+.stage.fs{position:fixed;inset:0;z-index:30;padding:env(safe-area-inset-top,0px) env(safe-area-inset-right,0px) env(safe-area-inset-bottom,0px) env(safe-area-inset-left,0px)}
+.stage.full .screen{flex:1;min-height:0;container-type:size;display:grid;place-items:center;background:var(--paper)}
+.stage.full canvas{width:min(100cqw,calc(100cqh * 16 / 9));height:auto}
+body.fslock{overflow:hidden}
+/* 全画面：画面の高さに合わせて文字・ハート・ゲージを大きくする */
+.stage.full{--fz:clamp(15px,2.6vh,32px)}
+.stage.full .hud{font-size:var(--fz);gap:.35em .9em;padding:.45em .9em;min-height:0}
+.stage.full .hearts{font-size:calc(var(--fz)*1.4);letter-spacing:.06em}
+.stage.full .water{font-size:var(--fz);gap:.4em}
+.stage.full .meter{width:calc(var(--fz)*8);height:calc(var(--fz)*.8);border-width:2px}
+.stage.full .meter.bal{width:calc(var(--fz)*10)}
+.stage.full .lv{font-size:var(--fz);padding:.05em .5em}
+.stage.full .lv b{font-size:calc(var(--fz)*1.25)}
+.stage.full .chips{gap:.35em}
+.stage.full .chip{font-size:calc(var(--fz)*.9);padding:.1em .7em;border-width:2px}
+.stage.full .sndbtn{font-size:calc(var(--fz)*.8);padding:.25em .7em}
+.stage.full .toast{font-size:calc(var(--fz)*.9);padding:.5em 1.2em;top:.8em;border-width:2px}
+.stage.full .toast b{font-size:calc(var(--fz)*1.15)}
+.stage.full .startov .stg{font-size:calc(var(--fz)*.95)}
+.stage.full .startov .stn{font-size:calc(var(--fz)*1.9)}
+.stage.full .startov .btn{font-size:calc(var(--fz)*1.2);padding:.4em 1.4em}
+.stage.full .startov .hint{font-size:calc(var(--fz)*.8)}
+.stage.full .pad button{height:calc(var(--fz)*3.2);font-size:calc(var(--fz)*1.1)}
+.stage.full .sheet{max-width:min(1100px,94vw);font-size:calc(var(--fz)*.85);padding:1.2em 1.4em}
+.stage.full .rxhead h2{font-size:calc(var(--fz)*1.5)}
+.stage.full .rxhead span,.stage.full .ptline,.stage.full .warn{font-size:calc(var(--fz)*.85)}
+.stage.full .card{padding:.8em}
+.stage.full .card .k{font-size:calc(var(--fz)*.75)}
+.stage.full .card .n{font-size:calc(var(--fz)*1.15)}
+.stage.full .card .r,.stage.full .card .t,.stage.full .card .mg{font-size:calc(var(--fz)*.8)}
+.stage.full .stamp{width:calc(var(--fz)*3.6);height:calc(var(--fz)*3.6);font-size:calc(var(--fz)*1.1)}
+.stage.full .stats span{font-size:calc(var(--fz)*.75)}
+.stage.full .stats b{font-size:calc(var(--fz)*1.3)}
+.stage.full .sheet h3{font-size:calc(var(--fz)*1.05)}
+.stage.full .fxl div,.stage.full .grades li,.stage.full .pts,.stage.full .doses{font-size:calc(var(--fz)*.85)}
+.stage.full .fxl .g,.stage.full .grades .q{font-size:calc(var(--fz)*.75)}
+.stage.full .mark{font-size:calc(var(--fz)*1.3)}
+.stage.full .banner{font-size:var(--fz)}
+.stage.full .actions .btn{font-size:var(--fz)}
+.sndbtn:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+.chip{font-size:12px;line-height:1.6;padding:0 8px;border-radius:999px;border:1px solid var(--line);white-space:nowrap}
+.chip.drug{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.chip.adj{border-color:var(--accent);color:var(--accent)}
+.chip.fx{color:var(--seal);border-color:var(--seal)}
+.chip.wait{color:var(--warn);border-color:var(--warn)}
+.chip.none{color:var(--muted);border-style:dashed}
+
+.screen{position:relative}
+canvas{display:block;width:100%;aspect-ratio:16/9;image-rendering:pixelated;background:#cfe2e2;touch-action:none;transition:filter .6s}
+.toast{position:absolute;left:50%;top:10px;transform:translateX(-50%);width:max-content;max-width:calc(100% - 20px);background:var(--panel);color:var(--ink);border:1px solid var(--line);border-radius:6px;padding:6px 14px;font-size:13px;line-height:1.5;box-shadow:0 4px 14px rgb(0 0 0 / .18);display:grid;text-align:center;pointer-events:none}
+.toast b{font-family:var(--f-display);font-weight:400;font-size:15px}
+.startov{position:absolute;inset:0;display:grid;place-items:center;background:rgb(14 28 26 / .5);text-align:center;color:#ffffff;padding:12px}
+.startov .stg{margin:0;font-family:var(--f-display);font-size:14px;letter-spacing:.2em}
+.startov .stn{margin:0 0 12px;font-family:var(--f-display);font-size:clamp(20px,4.4vw,30px);line-height:1.3}
+.startov .hint{margin:8px 0 0;font-size:12px;opacity:.85}
+.btn{font-family:var(--f-display);font-size:18px;padding:8px 24px;border-radius:4px;border:2px solid var(--accent);background:var(--accent);color:var(--accent-ink);cursor:pointer}
+.btn.sub{background:transparent;color:var(--accent)}
+.btn.night{background:var(--night);border-color:var(--night);color:#ffffff}
+.startov .btn{border-color:#ffffff}
+.btn:focus-visible,.pad button:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+
+.pad{display:none;grid-template-columns:1fr 1fr 1.6fr;gap:10px;padding:10px;border-top:1px solid var(--line)}
+.pad button{height:64px;font-family:var(--f-display);font-size:20px;border:1px solid var(--line);border-radius:8px;background:var(--paper);color:var(--ink);touch-action:none;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none}
+.pad button.on{background:var(--accent);color:var(--accent-ink)}
+@media (pointer:coarse){.pad{display:grid}.keys{display:none}}
+
+.side{display:grid;gap:16px;min-width:0}
+.box{background:var(--panel);border:1px solid var(--line);border-radius:6px;padding:14px 16px}
+.box h2{font-family:var(--f-display);font-weight:400;font-size:18px;margin:0 0 8px;display:flex;justify-content:space-between;align-items:baseline;gap:8px}
+.box h2 small{font-family:var(--f-body);font-size:12px;color:var(--muted)}
+.karte{border-top:4px double var(--ink)}
+.karte dl{display:grid;grid-template-columns:auto 1fr;gap:4px 12px;margin:0}
+.karte dt{color:var(--muted);font-size:13px;padding-top:1px}
+.karte dd{margin:0;min-width:0}
+.howto ul{margin:0;padding-left:1.2em;display:grid;gap:4px;font-size:14px}
+.keys{margin:10px 0 0;font-size:13px;color:var(--muted)}
+kbd{font-family:var(--f-display);font-size:12px;border:1px solid var(--line);border-bottom-width:2px;border-radius:3px;padding:0 5px;background:var(--paper);color:var(--ink)}
+
+.zukan h2 span{font-family:var(--f-display);font-size:14px;color:var(--accent)}
+.zgroup{display:grid;gap:6px}
+.zgroup + .zgroup{margin-top:14px}
+.zgroup h3{font-size:13px;color:var(--muted);margin:0;font-weight:700;letter-spacing:.06em}
+.zgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,190px),1fr));gap:8px}
+.z{border:1px solid var(--line);border-radius:6px;padding:8px 10px;background:var(--paper);font-size:12.5px;line-height:1.55}
+.z b{display:block;font-family:var(--f-display);font-weight:400;font-size:15px;margin-bottom:2px}
+.z.lock{background:transparent;border-style:dashed;color:var(--muted)}
+.note{margin:10px 0 0;font-size:12px;color:var(--muted)}
+
+.modal{position:fixed;inset:0;z-index:20;display:grid;place-items:center;padding:16px;background:rgb(8 18 16 / .58);overflow:auto}
+.sheet{width:100%;max-width:740px;background:var(--panel);color:var(--ink);border-radius:8px;padding:20px;box-shadow:0 20px 50px rgb(0 0 0 / .3)}
+.rxhead{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:baseline;gap:4px 12px;border-bottom:4px double var(--ink);padding-bottom:6px;margin-bottom:12px}
+.rxhead h2{font-family:var(--f-display);font-weight:400;font-size:26px;margin:0;letter-spacing:.06em}
+.rxhead span{font-size:13px;color:var(--muted)}
+.rxhead.bad h2{color:var(--seal)}
+.ptline{font-size:14px;background:var(--paper);border:1px solid var(--line);border-radius:4px;padding:8px 12px;margin:0 0 12px}
+.cards{display:grid;gap:10px}
+.card{position:relative;text-align:left;font:inherit;color:inherit;background:var(--paper);border:1px solid var(--line);border-radius:6px;padding:12px;cursor:pointer;display:grid;gap:3px;line-height:1.5;align-content:start}
+.card:hover{border-color:var(--accent)}
+.card:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+.card .k{font-family:var(--f-display);font-size:12px;color:var(--muted)}
+.card .n{font-family:var(--f-display);font-size:19px}
+.card .r{font-size:13px;color:var(--accent);font-weight:700}
+.card .mg{font-family:var(--f-display);font-size:14px;color:var(--warn)}
+.card .t{font-size:13px;color:var(--muted)}
+.card:disabled{cursor:not-allowed}
+.card:disabled > span:not(.stamp){opacity:.45}
+.stamp{position:absolute;right:12px;top:10px;font-family:var(--f-display);color:var(--seal);border:3px solid var(--seal);border-radius:50%;width:62px;height:62px;display:grid;place-items:center;font-size:19px;transform:rotate(-14deg);animation:stamp .3s ease-out}
+@keyframes stamp{from{transform:rotate(-14deg) scale(2.2);opacity:0}to{transform:rotate(-14deg) scale(1);opacity:1}}
+.warn{color:var(--seal);font-size:14px;margin:12px 0 0}
+
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:8px;margin-bottom:6px}
+.stats div{background:var(--paper);border:1px solid var(--line);border-radius:4px;padding:6px 10px;display:grid}
+.stats span{font-size:12px;color:var(--muted)}
+.stats b{font-family:var(--f-display);font-weight:400;font-size:22px;font-variant-numeric:tabular-nums}
+.banner{margin:0 0 12px;padding:10px 14px;border-radius:6px;background:var(--night);color:#ffffff;font-family:var(--f-display);font-size:17px}
+.sheet h3{font-family:var(--f-display);font-weight:400;font-size:17px;margin:16px 0 6px}
+.sheet p{margin:0}
+.fxl{margin:0;display:grid;gap:8px}
+.fxl div{display:grid;grid-template-columns:minmax(0,10em) minmax(0,1fr);gap:2px 12px;font-size:14px}
+.fxl dt{font-weight:700;color:var(--seal)}
+.fxl dd{margin:0}
+.fxl .g{display:block;font-size:12.5px;color:var(--muted)}
+.grades{margin:0;padding:0;list-style:none;display:grid;gap:8px}
+.grades li{display:grid;grid-template-columns:2em minmax(0,1fr);gap:2px 10px;font-size:14px}
+.mark{font-family:var(--f-display);font-size:20px;line-height:1.2;text-align:center}
+.mark.g3{color:var(--accent)}.mark.g2{color:var(--accent)}.mark.g1{color:var(--warn)}.mark.g0{color:var(--seal)}
+.grades .q{font-size:12.5px;color:var(--muted);display:block}
+.doses{margin:0;padding-left:1.2em;display:grid;gap:4px;font-size:14px}
+@media (max-width:520px){.fxl div{grid-template-columns:minmax(0,1fr)}}
+.pts{margin:0;padding-left:1.2em;display:grid;gap:6px;font-size:14px}
+.actions{display:flex;flex-wrap:wrap;justify-content:flex-end;gap:10px;margin-top:18px}
+.muted{color:var(--muted)}
+@media (prefers-reduced-motion:reduce){.stamp{animation:none}canvas{transition:none}}
+</style>
+
+<div class="wrap">
+  <!--@HEADER-BEGIN-->
+  <header class="top">
+    <p class="eyebrow">精神科専門医試験 × アクション　試作版</p>
+    <h1>副作用ランナー</h1>
+    <p class="lede">薬を選ぶと、その薬の副作用があなたの操作に出ます。全7面。第1〜6面をクリアすると2周目が開き、mg単位で「増やすか、切り替えるか」を判断します。</p>
+  </header>
+  <!--@HEADER-END-->
+
+  <nav class="tabs" id="tabs" aria-label="ステージを選ぶ"></nav>
+
+  <div class="main">
+    <section class="stage" aria-label="ゲーム画面">
+      <div class="hud">
+        <span class="hearts" id="hearts" aria-label="残りハート"></span>
+        <span class="water" id="waterbox">水分<span class="meter" id="meter"><i id="wfill"></i></span></span>
+        <span class="lv" id="lv" hidden>Li <b id="lvv">0.00</b> mEq/L</span>
+        <span class="chips" id="chips"></span>
+        <span class="hudbtns"><button type="button" class="sndbtn" id="snd" aria-pressed="true">♪ 音あり</button><button type="button" class="sndbtn" id="fsbtn" aria-pressed="false">全画面</button></span>
+      </div>
+      <div class="screen">
+        <canvas id="cv" width="960" height="540" aria-label="横スクロールのゲーム画面。医師のキャラクターが症状の敵を避けながら右へ進む"></canvas>
+        <div class="toast" id="toast" hidden><b></b><span></span></div>
+        <div class="startov" id="startov">
+          <div>
+            <p class="stg" id="ovNo">第1面</p>
+            <p class="stn" id="ovName">統合失調症・急性期</p>
+            <button class="btn" id="startbtn" type="button">はじめる</button>
+            <p class="hint">はじめる前に、カルテを読んでおこう</p>
+          </div>
+        </div>
+      </div>
+      <div class="pad" id="pad">
+        <button type="button" data-k="l" aria-label="左へ">◀</button>
+        <button type="button" data-k="r" aria-label="右へ">▶</button>
+        <button type="button" data-k="j">ジャンプ</button>
+      </div>
+      <div class="modal" id="modal" hidden><div class="sheet" id="sheet" role="dialog" aria-modal="true"></div></div>
+    </section>
+
+    <aside class="side">
+      <section class="box karte" aria-label="カルテ">
+        <h2>カルテ <small>挑戦ごとに患者が変わる</small></h2>
+        <dl>
+          <dt>患者</dt><dd id="kWho"></dd>
+          <dt>経過</dt><dd id="kCourse"></dd>
+          <dt>主訴</dt><dd id="kCc"></dd>
+          <dt>既往歴</dt><dd id="kHx"></dd>
+          <dt id="kHistT" hidden>治療歴</dt><dd id="kHist" hidden></dd>
+          <dt id="kGoalT" hidden>希望</dt><dd id="kGoal" hidden></dd>
+          <dt id="kTestT" hidden>検査</dt><dd id="kTest" hidden></dd>
+        </dl>
+      </section>
+      <section class="box howto">
+        <h2>遊び方</h2>
+        <!--@HOWTO-BEGIN-->
+        <ul>
+          <li>敵は症状です。治療が効くまでは踏んでも倒せません。</li>
+          <li>金色の <b>Rx</b> ブロックを下から叩くと処方を選べます。</li>
+          <li>薬が効くと症状を踏めるようになり、副作用が操作に出ます。</li>
+          <li>次の Rx ブロックでは、副作用への対応や併用薬を選びます。判断は ◎○△× で採点されます。</li>
+          <li>2周目は Rx ブロックが3つ。mg を見て「増量・切り替え・併用・継続」を判断します。</li>
+          <li>第7面は診断のつかない初診の患者。「検」ブロックで情報を集めてから見立てを選びます。</li>
+          <li>上級者モードは、薬の解説・その場の採点・副作用の名前を伏せます。</li>
+        </ul>
+        <!--@HOWTO-END-->
+        <p class="keys"><kbd>←</kbd> <kbd>→</kbd> 移動　<kbd>Space</kbd> / <kbd>↑</kbd> ジャンプ<br>処方を選ぶ画面では <kbd>1</kbd>〜<kbd>4</kbd> でも選べます</p>
+      </section>
+    </aside>
+  </div>
+
+  <section class="box zukan" aria-label="図鑑">
+    <h2>図鑑 <span id="zcount"></span></h2>
+    <div id="zbody"></div>
+    <p class="note">図鑑とクリアの記録はこのブラウザに保存されます。</p>
+  </section>
+</div>
+
+
+<script>
+(()=>{
+'use strict';
+/*@EDITION*/const EDITION={loops:true,showMg:false,store:'fukusayo-runner-v1',adv:'fukusayo-adv'};
+const W=480,H=270,T=16,COLS=120,ROWS=17,FLAGX=113*T+6,MAXH=10;
+const PF='"DotGothic16","Hiragino Kaku Gothic ProN",monospace';
+const $=id=>document.getElementById(id);
+const cv=$('cv'),ctx=cv.getContext('2d');
+const modal=$('modal'),sheet=$('sheet'),toastEl=$('toast');
+let S=2;
+function resize(){const r=cv.getBoundingClientRect();const d=window.devicePixelRatio||1;S=Math.max(1,Math.min(4,Math.ceil((r.width||W)*d/W)));if(cv.width!==W*S){cv.width=W*S;cv.height=H*S;}}
+try{new ResizeObserver(resize).observe(cv)}catch(e){addEventListener('resize',resize)}
+resize();
+
+/* ========== 医学データ ========== */
+// fx: 副作用 {i:強さ, on:出るまでの秒, period:周期, dur:続く秒（慣れ）}  delay: 効果が出るまでの秒
+const DRUGS={
+  halo:{name:'ハロペリドール',cls:'定型・高力価',rec:'D2遮断 強',note:'陽性症状によく効く。錐体外路症状と悪性症候群に注意。',nms:true,contra:['pd'],fx:{parkinson:{i:1,on:3}}},
+  ola:{name:'オランザピン',cls:'MARTA',rec:'D2・5-HT2A・H1・M1 など多くを遮断',note:'鎮静がかかりやすい。体重増加・高血糖に注意。',contra:['dm'],fx:{weight:{i:1,on:2},sleepy:{i:.55,on:4,period:9}}},
+  ari:{name:'アリピプラゾール',cls:'DSS（D2部分作動薬）',rec:'D2部分作動・5-HT1A部分作動',note:'体重やプロラクチンへの影響が少ない。アカシジアが出やすい。',fx:{akathisia:{i:1,on:4}}},
+  que:{name:'クエチアピン',cls:'MARTA',rec:'H1・α1遮断 強、D2遮断 弱',note:'錐体外路症状は少ない。眠気と起立性低血圧に注意。',contra:['dm'],fx:{sleepy:{i:.85,on:3,period:6},ortho:{i:1,on:5}}},
+  ris:{name:'リスペリドン',cls:'SDA',rec:'D2・5-HT2A遮断',note:'用量が増えると錐体外路症状・高プロラクチン血症が出やすい。',fx:{parkinson:{i:.6,on:3}}},
+  cloz:{name:'クロザピン',cls:'治療抵抗性統合失調症の薬',rec:'D4・5-HT2A・H1・M1 など多くに作用',note:'無顆粒球症・心筋炎・耐糖能異常に注意。CPMSで血液検査。',fx:{sleepy:{i:.6,on:2,period:8},weight:{i:.6,on:3}}},
+  sert:{name:'セルトラリン',cls:'SSRI',rec:'セロトニン再取り込み阻害',note:'悪心などの消化器症状が飲み始めに出やすい。',delay:8,delayText:'2〜4週',act:true,fx:{nausea:{i:1,on:1,dur:20}}},
+  mir:{name:'ミルタザピン',cls:'NaSSA',rec:'α2遮断・5-HT2/5-HT3遮断・H1遮断',note:'悪心は少ない。眠気と体重増加が多い。',delay:8,delayText:'2〜4週',fx:{sleepy:{i:.7,on:2,period:7},weight:{i:.8,on:3}}},
+  ami:{name:'アミトリプチリン',cls:'三環系',rec:'5-HT・NA再取り込み阻害＋M1・H1・α1遮断',note:'抗コリン作用・起立性低血圧・心毒性。過量服薬で致死的になりうる。',delay:8,delayText:'2〜4週',contra:['mi','ur'],fx:{anticho:{i:1,on:2},ortho:{i:1,on:4},sleepy:{i:.4,on:5,period:10}}},
+  dul:{name:'デュロキセチン',cls:'SNRI',rec:'5-HT・NA再取り込み阻害',note:'悪心が多い。慢性疼痛にも使われる。',delay:8,delayText:'2〜4週',act:true,fx:{nausea:{i:1,on:1,dur:20}}},
+  li:{name:'炭酸リチウム',cls:'気分安定薬',rec:'治療域が狭い。血中濃度を測る',note:'振戦・多尿が多い。腎臓から排泄される。',delay:6,delayText:'1〜2週',contra:['ckd'],fx:{tremor:{i:.5,on:2},polyuria:{i:1,on:2}}},
+  vpa:{name:'バルプロ酸',cls:'気分安定薬（抗てんかん薬）',rec:'GABA増強など',note:'肝障害・高アンモニア血症・体重増加に注意。',delay:3,delayText:'数日',contra:['liver'],fx:{weight:{i:.6,on:3},tremor:{i:.3,on:4}}},
+  parox:{name:'パロキセチン',cls:'SSRI',rec:'セロトニン再取り込み阻害（抗コリン作用もやや）',note:'中断症候群が出やすい。CYP2D6を強く阻害する。',delay:8,delayText:'2〜4週',fx:{nausea:{i:1,on:1,dur:20},anticho:{i:.35,on:3}}},
+  alp:{name:'アルプラゾラム',cls:'ベンゾジアゼピン系抗不安薬',rec:'GABA-A受容体の働きを強める',note:'すぐ効く。眠気・ふらつき。長く使うと依存・耐性。',contra:['mg'],fx:{sleepy:{i:.4,on:2,period:9},ataxia:{i:.4,on:3}}},
+  cbt:{name:'認知行動療法',cls:'精神療法',rec:'曝露と、考え方のくせの修正',note:'副作用がない。効果が出るまで数週かかる。',delay:10,delayText:'数週',fx:{}},
+  env:{name:'原因の検索と環境調整',cls:'非薬物療法',rec:'脱水・感染・薬の見直し、照明・時計・家族の面会',note:'副作用がない。落ち着くまで少し時間がかかる。',delay:6,delayText:'数日',fx:{}},
+  brot:{name:'ブロチゾラム',cls:'ベンゾジアゼピン系睡眠薬',rec:'GABA-A受容体の働きを強める',note:'寝つきをよくする。',fx:{sleepy:{i:.5,on:1,period:8},ataxia:{i:.5,on:2}}},
+  diaz:{name:'ジアゼパム',cls:'長時間作用型ベンゾジアゼピン',rec:'GABA-A受容体の働きを強める',note:'作用が長く、離脱をなだらかに抑える。肝臓で代謝される。',contra:['mg'],fx:{sleepy:{i:.45,on:2,period:9},ataxia:{i:.35,on:3}}},
+  lora:{name:'ロラゼパム',cls:'中時間作用型ベンゾジアゼピン',rec:'GABA-A受容体の働きを強める',note:'グルクロン酸抱合だけで代謝され、肝障害でも使いやすい。',contra:['mg'],fx:{sleepy:{i:.35,on:2,period:9},ataxia:{i:.3,on:3}}},
+  assess:{name:'見立て',cls:'',fx:{}},
+  immuno:{name:'免疫療法',cls:'原因の治療',rec:'ステロイドパルス・免疫グロブリン・血漿交換',note:'',delay:4,delayText:'数週',fx:{}},
+  levo:{name:'レボチロキシン',cls:'甲状腺ホルモン',rec:'',note:'',delay:5,delayText:'数週',fx:{}},
+  donep:{name:'ドネペジル',cls:'コリンエステラーゼ阻害薬',rec:'アセチルコリンを増やす',note:'',delay:4,delayText:'数週',fx:{nausea:{i:.6,on:1,dur:12}}},
+  mmi:{name:'抗甲状腺薬（チアマゾール）',cls:'原因の治療',rec:'',note:'',delay:3,delayText:'数週',fx:{}},
+  alphab:{name:'α遮断薬と腫瘍の摘出',cls:'原因の治療',rec:'',note:'',delay:2,fx:{}},
+  abx:{name:'感染症の治療（抗菌薬）',cls:'原因の治療',rec:'',note:'',delay:2,fx:{}},
+  aed:{name:'抗てんかん薬',cls:'原因の治療',rec:'',note:'',fx:{sleepy:{i:.4,on:2,period:10}}},
+  thiamine:{name:'ビタミンB1の大量静注',cls:'原因の治療',rec:'',note:'',delay:2,fx:{}},
+  nafix:{name:'原因薬の中止とNaの緩徐な補正',cls:'原因の治療',rec:'',note:'',delay:3,fx:{}},
+  shunt:{name:'シャント手術',cls:'脳神経外科',rec:'',note:'',delay:3,fx:{}},
+  burr:{name:'穿頭血腫除去術',cls:'脳神経外科',rec:'',note:'',delay:2,fx:{}},
+  obs:{name:'経過観察（薬を使わない）',cls:'様子をみる',rec:'補液と観察のみ',note:'薬の副作用は出ない。',fx:{}},
+};
+const EXTRA={
+  bip:{name:'抗コリン薬（ビペリデンなど）',cls:'抗コリン性の抗パーキンソン薬'},pro:{name:'プロプラノロール',cls:'β遮断薬'},
+  tram:{name:'トラマドール',cls:'弱オピオイド'},loxo:{name:'ロキソプロフェン',cls:'NSAIDs'},apap:{name:'アセトアミノフェン',cls:'解熱鎮痛薬'},
+  cele:{name:'セレコキシブ',cls:'NSAIDs（COX-2選択的）'},mero:{name:'メロペネム',cls:'カルバペネム系抗菌薬'},ctrx:{name:'セフトリアキソン',cls:'セフェム系抗菌薬'},
+  lvfx:{name:'レボフロキサシン',cls:'ニューキノロン系抗菌薬'},hctz:{name:'ヒドロクロロチアジド',cls:'サイアザイド系利尿薬'},enal:{name:'エナラプリル',cls:'ACE阻害薬'},aml:{name:'アムロジピン',cls:'Ca拮抗薬'},
+  tria:{name:'トリアゾラム',cls:'ベンゾジアゼピン系睡眠薬'},diph:{name:'ジフェンヒドラミン',cls:'第一世代抗ヒスタミン薬'},rame:{name:'ラメルテオン',cls:'メラトニン受容体作動薬'},
+  glu:{name:'ブドウ糖液',cls:'補液'},thi:{name:'ビタミンB1（チアミン）',cls:'ビタミン'},nacl:{name:'生理食塩液',cls:'補液'},
+  acam:{name:'アカンプロサート',cls:'断酒補助薬'},disul:{name:'ジスルフィラム',cls:'抗酒薬'},nalm:{name:'ナルメフェン',cls:'飲酒量低減薬'},
+};
+// 2周目に表示する用量（日本の添付文書の通常用量をもとにした目安）
+const DOSE={
+  halo:{start:'1.5mg',up:'3mg',maint:'6mg',seCur:'3mg',seRed:'1.5mg',range:'1日0.75〜2.25mgで開始し漸増。維持量は1日3〜6mg'},
+  ola:{start:'10mg',up:'20mg',maint:'20mg',seCur:'10mg',seRed:'5mg',range:'1日5〜10mgで開始。維持量10mg、上限20mg'},
+  ari:{start:'12mg',up:'24mg',maint:'24mg',seCur:'12mg',seRed:'6mg',range:'1日6〜12mgで開始。維持量6〜24mg、上限30mg'},
+  que:{start:'75mg',up:'300mg',maint:'600mg',seCur:'300mg',seRed:'150mg',range:'1回25mgを1日2〜3回で開始し漸増。通常1日150〜600mg、上限750mg'},
+  ris:{start:'2mg',range:'1回1mgを1日2回で開始。維持量2〜6mg、上限12mg'},
+  cloz:{start:'12.5mg',range:'1日12.5mgで開始し漸増。維持量200〜400mg、上限600mg。CPMSへの登録と定期的な血液検査が必要'},
+  sert:{start:'25mg',up:'50mg',maint:'100mg',seCur:'50mg',seRed:'25mg',range:'1日25mgで開始し、上限100mg'},
+  mir:{start:'15mg',up:'30mg',maint:'45mg',seCur:'30mg',seRed:'15mg',range:'1日15mgを就寝前で開始。15〜30mg、上限45mg'},
+  ami:{start:'30mg',up:'75mg',maint:'150mg',seCur:'75mg',seRed:'30mg',range:'1日30〜75mgで開始し、150mgまで漸増（まれに300mg）'},
+  dul:{start:'20mg',up:'40mg',maint:'60mg',seCur:'40mg',seRed:'20mg',range:'1日20mgで開始し、1週間以上あけて20mgずつ増量。通常40mg、上限60mg'},
+  li:{start:'600mg',up:'800mg',maint:'800mg',seCur:'800mg',seRed:'600mg',range:'1日400〜600mgで開始し、通常1200mgまで漸増。血中濃度を見ながら調整'},
+  vpa:{start:'600mg',up:'1000mg',maint:'1200mg',seCur:'1000mg',seRed:'600mg',range:'躁病：1日400〜1200mgを2〜3回に分けて'},
+  'bp:ari':{start:'24mg',up:'30mg',maint:'30mg',seCur:'24mg',seRed:'12mg',range:'躁症状：1日24mgで開始。維持量12〜24mg、上限30mg'},
+  'mdd:ari':{start:'3mg',range:'うつ病の補助療法：1日3mgで開始。上限15mg'},
+  parox:{start:'10mg',up:'20mg',maint:'30mg',seCur:'20mg',seRed:'10mg',range:'パニック症：1日10mgで開始し、1週ごとに10mgずつ増量。上限30mg'},
+  alp:{start:'1.2mg',up:'2.4mg',range:'1日1.2mgを3回に分けて。上限2.4mg'},
+  cbt:{start:'週1回',range:'週1回、12〜16回程度が目安'},
+  'dlr:halo':{start:'0.75mg',range:'せん妄には適応外。0.75mg前後の少量から'},
+  'dlr:que':{start:'25mg',range:'せん妄には適応外。12.5〜25mgの少量から'},
+  brot:{start:'0.25mg',range:'1回0.25mgを就寝前'},
+  'alc:halo':{start:'1.5mg',range:'離脱そのものの治療にはならない'},
+  diaz:{start:'5mg×3回',range:'1回2〜5mgを1日2〜4回。離脱では症状に合わせて調整'},
+  lora:{start:'0.5mg×3回',range:'1日1〜3mgを2〜3回に分けて'},
+  acam:{start:'666mg×3回',range:'1回666mgを1日3回食後。高度の腎障害に禁忌'},
+  disul:{start:'0.1〜0.5g',range:'1日0.1〜0.5gを1〜3回に分けて'},
+  nalm:{start:'10mg',range:'飲酒の1〜2時間前に10mg。上限20mg'},
+};
+const CONTRA_WHY={
+  dm:'オランザピン・クエチアピンは、糖尿病の患者と糖尿病の既往がある患者に禁忌（日本の添付文書）。',
+  mi:'三環系抗うつ薬は心筋梗塞の回復初期に禁忌。不整脈・心伝導障害を起こしうる。',
+  ur:'三環系抗うつ薬は尿閉（前立腺疾患など）のある患者に禁忌。抗コリン作用で悪化する。',
+  ckd:'リチウムは腎障害のある患者に禁忌。排泄が遅れ、中毒を起こしやすい。',
+  'acam:ckd':'アカンプロサートは高度の腎障害のある患者に禁忌。',
+  liver:'バルプロ酸は重篤な肝障害のある患者に禁忌。',
+  pd:'ハロペリドールはパーキンソン病の患者に禁忌。',
+  mg:'ベンゾジアゼピン系は重症筋無力症の患者に禁忌（筋弛緩作用）。',
+};
+const cwhy=(id,tag)=>CONTRA_WHY[id+':'+tag]||CONTRA_WHY[tag];
+const FX={
+  parkinson:{label:'パーキンソニズム',game:'足が遅く、ジャンプが低くなる。体が小刻みに震える',why:'黒質線条体のD2遮断で起こる。動作緩慢・筋強剛・振戦・小刻み歩行。'},
+  akathisia:{label:'アカシジア',game:'じっとしていられず、手を離しても足が勝手に動く',why:'D2遮断で起こる静座不能。部分作動薬でも多い。焦燥が強まり、服薬中断の原因になる。'},
+  weight:{label:'体重増加',game:'だんだん体が大きくなり、ジャンプが低くなる',why:'H1・5-HT2C遮断で食欲が増す。高血糖・脂質異常も起こりやすい。'},
+  sleepy:{label:'眠気',game:'ときどき画面が暗くなる',why:'H1遮断やGABA-A作用による鎮静。'},
+  ortho:{label:'起立性低血圧',game:'止まった状態から動き出すと立ちくらみで暗転する',why:'α1遮断による。転倒・骨折の原因になる。'},
+  anticho:{label:'抗コリン作用',game:'画面がかすみ、水分が早く減る',why:'ムスカリン受容体遮断。霧視・口渇・便秘・尿閉。高齢者ではせん妄や認知機能低下。'},
+  dehyd:{label:'脱水',game:'水分ゲージが0になるとハートが減っていく',why:'脱水は悪性症候群の危険因子。リチウム濃度を上げ、せん妄の原因にもなる。'},
+  waterint:{label:'水中毒',game:'水を取りすぎると頭痛・嘔吐で動けなくなり、ハートが減る',why:'統合失調症では多飲水から水中毒（低ナトリウム血症）が起こりうる。頭痛・嘔吐・意識障害・けいれん。体重の日内変動で飲水量を見積もる。低ナトリウム血症を急に補正すると浸透圧性脱髄症候群を起こす。'},
+  nms:{label:'悪性症候群',game:'その場でゲームオーバー',why:'高熱・筋強剛・意識障害・自律神経症状・CK上昇。原因薬を中止し、補液・冷却、ダントロレン。'},
+  contra:{label:'禁忌',game:'ハートが1つ減り、その薬は選べない',why:'患者の背景で使えない薬がある。糖尿病（オランザピン・クエチアピン）、心筋梗塞の回復初期・尿閉（三環系）、腎障害（リチウム）、重篤な肝障害（バルプロ酸）、パーキンソン病（ハロペリドール）、重症筋無力症（ベンゾジアゼピン系）など。'},
+  delay:{label:'効果発現の遅れ',game:'飲んでもしばらくは症状を踏めない',why:'抗うつ薬は効果が出るまで2〜4週、リチウムの抗躁効果は1〜2週かかる。副作用のほうが先に出ることが多い。'},
+  nausea:{label:'悪心',game:'ときどき立ち止まって動けなくなる。しばらくすると慣れる',why:'SSRI・SNRIの飲み始めに多い（5-HT3受容体刺激）。1〜2週で軽くなることが多い。'},
+  manicsw:{label:'躁転',game:'急にダッシュして止まれなくなる',why:'抗うつ薬で躁病エピソードが誘発されること。双極症では抗うつ薬だけの治療を避ける。'},
+  activation:{label:'アクチベーション症候群',game:'急に勝手にダッシュして止まれない',why:'抗うつ薬の飲み始めや増量時の不安・焦燥・衝動性・不眠。24歳以下では自殺念慮・自殺企図のリスク増加に注意。'},
+  serotonin:{label:'セロトニン症候群',game:'体が勝手に跳ねて暴走し、ハートが減る',why:'セロトニン作動薬の併用（トラマドール・MAO阻害薬・トリプタン・リネゾリドなど）で起こる。精神状態の変化・発熱・発汗・頻脈・ミオクローヌス・反射亢進。原因薬を中止し、重症ではシプロヘプタジン。'},
+  gibleed:{label:'消化管出血',game:'ハートが1つ減る',why:'SSRI・SNRIとNSAIDsの併用で消化管出血のリスクが上がる。'},
+  tremor:{label:'振戦',game:'体が細かく震える',why:'リチウムやバルプロ酸で多い細かい振戦。粗大な振戦はリチウム中毒のサイン。'},
+  polyuria:{label:'多尿・口渇',game:'水分が1.6倍の速さで減る',why:'リチウムによる腎性尿崩症様の多尿。脱水になると血中濃度が上がる。'},
+  litox:{label:'リチウム中毒',game:'濃度1.5でふらつき、2.0でゲームオーバー',why:'粗大振戦・運動失調・構音障害・嘔吐・下痢・意識障害。NSAIDs・サイアザイド系利尿薬・ACE阻害薬・ARB・脱水で濃度が上がる。'},
+  vpadrop:{label:'バルプロ酸濃度の急低下',game:'倒せていた症状がまた踏めなくなる',why:'カルバペネム系抗菌薬とバルプロ酸は併用禁忌。バルプロ酸の血中濃度が急に下がり、症状の再燃やてんかん発作の原因になる。'},
+  ataxia:{label:'ふらつき',game:'ときどきよろける',why:'ベンゾジアゼピン系の筋弛緩作用・鎮静。高齢者では転倒・骨折の原因になる。'},
+  withdrawal:{label:'離脱症状・中断症候群',game:'画面が揺れ、ときどき動けなくなる',why:'ベンゾジアゼピン系：反跳性不安・不眠・振戦・けいれん。SSRI（特にパロキセチン）：めまい・耳鳴り・電気が走る感覚・焦燥。どちらも漸減して中止する。'},
+  relapse:{label:'再燃・再発',game:'しばらく症状が踏めなくなる',why:'寛解してすぐに治療をやめると再発しやすい。抗うつ薬は寛解後も半年〜1年続ける。'},
+  worse:{label:'せん妄の悪化',game:'症状が踏めなくなり、敵が速くなる',why:'ベンゾジアゼピン系と抗コリン薬はせん妄を悪化させる（アルコール離脱せん妄は例外）。'},
+  dlbsens:{label:'抗精神病薬への過敏性',game:'動きが極端に遅くなる',why:'レビー小体型認知症では、少量の抗精神病薬でも重いパーキンソニズムや意識障害が出ることがある。'},
+  wernicke:{label:'ウェルニッケ脳症',game:'視界が揺れ（眼振）、よろけてジャンプが低くなる',why:'ビタミンB1欠乏で起こる。眼球運動障害・運動失調・意識障害。ブドウ糖を先に入れると誘発される。'},
+  seizure:{label:'けいれん発作',game:'しばらく動けず、ハートが1つ減る',why:'アルコール離脱けいれんは最終飲酒から12〜48時間に多い。抗精神病薬はけいれん閾値を下げる。ベンゾジアゼピン系の急な中止でも起こる。'},
+};
+const GS={'◎':3,'○':2,'△':1,'×':0};
+const GC={'◎':'g3','○':'g2','△':'g1','×':'g0'};
+
+/* ---------- 2周目の「評価」で使う選択肢の部品 ---------- */
+const nm=id=>(DRUGS[id]||EXTRA[id]).name;
+function seLabel(m){const k=Object.keys(DRUGS[m].fx)[0];return k?FX[k].label:'副作用';}
+const P2={
+  up(R){const d=dose(G.main);
+    if(R==='partial')return {id:'up',name:`${d.up}に増量`,cls:'増量',mg:`${d.start} → ${d.up}`,g:'◎',why:'十分量に達していない。まず十分量まで増やしてから効果を判断する。',fn(){G.effLv=2;G.mg=d.up;scaleFx(1.15);return '増量で症状が改善してきた';}};
+    if(R==='none')return {id:'up',name:'上限まで増量',cls:'増量',mg:`${d.maint}から上限へ`,g:'△',why:'十分量・十分期間で反応がなければ、増量の効果は乏しい。',fn(){scaleFx(1.3);return '副作用が増えたが、症状はあまり変わらない';}};
+    return {id:'up',name:'さらに増量',cls:'増量',mg:`${d.seCur}から`,g:'×',why:'効いているのに増やすと、副作用が強くなるだけ。',fn(){scaleFx(1.4);return '副作用がさらに強くなった';}};},
+  sw(R,to,o={}){const d=dose(to);
+    const g=o.g||(R==='partial'?'△':'◎');
+    const why=o.why||(R==='partial'?'十分量を試す前の切り替えは早い。':R==='none'?'十分量・十分期間で効果がなければ、作用の異なる薬に切り替える。':'副作用のプロフィールが異なる薬に切り替える。');
+    return {id:'sw',name:`${nm(to)}に切り替え`,cls:'切り替え',mg:d.start?`${d.start}から`:'',g,why,fn(){switchTo(to);return R==='se'?'切り替えて副作用が軽くなった':'切り替えて症状が改善してきた';}};},
+  keep(R){const d=dose(G.main);
+    return R==='partial'?{id:'keep',name:'このまま様子をみる',cls:'継続',mg:`${d.start}のまま`,g:'△',why:'十分量に達していないので、改善は見込みにくい。',fn:()=>'症状は一部残ったまま'}
+      :{id:'keep',name:'このまま様子をみる',cls:'継続',mg:`${d.maint}のまま`,g:'×',why:'十分量・十分期間で無効なら、続けても改善は見込めない。',fn:()=>'症状は残ったまま'};},
+  red(g,why){const d=dose(G.main);
+    return {id:'red',name:`${d.seRed}に減量`,cls:'減量',mg:`${d.seCur} → ${d.seRed}`,g:g||'○',why:why||'用量に比例する副作用なら、効果を保てる範囲で減らす。',fn(){scaleFx(.45);G.mg=d.seRed;return '副作用が軽くなり、症状も落ち着いている';}};},
+};
+
+/* ========== ステージ ========== */
+/*@STAGES-BEGIN*/
+const STAGES=[
+/* ---------- 第1面 統合失調症 ---------- */
+{id:'scz',no:1,water:'balance',name:'統合失調症・急性期',short:'統合失調症',rxWhat:'抗精神病薬を1つ選ぶ',resp:true,
+ sky:['#a8cfd5','#e7f0ea'],bld:['#b4cdca','#d6e5e1'],cloud:'rgba(255,255,255,.75)',
+ walker:{skin:'eye',vx:.5,label:'妄想'},floater:{skin:'voice',speed:1,amp:36,label:'幻聴',txt:['ザワ','ヒソ','おい','…！']},
+ L:{pits:[[23,24],[51,52],[95,96]],bricks:[[29,33,12],[37,40,9],[64,67,12],[79,82,12]],pillars:[[43,2],[73,2]],rx:[8,11],adj:[60,11],rx3:[86,11],
+    walkers:[15,27,35,47,57,69,71,85,88,92,110],floaters:[[34,11.5],[55,11.5],[76,11.5],[91,11.5],[98,10],[114,11.5]],
+    waters:[[31,11],[46,12],[77,12],[105,10]],cps:[2,26,54,86]},
+ drugs:['halo','ola','ari','que'],
+ patients:[
+   {who:'22歳 男性',course:'初発。2か月前から不眠',cc:'「隣の住人に監視されている」「悪口が聞こえる」',hx:'特記事項なし',tags:[]},
+   {who:'46歳 男性',course:'再燃。3か月前から怠薬',cc:'「声が『外に出るな』と命令してくる」',hx:'2型糖尿病（メトホルミン内服中）',tags:['dm']},
+   {who:'31歳 女性',course:'初発',cc:'「テレビが私のことを話している」',hx:'特記事項なし',tags:[]},
+   {who:'38歳 女性',course:'再燃',cc:'「職場の人たちが私を陥れようとしている」',hx:'2年前に糖尿病と診断（現在は食事療法のみ）',tags:['dm']},
+ ],
+ patients2:[
+   {who:'34歳 男性',course:'発症から10年。入退院を繰り返す',cc:'「頭の中に声が入ってくる」',hx:'特記事項なし',hist:'リスペリドン6mg、オランザピン20mgを、それぞれ6週以上使ったが効果不十分',tags:['trs']},
+ ],
+ event(){
+   const pk=fxI('parkinson')>0,ak=fxI('akathisia')>0,any=Object.keys(G.fx).some(n=>fxI(n)>0);
+   const act=Object.keys(G.fx).filter(n=>fxI(n)>0).map(n=>FX[n].label);
+   return {title:'処方の見直し',line:`いま出ている副作用：<b>${act.length?act.join('、'):'なし'}</b>`,opts:[
+     {id:'bip',name:'抗コリン薬を追加',cls:'ビペリデン・トリヘキシフェニジル',mg:'ビペリデン1mg×2回',note:'薬剤性パーキンソニズムやアカシジアに使う。抗コリン作用が加わる。',
+      g:pk||ak?'○':'×',why:pk||ak?'抗コリン薬は、向精神薬によるパーキンソニズム・アカシジアに適応がある。ただし予防投与や長期併用は避け、まず減量・変更も考える。':'錐体外路症状がないのに抗コリン薬を足すと、副作用だけが増える。',
+      fn(){const p=G.fx.parkinson,a=G.fx.akathisia,had=(p&&p.i>0)||(a&&a.i>0);if(p)p.i=0;if(a)a.i*=.45;G.fx.anticho={i:1,at:G.t+1.5,period:0,dur:0};
+        return had?'錐体外路症状が和らいだ。代わりに抗コリン作用が出る':'錐体外路症状がないので、抗コリン作用だけが加わる';}},
+     {id:'red',name:'抗精神病薬を減量',cls:'用量の調整',note:'副作用が出たら、まず減量や変更を考える。',
+      g:pk||ak?'◎':any?'○':'△',why:pk||ak?'錐体外路症状には、まず抗精神病薬の減量や変更を考える。':any?'副作用が出ているなら、減量は選択肢になる。':'副作用がないなら、減らす必要はない。',
+      fn(){scaleFx(.5);return '副作用が半分くらいに軽くなった';}},
+     {id:'pro',name:'プロプラノロールを追加',cls:'β遮断薬',mg:'10mg×2回',note:'アカシジアに使われることがある。気管支喘息には禁忌。',
+      g:ak?'○':'×',why:ak?'アカシジアにはβ遮断薬が使われる（適応外）。まず減量・変更も考える。':'アカシジアがないのにβ遮断薬を足しても効果はない。',
+      fn(){const a=G.fx.akathisia;if(a&&a.i>0){a.i*=.3;return 'アカシジアが軽くなった';}return 'アカシジアがないので効果はない';}},
+     {id:'none',name:'このまま続ける',cls:'変更なし',note:'今の処方を続ける。',
+      g:pk||ak?'△':any?'○':'◎',why:pk||ak?'錐体外路症状を放っておくと、服薬中断につながる。':any?'眠気や体重は経過をみつつ、体重・血糖を定期的に測る。':'副作用が目立たないなら、そのまま続ける。',
+      fn:()=>'処方はそのまま'}]};
+ },
+ plan(){
+   const m=G.main,d=dose(m),n=nm(m),R=G.resp,sw=m==='ari'?'ris':'ari',sd=dose(sw);
+   if(G.pt.tags.includes('trs'))return {title:'6週後の評価',line:`${n} ${d.maint}（十分量）で6週。これまでの2剤と同じく、効果が乏しい。`,opts:[
+     {id:'cloz',name:'クロザピンに切り替え',cls:'治療抵抗性統合失調症',mg:'CPMSに登録し 12.5mg から',note:'血液検査をしながら漸増する。',g:'◎',why:'十分量・十分期間で2剤以上が無効なら治療抵抗性。クロザピンを考える。',fn(){switchTo('cloz');return 'クロザピンで症状が改善してきた';}},
+     P2.up('none'),
+     P2.sw('none',sw,{g:'△',why:'2剤以上が無効なら、別の抗精神病薬を試し続けるよりクロザピンを考える。'}),
+     {id:'add',name:`${nm(sw)}を追加`,cls:'多剤併用',mg:`${sd.start}を上乗せ`,g:'×',why:'多剤併用は副作用が増えるわりに、効果の上乗せが乏しい。',fn(){addDrug(sw);return '副作用が増えたが、症状は残っている';}}]};
+   const add={id:'add',name:`${nm(sw)}を追加`,cls:'多剤併用',mg:`${sd.start}を上乗せ`,g:R==='se'?'×':'×',why:R==='se'?'副作用が問題なのに薬を足すと、副作用が増える。':'まず単剤で十分量。多剤併用は避ける。',fn(){addDrug(sw);G.effLv=2;return '症状は改善したが、2剤分の副作用が出ている';}};
+   const L={partial:`${n} ${d.start}で4週。陽性症状が一部残っている。副作用は目立たない。`,none:`${n}を${d.maint}（十分量）まで増やして6週。ほとんど改善がない。`,se:`${n} ${d.seCur}で症状はよくなった。しかし${seLabel(m)}がつらいと言う。`}[R];
+   const opts=R==='se'?[P2.red(m==='halo'?'◎':'○',m==='halo'?'錐体外路症状は用量に比例する。まず減量。':null),P2.sw(R,sw),add,P2.up(R)]:[P2.up(R),P2.sw(R,sw),add,P2.keep(R)];
+   return {title:R==='none'?'6週後の評価':'4週後の評価',line:L,opts};
+ },
+ points(){
+   const m=G.main,p=['抗精神病薬どうしの効果の差は小さい（クロザピンを除く）。どれを選ぶかは、副作用と患者の背景で決まることが多い。'];
+   if(m==='halo')p.push('高力価の定型薬は錐体外路症状が出やすい。悪性症候群は高力価薬・脱水・急速な増量・身体的な消耗で起こりやすい。');
+   if(m==='ola')p.push('オランザピンは体重増加と代謝異常（高血糖・脂質異常）が多い。投与中は体重・血糖・脂質を定期的に測る。');
+   if(m==='ari')p.push('アリピプラゾールはD2部分作動薬。体重増加や高プロラクチン血症は少ないが、アカシジアが多い。');
+   if(m==='que')p.push('クエチアピンはD2遮断が弱く、錐体外路症状が少ない。H1遮断で眠気、α1遮断で起立性低血圧。');
+   p.push('統合失調症では多飲水・水中毒（低ナトリウム血症）が起こりうる。口渇を起こす薬も飲水を増やすきっかけになる。低ナトリウム血症の急速な補正は浸透圧性脱髄症候群の原因になる。');
+   if(m==='cloz'||G.hist.length)p.push('単剤・十分量・十分期間で効果を判断する。2剤以上が無効なら治療抵抗性とし、クロザピンを考える。');
+   if(G.end==='nms'||G.seen.has('dehyd'))p.push('悪性症候群：高熱・筋強剛・意識障害・自律神経症状・CK上昇。原因薬を中止し、補液・冷却を行い、ダントロレンを使う。');
+   return p;
+ }},
+/* ---------- 第2面 うつ病 ---------- */
+{id:'mdd',no:2,water:'none',name:'うつ病',short:'うつ病',rxWhat:'抗うつ薬を1つ選ぶ',resp:true,
+ sky:['#94a1b0','#d7dce2'],bld:['#a3acb8','#c4cad3'],cloud:'rgba(228,232,238,.7)',
+ walker:{skin:'blob',vx:.35,label:'意欲低下'},floater:{skin:'cloud',speed:.8,amp:30,label:'抑うつ気分',txt:[]},
+ L:{pits:[[30,31],[58,59],[88,89]],bricks:[[12,15,12],[34,37,12],[40,43,9],[66,69,12],[76,78,12],[92,95,12]],pillars:[[24,2],[48,1],[72,2],[83,2]],rx:[6,11],adj:[62,11],rx3:[86,11],
+    walkers:[18,22,27,38,45,53,65,70,80,86,92,110],floaters:[[26,11.5],[42,11.5],[56,11.5],[74,11.5],[90,11.5],[112,11.5]],
+    waters:[[14,11],[33,14],[46,14],[68,11],[77,11],[97,14],[105,10]],cps:[2,32,60,90]},
+ drugs:['sert','mir','ami','dul'],
+ patients:[
+   {who:'19歳 女性',course:'初発。大学に行けなくなった',cc:'「何をしても楽しくない」「朝起きられない」',hx:'特記事項なし',tags:['young']},
+   {who:'58歳 男性',course:'初発。退院後から気分が落ち込む',cc:'「何もする気が起きない」',hx:'1か月前に急性心筋梗塞（PCI後）',tags:['mi']},
+   {who:'45歳 女性',course:'再発',cc:'「眠れない」「自分を責めてしまう」',hx:'特記事項なし',tags:[]},
+   {who:'70歳 男性',course:'初発',cc:'「食欲がない」「家族に迷惑をかけている」',hx:'前立腺肥大症。先月、尿閉で導尿した',tags:['ur']},
+ ],
+ event(){
+   const ser=['sert','dul','ami','parox'].includes(G.main),ssri=['sert','dul','parox'].includes(G.main);
+   return {title:'併用薬の相談',line:'患者が腰痛を訴えている。鎮痛薬はどうする？',opts:[
+     {id:'tram',name:'トラマドール',cls:'弱オピオイド',mg:'25mg×4回',note:'中等度の痛みに使う。',g:ser?'×':'△',why:ser?'セロトニン作動薬どうしの併用でセロトニン症候群が起こる。':'ミルタザピンとの併用でも、セロトニン症候群の報告はある。',
+      fn(){if(ser){G.ss=5;G.ssHit=1;see('serotonin');return 'セロトニン作動薬どうしの併用でセロトニン症候群が起きた';}return 'ミルタザピンとの併用では起こりにくい（ゼロではない）';}},
+     {id:'loxo',name:'ロキソプロフェン',cls:'NSAIDs',mg:'60mg×3回',note:'よく使われる鎮痛薬。',g:ssri?'×':'○',why:ssri?'SSRI・SNRIとNSAIDsの併用は消化管出血のリスクを上げる。':'大きな相互作用はない。高齢者では腎機能・胃腸に注意。',
+      fn(){if(ssri){see('gibleed');G.hearts--;return 'SSRI・SNRIとNSAIDsの併用で消化管出血が起きた';}return '大きな問題は起きなかった';}},
+     {id:'apap',name:'アセトアミノフェン',cls:'解熱鎮痛薬',mg:'500mg×3回',note:'胃腸や腎臓への影響が少ない。',g:'◎',why:'抗うつ薬との相互作用が少なく、安全に使いやすい。',fn:()=>'問題なく痛みが和らいだ'}]};
+ },
+ plan(){
+   const m=G.main,d=dose(m),n=nm(m),R=G.resp,sw={sert:'mir',mir:'sert',ami:'sert',dul:'mir'}[m];
+   const ad=dose('ari');
+   const aug={id:'add',name:'アリピプラゾールで増強',cls:'増強療法',mg:`${ad.start}を上乗せ`,
+     g:{partial:'△',none:'○',se:'×'}[R],why:{partial:'まず抗うつ薬を十分量に。増強療法は十分量・十分期間で効果が不十分なときに。',none:'増強療法（アリピプラゾール）も、切り替えと並ぶ選択肢。',se:'副作用が問題なのに薬を足すと、副作用が増える。'}[R],
+     fn(){addDrug('ari',.6);G.effLv=2;return 'アリピプラゾールを足して気分が上向いてきた';}};
+   const L={partial:`${n} ${d.start}で4週。少し改善したが、抑うつが残っている。`,none:`${n}を${d.maint}（十分量）まで増やして6週。ほとんど改善がない。`,se:`${n} ${d.seCur}で気分は改善した。しかし${seLabel(m)}がつらいと言う。`}[R];
+   const opts=R==='se'?[P2.red(),P2.sw(R,sw),aug,P2.up(R)]:[P2.up(R),P2.sw(R,sw),aug,P2.keep(R)];
+   return {title:R==='none'?'6週後の評価':'4週後の評価',line:L,opts};
+ },
+ points(){
+   const m=G.main,p=['抗うつ薬は効果が出るまで2〜4週かかる。悪心などの副作用は先に出て、1〜2週で慣れることが多い。'];
+   if(m==='sert')p.push('SSRIは悪心・下痢などの消化器症状と性機能障害が多い。急にやめると中断症候群が出るので、漸減する。');
+   if(m==='mir')p.push('ミルタザピン（NaSSA）は5-HT3遮断で悪心が少なく、H1遮断で眠気・体重増加が多い。');
+   if(m==='ami')p.push('三環系は抗コリン作用・起立性低血圧・心毒性（QT延長）が強い。過量服薬で致死的になりうる。');
+   if(m==='dul')p.push('デュロキセチン（SNRI）は悪心が多い。糖尿病性神経障害などの疼痛にも使われる。');
+   if(G.pt.tags.includes('young'))p.push('抗うつ薬は24歳以下で自殺念慮・自殺企図のリスクが増えるとの報告がある。飲み始めのアクチベーション症候群（不安・焦燥・衝動性）に注意する。');
+   if(G.adj==='tram'||G.seen.has('serotonin'))p.push('セロトニン症候群は急速に発症し、ミオクローヌス・反射亢進が目立つ。悪性症候群は緩徐に発症し、筋強剛・CK上昇が目立つ。');
+   if(G.loop===2)p.push('十分量・十分期間（4〜8週）で効果を判断する。不十分なら増量、無効なら切り替えか増強療法。');
+   return p;
+ }},
+/* ---------- 第3面 双極症 ---------- */
+{id:'bp',no:3,water:'dehyd',name:'双極症・躁病エピソード',short:'双極症',rxWhat:'薬を1つ選ぶ',resp:true,
+ sky:['#f3c68e','#fcebd3'],bld:['#e8bd96','#f6dcc2'],cloud:'rgba(255,250,240,.8)',sun:true,
+ walker:{skin:'crown',vx:.9,label:'誇大',hop:true},floater:{skin:'fast',speed:2,amp:44,label:'観念奔逸',txt:['ペラ!','!!!','名案!','次!']},
+ L:{pits:[[20,21],[44,45],[70,71],[92,93]],bricks:[[10,13,12],[26,29,12],[30,33,9],[50,54,12],[60,62,12],[76,79,12],[84,86,12]],pillars:[[16,2],[38,2],[66,1],[82,2]],rx:[6,11],adj:[57,11],rx3:[89,11],
+    walkers:[14,24,34,40,48,55,63,68,75,80,88,97,110],floaters:[[24,11.5],[36,11.5],[52,10],[64,11.5],[78,11.5],[96,11.5],[112,11.5]],
+    waters:[[12,11],[23,14],[31,8],[47,14],[61,11],[73,14],[85,11],[95,14],[105,10]],cps:[2,22,46,72,94]},
+ drugs:['li','vpa','ola','ari'],
+ patients:[
+   {who:'35歳 男性',course:'1週間ほとんど寝ていない',cc:'「新しい会社を3つ作る」',hx:'特記事項なし',tags:[]},
+   {who:'52歳 女性',course:'躁病エピソードで受診',cc:'「私には特別な使命がある」',hx:'慢性腎臓病（eGFR 25）',tags:['ckd']},
+   {who:'44歳 男性',course:'浪費が続いている',cc:'「金ならいくらでも稼げる」',hx:'アルコール性肝硬変（Child-Pugh C）',tags:['liver']},
+   {who:'60歳 男性',course:'躁病エピソードで受診',cc:'「頭が冴えて止まらない」',hx:'2型糖尿病（インスリン使用中）',tags:['dm']},
+ ],
+ events:['pain','pneu','htn'],
+ event(){
+   const li=G.main==='li',vpa=G.main==='vpa';
+   const upG=(up,why)=>li&&up?{g:'×',why}:{g:'◎',why:li?'リチウム濃度に影響しにくい。':vpa?'バルプロ酸との大きな相互作用はない。':'この組み合わせに大きな問題はない。'};
+   const liUp=(v)=>()=>{if(li){G.liAdd+=v;return 'リチウムの血中濃度が上がり始めた。水分をしっかり取ろう';}return '大きな問題は起きなかった';};
+   const E={
+     pain:{line:'患者が腰痛を訴えている。鎮痛薬はどうする？',opts:[
+       {id:'loxo',name:'ロキソプロフェン',cls:'NSAIDs',mg:'60mg×3回',note:'よく使われる鎮痛薬。',...upG(1,'NSAIDsはリチウムの腎排泄を減らし、濃度を上げる。'),fn:liUp(.5)},
+       {id:'cele',name:'セレコキシブ',cls:'NSAIDs（COX-2選択的）',mg:'100mg×2回',note:'胃腸障害が少ない。',...upG(1,'COX-2選択的阻害薬もNSAIDs。リチウム濃度を上げる。'),fn:liUp(.5)},
+       {id:'apap',name:'アセトアミノフェン',cls:'解熱鎮痛薬',mg:'500mg×3回',note:'胃腸や腎臓への影響が少ない。',...upG(0),fn:()=>'問題なく痛みが和らいだ'}]},
+     pneu:{line:'発熱と咳。肺炎と診断された。抗菌薬はどうする？',opts:[
+       {id:'mero',name:'メロペネム',cls:'カルバペネム系抗菌薬',mg:'1g×3回',note:'広域スペクトラム。',g:vpa?'×':'○',why:vpa?'カルバペネム系とバルプロ酸は併用禁忌。バルプロ酸濃度が急に下がる。':'広域すぎる抗菌薬は、必要なときに取っておく。',
+        fn(){if(vpa){G.vpaDrop=true;see('vpadrop');return 'バルプロ酸の血中濃度が急に下がり、躁症状が再燃した';}return '大きな問題は起きなかった';}},
+       {id:'ctrx',name:'セフトリアキソン',cls:'セフェム系抗菌薬',mg:'2g×1回',note:'市中肺炎でよく使う。',g:'◎',why:'市中肺炎の標準的な選択。気分安定薬との大きな相互作用はない。',fn:()=>'肺炎はよくなってきた'},
+       {id:'lvfx',name:'レボフロキサシン',cls:'ニューキノロン系抗菌薬',mg:'500mg×1回',note:'レスピラトリーキノロン。',g:'○',why:'使えるが、ニューキノロン系は耐性菌の問題から温存が勧められる。',fn:()=>'肺炎はよくなってきた'}]},
+     htn:{line:'血圧が160/100 mmHg。降圧薬はどうする？',opts:[
+       {id:'hctz',name:'ヒドロクロロチアジド',cls:'サイアザイド系利尿薬',mg:'12.5mg',note:'少量で使いやすい。',...upG(1,'サイアザイド系利尿薬はリチウム濃度を上げる。'),fn:liUp(.6)},
+       {id:'enal',name:'エナラプリル',cls:'ACE阻害薬',mg:'5mg',note:'腎保護作用がある。',...upG(1,'ACE阻害薬・ARBもリチウム濃度を上げる。'),fn:liUp(.4)},
+       {id:'aml',name:'アムロジピン',cls:'Ca拮抗薬',mg:'5mg',note:'降圧効果が確実。',...upG(0),fn:()=>'血圧が下がってきた'}]},
+   }[G.ev];
+   return {title:'併用薬の相談',line:E.line,opts:E.opts};
+ },
+ plan(){
+   const m=G.main,d=dose(m),n=nm(m),R=G.resp,pt=G.pt.tags;
+   const apAdd=pt.includes('dm')?'ari':'ola',ms=pt.includes('ckd')?(pt.includes('liver')?null:'vpa'):'li';
+   if(m==='li'||m==='vpa'){
+     const other=m==='li'?(pt.includes('liver')?'ari':'vpa'):(pt.includes('ckd')?'ari':'li');
+     const ad=dose(apAdd);
+     const add={id:'add',name:`${nm(apAdd)}を併用`,cls:'気分安定薬＋抗精神病薬',mg:`${ad.start}を上乗せ`,
+       g:{partial:'○',none:'◎',se:'×'}[R],why:{partial:'併用も選択肢。ただ、まず気分安定薬を十分な濃度に。',none:'急性躁病で気分安定薬が十分量でも効かなければ、抗精神病薬の併用が勧められる。',se:'症状が落ち着いているのに薬を足す必要はない。'}[R],
+       fn(){addDrug(apAdd);G.effLv=2;return '躁症状が落ち着いてきた';}};
+     const lvTxt=m==='li'?{partial:'血中濃度 0.4 mEq/L。',none:'血中濃度 0.8 mEq/L（治療域）。',se:'血中濃度 1.1 mEq/L。'}[R]:{partial:'血中濃度は低め。',none:'血中濃度は十分。',se:''}[R];
+     const L={partial:`${n} ${d.start}で1〜2週。${lvTxt}躁症状が続いている。`,none:`${n} ${d.maint}で2週。${lvTxt}それでも躁症状が続く。`,se:`${n} ${d.seCur}。${lvTxt}躁症状は落ち着いたが、${m==='li'?'手のふるえと口渇':'体重増加と手のふるえ'}がつらいと言う。`}[R];
+     const up=P2.up(R);const f=up.fn;up.fn=function(){if(m==='li')G.liBase+=R==='partial'?.3:.35;return f();};
+     if(m==='li'&&R==='none')up.why='治療域の上限に近づくほど中毒の危険が増す。効果の上乗せより併用を。';
+     const red=P2.red(m==='li'?'◎':'○',m==='li'?'濃度が高めで副作用が出ているなら、減量して治療域の下のほうへ。':null);const rf=red.fn;red.fn=function(){if(m==='li')G.liBase-=.35;return rf();};
+     const sw=P2.sw(R,other,{g:{partial:'△',none:'○',se:'○'}[R]});
+     const opts=R==='se'?[red,sw,add,up]:[up,sw,add,P2.keep(R)];
+     return {title:'治療開始後の評価',line:L,opts};
+   }
+   // 抗精神病薬で始めた場合
+   const swTo=m==='ola'?'ari':(pt.includes('dm')?(ms||'vpa'):'ola');
+   const msd=ms?dose(ms):{};
+   const add=ms?{id:'add',name:`${nm(ms)}を併用`,cls:'抗精神病薬＋気分安定薬',mg:`${msd.start}を上乗せ`,
+       g:{partial:'○',none:'◎',se:'×'}[R],why:{partial:'併用も選択肢。ただ、まず抗精神病薬を十分量に。',none:'抗精神病薬で不十分なら、気分安定薬の併用が勧められる。',se:'症状が落ち着いているのに薬を足す必要はない。'}[R],
+       fn(){addDrug(ms);if(ms==='li'){G.li=.6;G.liBase=.7;}G.effLv=2;return '躁症状が落ち着いてきた';}}
+     :{id:'add',name:'気分安定薬を併用',cls:'抗精神病薬＋気分安定薬',mg:'',g:'×',why:'この患者は腎障害と肝障害があり、リチウムもバルプロ酸も使えない。',fn(){G.hearts--;see('contra');return '禁忌の薬を選んだ';}};
+   const L={partial:`${n} ${d.start}で1週。躁症状が残っている。`,none:`${n} ${d.maint}で2週。改善が乏しい。`,se:`${n} ${d.seCur}で躁症状は落ち着いたが、${seLabel(m)}がつらいと言う。`}[R];
+   const opts=R==='se'?[P2.red(),P2.sw(R,swTo),add,P2.up(R)]:[P2.up(R),P2.sw(R,swTo),add,P2.keep(R)];
+   return {title:'治療開始後の評価',line:L,opts};
+ },
+ points(){
+   const m=G.main,p=['双極症のうつ状態に抗うつ薬だけを使うのは勧められない（躁転・急速交代化のおそれ）。'];
+   if(m==='li'||G.added.includes('li')){p.push('リチウムは治療域が狭い（0.4〜1.2 mEq/L程度）。定期的に血中濃度を測る。1.5を超えると中毒症状が出やすい。');
+     p.push('NSAIDs・サイアザイド系利尿薬・ACE阻害薬・ARB・脱水でリチウム濃度が上がる。副作用は振戦・多尿・甲状腺機能低下症・腎機能障害。');}
+   if(m==='vpa'||G.added.includes('vpa'))p.push('バルプロ酸は肝障害・高アンモニア血症・体重増加・催奇形性（神経管閉鎖障害）に注意。カルバペネム系抗菌薬とは併用禁忌。');
+   if(m==='ola'||m==='ari')p.push('躁病エピソードの急性期には、オランザピン・アリピプラゾールなどの抗精神病薬も使われる。効果は気分安定薬より早く出る。');
+   if(G.ev==='pneu'&&m!=='vpa')p.push('バルプロ酸を飲んでいる患者には、カルバペネム系抗菌薬は使えない（併用禁忌）。');
+   if((G.ev==='pain'||G.ev==='htn')&&m!=='li')p.push('リチウムを飲んでいる患者では、NSAIDs・サイアザイド系利尿薬・ACE阻害薬で濃度が上がる。');
+   return p;
+ }},
+/* ---------- 第4面 不安症 ---------- */
+{id:'anx',no:4,water:'none',name:'不安症・パニック症',short:'不安症',rxWhat:'治療を1つ選ぶ',resp:true,respOnly:['sert','parox'],
+ sky:['#b9c4e6','#eef0fa'],bld:['#c3c9e2','#e3e6f4'],cloud:'rgba(255,255,255,.75)',
+ walker:{skin:'heart',vx:.6,label:'パニック発作'},floater:{skin:'wisp',speed:1.2,amp:40,label:'予期不安',txt:['？','また…','？？']},
+ L:{pits:[[26,27],[54,55],[90,91]],bricks:[[14,17,12],[30,33,12],[34,37,9],[60,63,12],[70,73,12],[78,81,12]],pillars:[[21,2],[45,2],[66,1],[85,2]],rx:[7,11],adj:[58,11],rx3:[87,11],
+    walkers:[16,24,33,40,48,52,62,68,75,83,88,97,110],floaters:[[29,11.5],[42,11.5],[50,11.5],[69,11.5],[94,11.5],[112,11.5]],
+    waters:[[16,11],[31,11],[35,8],[47,14],[61,11],[72,11],[86,14],[95,14],[105,10]],cps:[2,28,56,92]},
+ drugs:['sert','parox','alp','cbt'],
+ patients:[
+   {who:'28歳 女性',course:'電車の中でパニック発作を繰り返す',cc:'「また発作が起きたらと思うと外出できない」',hx:'特記事項なし',tags:[]},
+   {who:'35歳 男性',course:'会議中に動悸・息苦しさ',cc:'「死ぬかと思った」',hx:'重症筋無力症（ピリドスチグミン内服中）',tags:['mg']},
+   {who:'72歳 女性',course:'夜中に動悸で目が覚める',cc:'「このまま死んでしまうのでは」',hx:'骨粗しょう症',tags:['old']},
+   {who:'24歳 男性',course:'就職後から発作が始まった',cc:'「心臓の病気ではと何度も救急に行った」',hx:'特記事項なし',tags:[]},
+ ],
+ event(){
+   const m=G.main;
+   if(m==='cbt')return {title:'寛解後の方針',line:'認知行動療法で症状は落ち着いた。家族が「念のため薬も飲んだほうが」と言う。',opts:[
+     {id:'alpd',name:'アルプラゾラムを毎日飲む',cls:'ベンゾジアゼピン系',mg:'1.2mg/日',g:'×',why:G.pt.tags.includes('mg')?CONTRA_WHY.mg:'落ち着いているのにベンゾジアゼピン系を毎日使うと、依存の原因になる。',fn(){if(G.pt.tags.includes('mg')){contraHit('alp','mg');return '禁忌の薬を選んだ';}addDrug('alp');return 'ふらつきと眠気が出てきた';}},
+     {id:'ssri',name:'SSRIを追加',cls:'抗うつ薬',mg:'セルトラリン25mg',g:'△',why:'症状が落ち着いているなら、追加の必要は乏しい。',fn(){addDrug('sert');return '吐き気が出てきた';}},
+     {id:'hw',name:'ホームワークを続け、再発のサインを確認',cls:'再発予防',g:'◎',why:'認知行動療法の効果は治療後も続きやすい。再発のサインを共有しておく。',fn:()=>'落ち着いた状態が続いている'}]};
+   const ssri=m!=='alp';
+   return {title:'寛解後の方針',line:'3か月たって、症状は落ち着いた。薬をどうする？',opts:[
+     {id:'stop',name:'すぐに中止する',cls:'中止',g:'×',why:ssri?'寛解してすぐの中止は再発しやすく、中断症候群も出る（特にパロキセチン）。':'ベンゾジアゼピン系の急な中止は、反跳性不安やけいれんなどの離脱症状を起こす。',
+      fn(){G.fx.withdrawal={i:m==='sert'?.6:1,at:G.t,period:0,dur:10};see('withdrawal');G.relapse=12;see('relapse');if(!ssri)G.seizAt=G.t+1.5;return ssri?'めまいと、電気が走るような感覚が出てきた。症状も再発した':'不安が跳ね返ってきた';}},
+     {id:'taper',name:'少しずつ減らす',cls:'漸減',g:ssri?'△':'◎',why:ssri?'寛解後すぐの減量は早い。半年〜1年続けてから漸減する。':'ベンゾジアゼピン系は漸減して中止し、SSRIや認知行動療法へ移る。',
+      fn(){scaleFx(.5);return ssri?'少しずつ減らし始めた。再発に注意':'少しずつ減らしている。離脱症状は出ていない';}},
+     {id:'keep',name:'このまま続ける',cls:'継続',g:ssri?'◎':'×',why:ssri?'寛解後も半年〜1年は続けて再発を防ぐ。':'漫然と続けると常用量依存になり、効きも落ちる（耐性）。',
+      fn(){if(!ssri)scaleFx(1.2);return ssri?'落ち着いた状態が続いている':'だんだん効きが落ちてきた（耐性）';}}]};
+ },
+ plan(){
+   const m=G.main,d=dose(m),n=nm(m),R=G.resp;
+   const cbtAdd=g=>({id:'cbt',name:'認知行動療法を併用',cls:'精神療法',mg:'週1回',g,why:{'◎':'薬で効果が不十分なら、認知行動療法の併用がよく効く。','○':'認知行動療法の併用は選択肢の一つ。'}[g],fn(){G.effLv=2;return '発作が減ってきた';}});
+   const mgP=G.pt.tags.includes('mg');
+   const bz={id:'bz',name:'アルプラゾラムを毎日併用',cls:'ベンゾジアゼピン系',mg:'1.2mg/日を長期に',g:'×',why:mgP?CONTRA_WHY.mg:'ベンゾジアゼピン系の長期併用は依存・耐性の原因。使うなら短期間か頓用に。',fn(){if(mgP){contraHit('alp','mg');return '禁忌の薬を選んだ';}addDrug('alp');G.effLv=2;return '発作は減ったが、眠気とふらつきが出ている';}};
+   if(m==='alp')return {title:'3か月後の評価',line:`アルプラゾラム ${d.start}を3か月。最近は効きが悪く、「量を増やしてほしい」と言う。`,opts:[
+     {id:'up',name:`${d.up}に増量`,cls:'増量',mg:`${d.start} → ${d.up}`,g:'×',why:'耐性と依存が進む。増量より、SSRIや認知行動療法への置き換えを。',fn(){scaleFx(1.4);return '一時的に効いたが、眠気とふらつきが強い';}},
+     {id:'ssri',name:'SSRIを始めてアルプラゾラムを漸減',cls:'置き換え',mg:'セルトラリン25mgから',g:'◎',why:'第一選択のSSRIに置き換え、ベンゾジアゼピン系はゆっくり減らす。',fn(){switchTo('sert');return 'SSRIを始め、アルプラゾラムを減らしている';}},
+     {id:'cbt',name:'認知行動療法を始めて漸減',cls:'置き換え',mg:'週1回',g:'◎',why:'認知行動療法も第一選択。ベンゾジアゼピン系はゆっくり減らす。',fn(){switchTo('cbt');return '認知行動療法を始め、アルプラゾラムを減らしている';}},
+     {id:'stop',name:'すぐに中止する',cls:'中止',g:'×',why:'急な中止は離脱症状（反跳性不安・けいれん）を起こす。',fn(){G.fx={withdrawal:{i:1,at:G.t,period:0,dur:10}};see('withdrawal');G.seizAt=G.t+1.5;G.relapse=10;see('relapse');return '不安が跳ね返ってきた';}}]};
+   if(m==='cbt')return {title:'8週後の評価',line:'週1回の認知行動療法を8週。改善が不十分。',opts:[
+     {id:'ssri',name:'SSRIを追加',cls:'抗うつ薬',mg:'セルトラリン25mgから',g:'◎',why:'認知行動療法で不十分なら、SSRIの併用が勧められる。',fn(){addDrug('sert');G.effLv=2;return '発作が減ってきた';}},
+     bz,
+     {id:'keep',name:'内容を見直して続ける',cls:'継続',g:'○',why:'ホームワークや曝露の段階を見直して続けるのも選択肢。',fn(){G.effLv=2;return '少しずつ外出できるようになってきた';}},
+     {id:'stop',name:'治療をやめる',cls:'中止',g:'×',why:'効果不十分で治療をやめると、回避行動が固定しやすい。',fn(){G.relapse=12;see('relapse');return '症状が強くなった';}}]};
+   const sw=m==='sert'?'parox':'sert';
+   const L={partial:`${n} ${d.start}で4週。発作は減ったが、予期不安が残っている。`,none:`${n}を${d.maint}（十分量）まで増やして8週。ほとんど改善がない。`,se:`${n} ${d.seCur}で発作はおさまった。しかし${seLabel(m)}がつらいと言う。`}[R];
+   const opts=R==='se'?[P2.red(),P2.sw(R,sw),cbtAdd('○'),bz]:[P2.up(R),P2.sw(R,sw,{g:R==='partial'?'△':'○'}),cbtAdd(R==='partial'?'○':'◎'),bz];
+   return {title:R==='none'?'8週後の評価':'4週後の評価',line:L,opts};
+ },
+ points(){
+   const m=G.main,p=['パニック症の第一選択はSSRIと認知行動療法。ベンゾジアゼピン系は即効性があるが、依存・耐性があるので短期間にとどめる。'];
+   if(m==='parox'||G.hist.includes('parox'))p.push('パロキセチンは中断症候群（めまい・耳鳴り・電気が走る感覚）が出やすい。CYP2D6阻害も強い。');
+   if(m==='alp'||G.added.includes('alp'))p.push('ベンゾジアゼピン系は急にやめると離脱症状（反跳性不安・不眠・けいれん）が出る。漸減して中止する。');
+   if(G.pt.tags.includes('old'))p.push('高齢者ではベンゾジアゼピン系で転倒・骨折・認知機能低下が起きやすい。');
+   p.push('SSRIは寛解後も半年〜1年続けてから、ゆっくり減らす。');
+   return p;
+ },
+ onMain(id){if(id==='alp'&&G.pt.tags.includes('old')){G.fx.ataxia.i=.9;toast('高齢者では転倒の危険','ふらつきが強く出る');}
+   if(G.loop===2&&(id==='alp'||id==='cbt'))G.effLv=1;}},
+/* ---------- 第5面 せん妄 ---------- */
+{id:'dlr',no:5,water:'dehyd',name:'せん妄・高齢者',short:'せん妄',rxWhat:'対応を1つ選ぶ',planLast:true,
+ sky:['#3f4a6b','#8a8fb0'],bld:['#525d80','#e8d48a'],cloud:'rgba(200,205,230,.3)',moon:true,
+ walker:{skin:'qmark',vx:.45,label:'見当識障害'},floater:{skin:'bugs',speed:1.1,amp:34,label:'幻視',bug:'#2b2b2b',txt:[]},
+ L:{pits:[[22,23],[48,49],[76,77],[93,94]],bricks:[[11,14,12],[27,30,12],[31,33,9],[51,54,12],[64,67,12],[79,81,12]],pillars:[[18,2],[41,2],[60,1],[71,2],[89,1]],rx:[6,11],adj:[57,11],rx3:[86,11],
+    walkers:[13,20,26,36,44,52,63,69,74,80,91,97,110],floaters:[[25,11.5],[38,11.5],[51,11.5],[66,10],[78,11.5],[100,9],[112,11.5]],
+    waters:[[13,11],[24,14],[32,8],[45,14],[54,11],[66,11],[78,14],[80,11],[96,14],[105,10]],cps:[2,24,50,78,95]},
+ drugs:['env','halo','que','brot'],
+ patients:[
+   {who:'82歳 男性',course:'肺炎で入院3日目の夜から',cc:'「虫が壁を這っている」点滴を抜こうとする',hx:'2型糖尿病',tags:['dm']},
+   {who:'78歳 女性',course:'大腿骨骨折の術後2日目',cc:'「ここは家じゃない、帰る」',hx:'特記事項なし',tags:[]},
+   {who:'75歳 男性',course:'入院後から幻視と夜の興奮',cc:'「部屋に子どもがいる」',hx:'レビー小体型認知症（パーキンソニズムあり）',tags:['dlb']},
+   {who:'80歳 女性',course:'尿路感染症で入院中',cc:'夜になると落ち着かず大声を出す',hx:'パーキンソン病（レボドパ内服中）',tags:['pd']},
+ ],
+ gradeMain(id){const t=G.pt.tags;
+   if(id==='env')return ['◎','せん妄の基本は原因の検索と除去、環境調整。'];
+   if(id==='brot')return ['×','ベンゾジアゼピン系はせん妄を悪化させる（アルコール離脱せん妄は例外）。'];
+   if(id==='halo'&&t.includes('dlb'))return ['×','レビー小体型認知症は抗精神病薬への過敏性がある。'];
+   return ['○','興奮が強いときは、少量の抗精神病薬を短期間使う（適応外使用）。'];},
+ onMain(id){const t=G.pt.tags;
+   if(id==='halo'){G.fx.parkinson.i=t.includes('dlb')?1.5:.6;if(t.includes('dlb')){see('dlbsens');toast('抗精神病薬への過敏性','動きが極端に遅くなった');}}
+   if(id==='brot'){G.worse=15;see('worse');G.effLv=1;toast('かえって興奮が強くなった','ベンゾジアゼピン系はせん妄を悪化させる');}},
+ event(){
+   return {title:'睡眠の相談',line:'家族から「夜眠れていない」と相談された。どうする？',opts:[
+     {id:'tria',name:'トリアゾラム',cls:'ベンゾジアゼピン系睡眠薬',mg:'0.125mg',g:'×',why:'ベンゾジアゼピン系はせん妄を悪化させる。',fn(){applyFx('brot',.6,true);G.worse=12;see('worse');return 'かえってせん妄が悪化した';}},
+     {id:'diph',name:'ジフェンヒドラミン',cls:'第一世代抗ヒスタミン薬',g:'×',why:'抗コリン作用でせん妄が悪化する。高齢者では避ける。',fn(){G.fx.anticho={i:.8,at:G.t+1,period:0,dur:0};G.worse=10;see('worse');return '口が渇き、せん妄が悪化した';}},
+     {id:'rame',name:'ラメルテオン',cls:'メラトニン受容体作動薬',mg:'8mg',g:'◎',why:'せん妄を悪化させにくい睡眠薬。予防効果の報告もある。',fn:()=>'夜は眠れるようになってきた'},
+     {id:'sleepenv',name:'日中は明るく活動、夜は静かに',cls:'睡眠環境の調整',g:'◎',why:'昼夜のリズムを整えるのが基本。',fn:()=>'昼夜のリズムが戻ってきた'}]};
+ },
+ plan(){
+   const m=G.main,d=dose(m),t=G.pt.tags;
+   if(m==='halo'||m==='que')return {title:'その後の方針',line:`${nm(m)} ${d.start}を3日。せん妄は落ち着いてきた。`,opts:[
+     {id:'taper',name:'数日かけて減らし、中止する',cls:'漸減・中止',g:'◎',why:'せん妄が落ち着いたら漫然と続けない。',fn(){scaleFx(.3);return '減らしても落ち着いている';}},
+     {id:'keep',name:'このまま続ける',cls:'継続',g:'×',why:'認知症の高齢者では、抗精神病薬で死亡率が上がる。転倒も増える。',fn(){scaleFx(1.2);return 'ふらつきと眠気が続いている';}},
+     {id:'up',name:'増量する',cls:'増量',g:'×',why:'落ち着いているのに増やすと、副作用が増えるだけ。',fn(){scaleFx(1.5);return '副作用が強くなった';}},
+     {id:'bz',name:'ブロチゾラムに切り替える',cls:'ベンゾジアゼピン系',mg:'0.25mg',g:'×',why:'ベンゾジアゼピン系はせん妄を悪化させる。',fn(){G.worse=12;see('worse');return 'せん妄がぶり返した';}}]};
+   if(m==='brot')return {title:'その後の方針',line:'ブロチゾラムを使ったら、かえって興奮が強くなった。',opts:[
+     {id:'stop',name:'中止して原因を探す',cls:'原因の検索',g:'◎',why:'薬剤性せん妄を疑い、原因薬を中止する。',fn(){G.worse=0;switchTo('env');G.effAt=G.t;return '落ち着いてきた';}},
+     {id:'up',name:'増量する',cls:'増量',g:'×',why:'ベンゾジアゼピン系の増量はせん妄をさらに悪化させる。',fn(){G.worse=12;scaleFx(1.4);return 'さらに悪化した';}},
+     {id:'add',name:'ベンゾジアゼピン系をもう1剤追加',cls:'併用',g:'×',why:'悪化させている薬を重ねることになる。',fn(){G.worse=12;scaleFx(1.4);return 'さらに悪化した';}},
+     {id:'keep',name:'このまま続ける',cls:'継続',g:'×',why:'原因の薬を続けると、せん妄が長引く。',fn(){G.worse=8;return 'せん妄が続いている';}}]};
+   const qd=dose('que'),hd=dose('halo');
+   return {title:'その後の方針',line:'環境調整を続けている。夜の興奮が続き、点滴を抜こうとする。',opts:[
+     {id:'que',name:'クエチアピンを少量',cls:'抗精神病薬（適応外）',mg:qd.start,g:t.includes('dm')?'×':'○',why:t.includes('dm')?CONTRA_WHY.dm:'危険な行動が続くなら、少量を短期間使う。パーキンソニズムが出にくい。',
+      fn(){if(t.includes('dm')){contraHit('que','dm');return '禁忌の薬を選んだ';}addDrug('que',.5);G.effLv=2;return '夜の興奮がおさまってきた';}},
+     {id:'halo',name:'ハロペリドールを少量',cls:'抗精神病薬（適応外）',mg:hd.start,g:t.includes('pd')||t.includes('dlb')?'×':'○',why:t.includes('pd')?CONTRA_WHY.pd:t.includes('dlb')?'レビー小体型認知症は抗精神病薬への過敏性がある。':'危険な行動が続くなら、少量を短期間使う。',
+      fn(){if(t.includes('pd')){contraHit('halo','pd');return '禁忌の薬を選んだ';}addDrug('halo',t.includes('dlb')?1.5:.6);if(t.includes('dlb'))see('dlbsens');G.effLv=2;return t.includes('dlb')?'動きが極端に遅くなった':'夜の興奮がおさまってきた';}},
+     {id:'bz',name:'ブロチゾラム',cls:'ベンゾジアゼピン系',mg:'0.25mg',g:'×',why:'ベンゾジアゼピン系はせん妄を悪化させる。',fn(){G.worse=12;see('worse');return 'せん妄が悪化した';}},
+     {id:'keep',name:'環境調整だけを続ける',cls:'継続',g:'△',why:'危険な行動が続くなら、少量の薬を短期間使うことも考える。',fn:()=>'興奮はまだ続いている'}]};
+ },
+ points(){
+   const t=G.pt.tags,p=['せん妄の基本は原因（感染・脱水・薬剤など）の検索と除去、環境調整。薬は興奮が強いときに、少量を短期間使う。','ベンゾジアゼピン系と抗コリン薬はせん妄を悪化させる（アルコール離脱せん妄は例外）。'];
+   if(t.includes('dlb'))p.push('レビー小体型認知症は抗精神病薬への過敏性がある（重いパーキンソニズム・意識障害）。');
+   p.push('日本では、クエチアピン・ハロペリドール・ペロスピロン・リスペリドンのせん妄への使用が、保険審査上認められている（適応外使用）。');
+   p.push('認知症の高齢者への抗精神病薬は死亡率を上げる。落ち着いたら減量・中止する。');
+   return p;
+ }},
+/* ---------- 第6面 アルコール ---------- */
+{id:'alc',no:6,water:'dehyd',name:'アルコール使用障害・離脱',short:'アルコール',rxWhat:'離脱の治療を1つ選ぶ',planLast:true,
+ sky:['#b4c4a6','#eef2e2'],bld:['#bccab0','#dfe7d5'],cloud:'rgba(255,255,255,.7)',
+ walker:{skin:'bottle',vx:.55,label:'離脱症状'},floater:{skin:'bugs',speed:1.3,amp:38,label:'幻視',bug:'#5a3a1a',txt:[]},
+ L:{pits:[[19,20],[42,43],[67,68],[91,92]],bricks:[[9,12,12],[24,27,12],[28,30,9],[47,50,12],[72,75,12],[82,85,12]],pillars:[[15,2],[35,2],[53,1],[62,2],[79,1]],rx:[5,11],adj:[58,11],rx3:[88,11],
+    walkers:[12,17,23,32,38,46,51,56,60,65,71,77,85,96,110],floaters:[[22,11.5],[33,11.5],[49,10],[64,11.5],[78,11.5],[95,11.5],[112,11.5]],
+    waters:[[11,11],[21,14],[29,8],[44,14],[49,11],[60,14],[74,11],[84,11],[94,14],[105,10]],cps:[2,21,44,69,93]},
+ drugs:['diaz','lora','halo','obs'],
+ patients:[
+   {who:'52歳 男性',course:'入院2日目。最終飲酒から48時間',cc:'手のふるえ・発汗・「虫が見える」',hx:'特記事項なし',goal:'断酒したい',tags:[]},
+   {who:'60歳 男性',course:'最終飲酒から3日目',cc:'夜の興奮と見当識障害',hx:'アルコール性肝硬変',goal:'断酒したい',tags:['liver']},
+   {who:'47歳 女性',course:'最終飲酒から24時間',cc:'不安・不眠・手のふるえ',hx:'慢性腎臓病（eGFR 25）',goal:'断酒したい',tags:['ckd']},
+   {who:'68歳 男性',course:'最終飲酒から2日目',cc:'落ち着きがなく、話のつじつまが合わない',hx:'低栄養',goal:'断酒は難しいが、量を減らしたい',tags:['cut']},
+ ],
+ gradeMain(id){const t=G.pt.tags;
+   if(id==='lora')return ['◎','ベンゾジアゼピン系が離脱治療の基本。ロラゼパムは肝障害でも使いやすい。'];
+   if(id==='diaz')return t.includes('liver')?['○','ベンゾジアゼピン系が基本。ただ肝硬変では、長時間作用型は蓄積しやすい。ロラゼパムがより安全。']:['◎','長時間作用型のベンゾジアゼピン系で、離脱をなだらかに抑える。'];
+   if(id==='halo')return ['×','抗精神病薬はけいれん閾値を下げ、離脱そのものの治療にならない。'];
+   return ['×','離脱症状を放置すると、けいれんや振戦せん妄を起こす。'];},
+ onMain(id){
+   if(id==='diaz'&&G.pt.tags.includes('liver')){G.fx.sleepy.i=1;G.fx.ataxia.i=.8;toast('過鎮静','肝硬変では薬が蓄積しやすい');}
+   if(id==='halo'){G.fx.parkinson.i=.6;G.effLv=1;G.seizAt=G.t+8;G.onSeiz=()=>{addDrug('lora');G.effLv=2;toast('ロラゼパムを追加','離脱にはベンゾジアゼピン系が必要');};}
+   if(id==='obs'){G.effLv=0;G.seizAt=G.t+6;G.onSeiz=()=>{switchTo('lora');toast('ロラゼパムを開始','離脱にはベンゾジアゼピン系が必要');};}},
+ event(){
+   return {title:'点滴の開始',line:'低栄養がある。点滴を始める。',opts:[
+     {id:'glu',name:'ブドウ糖液から始める',cls:'補液',g:'×',why:'ビタミンB1が足りないままブドウ糖を入れると、ウェルニッケ脳症を誘発する。',fn(){G.fx.wernicke={i:1,at:G.t+1,period:0,dur:0};return '目が揺れ、足元がふらつく';}},
+     {id:'thi',name:'ビタミンB1を先に投与してから補液',cls:'ビタミン＋補液',mg:'チアミン 100mg以上を静注',g:'◎',why:'ブドウ糖より先にビタミンB1。ウェルニッケ脳症を防ぐ。',fn(){G.water=100;return '補液で落ち着いてきた';}},
+     {id:'nacl',name:'生理食塩液だけで様子をみる',cls:'補液',g:'△',why:'脱水は補えるが、ビタミンB1の補充がなければウェルニッケ脳症を防げない。',fn(){G.water=100;return '脱水は改善した';}}]};
+ },
+ plan(){
+   const t=G.pt.tags,cut=t.includes('cut'),ckd=t.includes('ckd'),liver=t.includes('liver');
+   const A=dose('acam'),D=dose('disul'),N=dose('nalm');
+   return {title:'退院に向けて',line:`離脱は落ち着いた。退院後の飲酒について薬を考える。本人の希望：${G.pt.goal}。`,opts:[
+     {id:'acam',name:'アカンプロサート',cls:'断酒補助薬',mg:A.start,g:ckd?'×':cut?'△':'◎',why:ckd?cwhy('acam','ckd'):cut?'断酒が前提の薬。減酒が目標の人には合わない。':'断酒の維持を助ける。飲酒への渇望を減らす。',
+      fn(){if(ckd){contraHit('acam','ckd');return '禁忌の薬を選んだ';}return '退院の準備が整った';}},
+     {id:'disul',name:'ジスルフィラム',cls:'抗酒薬',mg:D.start,g:cut?'×':liver?'×':ckd?'○':'○',why:cut?'飲酒すると強い不快反応が出る。断酒の意思がない人には使わない。':liver?'重い肝障害があるときは避ける。':'本人が断酒を決め、服薬を続けられれば選択肢になる。',
+      fn(){if(cut){G.hearts--;return '飲酒して強い不快反応が出た';}return '退院の準備が整った';}},
+     {id:'nalm',name:'ナルメフェン',cls:'飲酒量低減薬',mg:N.start,g:cut?'◎':'△',why:cut?'減酒が目標の人に、飲酒の1〜2時間前に使う。':'飲酒量を減らす薬。断酒が目標なら、ほかの薬が合う。',fn:()=>'退院の準備が整った'},
+     {id:'bz',name:'ベンゾジアゼピン系を続ける',cls:'継続',mg:'ジアゼパム 5mg×3回',g:'×',why:'離脱が落ち着いたら漸減・中止する。続けると依存の置き換えになる。',fn(){addDrug('diaz');return '眠気とふらつきが続いている';}}]};
+ },
+ points(){
+   const t=G.pt.tags,p=['アルコール離脱の治療はベンゾジアゼピン系。肝障害が強いときはロラゼパムなど、代謝が単純な薬を選ぶ。','ウェルニッケ脳症（眼球運動障害・運動失調・意識障害）を防ぐため、ブドウ糖より先にビタミンB1を投与する。','離脱症状は最終飲酒から6〜24時間で始まり、けいれんは12〜48時間、振戦せん妄は48〜96時間ごろに多い。'];
+   if(G.main==='halo'||G.hist.includes('halo'))p.push('抗精神病薬はけいれん閾値を下げる。離脱そのものの治療にはならない。');
+   if(G.loop===2)p.push('アカンプロサートは断酒の維持、ナルメフェンは飲酒量の低減に使う。ジスルフィラム・シアナミドは飲酒すると強い不快反応が出る。アカンプロサートは高度の腎障害に禁忌。');
+   return p;
+ }},
+/* ---------- 第7面 診断のつかない患者 ---------- */
+{id:'undx',no:7,water:'none',name:'診断のつかない患者・初診',short:'診断をつける',rxWhat:'',diag:true,dc:'main7',dxIntro:'幻覚妄想状態や抑うつ状態は「状態像」で、診断ではない。器質因（脳炎・内分泌疾患・認知症など）と物質を除外し、経過（躁病エピソードの有無など）を家族からも確かめて診断する。',
+ sky:['#c9c3d8','#f1eef6'],bld:['#c9c3d6','#e6e2ee'],cloud:'rgba(255,255,255,.75)',
+ walker:{skin:'eye',vx:.5,label:'妄想'},floater:{skin:'voice',speed:1,amp:36,label:'幻聴',txt:['ザワ','ヒソ','おい','…！']},
+ L:{pits:[[30,31],[56,57],[90,91]],bricks:[[36,39,12],[41,43,9],[66,69,12],[78,80,12]],pillars:[[26,1],[48,2],[74,2],[85,1]],rx:[22,11],adj:[61,11],tests:[[8,11],[12,11],[16,11]],
+    walkers:[19,28,35,42,52,59,64,71,77,83,88,96,110],floaters:[[33,11.5],[50,11.5],[70,11.5],[82,11.5],[97,10],[112,11.5]],
+    waters:[],cps:[2,24,58,92]},
+ drugs:[],
+ patients:[
+  {syn:'psy',dx:'scz',key:'family',who:'24歳 男性',course:'半年前から自室にこもり、大学に行かなくなった',cc:'「考えが外に漏れている」「二人の声が自分のことを話している」',hx:'特記事項なし',tags:[],
+   tests:{family:'気分が高ぶった時期はない。睡眠時間はふだんと変わらない。飲酒・薬物の使用はない',blood:'異常なし。尿中薬物スクリーニングは陰性',image:'頭部MRI・脳波ともに異常なし'},
+   dxWhy:'思考伝播・会話形式の幻聴が半年続き、気分の症状・器質因・物質がない。統合失調症に合う。',
+   teach:'統合失調症の診断には、気分障害・器質因・物質による精神病性障害の除外が欠かせない。',
+   tx:[{name:'アリピプラゾール単剤で始める',cls:'抗精神病薬',drug:'ari',mg:'12mg/日から',g:'◎',why:'初発の統合失調症は抗精神病薬の単剤から始める。'},
+       {name:'抗精神病薬2剤で始める',cls:'多剤併用',drug:'ari',add:'ola',mg:'アリピプラゾール12mg＋オランザピン10mg',g:'×',why:'多剤併用は避け、単剤・十分量で効果を判断する。'},
+       {name:'炭酸リチウムで始める',cls:'気分安定薬',drug:'li',eff:0,mg:'600mg/日から',g:'×',why:'気分安定薬だけでは統合失調症の陽性症状は改善しない。'},
+       {name:'ロラゼパムで様子をみる',cls:'ベンゾジアゼピン系',drug:'lora',eff:1,mg:'0.5mg×3回',g:'△',why:'不安や焦燥は一時的に和らぐが、治療の中心は抗精神病薬。'}]},
+  {syn:'psy',dx:'bpm',key:'family',who:'32歳 女性',course:'2週間前からほとんど眠らずに活動している',cc:'「私は神に選ばれた」「隣人が嫉妬して悪口を言っている」',hx:'3年前からうつ病で通院（抗うつ薬を内服中）',tags:[],
+   tests:{family:'最近は話が止まらず、高額な買い物を繰り返している。父が双極症で治療中',blood:'異常なし。甲状腺機能も正常。尿中薬物スクリーニングは陰性',image:'頭部MRIは異常なし'},
+   dxWhy:'睡眠欲求の減少・多弁・浪費に、誇大的な妄想を伴う。抗うつ薬の使用中で、家族歴もある。双極症の躁病エピソードに合う。',
+   teach:'精神病症状を伴う躁病エピソードは統合失調症と間違えやすい。睡眠・活動量・浪費など、気分の症状を家族から確かめる。',
+   tx:[{name:'抗うつ薬を中止し、気分安定薬と抗精神病薬',cls:'気分安定薬＋抗精神病薬',drug:'li',add:'ari',mg:'炭酸リチウム600mg＋アリピプラゾール24mg',g:'◎',why:'抗うつ薬は躁を悪化させるので中止する。急性躁病には気分安定薬と抗精神病薬。'},
+       {name:'抗うつ薬は続け、抗精神病薬を追加',cls:'抗精神病薬',drug:'ari',eff:1,mg:'アリピプラゾール24mg',g:'△',why:'抗うつ薬を続けると躁が長引く。'},
+       {name:'抗うつ薬を増やす',cls:'抗うつ薬',drug:'sert',eff:0,harm:'switch',mg:'セルトラリン100mgへ',g:'×',why:'躁病エピソードをさらに悪化させる。'},
+       {name:'ロラゼパムだけで様子をみる',cls:'ベンゾジアゼピン系',drug:'lora',eff:1,mg:'0.5mg×3回',g:'△',why:'鎮静の補助にはなるが、躁病の治療にはならない。'}]},
+  {syn:'psy',dx:'sub',key:'blood',who:'29歳 男性',course:'昨夜から急に「追われている」と言い、家を飛び出した',cc:'「監視カメラで見張られている」「殺される」',hx:'不明（本人が答えない）',tags:[],
+   tests:{family:'数か月前から金遣いが荒く、夜通し起きていることがあった。腕に注射の痕がある',blood:'尿中薬物スクリーニングでアンフェタミン類が陽性。頻脈・発汗・散瞳がある',image:'頭部MRIは異常なし'},
+   dxWhy:'急に始まった被害妄想に、交感神経の症状と尿中アンフェタミン陽性。覚醒剤による精神病性障害を考える。',
+   teach:'物質誘発性の精神病は、物質をやめたあと症状が消えるかで統合失調症と見分ける。回復後は物質使用への支援につなげる。',
+   tx:[{name:'安全を確保し、抗精神病薬を短期間使う',cls:'安全の確保＋抗精神病薬',drug:'ola',mg:'オランザピン10mg',g:'◎',why:'刺激の少ない環境で安全を確保し、興奮と精神病症状に抗精神病薬（必要ならベンゾジアゼピン系）を使う。'},
+       {name:'統合失調症として長期の治療を始める',cls:'抗精神病薬',drug:'ola',mg:'オランザピン10mg',g:'△',why:'物質誘発性なら、中止後の経過を見てから長期治療を判断する。'},
+       {name:'抗うつ薬を始める',cls:'抗うつ薬',drug:'sert',eff:0,mg:'セルトラリン25mg',g:'×',why:'精神病症状には効かない。'},
+       {name:'何もせず帰宅させる',cls:'様子をみる',drug:'obs',eff:0,harm:'hurt',g:'×',why:'自傷他害のおそれがある急性の精神病状態。まず安全の確保。'}]},
+  {syn:'psy',dx:'enc',key:'blood',wrongHarm:{scz:'rigid',bpm:'rigid',sub:'rigid'},who:'22歳 女性',course:'1週間前に発熱と頭痛。その後、急に言動がおかしくなった',cc:'「誰かが部屋にいる」とおびえ、急に笑い出す',hx:'特記事項なし',tags:[],
+   tests:{family:'口をもぐもぐ動かす動きがあり、昨日はけいれんのような発作があった',blood:'軽い炎症反応。髄液の細胞数が増えている。抗NMDA受容体抗体が陽性',image:'脳波でびまん性の徐波。骨盤MRIで卵巣奇形腫'},
+   dxWhy:'感冒のような症状のあとに急な精神症状・不随意運動・けいれん。若い女性で、卵巣奇形腫と抗NMDA受容体抗体。自己免疫性脳炎。',
+   teach:'急性発症・けいれん・不随意運動・意識の変動は器質因のサイン。抗NMDA受容体脳炎では、抗精神病薬で悪性症候群のような反応が出やすい。',
+   tx:[{name:'免疫療法と卵巣奇形腫の切除',cls:'原因の治療',drug:'immuno',mg:'ステロイドパルス・免疫グロブリンなど',g:'◎',why:'ステロイドパルス・免疫グロブリン・血漿交換と腫瘍の切除。神経内科・婦人科と連携する。'},
+       {name:'ハロペリドールで鎮静',cls:'抗精神病薬',drug:'halo',eff:0,harm:'rigid',mg:'1.5mg',g:'×',why:'脳炎では抗精神病薬で筋強剛・高熱など悪性症候群のような反応が出やすい。'},
+       {name:'統合失調症として抗精神病薬を続ける',cls:'抗精神病薬',drug:'ari',eff:0,harm:'rigid',mg:'アリピプラゾール12mg',g:'×',why:'器質因を見逃すと治療が遅れ、後遺症が残る。'},
+       {name:'ロラゼパムで経過をみる',cls:'ベンゾジアゼピン系',drug:'lora',eff:1,mg:'0.5mg×3回',g:'△',why:'緊張病症状やけいれんの補助にはなるが、原因の治療ではない。'}]},
+  {syn:'dep',dx:'mdd',key:'family',who:'45歳 男性',course:'昇進して2か月後から',cc:'「何をしても楽しくない」「みんなに迷惑をかけている」',hx:'特記事項なし',tags:[],
+   tests:{family:'早朝に目が覚め、食欲が落ちて体重が5kg減った。気分が高ぶった時期はない',blood:'甲状腺機能・貧血・電解質など異常なし',image:'頭部MRIは年齢相応。HDS-R 29点'},
+   dxWhy:'2週間以上の抑うつ気分・興味の喪失・早朝覚醒・体重減少。身体疾患や躁病エピソードがない。うつ病に合う。',
+   teach:'抑うつ状態では、身体疾患（甲状腺など）・認知症・双極症（過去の躁病エピソード）を確かめてから、うつ病と診断する。',
+   tx:[{name:'休養と抗うつ薬（SSRI）',cls:'抗うつ薬',drug:'sert',mg:'セルトラリン25mgから',g:'◎',why:'休養・環境調整とともに、抗うつ薬を十分量・十分期間。'},
+       {name:'抗うつ薬を2剤同時に始める',cls:'多剤併用',drug:'sert',add:'mir',mg:'セルトラリン25mg＋ミルタザピン15mg',g:'×',why:'まず単剤で始める。'},
+       {name:'ベンゾジアゼピン系だけを出す',cls:'抗不安薬',drug:'lora',eff:0,mg:'0.5mg×3回',g:'×',why:'抗不安薬だけではうつ病の治療にならない。'},
+       {name:'励まして仕事を続けさせる',cls:'様子をみる',drug:'obs',eff:0,g:'×',why:'休養が必要。安易な励ましは負担になる。'}]},
+  {syn:'dep',dx:'hypo',key:'blood',who:'52歳 女性',course:'半年前から気力がない',cc:'「体が重くて何もできない」',hx:'特記事項なし',tags:[],
+   tests:{family:'寒がりになり、顔がむくんで、声がかすれてきた。便秘もある',blood:'TSHが高く、FT4が低い。コレステロールも高い',image:'頭部MRIは異常なし。HDS-R 27点'},
+   dxWhy:'抑うつに寒がり・むくみ・嗄声・便秘があり、TSH高値・FT4低値。甲状腺機能低下症による抑うつ状態。',
+   teach:'抑うつ状態をみたら、甲状腺機能などの血液検査で身体疾患を除外する。',
+   tx:[{name:'内科と連携し、甲状腺ホルモンを補充',cls:'原因の治療',drug:'levo',mg:'レボチロキシン 少量（25μg程度）から',g:'◎',why:'原因を治すと抑うつも改善することが多い。'},
+       {name:'抗うつ薬だけを始める',cls:'抗うつ薬',drug:'sert',eff:0,mg:'セルトラリン25mg',g:'×',why:'原因を治さないと改善しにくい。'},
+       {name:'甲状腺ホルモンと抗うつ薬を同時に',cls:'併用',drug:'levo',add:'sert',mg:'レボチロキシン＋セルトラリン',g:'△',why:'まず原因の治療で経過をみる。抑うつが残れば抗うつ薬を考える。'},
+       {name:'休養だけで様子をみる',cls:'様子をみる',drug:'obs',eff:0,g:'×',why:'身体疾患が原因なら、休養だけでは治らない。'}]},
+  {syn:'dep',dx:'ad',key:'image',who:'76歳 女性',course:'1年前から少しずつ何もしなくなった',cc:'本人「別に困っていない」',hx:'高血圧',tags:[],
+   tests:{family:'同じことを何度も聞く。料理の手順がわからなくなった。物忘れをあまり気にしていない',blood:'甲状腺機能・ビタミンB12・葉酸は正常',image:'頭部MRIで海馬の萎縮。HDS-R 18点（遅延再生が苦手）'},
+   dxWhy:'ゆっくりした発症、近時記憶の障害、病識の乏しさ、海馬の萎縮。アパシー（意欲低下）を伴うアルツハイマー型認知症。',
+   teach:'高齢者の意欲低下は、うつ病・認知症のアパシー・身体疾患を見分ける。うつ病の仮性認知症は物忘れを強く訴えることが多い。',
+   tx:[{name:'ドネペジルと介護サービスの導入',cls:'コリンエステラーゼ阻害薬',drug:'donep',mg:'ドネペジル 3mgから（1〜2週後に5mg）',g:'◎',why:'認知機能と意欲の改善が期待できる。デイサービスなどで活動を保つ。'},
+       {name:'抗うつ薬を始める',cls:'抗うつ薬',drug:'sert',eff:1,mg:'セルトラリン25mg',g:'△',why:'認知症のアパシーには、抗うつ薬の効果は限られる。'},
+       {name:'抗精神病薬で落ち着かせる',cls:'抗精神病薬',drug:'que',eff:0,mg:'クエチアピン25mg',g:'×',why:'認知症の高齢者への抗精神病薬は死亡率を上げる。'},
+       {name:'ベンゾジアゼピン系で眠らせる',cls:'ベンゾジアゼピン系',drug:'lora',eff:0,mg:'0.5mg',g:'×',why:'認知機能の低下・転倒・せん妄を招く。'}]},
+  {syn:'dep',dx:'bpd',key:'family',wrongHarm:{mdd:'switch'},who:'27歳 男性',course:'3か月前から',cc:'「一日中寝ていたい」「生きていても仕方ない」',hx:'特記事項なし',tags:[],
+   tests:{family:'3年前、1週間ほとんど眠らずに仕事をし、借金をして車を2台買ったことがある',blood:'異常なし',image:'頭部MRIは異常なし'},
+   dxWhy:'過眠・過食を伴う抑うつに、過去の躁病エピソード（家族から聞き取れた）。双極症のうつ病エピソード。',
+   teach:'抑うつで受診した人には、過去の躁・軽躁エピソードを本人と家族から必ず確かめる。双極症のうつに抗うつ薬だけを使うと躁転しやすい。',
+   tx:[{name:'双極うつに使う薬（クエチアピン徐放剤など）',cls:'抗精神病薬・気分安定薬',drug:'que',mg:'クエチアピン徐放剤 50mgから（300mgまで）',g:'◎',why:'双極症のうつには、適応のあるクエチアピン徐放剤・ルラシドンや、気分安定薬を使う。'},
+       {name:'抗うつ薬（SSRI）だけを始める',cls:'抗うつ薬',drug:'sert',eff:0,harm:'switch',mg:'セルトラリン25mg',g:'×',why:'抗うつ薬の単剤は躁転・急速交代化のおそれがある。'},
+       {name:'気分安定薬に抗うつ薬を併用',cls:'併用',drug:'li',add:'sert',mg:'炭酸リチウム600mg＋セルトラリン25mg',g:'△',why:'抗うつ薬の併用は慎重に。第一選択ではない。'},
+       {name:'ベンゾジアゼピン系で様子をみる',cls:'ベンゾジアゼピン系',drug:'lora',eff:0,mg:'0.5mg×3回',g:'×',why:'うつ病エピソードの治療にならない。'}]},
+ ],
+ event(){return diagEvent();},
+ points(){return diagPoints();},
+ resultNote(){return diagNote();}},
+];
+/*@STAGES-END*/
+/*@DXCFG-BEGIN*/
+const DXCFG={main7:{dx:{scz:'統合失調症',bpm:'双極症（躁病エピソード）',sub:'物質誘発性精神病性障害（覚醒剤）',enc:'自己免疫性脳炎（抗NMDA受容体脳炎）',
+  mdd:'うつ病',hypo:'甲状腺機能低下症による抑うつ状態',ad:'アルツハイマー型認知症（アパシー）',bpd:'双極症（うつ病エピソード）'},
+  set:{psy:['scz','bpm','sub','enc'],dep:['mdd','hypo','ad','bpd']},
+  std:{scz:'ari',bpm:'li',sub:'ola',enc:'immuno',mdd:'sert',hypo:'levo',ad:'donep',bpd:'que'},
+  near:{scz:['sub','bpm'],sub:['scz','bpm'],bpm:['scz','sub'],mdd:['bpd']}, // 外れても、似た治療で一部は効く組み合わせ
+  testk:['family','blood','image'],testn:{family:'家族から話を聞く',blood:'血液・尿の検査',image:'画像・脳波などの検査'},tickets:0}};
+/*@DXCFG-END*/
+/* ---------- 見立て（診断）の仕組み：第7面と診断編で共通 ---------- */
+const DXC=()=>DXCFG[G.st.dc];
+const dxName=id=>{for(const c of Object.values(DXCFG))if(c.dx[id])return c.dx[id];return id;};
+const dxSet=()=>{const s=DXC().set;return Array.isArray(s)?s:s[G.case.syn];};
+const testK=()=>DXC().testk,testN=k=>DXC().testn[k];
+function ticketsLeft(){const c=DXC(),t=ADV&&c.ticketsAdv?c.ticketsAdv:c.tickets;return t?Math.max(0,t-G.tests.size):Infinity;}
+let TESTPOS={};
+function renderTests(){
+  const c=G.case,show=!!c;$('kTestT').hidden=$('kTest').hidden=!show;
+  if(show)$('kTest').innerHTML=G.tests.size?testK().filter(k=>G.tests.has(k)).map(k=>`<b>${testN(k)}</b>：${c.tests[k]}`).join('<br>'):'<span class="muted">「検」ブロックを叩くと情報が増える</span>';
+}
+function hitTest(k){
+  if(!k||!G.case||G.tests.has(k))return;
+  if(ticketsLeft()<=0){toast('検査券がない','わかっている情報で見立てよう',true);return;}
+  G.tests.add(k);renderTests();renderHUD(true);toast(testN(k),G.case.tests[k],true);
+}
+function applyHarm(h){
+  if(h==='switch')G.fx.manicsw={i:1,at:G.t+3,period:0,dur:0};
+  if(h==='rigid')G.fx.parkinson={i:1.3,at:G.t+2,period:0,dur:0};
+  if(h==='hurt'){G.hearts-=2;sfx('hurt');}
+  if(h==='worse'){G.worse=12;see('worse');}
+  if(h==='wernicke')G.fx.wernicke={i:1,at:G.t+1,period:0,dur:0};
+}
+function openDiag(){
+  const c=G.case,list=dxSet().map(id=>({id,cls:'診断',name:dxName(id)}));
+  const tl=G.tests.size?testK().filter(k=>G.tests.has(k)).map(k=>`<br>${testN(k)}：${c.tests[k]}`).join(''):'<br><span class="muted">家族からの聞き取りや検査はまだしていない</span>';
+  openSheet(`<div class="rxhead"><h2>見立て</h2><span>診断を1つ選ぶ</span></div><p class="ptline">${ptBlock(G.pt)}${tl}</p>${cardsHTML(list)}`);
+  sheet.querySelectorAll('.card').forEach(b=>b.addEventListener('click',()=>chooseDx(list[+b.dataset.i].id)));
+}
+function chooseDx(id){
+  const c=G.case,ok=id===c.dx,C=DXC();
+  if(c.key){const has=G.tests.has(c.key);G.grades.push({q:'情報の集め方',a:G.tests.size?testK().filter(k=>G.tests.has(k)).map(testN).join('・'):'何も調べずに見立てた',
+    g:has?'◎':G.tests.size?'△':'×',why:has?`決め手になる「${testN(c.key)}」を確かめた。`:`決め手は「${testN(c.key)}」だった。`});}
+  G.grades.push({q:'見立て',a:dxName(id),g:ok?'◎':'×',why:ok?c.dxWhy:`正しくは${dxName(c.dx)}。${c.dxWhy}`});
+  if(ok){G.dxOK=true;G.main='assess';G.effLv=1;G.effAt=G.t;G.effToast=true;unlockD('dx:'+id);}
+  else{
+    G.dxOK=false;switchTo(C.std[id]);G.effLv=((C.near||{})[c.dx]||[]).includes(id)?1:0;
+    if(c.wrongHarm&&c.wrongHarm[id])applyHarm(c.wrongHarm[id]);
+  }
+  G.dxPick=id;closeModal();renderHUD(true);sfx('rx');
+  toast('見立て：'+dxName(id),ok?'次のRxブロックで治療を選ぼう':'この見立てに沿って治療を始めた');
+}
+function applyTx(o){
+  switchTo(o.drug);if(o.add)addDrug(o.add);
+  G.effLv=o.eff??2;
+  if(o.harm)applyHarm(o.harm);
+  return G.effLv>=2?'症状が改善してきた':G.effLv===1?'一部だけ改善した':'改善しない';
+}
+function diagEvent(){
+  const c=G.case,C=DXC();
+  if(G.dxOK)return {title:'治療の選択',line:`見立て：${dxName(c.dx)}。治療はどうする？`,opts:c.tx.map((o,i)=>({id:'tx'+i,name:o.name,cls:o.cls,mg:o.mg,g:o.g,why:o.why,fn(){return applyTx(o);}}))};
+  for(const k of testK())G.tests.add(k);renderTests();
+  const all=testK().map(k=>`<br>${testN(k)}：${c.tests[k]}`).join('');
+  return {title:'見立ての見直し',line:`治療に十分反応しない。改めて話を聞き、検査をした。${all}`,opts:dxSet().map(id=>({id:'dx_'+id,name:dxName(id),cls:'診断',
+    g:id===c.dx?'○':'×',why:id===c.dx?'見直して、正しい診断にたどり着いた。'+c.dxWhy:`正しくは${dxName(c.dx)}。${c.dxWhy}`,
+    fn(){if(id===c.dx){G.fx={};switchTo(C.std[c.dx]);G.dxOK=true;unlockD('dx:'+id);return '治療を切り替えて改善してきた';}return '改善しない';}}))};
+}
+function diagFollow(){
+  const c=G.case,f=c.fu;
+  return {title:'再診',line:(G.dxOK?'':`（正しい診断は${dxName(c.dx)}）<br>`)+f.line,opts:f.opts.map((o,i)=>({id:'fu'+i,name:o.name,cls:o.cls||'方針',g:o.g,why:o.why,
+    fn(){if(GS[o.g]>=2){G.hearts=Math.min(MAXH,G.hearts+1);return '経過は順調。ハートが1つ回復';}G.hearts--;sfx('hurt');return '状態が悪くなった';}}))};
+}
+const diagPoints=()=>[G.st.dxIntro,G.case.dxWhy,G.case.teach].filter(Boolean);
+const diagNote=()=>`正しい診断：${dxName(G.case.dx)}`;
+function ptBlock(pt){return `<b>${pt.who}</b><br>経過：${pt.course}<br>主訴：${pt.cc}<br>既往歴：${pt.hx}${G.loop===2&&pt.hist?`<br>治療歴：${pt.hist}`:''}`;}
+
+
+/* ========== 図鑑・クリア記録（このブラウザに保存） ========== */
+const ZK=EDITION.store;
+/*@ZUKAN-BEGIN*/
+const ZD=[['統合失調症の薬',['halo','ola','ari','que','ris','cloz','bip','pro']],['うつ病の薬',['sert','mir','ami','dul','tram','loxo','apap']],['双極症の薬',['li','vpa','cele','mero','ctrx','lvfx','hctz','enal','aml']],
+  ['不安症の治療',['parox','alp','cbt']],['せん妄への対応',['env','brot','tria','diph','rame']],['アルコール使用障害の治療',['diaz','lora','obs','glu','thi','nacl','acam','disul','nalm']],['診断のつかない患者の治療',['immuno','levo','donep']]];
+const ZF=['parkinson','akathisia','weight','sleepy','ortho','anticho','dehyd','waterint','nms','contra','delay','nausea','activation','manicsw','serotonin','gibleed','tremor','polyuria','litox','vpadrop','ataxia','withdrawal','relapse','worse','dlbsens','wernicke','seizure'];
+/*@ZUKAN-END*/
+let Z={d:[],f:[],c:[],c2:[],a:[]};
+const AK=EDITION.adv;let ADV=false;try{ADV=localStorage.getItem(AK)==='on';}catch(e){}
+try{const s=localStorage.getItem(ZK);if(s){const o=JSON.parse(s);if(o&&Array.isArray(o.d)&&Array.isArray(o.f))Z={d:o.d,f:o.f,c:Array.isArray(o.c)?o.c:[],c2:Array.isArray(o.c2)?o.c2:[],a:Array.isArray(o.a)?o.a:[]};}}catch(e){}
+function saveZ(){try{localStorage.setItem(ZK,JSON.stringify(Z))}catch(e){}}
+function unlockD(id){if((id.startsWith('dx:')||DRUGS[id]||EXTRA[id])&&!Z.d.includes(id)){Z.d.push(id);saveZ();renderZukan();}}
+function unlockF(id){if(!Z.f.includes(id)){Z.f.push(id);saveZ();renderZukan();}}
+const allClear=(k,ids)=>(ids||STAGES.map(s=>s.id)).every(id=>Z[k].includes(id));
+const CORE=['scz','mdd','bp','anx','dlr','alc'];
+function renderZukan(){
+  const card=(on,b,t,lockT)=>on?`<div class="z"><b>${b}</b>${t}</div>`:`<div class="z lock"><b>？？？</b>${lockT}</div>`;
+  let html='',n=0,tot=0;
+  for(const [title,ids,kind] of ZD){
+    html+=`<div class="zgroup"><h3>${title}</h3><div class="zgrid">${ids.map(id=>{const on=Z.d.includes(id);n+=on;tot++;
+      if(kind==='dx')return card(on,dxName(id.slice(3)),'正しく診断できた','まだ診断していない');
+      const o=DRUGS[id]||EXTRA[id];return card(on,o.name,o.cls,'まだ使っていない');}).join('')}</div></div>`;
+  }
+  html+=`<div class="zgroup"><h3>副作用・できごと</h3><div class="zgrid">${ZF.map(id=>{const on=Z.f.includes(id);n+=on;tot++;return card(on,FX[id].label,FX[id].why,'まだ体験していない');}).join('')}</div></div>`;
+  $('zbody').innerHTML=html;$('zcount').textContent=`${n} / ${tot}`;
+}
+function renderTabs(){
+  const open2=allClear('c',CORE),key=loop===2?'c2':'c';
+  const loops=EDITION.loops?`<button type="button" class="tab loop" data-loop="1" aria-pressed="${loop===1}">1周目</button><button type="button" class="tab loop l2" data-loop="2" aria-pressed="${loop===2}" ${open2?'':'disabled'}>2周目</button>${open2?'':'<span class="lockmsg">第1〜6面をクリアすると2周目が開きます</span>'}`:'';
+  $('tabs').innerHTML=`<div class="row">${loops}</div>
+    <div class="row">${STAGES.map((s,i)=>`<button type="button" class="tab" data-i="${i}" aria-pressed="${i===cur}">第${s.no}面 ${s.short}${Z[key].includes(s.id)?'<span class="ok">✓</span>':''}${Z.a.includes(s.id+':'+loop)?'<span class="ok">★</span>':''}</button>`).join('')}</div>`;
+  $('tabs').querySelectorAll('[data-i]').forEach(b=>b.addEventListener('click',()=>{if(!modal.hidden)return;newGame(+b.dataset.i);}));
+  $('tabs').querySelector('.row').insertAdjacentHTML('beforeend',`<button type="button" class="tab adv" id="advbtn" aria-pressed="${ADV}">上級者モード</button><span class="lockmsg">${ADV?'解説・その場の採点・副作用の名前を伏せる（★がつく）':''}</span>`);
+  $('advbtn').addEventListener('click',()=>{if(!modal.hidden)return;ADV=!ADV;try{localStorage.setItem(AK,ADV?'on':'off');}catch(e){}newGame(cur);});
+  $('tabs').querySelectorAll('[data-loop]').forEach(b=>b.addEventListener('click',()=>{if(!modal.hidden||b.disabled)return;loop=+b.dataset.loop;newGame(cur);}));
+}
+
+/* ========== 地形 ========== */
+const grid=new Uint8Array(COLS*ROWS); // 1地面 2レンガ 3Rx 4使用済み 5石
+const get=(x,y)=>(x<0||x>=COLS)?1:((y<0||y>=ROWS)?0:grid[y*COLS+x]);
+const set=(x,y,t)=>{if(x>=0&&x<COLS&&y>=0&&y<ROWS)grid[y*COLS+x]=t;};
+const fill=(x0,x1,y0,y1,t)=>{for(let x=x0;x<=x1;x++)for(let y=y0;y<=y1;y++)set(x,y,t);};
+let RX={};
+function build(st,l2){
+  const L=st.L;
+  grid.fill(0);
+  fill(0,COLS-1,15,16,1);
+  for(const [a,b] of L.pits)fill(a,b,15,16,0);
+  for(const [a,b,y] of L.bricks)fill(a,b,y,y,2);
+  for(const [x,h] of L.pillars)fill(x,x,15-h,14,5);
+  for(let i=0;i<4;i++)fill(99+i,99+i,14-i,14,5);
+  fill(103,107,11,14,5);
+  RX={};RX[L.rx.join(',')]='main';RX[L.adj.join(',')]='adj';set(L.rx[0],L.rx[1],3);set(L.adj[0],L.adj[1],3);
+  if((l2||st.followup)&&L.rx3){RX[L.rx3.join(',')]='rx3';set(L.rx3[0],L.rx3[1],3);}
+  TESTPOS={};const tk=st.dc?DXCFG[st.dc].testk:[];(L.tests||[]).forEach(([x,y],k)=>{TESTPOS[x+','+y]=tk[k];set(x,y,6);});
+}
+const BLD=[];for(let i=0;i<40;i++)BLD.push({x:i*72+(i*37%30),w:38+(i*53%34),h:50+(i*29%80)});
+const CLOUDS=[{x:40,y:30,w:50},{x:210,y:52,w:38},{x:360,y:24,w:60},{x:520,y:44,w:44}];
+
+/* ========== 状態 ========== */
+let G,P,EN,IT,cur=0,loop=1;const lastPt={};
+const keys={l:false,r:false,j:false};
+function clearKeys(){keys.l=keys.r=keys.j=false;document.querySelectorAll('.pad button').forEach(b=>b.classList.remove('on'));}
+function dose(id){return (G&&DOSE[G.st.id+':'+id])||DOSE[id]||{};}
+function newGame(si,retry){
+  if(si!=null)cur=si;
+  const st=STAGES[cur],l2=loop===2;
+  const pool=l2&&st.patients2?st.patients.concat(st.patients2):st.patients;
+  let ptSel=retry&&retry.pt;
+  if(!ptSel){const key=st.id+loop;let i;do{i=Math.floor(Math.random()*pool.length)}while(i===lastPt[key]&&pool.length>1);lastPt[key]=i;ptSel=pool[i];}
+  if(typeof musicStop==='function')musicStop();
+  build(st,l2);
+  G={st,loop,t:0,state:'intro',hearts:MAXH,water:st.water==='balance'?60:100,retry:retry||null,overWarn:false,wiT:0,main:null,mg:'',hist:[],added:[],adj:null,adjName:'',contra:[],contraTags:[],fx:{},seen:new Set(),weight:0,cam:0,cp:2,jbuf:0,
+     blackout:0,lastOrtho:-9,dehydT:0,stomps:0,pt:ptSel,end:null,hints:new Set(),lowWarn:false,pops:[],bump:null,grades:[],done:new Set(),
+     ev:retry?retry.ev:st.events?st.events[Math.floor(Math.random()*st.events.length)]:null,resp:null,effLv:2,
+     effAt:0,effToast:true,li:0,liBase:.7,liAdd:0,liTox:false,vpaDrop:false,ss:0,ssHit:0,freeze:0,nzT:1,wdT:1,dash:0,dashDir:1,avT:3,
+     relapse:0,worse:0,seizAt:0,onSeiz:null,flash:0,mh:0,darkNow:0};
+  P={x:2*T+2,y:15*T-22,w:12,h:22,vx:0,vy:0,on:false,face:1,inv:0,stillT:0,akDir:1,akT:0,walkT:0,coy:0,jumping:false};
+  if(st.diag){G.case=G.pt;G.tests=new Set();G.dxOK=false;if(G.case.syn==='dep')G.st=Object.assign({},st,{walker:{skin:'blob',vx:.35,label:'意欲低下'},floater:{skin:'cloud',speed:.8,amp:30,label:'抑うつ気分',txt:[]},sky:['#a9aebd','#e2e4ea'],bld:['#b3b7c4','#d3d6de']});}
+  else{G.case=null;G.tests=new Set();}
+  const L=st.L,wk=G.st.walker,fl=G.st.floater;
+  EN=L.walkers.map(tx=>({type:'walker',x:tx*T,y:15*T-14,w:16,h:14,vx:-wk.vx,vy:0,on:false,alive:true,dead:0,act:false}))
+    .concat(L.floaters.map(([tx,ty],k)=>({type:'floater',bx:tx*T,by:ty*T,x:tx*T,y:ty*T,w:fl.skin==='cloud'?28:fl.skin==='bugs'?24:26,h:13,ph:k*1.7,txt:fl.txt[k%(fl.txt.length||1)]||'',alive:true,dead:0})));
+  IT=st.water==='none'?[]:L.waters.map(([tx,ty])=>({x:tx*T+3,y:ty*T+2,w:10,h:14,taken:false}));
+  $('waterbox').hidden=st.water==='none';meter.classList.toggle('bal',st.water==='balance');
+  tq.length=0;clearTimeout(tTimer);tBusy=false;toastEl.hidden=true;
+  cv.style.filter='none';lastBlur='';
+  clearKeys();
+  const pt=G.pt;
+  $('kWho').textContent=pt.who;$('kCourse').textContent=pt.course;$('kCc').textContent=pt.cc;$('kHx').textContent=pt.hx;
+  const sh=(a,b,v)=>{$(a).hidden=$(b).hidden=!v;$(b).textContent=v||'';};
+  sh('kHistT','kHist',pt.hist);sh('kGoalT','kGoal',l2?pt.goal:'');renderTests();
+  $('ovNo').textContent=`第${st.no}面${l2?'　2周目':''}`;$('ovName').textContent=st.name;
+  $('startbtn').classList.toggle('night',l2);
+  $('startov').hidden=false;
+  renderTabs();renderHUD(true);
+}
+function start(){if(G.state!=='intro')return;G.state='play';audioInit();if(SND.ctx&&SND.ctx.state!=='running')SND.ctx.resume();musicStart();$('startov').hidden=true;last=performance.now();toast(`第${G.st.no}面${G.loop===2?'（2周目）':''} スタート`,G.st.diag?'「検」ブロックで情報を集めてから、Rxで見立てよう':'金色のRxブロックを下から叩いて処方しよう');}
+
+/* ========== 補助 ========== */
+const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
+const overlap=(a,b)=>a.x<b.x+b.w&&a.x+a.w>b.x&&a.y<b.y+b.h&&a.y+a.h>b.y;
+function fxI(n){const f=G.fx[n];return f&&f.i>0&&G.t>=f.at&&!(f.dur&&G.t>=f.at+f.dur)?f.i:0;}
+function see(n){if(!G.seen.has(n)){G.seen.add(n);unlockF(n);}}
+function effLv(){if(!G.main||G.t<G.effAt||G.vpaDrop||G.relapse>0||G.worse>0)return 0;return G.effLv;}
+const canStomp=e=>e.type==='floater'?effLv()>=1:effLv()>=2;
+function liTox(){return G.main==='li'||G.added.includes('li')?clamp((G.li-1.5)/.5,0,1):0;}
+const hasLi=()=>G.main==='li'||G.added.includes('li');
+function scaleFx(k){for(const f of Object.values(G.fx))f.i=Math.min(1.8,f.i*k);}
+function applyFx(id,k,stack){
+  for(const [n,v] of Object.entries(DRUGS[id].fx)){const c=G.fx[n],i=v.i*k;
+    if(stack&&c&&c.i>0)c.i=Math.min(1.8,c.i+i);else G.fx[n]={i,at:G.t+v.on,period:v.period||0,dur:v.dur||0};}
+  if(DRUGS[id].act&&G.pt.tags.includes('young')&&!G.fx.activation)G.fx.activation={i:1,at:G.t+5,period:0,dur:0};
+}
+function switchTo(id){
+  const d=DRUGS[id];if(G.main)G.hist.push(G.main);
+  G.fx={};G.main=id;G.mg=dose(id).start||'';unlockD(id);applyFx(id,1,false);
+  G.effLv=2;G.vpaDrop=false;G.effAt=G.t+(d.delay?Math.min(d.delay,5):0);G.effToast=!d.delay;
+  if(id==='li'){G.li=Math.max(G.li,.6);G.liBase=.7;}
+}
+function addDrug(id,k){G.added.push(id);unlockD(id);applyFx(id,k||1,true);}
+function contraHit(id,tag){if(!G.contraTags.includes(tag))G.contraTags.push(tag);if(!G.contra.includes(id))G.contra.push(id);G.hearts--;see('contra');}
+function pop(x,y,txt,col){G.pops.push({x,y,txt,col:col||'#1d7566',t:1.1});}
+const tq=[];let tBusy=false,tTimer=0;
+const FXL=Object.values(FX).map(f=>f.label).concat(['セロトニン','悪性症候群','リチウム']);
+function toast(a,b,raw){if(ADV&&!raw&&G&&G.state!=='intro'&&FXL.some(l=>(a+(b||'')).includes(l))){a='体の様子がおかしい…';b='何が起きているか考えよう';}tq.push([a,b]);if(!tBusy)nextToast();}
+function nextToast(){clearTimeout(tTimer);const it=tq.shift();if(!it){tBusy=false;toastEl.hidden=true;return;}tBusy=true;toastEl.querySelector('b').textContent=it[0];toastEl.querySelector('span').textContent=it[1];toastEl.hidden=false;tTimer=setTimeout(nextToast,clamp(1500+(it[0]+it[1]).length*55,2700,6500));}
+function hint(key,a,b){if(!G.hints.has(key)){G.hints.add(key);toast(a,b);}}
+
+function moveBody(b,onHead){
+  let hitX=false;
+  b.x+=b.vx;
+  const y0=Math.floor(b.y/T),y1=Math.floor((b.y+b.h-.01)/T);
+  if(b.vx>0){const tx=Math.floor((b.x+b.w-.01)/T);for(let ty=y0;ty<=y1;ty++)if(get(tx,ty)>0){b.x=tx*T-b.w;b.vx=0;hitX=true;break;}}
+  else if(b.vx<0){const tx=Math.floor(b.x/T);for(let ty=y0;ty<=y1;ty++)if(get(tx,ty)>0){b.x=(tx+1)*T;b.vx=0;hitX=true;break;}}
+  b.y+=b.vy;b.on=false;
+  const x0=Math.floor(b.x/T),x1=Math.floor((b.x+b.w-.01)/T);
+  if(b.vy>0){const ty=Math.floor((b.y+b.h-.01)/T);for(let tx=x0;tx<=x1;tx++)if(get(tx,ty)>0){b.y=ty*T-b.h;b.vy=0;b.on=true;break;}}
+  else if(b.vy<0){const ty=Math.floor(b.y/T);let best=-1,bd=1e9;for(let tx=x0;tx<=x1;tx++)if(get(tx,ty)>0){const d=Math.abs((tx+.5)*T-(b.x+b.w/2));if(d<bd){bd=d;best=tx;}}
+    if(best>=0){b.y=(ty+1)*T;b.vy=0;if(onHead)onHead(best,ty);}}
+  return hitX;
+}
+function hitBlock(tx,ty){
+  const tt=get(tx,ty);
+  if(tt===6){set(tx,ty,4);G.bump={tx,ty,t:.15};sfx('rx');hitTest(TESTPOS[tx+','+ty]);return;}
+  if(tt!==3)return;
+  set(tx,ty,4);G.bump={tx,ty,t:.15};sfx('rx');
+  if(!G.main){openMain();return;}
+  const seq=G.loop===2&&G.st.plan?(G.st.planLast?['event','plan']:['plan','event']):G.st.followup&&G.case&&G.case.fu?['event','followup']:['event'];
+  const next=seq.find(k=>!G.done.has(k));
+  if(next)openDecision(next);
+}
+function hurt(fell){
+  if(!fell&&P.inv>0)return;
+  G.hearts--;sfx('hurt');
+  if(G.hearts<=0){end('dead');return;}
+  if(fell){P.x=G.cp*T+2;P.y=12*T;P.vx=P.vy=0;}else{P.vy=-4.5;P.vx=-P.face*2;}
+  P.inv=1.6;
+}
+function grow(nw){
+  if(nw<=P.w+.01)return;
+  const y0=Math.floor(P.y/T),y1=Math.floor((P.y+P.h-.01)/T),tx=Math.floor((P.x+nw-.01)/T);
+  for(let ty=y0;ty<=y1;ty++)if(get(tx,ty)>0)return;
+  P.w=nw;
+}
+let justUnlocked=false;
+function end(r){
+  if(G.state==='end')return;
+  G.state='end';G.end=r;renderHUD(true);musicStop();sfx(r==='clear'?'clear':'over');
+  if(r==='nms')see('nms');
+  if(r==='litox')see('litox');
+  justUnlocked=false;
+  if(r==='clear'){const k=G.loop===2?'c2':'c';const before=allClear('c',CORE);
+    if(!Z[k].includes(G.st.id)){Z[k].push(G.st.id);saveZ();}
+    if(ADV&&!Z.a.includes(G.st.id+':'+G.loop)){Z.a.push(G.st.id+':'+G.loop);saveZ();}
+    if(G.loop===1&&!before&&allClear('c',CORE))justUnlocked=true;
+    renderTabs();}
+  clearKeys();
+  setTimeout(openResult,r==='clear'?500:350);
+}
+
+/* ========== 更新 ========== */
+function updPlayer(dt){
+  const ak=fxI('akathisia'),pk=fxI('parkinson'),lt=liTox(),wk=fxI('wernicke');
+  let spd=2.3*Math.max(.5,1-.38*pk);
+  const jmp=7.6*Math.max(.8,(1-.12*pk)*(1-.17*G.weight)*(1-.15*lt)*(1-.15*wk));
+  if(G.freeze>0)G.freeze-=dt;
+  const moving=keys.l!==keys.r&&G.freeze<=0;
+  if(moving){
+    if(P.stillT>.8&&fxI('ortho')>0&&G.t-G.lastOrtho>2.5){G.blackout=.75;G.lastOrtho=G.t;pop(P.x+P.w/2,P.y-6,'立ちくらみ','#bb3333');}
+    P.stillT=0;
+    P.vx+=(keys.r?1:-1)*(P.on?.32:.2);P.face=keys.r?1:-1;
+  }else{
+    P.stillT+=dt;
+    if(ak>0&&P.on&&G.freeze<=0){
+      P.akT-=dt;
+      if(P.akT<=0){P.akDir=Math.random()<.5?-1:1;P.akT=.25+Math.random()*.45;}
+      P.vx+=P.akDir*.25*ak;const m=1.1*ak;P.vx=clamp(P.vx,-m,m);P.face=P.akDir;
+      if(Math.random()<.006)pop(P.x+P.w/2,P.y-6,'そわそわ','#bb3333');
+    }else{
+      P.vx*=P.on?(G.freeze>0?.5:.72):.96;if(Math.abs(P.vx)<.05)P.vx=0;
+    }
+  }
+  const nz=fxI('nausea');
+  if(nz>0){G.nzT-=dt;if(G.nzT<=0){G.nzT=3.2;G.freeze=.6*nz;pop(P.x+P.w/2,P.y-6,'うっ…','#6b5a2a');}}
+  const wd=fxI('withdrawal');
+  if(wd>0){G.wdT-=dt;if(G.wdT<=0){G.wdT=2.4;G.freeze=.5*wd;pop(P.x+P.w/2,P.y-6,'ビリッ','#bb3333');}}
+  const stg=Math.max(lt,fxI('ataxia')*.6,wk*.8);
+  if(stg>0&&P.on&&Math.random()<.05*stg)P.vx+=(Math.random()-.5)*3*stg;
+  if(G.ss>0){
+    spd=3.2;
+    if(P.on&&Math.random()<.05)P.vy=-4.2;
+    P.vx+=(Math.random()-.5)*1.2;
+    if(Math.random()<.03)pop(P.x+P.w/2,P.y-6,'ピクッ','#bb3333');
+  }
+  P.vx=clamp(P.vx,-spd,spd);
+  const av=Math.max(fxI('activation'),fxI('manicsw'));
+  if(av>0){G.avT-=dt;if(G.avT<=0){G.avT=3+Math.random()*2;G.dash=.7;G.dashDir=P.face||1;pop(P.x+P.w/2,P.y-6,'イライラ','#bb3333');}}
+  if(G.dash>0){G.dash-=dt;P.vx=G.dashDir*3.3;}
+  if(P.on)P.coy=.08;else P.coy-=dt;
+  if(G.jbuf>0)G.jbuf-=dt;
+  if(G.jbuf>0&&P.coy>0&&G.freeze<=0){P.vy=-jmp;P.coy=0;G.jbuf=0;P.jumping=true;sfx('jump');}
+  if(!keys.j&&P.jumping&&P.vy<-3)P.vy=-3;
+  if(P.vy>=0)P.jumping=false;
+  P.vy=Math.min(P.vy+.45,7.5);
+  moveBody(P,hitBlock);
+  P.walkT+=Math.abs(P.vx)*.35;
+  if(P.inv>0)P.inv-=dt;
+  if(P.y>ROWS*T+30){hurt(true);if(G.state==='end')return;}
+  const tx=Math.floor(P.x/T);if(P.on)for(const c of G.st.L.cps)if(tx>=c)G.cp=Math.max(G.cp,c);
+  const wi=fxI('weight');
+  if(wi>0&&G.weight<1){G.weight=Math.min(1,G.weight+dt*wi/40);grow(12+6*G.weight);}
+  if(P.x+P.w>=FLAGX)end('clear');
+}
+function updEnemies(dt){
+  const wk=G.st.walker,fl=G.st.floater,sp=(G.loop===2?1.25:1)*(G.worse>0?1.6:1);
+  for(const e of EN){
+    if(e.dead>0){e.dead-=dt;continue;}
+    if(!e.alive)continue;
+    if(e.type==='walker'){
+      if(!e.act){if(e.x-G.cam<W+24)e.act=true;else continue;}
+      e.vy=Math.min(e.vy+.45,7);
+      if(wk.hop&&e.on&&Math.random()<.012)e.vy=-5;
+      const base=e.vx;e.vx=base*sp;const hit=moveBody(e);e.vx=hit?-base:base;
+      if(e.on){const fx=e.vx>0?e.x+e.w+1:e.x-1;if(get(Math.floor(fx/T),Math.floor((e.y+e.h+2)/T))===0)e.vx=-e.vx;}
+      if(e.y>ROWS*T+40){e.alive=false;continue;}
+    }else{
+      e.ft=(e.ft||0)+dt*sp;
+      e.x=e.bx+Math.sin(e.ft*.9*fl.speed+e.ph)*fl.amp;e.y=e.by+Math.sin(e.ft*2.3+e.ph)*6;
+    }
+    if(overlap(P,e)){
+      const stomp=P.vy>0&&(P.y+P.h-P.vy)<=e.y+6;
+      if(canStomp(e)&&stomp){
+        e.alive=false;e.dead=.35;sfx('stomp');P.vy=keys.j?-7:-5;P.jumping=keys.j;G.stomps++;
+        pop(e.x+e.w/2,e.y-4,(e.type==='walker'?wk.label:fl.label)+' 改善');
+      }else{
+        if(stomp){
+          if(!G.main)hint('norx','症状が踏めない','治療していないので効かない。Rxブロックを下から叩こう');
+          else if(G.worse>0)hint('worse','症状が踏めない','せん妄が悪化している');
+          else if(G.relapse>0)hint('relapse','症状が踏めない','再発している');
+          else if(G.vpaDrop)hint('drop','症状が踏めない','バルプロ酸の濃度が下がって効かなくなった');
+          else if(G.t<G.effAt)hint('wait','まだ効いていない',`効果が出るまで時間がかかる（実際は${DRUGS[G.main].delayText||''}）`);
+          else hint('partial','効きが不十分','一部の症状が残っている。次のRxブロックで見直そう');
+        }
+        hurt(false);if(G.state!=='play')return;
+      }
+    }
+  }
+}
+function update(dt){
+  G.t+=dt;
+  for(const [n,f] of Object.entries(G.fx)){
+    if(!f.seen&&G.t>=f.at&&f.i>0){f.seen=true;see(n);toast(FX[n].label+'が出てきた',FX[n].game);}
+    if(f.dur&&f.seen&&!f.ended&&G.t>=f.at+f.dur){f.ended=true;if(n==='nausea'&&!ADV)toast('悪心が軽くなった','体が慣れてきた（実際は1〜2週）');}
+  }
+  if(G.main&&!G.effToast&&G.t>=G.effAt){G.effToast=true;toast('効果が出てきた','症状（敵）を踏んで改善できるようになった');}
+  if(G.ss>0){
+    G.ss-=dt;G.ssHit-=dt;
+    if(G.ssHit<=0){G.ssHit=2.5;G.hearts--;pop(P.x+P.w/2,P.y-14,'発熱・頻脈','#bb3333');if(G.hearts<=0){end('dead');return;}}
+    if(G.ss<=0)toast('原因薬を中止して改善','セロトニン症候群の多くは、中止後24時間以内に軽快する');
+  }
+  if(G.relapse>0){G.relapse-=dt;if(G.relapse<=0)toast('治療を再開して改善','再発を防ぐには、治療を続けることが大切');}
+  if(G.worse>0){G.worse-=dt;if(G.worse<=0)toast('原因の薬をやめて改善','せん妄が落ち着いてきた');}
+  if(G.seizAt&&G.t>=G.seizAt){
+    G.seizAt=0;see('seizure');sfx('seizure');G.freeze=1.5;G.flash=.5;G.hearts--;toast('けいれん発作','しばらく動けない');
+    if(G.hearts<=0){end('dead');return;}
+    if(G.onSeiz){const f=G.onSeiz;G.onSeiz=null;f();}
+  }
+  if(G.flash>0)G.flash-=dt;
+  updPlayer(dt);if(G.state!=='play')return;
+  updEnemies(dt);if(G.state!=='play')return;
+  const WM=G.st.water,bal=WM==='balance';
+  if(WM!=='none'){
+  for(const it of IT)if(!it.taken&&overlap(P,it)){it.taken=true;sfx('water');G.water=Math.min(bal?150:100,G.water+(bal?30:40));G.lowWarn=false;G.dehydT=0;pop(it.x+5,it.y-4,'+水分','#2f7fc0');}
+  G.water=Math.max(0,G.water-dt*(bal?.6:1.1)*(1+2*fxI('anticho'))*(1+.6*fxI('polyuria')));
+  if(bal){ // 統合失調症：多飲水による水中毒
+    if(G.water>105&&!G.overWarn){G.overWarn=true;toast('水の取りすぎに注意','統合失調症では多飲水から水中毒になることがある');}
+    if(G.water<95)G.overWarn=false;
+    if(G.water>120){G.wiT+=dt;if(G.wiT>=2.5){G.wiT=0;see('waterint');G.freeze=.8;G.hearts--;sfx('hurt');pop(P.x+P.w/2,P.y-14,'頭痛・嘔吐','#bb3333');
+      toast('水中毒','低ナトリウム血症で頭痛・嘔吐。さらに進むとけいれん');if(G.hearts<=0){end('dead');return;}if(G.water>140)G.seizAt=G.t+.3;G.water-=15;}}
+    else G.wiT=0;
+  }
+  if(G.water<25&&G.water>0&&!G.lowWarn){G.lowWarn=true;toast('水分が少ない','水のボトルを取ろう');}
+  if(G.water<=0){
+    if(G.main&&DRUGS[G.main].nms){see('dehyd');end('nms');return;}
+    G.dehydT+=dt;
+    if(G.dehydT>=2.5){
+      G.dehydT=0;see('dehyd');
+      toast('脱水',hasLi()?'脱水でリチウム濃度が上がる。水を取ろう':G.st.id==='dlr'?'脱水はせん妄の原因になる。水を取ろう':'脱水は悪性症候群の危険因子。水を取ろう');
+      G.hearts--;if(G.hearts<=0){end('dead');return;}
+    }
+  }
+  }
+  if(hasLi()){
+    const target=G.liBase+1.0*(1-G.water/100)+G.liAdd;
+    G.li+=clamp(target-G.li,-.12*dt,.12*dt);
+    if(G.li>=1.5&&!G.liTox){G.liTox=true;see('litox');toast('リチウム中毒の症状','粗大振戦・ふらつき。水を取って濃度を下げよう');}
+    if(G.li<1.4)G.liTox=false;
+    if(G.li>=2){end('litox');return;}
+  }
+  if(G.blackout>0)G.blackout-=dt;
+  if(G.bump){G.bump.t-=dt;if(G.bump.t<=0)G.bump=null;}
+  for(const p of G.pops){p.t-=dt;p.y-=dt*18;}
+  G.pops=G.pops.filter(p=>p.t>0);
+  G.cam=clamp(P.x+P.w/2-W*.4,0,COLS*T-W);
+  // BGMの回復度：治療の効き（0〜1）を土台に、ステージを進むほど整っていく。未治療だと崩れたまま
+  const prog=clamp(P.x/FLAGX,0,1),trt=effLv()/2;
+  G.mh+=(clamp(trt*.6+prog*trt*.3+prog*.1+Math.min(G.stomps,10)*.008,0,1)-G.mh)*Math.min(1,dt*.8);
+  renderHUD();
+}
+
+/* ========== HUD ========== */
+let hudSig='',lastBlur='',lastHearts=-1;
+const chipsEl=$('chips'),wfill=$('wfill'),meter=$('meter'),lvEl=$('lv');
+function renderHUD(force){
+  if(force||G.hearts!==lastHearts){lastHearts=G.hearts;const h=clamp(G.hearts,0,MAXH);$('hearts').textContent='♥'.repeat(h)+'♡'.repeat(MAXH-h);}
+  const bal=G.st.water==='balance';wfill.style.width=(G.water/(bal?150:100)*100).toFixed(1)+'%';meter.classList.toggle('low',G.water<25);meter.classList.toggle('hi',bal&&G.water>105&&G.water<=120);meter.classList.toggle('over',bal&&G.water>120);
+  lvEl.hidden=!hasLi();
+  if(hasLi()){$('lvv').textContent=G.li.toFixed(2);lvEl.classList.toggle('hi',G.li>1.2&&G.li<1.5);lvEl.classList.toggle('tox',G.li>=1.5);}
+  const c=[];
+  if(G.main){c.push(['drug',G.main==='assess'?'見立て：'+dxName(G.dxPick):DRUGS[G.main].name+(G.loop===2&&G.mg&&G.mg!=='—'?' '+G.mg:'')]);if(G.t<G.effAt)c.push(['wait',`効果まで あと${Math.ceil(G.effAt-G.t)}秒`]);else if(G.effLv<2&&!G.worse&&!G.relapse)c.push(['wait','効きが不十分']);}
+  else c.push(['none',G.case?'見立て前':'未治療']);
+  if(G.case&&!G.main&&DXC().tickets)c.push(['wait',`検査券 あと${ticketsLeft()}枚`]);
+  for(const a of G.added)c.push(['adj','＋'+nm(a)]);
+  if(G.adjName)c.push(['adj',G.adjName]);
+  const L=t=>ADV?'？':t;
+  if(G.vpaDrop)c.push(['fx',L('躁症状が再燃')]);
+  if(G.ss>0)c.push(['fx',L('セロトニン症候群')]);
+  if(G.worse>0)c.push(['fx',L('せん妄の悪化')]);
+  if(G.relapse>0)c.push(['fx',L('再発')]);
+  for(const n of Object.keys(G.fx)){const v=fxI(n);if(v>0)c.push(['fx',ADV?'？':FX[n].label+(v<.75?'（軽）':'')]);}
+  if(liTox()>0)c.push(['fx',L('リチウム中毒')]);
+  const sig=JSON.stringify(c);
+  if(force||sig!==hudSig){hudSig=sig;chipsEl.innerHTML=c.map(([k,t])=>`<span class="chip ${k}">${t}</span>`).join('');}
+  const ac=fxI('anticho');const b=ac>0?`blur(${(1.3*ac).toFixed(2)}px) saturate(.8)`:'none';
+  if(b!==lastBlur){lastBlur=b;cv.style.filter=b;}
+}
+
+/* ========== 処方の画面 ========== */
+function openSheet(html){G.state='modal';SND.duck=true;clearKeys();sheet.innerHTML=html;modal.hidden=false;const f=sheet.querySelector('button:not(:disabled)');if(f)f.focus();}
+function closeModal(){modal.hidden=true;sheet.innerHTML='';G.state='play';SND.duck=false;last=performance.now();
+  keys.l=held.l;keys.r=held.r;document.querySelectorAll('.pad button').forEach(b=>b.classList.toggle('on',!!keys[b.dataset.k]));}
+function cardsHTML(list){
+  const w=list.length===3?180:260,l2=G.loop===2;
+  return `<div class="cards" style="grid-template-columns:repeat(auto-fit,minmax(min(100%,${w}px),1fr))">${list.map((o,i)=>`<button type="button" class="card" data-i="${i}"><span class="k">[${i+1}]${ADV?'':'　'+(o.cls||'')}</span><span class="n">${o.name}</span>${!ADV&&o.rec?`<span class="r">${o.rec}</span>`:''}${(l2||EDITION.showMg)&&o.mg?`<span class="mg">${o.mg}</span>`:''}${!ADV&&o.note?`<span class="t">${o.note}</span>`:''}</button>`).join('')}</div>`;
+}
+function openMain(){
+  if(G.st.diag)return openDiag();
+  const pt=G.pt,l2=G.loop===2;
+  const list=G.st.drugs.map(id=>{const d=DRUGS[id],ds=dose(id);return {id,cls:d.cls,name:d.name,rec:d.rec,note:d.note,mg:ds.start&&ds.start!=='—'?`開始量 ${ds.start}${/週|回/.test(ds.start)?'':'/日'}`:''};});
+  openSheet(`<div class="rxhead"><h2>処方箋</h2><span>${G.st.rxWhat}</span></div>
+    <p class="ptline">${ptBlock(pt)}</p>
+    ${cardsHTML(list)}<p class="warn" id="warn" hidden></p>`);
+  sheet.querySelectorAll('.card').forEach(b=>b.addEventListener('click',()=>chooseMain(list[+b.dataset.i].id,b)));
+}
+function chooseMain(id,btn){
+  const d=DRUGS[id];
+  const tag=(d.contra||[]).find(t=>G.pt.tags.includes(t));
+  if(tag){
+    if(!G.contra.includes(id)){G.contra.push(id);if(!G.contraTags.includes(tag))G.contraTags.push(tag);G.hearts=Math.max(1,G.hearts-1);see('contra');renderHUD(true);}
+    sfx('stamp');btn.disabled=true;btn.insertAdjacentHTML('beforeend','<span class="stamp" aria-hidden="true">禁忌</span>');
+    const w=$('warn');w.hidden=false;w.textContent='禁忌です。'+(ADV?'':cwhy(id,tag))+'ハートが1つ減りました。';
+    const f=sheet.querySelector('.card:not(:disabled)');if(f)f.focus();
+    return;
+  }
+  G.main=id;G.mg=dose(id).start||'';unlockD(id);
+  applyFx(id,1,false);
+  if(id==='li'){G.li=.6;G.liBase=.7;}
+  G.effAt=G.t+(d.delay||0);G.effToast=!d.delay;G.effLv=2;
+  // 2周目：反応のしかた（不十分・無効・副作用）を決める
+  const st=G.st;
+  if(G.loop===2&&st.resp&&(!st.respOnly||st.respOnly.includes(id))){
+    const r=Math.random();G.resp=G.pt.tags.includes('trs')?'none':G.retry&&G.retry.main===id&&G.retry.resp?G.retry.resp:r<.4?'partial':r<.7?'none':'se';
+    if(G.resp==='se'){scaleFx(1.5);}else G.effLv=1;
+    if(id==='li')G.liBase={partial:.4,none:.8,se:1.05}[G.resp];
+  }
+  if(st.onMain)st.onMain(id);
+  if(st.gradeMain){const [g,why]=st.gradeMain(id);G.grades.push({q:'最初の処方',a:d.name,g,why});}
+  closeModal();renderHUD(true);
+  if(d.delay){see('delay');toast(d.name+'を開始',`効果が出るまで時間がかかる（実際は${d.delayText}）`);}
+  else if(effLv()>=2)toast(d.name+'を開始','症状（敵）を踏んで改善できるようになった');
+  else if(G.effLv===1)toast(d.name+'を開始','一部の症状だけ踏めるようになった');
+}
+function openDecision(kind){
+  G.done.add(kind);
+  const D=kind==='plan'?G.st.plan():kind==='followup'?G.st.followup():G.st.event();
+  const sub=G.main==='assess'?'見立て：'+dxName(G.dxPick):G.main?nm(G.main)+(G.loop===2&&G.mg&&G.mg!=='—'?' '+G.mg:'')+' 使用中':'';
+  openSheet(`<div class="rxhead"><h2>${D.title}</h2><span>${sub}</span></div>
+    <p class="ptline">${D.line}</p>${cardsHTML(D.opts)}`);
+  sheet.querySelectorAll('.card').forEach(b=>b.addEventListener('click',()=>{
+    const o=D.opts[+b.dataset.i];
+    if(EXTRA[o.id])unlockD(o.id);
+    if(kind==='event'){G.adj=o.id;if(EXTRA[o.id])G.adjName=EXTRA[o.id].name;}
+    const best=D.opts.reduce((m,x)=>Math.max(m,GS[x.g]),0);
+    G.grades.push({q:D.title,a:o.name,g:o.g,why:o.why,best});
+    const msg=o.fn();sfx(ADV?'rx':GS[o.g]>=2?'good':'bad');
+    closeModal();renderHUD(true);if(ADV)toast(o.name,'判断の結果は退院のときに');else toast(`${o.g}　${o.name}`,msg);
+    if(G.hearts<=0)end('dead');
+  }));
+}
+function openResult(){
+  const r=G.end,t=G.t,mm=Math.floor(t/60),ss=Math.floor(t%60),l2=G.loop===2;
+  const title={clear:'退院おめでとう',dead:'ゲームオーバー',nms:'悪性症候群',litox:'リチウム中毒'}[r];
+  const sub={clear:'旗まで到達しました',dead:'ハートがなくなりました',nms:'ハロペリドール使用中に脱水が進みました',litox:'リチウムの血中濃度が2.0 mEq/Lを超えました'}[r];
+  const used=[...new Set([...G.hist,G.main,...G.added].filter(x=>x&&x!=='assess'))];
+  let rx=used.length?used.map(id=>nm(id)+(l2&&id===G.main&&G.mg&&G.mg!=='—'?' '+G.mg:'')).join('　→　'):'未治療のまま';
+  if(G.adjName)rx+='　＋　'+G.adjName;
+  if(G.contra.length)rx+=`<br><span class="muted">${G.contra.map(nm).join('・')}は禁忌で選べなかった</span>`;
+  if(G.st.resultNote)rx+=`<br><b>${G.st.resultNote()}</b>`;
+  const seen=[...G.seen];
+  const fxl=seen.length?`<dl class="fxl">${seen.map(n=>`<div><dt>${FX[n].label}</dt><dd><span class="g">ゲームでは：${FX[n].game}</span>${FX[n].why}</dd></div>`).join('')}</dl>`:'<p class="muted">なし</p>';
+  const sc=G.grades.reduce((a,g)=>a+GS[g.g],0),mx=G.grades.reduce((a,g)=>a+(g.best??3),0);
+  const gl=G.grades.length?`<ul class="grades">${G.grades.map(g=>`<li><span class="mark ${GC[g.g]}">${g.g}</span><div><span class="q">${g.q}：${g.a}</span>${g.why}</div></li>`).join('')}</ul>`:'<p class="muted">判断の機会はなかった</p>';
+  const pts=G.st.points();
+  const ct=new Set(G.contraTags);for(const tg of G.pt.tags)if(CONTRA_WHY[tg])ct.add(tg);
+  for(const tg of ct){const w=CONTRA_WHY[tg];if(!pts.includes(w))pts.push(w);}
+  const doses=l2?used.map(id=>dose(id).range?`<li><b>${nm(id)}</b>：${dose(id).range}</li>`:'').join(''):'';
+  const last=cur===STAGES.length-1;
+  let banner='';
+  if(justUnlocked)banner='<p class="banner">第1〜6面をクリア！ 2周目が開きました。mg単位の判断に挑戦しよう</p>';
+  else if(l2&&r==='clear'&&allClear('c2'))banner='<p class="banner">2周目も全面クリア！</p>';
+  const fail=r!=='clear',nc=fail?'btn sub':'btn';
+  const nextBtn=(justUnlocked?'<button type="button" class="btn night" id="go2">2周目へ</button>':'')+(!last?`<button type="button" class="${nc}" id="next">第${STAGES[cur+1].no}面へ</button>`:`<button type="button" class="${nc}" id="first">第1面へ</button>`);
+  openSheet(`<div class="rxhead${r==='clear'?'':' bad'}"><h2>${title}</h2><span>第${G.st.no}面${l2?'（2周目）':''}${ADV?'・上級者モード':''}　${sub}</span></div>${banner}
+    <div class="stats"><div><span>タイム</span><b>${mm}:${String(ss).padStart(2,'0')}</b></div><div><span>改善した症状</span><b>${G.stomps}</b></div><div><span>残りハート</span><b>${Math.max(0,G.hearts)}</b></div>${G.grades.length?`<div><span>判断スコア</span><b>${sc} / ${mx}</b></div>`:''}</div>
+    <h3>今回の処方</h3><p>${rx}</p>
+    <h3>処方の判断</h3>${gl}
+    <h3>体験した副作用・できごと</h3>${fxl}
+    ${doses?`<h3>用量の目安</h3><ul class="doses">${doses}</ul><p class="note">日本の添付文書の通常用量をもとにした目安です。</p>`:''}
+    <h3>試験に出るポイント</h3><ul class="pts">${pts.map(p=>`<li>${p}</li>`).join('')}</ul>
+    <div class="actions"><button type="button" class="btn sub" id="again">別の患者でもう一度</button>${nextBtn}${fail?'<button type="button" class="btn" id="same">同じ患者でもう一度</button>':''}</div>`);
+  G.state='end';
+  const go=(i,rt)=>{modal.hidden=true;sheet.innerHTML='';newGame(i,rt);};
+  $('again').addEventListener('click',()=>go(cur));
+  if($('same')){const rt={pt:G.pt,ev:G.ev,main:G.main,resp:G.resp};$('same').addEventListener('click',()=>go(cur,rt));}
+  if($('next'))$('next').addEventListener('click',()=>go(cur+1));
+  if($('first'))$('first').addEventListener('click',()=>go(0));
+  if($('go2'))$('go2').addEventListener('click',()=>{loop=2;go(0);});
+}
+
+/* ========== 描画 ========== */
+function drawBg(){
+  const st=G.st;
+  const g=ctx.createLinearGradient(0,0,0,H);g.addColorStop(0,st.sky[0]);g.addColorStop(1,st.sky[1]);
+  ctx.fillStyle=g;ctx.fillRect(0,0,W,H);
+  if(st.sun){ctx.fillStyle='rgba(255,236,170,.9)';ctx.beginPath();ctx.arc(392,58,22,0,Math.PI*2);ctx.fill();}
+  if(st.moon||G.loop===2){ctx.fillStyle='rgba(250,244,210,.95)';ctx.beginPath();ctx.arc(400,48,14,0,Math.PI*2);ctx.fill();ctx.fillStyle=st.sky[0];ctx.beginPath();ctx.arc(406,44,12,0,Math.PI*2);ctx.fill();}
+  ctx.fillStyle=st.cloud;
+  for(const c of CLOUDS){const span=W+140;const x=((c.x-G.cam*.12)%span+span)%span-70;ctx.fillRect(x,c.y,c.w,8);ctx.fillRect(x+7,c.y-5,c.w-16,6);}
+  const off=G.cam*.3;
+  for(const b of BLD){
+    const x=Math.round(b.x-off);if(x>W||x+b.w<0)continue;
+    ctx.fillStyle=st.bld[0];ctx.fillRect(x,240-b.h,b.w,b.h);
+    ctx.fillStyle=G.loop===2&&!st.moon?'#f3df98':st.bld[1];
+    for(let wy=240-b.h+8;wy<232;wy+=12)for(let wx=x+6;wx<x+b.w-8;wx+=10)if(G.loop===1||st.moon||((wx*7+wy*3)%5<3))ctx.fillRect(wx,wy,5,6);
+  }
+  if(G.loop===2&&!st.moon){ctx.fillStyle='rgba(16,20,56,.42)';ctx.fillRect(0,0,W,240);}
+}
+function drawTile(x,y,t){
+  const px=x*T;let py=y*T;
+  if(G.bump&&G.bump.tx===x&&G.bump.ty===y)py-=Math.round(Math.sin((.15-G.bump.t)/.15*Math.PI)*4);
+  if(t===1){
+    const top=get(x,y-1)!==1;
+    ctx.fillStyle='#9b7653';ctx.fillRect(px,py,T,T);
+    ctx.fillStyle='#85613f';ctx.fillRect(px+3,py+(top?8:3),2,2);ctx.fillRect(px+10,py+(top?12:9),2,2);
+    if(top){ctx.fillStyle='#5f9e6e';ctx.fillRect(px,py,T,5);ctx.fillStyle='#7dbf88';ctx.fillRect(px,py,T,2);}
+  }else if(t===2){
+    ctx.fillStyle='#c46f48';ctx.fillRect(px,py,T,T);
+    ctx.fillStyle='#8f4a2e';ctx.fillRect(px,py+7,T,1);ctx.fillRect(px,py+15,T,1);ctx.fillRect(px+7,py,1,7);ctx.fillRect(px+3,py+8,1,7);ctx.fillRect(px+12,py+8,1,7);
+  }else if(t===3){
+    const sh=.5+.5*Math.sin(G.t*4);
+    ctx.fillStyle='#e2b03a';ctx.fillRect(px,py,T,T);
+    ctx.fillStyle='#a87818';ctx.fillRect(px,py+T-2,T,2);ctx.fillRect(px+T-2,py,2,T);
+    ctx.fillStyle=`rgba(255,240,190,${.6+.4*sh})`;ctx.fillRect(px,py,T,2);ctx.fillRect(px,py,2,T);
+    ctx.fillStyle='#7a5410';ctx.font=`10px ${PF}`;ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText('Rx',px+8,py+9);
+    ctx.fillStyle='#ffffff';ctx.fillText('Rx',px+7.5,py+8.5);
+  }else if(t===4){
+    ctx.fillStyle='#8d8676';ctx.fillRect(px,py,T,T);ctx.fillStyle='#6d675a';ctx.fillRect(px,py+T-2,T,2);ctx.fillRect(px+T-2,py,2,T);
+    ctx.fillStyle='#a59e8d';ctx.fillRect(px+3,py+3,2,2);ctx.fillRect(px+11,py+3,2,2);ctx.fillRect(px+3,py+11,2,2);ctx.fillRect(px+11,py+11,2,2);
+  }else if(t===6){
+    ctx.fillStyle='#3f8f86';ctx.fillRect(px,py,T,T);ctx.fillStyle='#2a6660';ctx.fillRect(px,py+T-2,T,2);ctx.fillRect(px+T-2,py,2,T);
+    ctx.fillStyle='#8fd0c6';ctx.fillRect(px,py,T,2);ctx.fillRect(px,py,2,T);
+    ctx.fillStyle='#ffffff';ctx.font=`11px ${PF}`;ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText('検',px+8,py+8.5);
+  }else if(t===5){
+    ctx.fillStyle='#8ea2a6';ctx.fillRect(px,py,T,T);ctx.fillStyle='#b8c8ca';ctx.fillRect(px,py,T,2);ctx.fillRect(px,py,2,T);
+    ctx.fillStyle='#6a7d81';ctx.fillRect(px,py+T-2,T,2);ctx.fillRect(px+T-2,py,2,T);
+  }
+}
+function ghost(tr,seed){ctx.globalAlpha=tr?1:.42+.2*Math.sin(G.t*9+seed);}
+function drawWalker(e,tr){
+  const skin=G.st.walker.skin,cx=e.x+e.w/2,st=Math.sin(G.t*10+e.x)>0?1:0;
+  ghost(tr,e.x);
+  if(e.dead>0){const col={eye:'#4a2f5c',blob:'#5f6278',crown:'#e2b03a',heart:'#d0435b',qmark:'#c9c2a2',bottle:'#3f6b3a'}[skin];ctx.fillStyle=col;ctx.fillRect(e.x,e.y+10,e.w,4);ctx.globalAlpha=1;return;}
+  if(skin==='eye'){
+    const cy=e.y+6;
+    ctx.fillStyle='#4a2f5c';ctx.fillRect(e.x+2+st,e.y+11,4,3);ctx.fillRect(e.x+e.w-6-st,e.y+11,4,3);
+    ctx.beginPath();ctx.ellipse(cx,cy,8,6.5,0,0,Math.PI*2);ctx.fill();
+    ctx.fillStyle='#fbf8fc';ctx.beginPath();ctx.ellipse(cx,cy,7,5.5,0,0,Math.PI*2);ctx.fill();
+    ctx.fillStyle='#e6a3a3';ctx.fillRect(cx-6,cy,2,1);ctx.fillRect(cx+4,cy-1,2,1);
+    const dx=clamp((P.x+P.w/2-cx)/20,-3,3),dy=clamp((P.y+8-cy)/30,-1.5,1.5);
+    ctx.fillStyle='#8a3fb0';ctx.beginPath();ctx.arc(cx+dx,cy+dy,3.2,0,Math.PI*2);ctx.fill();
+    ctx.fillStyle='#1b1020';ctx.beginPath();ctx.arc(cx+dx,cy+dy,1.5,0,Math.PI*2);ctx.fill();
+  }else if(skin==='blob'){
+    ctx.fillStyle='#4b4d62';ctx.beginPath();ctx.ellipse(cx,e.y+9,8.5,6,0,Math.PI,0);ctx.fill();ctx.fillRect(e.x-.5,e.y+9,e.w+1,5);
+    ctx.fillStyle='#7d809b';ctx.beginPath();ctx.ellipse(cx,e.y+9,7.5,5,0,Math.PI,0);ctx.fill();ctx.fillRect(e.x+.5,e.y+9,e.w-1,4);
+    ctx.fillStyle='#2a2b38';ctx.fillRect(cx-5,e.y+7,3,1);ctx.fillRect(cx+2,e.y+7,3,1);ctx.fillRect(cx-4,e.y+8,1,1);ctx.fillRect(cx+4,e.y+8,1,1);ctx.fillRect(cx-2,e.y+11,4,1);
+    ctx.fillStyle='#9fb6d8';ctx.fillRect(cx+6,e.y+4+((G.t*6|0)%4),1,2);
+  }else if(skin==='crown'){
+    ctx.fillStyle='#5a3c12';ctx.fillRect(e.x+3+st,e.y+11,3,3);ctx.fillRect(e.x+e.w-6-st,e.y+11,3,3);
+    ctx.fillStyle='#8a5b12';ctx.fillRect(e.x,e.y+3,e.w,9);
+    ctx.fillStyle='#f0c13e';ctx.fillRect(e.x+1,e.y+5,e.w-2,6);
+    ctx.fillRect(e.x+1,e.y,3,5);ctx.fillRect(cx-1.5,e.y-2,3,7);ctx.fillRect(e.x+e.w-4,e.y,3,5);
+    ctx.fillStyle='#d33a3a';ctx.fillRect(cx-1,e.y+1,2,2);
+    ctx.fillStyle='#3a2508';const dx=P.x>e.x?1:0;ctx.fillRect(cx-4+dx,e.y+7,2,2);ctx.fillRect(cx+2+dx,e.y+7,2,2);
+  }else if(skin==='heart'){
+    const b=1+.12*Math.max(0,Math.sin(G.t*14+e.x));
+    ctx.fillStyle='#7a1d2e';ctx.fillRect(e.x+3+st,e.y+11,3,3);ctx.fillRect(e.x+e.w-6-st,e.y+11,3,3);
+    ctx.save();ctx.translate(cx,e.y+6);ctx.scale(b,b);
+    ctx.fillStyle='#7a1d2e';ctx.beginPath();ctx.arc(-3.5,-1.5,4.6,0,Math.PI*2);ctx.arc(3.5,-1.5,4.6,0,Math.PI*2);ctx.fill();ctx.beginPath();ctx.moveTo(-8,0);ctx.lineTo(8,0);ctx.lineTo(0,7.5);ctx.fill();
+    ctx.fillStyle='#e0506a';ctx.beginPath();ctx.arc(-3.5,-1.5,3.6,0,Math.PI*2);ctx.arc(3.5,-1.5,3.6,0,Math.PI*2);ctx.fill();ctx.beginPath();ctx.moveTo(-7,0);ctx.lineTo(7,0);ctx.lineTo(0,6.3);ctx.fill();
+    ctx.fillStyle='#ffffff';ctx.fillRect(-4,-2,2,2);ctx.fillRect(2,-2,2,2);ctx.restore();
+  }else if(skin==='qmark'){
+    ctx.fillStyle='#3d3a2c';ctx.fillRect(e.x+4+st,e.y+11,3,3);ctx.fillRect(e.x+e.w-7-st,e.y+11,3,3);
+    ctx.fillStyle='#3d3a2c';ctx.fillRect(e.x+1,e.y-1,e.w-2,13);
+    ctx.fillStyle='#efe6c4';ctx.fillRect(e.x+2,e.y,e.w-4,11);
+    ctx.fillStyle='#3d3a2c';ctx.font=`10px ${PF}`;ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText('？',cx,e.y+6);
+  }else{
+    const wob=Math.sin(G.t*16+e.x)*1.2;
+    ctx.fillStyle='#22381f';ctx.fillRect(e.x+4+st,e.y+12,3,2);ctx.fillRect(e.x+e.w-7-st,e.y+12,3,2);
+    ctx.save();ctx.translate(cx,e.y+12);ctx.rotate(wob*.06);
+    ctx.fillStyle='#22381f';ctx.fillRect(-5,-11,10,12);ctx.fillRect(-2,-15,4,5);
+    ctx.fillStyle='#4f8a47';ctx.fillRect(-4,-10,8,10);ctx.fillRect(-1,-14,2,4);
+    ctx.fillStyle='#e9e2c8';ctx.fillRect(-4,-7,8,4);
+    ctx.fillStyle='#22381f';ctx.fillRect(-3,-6,2,1);ctx.fillRect(1,-6,2,1);ctx.restore();
+  }
+  ctx.globalAlpha=1;
+}
+function drawFloater(e,tr){
+  const fl=G.st.floater,skin=fl.skin,x=Math.round(e.x),y=Math.round(e.y);
+  if(e.dead>0){ctx.globalAlpha=e.dead/.35;ctx.fillStyle='#ffffff';ctx.fillRect(x+6,y+4,14,5);ctx.globalAlpha=1;return;}
+  ghost(tr,e.ph*3);
+  if(skin==='cloud'){
+    ctx.fillStyle='#8fa3c0';for(let i=0;i<4;i++){const ry=(G.t*40+i*7+e.ph*10)%14;ctx.fillRect(x+4+i*6,y+e.h+ry,1,3);}
+    ctx.fillStyle='#454c5c';
+    ctx.beginPath();ctx.ellipse(x+9,y+8,9,6,0,0,Math.PI*2);ctx.ellipse(x+18,y+6,9,7,0,0,Math.PI*2);ctx.ellipse(x+24,y+9,6,5,0,0,Math.PI*2);ctx.fill();
+    ctx.fillStyle='#626b7e';ctx.beginPath();ctx.ellipse(x+17,y+5,6,4,0,0,Math.PI*2);ctx.fill();
+    ctx.fillStyle='#22252e';ctx.fillRect(x+11,y+8,2,1);ctx.fillRect(x+18,y+8,2,1);
+  }else if(skin==='bugs'){
+    ctx.fillStyle=fl.bug;
+    for(let i=0;i<6;i++){const a=G.t*6+i*1.1+e.ph,bx=x+12+Math.cos(a)*(8+i%3*2),by=y+6+Math.sin(a*1.3)*5;ctx.fillRect(bx-1.5,by-1,3,2);ctx.fillRect(bx-2.5,by-2+(i%2),1,1);ctx.fillRect(bx+1.5,by-2+((i+1)%2),1,1);}
+  }else if(skin==='wisp'){
+    ctx.fillStyle='rgba(120,90,180,.9)';
+    ctx.beginPath();ctx.ellipse(x+13,y+6,11,7,0,0,Math.PI*2);ctx.fill();
+    for(let i=0;i<3;i++)ctx.fillRect(x+5+i*7,y+11+Math.sin(G.t*8+i)*1.5,4,4);
+    ctx.fillStyle='#ffffff';ctx.font=`8px ${PF}`;ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(e.txt,x+13,y+6.5);
+  }else{
+    const ol=skin==='fast'?'#c8541f':'#3b3550';
+    if(skin==='fast'){ctx.fillStyle='rgba(200,84,31,.45)';ctx.fillRect(x-8,y+3,5,1);ctx.fillRect(x-10,y+7,7,1);ctx.fillRect(x-7,y+10,4,1);}
+    ctx.fillStyle=ol;ctx.fillRect(x-1,y-1,e.w+2,e.h+2);ctx.fillRect(x+4,y+e.h,4,4);
+    ctx.fillStyle='#ffffff';ctx.fillRect(x,y,e.w,e.h);ctx.fillRect(x+5,y+e.h,2,2);
+    ctx.fillStyle=ol;ctx.font=`8px ${PF}`;ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(e.txt,x+e.w/2,y+e.h/2+.5);
+  }
+  ctx.globalAlpha=1;
+}
+function drawPlayer(){
+  if(P.inv>0&&Math.floor(G.t*16)%2===0)return;
+  const shake=Math.max(fxI('parkinson')*.8,fxI('tremor')*.7,liTox()*1.8,G.ss>0?1.2:0);
+  const x=Math.round(P.x+(shake?Math.sin(G.t*38)*shake:0)),y=Math.round(P.y),w=Math.round(P.w),mid=x+Math.floor(w/2);
+  const ak=(fxI('akathisia')>0&&P.on&&!(keys.l!==keys.r))||G.dash>0;
+  const walk=P.on&&Math.abs(P.vx)>.15;
+  const ph=ak?Math.sin(G.t*28):(walk?Math.sin(P.walkT):0);
+  ctx.fillStyle='#2c4766';
+  ctx.fillRect(x+2,y+18,4,ph>0?4:3);ctx.fillRect(x+w-6,y+18,4,ph<0?4:3);
+  ctx.fillStyle='#38514c';ctx.fillRect(x-1,y+7,w+2,12);
+  ctx.fillStyle=G.ss>0&&Math.floor(G.t*8)%2?'#ffd9d9':'#ffffff';ctx.fillRect(x,y+8,w,10);
+  ctx.fillStyle='#d3ddda';ctx.fillRect(mid,y+9,1,9);
+  ctx.fillStyle='#1d7566';ctx.fillRect(mid-3,y+8,1,4);ctx.fillRect(mid+2,y+8,1,4);ctx.fillRect(mid-3,y+12,6,1);
+  const hx=mid-4;
+  ctx.fillStyle='#38514c';ctx.fillRect(hx-1,y-1,10,9);
+  ctx.fillStyle=G.freeze>0?'#cfe0b4':'#f1c9a2';ctx.fillRect(hx,y,8,8);
+  ctx.fillStyle='#33251d';ctx.fillRect(hx,y,8,3);ctx.fillRect(P.face>0?hx:hx+6,y+3,2,2);
+  ctx.fillStyle='#1b1b1b';ctx.fillRect(P.face>0?hx+5:hx+2,y+4,1,2);
+}
+function draw(){
+  ctx.setTransform(S,0,0,S,0,0);
+  const wd=fxI('withdrawal'),wn=fxI('wernicke');
+  const ox=wd?Math.sin(G.t*2.2)*3*wd:0,oy=wd?Math.cos(G.t*1.7)*2*wd:0,nx=wn?Math.sin(G.t*30)*1.6*wn:0;
+  if(ox||oy||nx)ctx.translate(ox+nx,oy);
+  drawBg();
+  const cam=Math.round(G.cam);
+  ctx.save();ctx.translate(-cam,0);
+  const x0=Math.max(0,Math.floor(cam/T)),x1=Math.min(COLS-1,x0+Math.ceil(W/T)+1);
+  for(let y=0;y<ROWS;y++)for(let x=x0;x<=x1;x++){const t=grid[y*COLS+x];if(t)drawTile(x,y,t);}
+  const [rx,ry]=G.st.L.rx;
+  if(!G.main&&get(rx,ry)===3){
+    const by=(ry-1)*T-4+Math.sin(G.t*5)*2;
+    ctx.font=`9px ${PF}`;ctx.textAlign='center';ctx.textBaseline='middle';
+    ctx.lineWidth=3;ctx.strokeStyle='rgba(255,255,255,.9)';ctx.strokeText('下から叩く',rx*T+8,by);
+    ctx.fillStyle='#7a5410';ctx.fillText('下から叩く',rx*T+8,by);
+  }
+  for(const it of IT){if(it.taken)continue;const yb=Math.round(it.y+Math.sin(G.t*3+it.x)*1.5);
+    ctx.fillStyle='#1f5f93';ctx.fillRect(it.x+1,yb+3,8,11);ctx.fillStyle='#2f7fc0';ctx.fillRect(it.x+2,yb+4,6,9);
+    ctx.fillStyle='#bfe1f7';ctx.fillRect(it.x+3,yb+6,2,5);ctx.fillStyle='#e8eef0';ctx.fillRect(it.x+3,yb,4,3);}
+  ctx.fillStyle='#5b6b6a';ctx.fillRect(FLAGX,6*T,2,9*T);ctx.fillStyle='#e2b03a';ctx.fillRect(FLAGX-1,6*T-3,4,4);
+  ctx.fillStyle=G.loop===2?'#2c3566':'#1d7566';ctx.fillRect(FLAGX+2,6*T+2,28,16);
+  ctx.fillStyle='#ffffff';ctx.font=`10px ${PF}`;ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText('退院',FLAGX+16,6*T+10.5);
+  for(const e of EN){if(!e.alive&&!(e.dead>0))continue;if(e.x<cam-40||e.x>cam+W+40)continue;e.type==='walker'?drawWalker(e,canStomp(e)):drawFloater(e,canStomp(e));}
+  drawPlayer();
+  ctx.font=`9px ${PF}`;ctx.textAlign='center';ctx.textBaseline='middle';ctx.lineWidth=3;
+  for(const p of G.pops){ctx.globalAlpha=Math.min(1,p.t*2);ctx.strokeStyle='rgba(255,255,255,.92)';ctx.strokeText(p.txt,p.x,p.y);ctx.fillStyle=p.col;ctx.fillText(p.txt,p.x,p.y);}
+  ctx.globalAlpha=1;
+  ctx.restore();
+  ctx.setTransform(S,0,0,S,0,0);
+  const sf=G.fx.sleepy;let dark=0;
+  if(sf&&sf.i>0&&G.t>=sf.at&&sf.period){const ph=((G.t-sf.at)%sf.period)/sf.period;if(ph<.3)dark=Math.sin(ph/.3*Math.PI)*Math.min(1,sf.i);}
+  G.darkNow=dark;
+  if(dark>0){
+    ctx.fillStyle=`rgba(10,14,34,${(dark*.88).toFixed(3)})`;ctx.fillRect(0,0,W,H);
+    if(dark>.3){ctx.globalAlpha=Math.min(1,(dark-.3)*3);ctx.fillStyle='#ffffff';ctx.font=`11px ${PF}`;ctx.textAlign='center';
+      ctx.fillText('Zzz…',P.x-cam+P.w/2+10,P.y-10+Math.sin(G.t*3)*2);ctx.globalAlpha=1;}
+  }
+  const lt=liTox();
+  if(lt>0){ctx.fillStyle=`rgba(20,20,30,${(.32*lt).toFixed(3)})`;ctx.fillRect(0,0,W,H);}
+  if(G.ss>0){ctx.fillStyle=`rgba(210,40,40,${(.1+.08*Math.sin(G.t*10)).toFixed(3)})`;ctx.fillRect(0,0,W,H);}
+  if(G.worse>0){ctx.fillStyle=`rgba(90,40,120,${(.12+.06*Math.sin(G.t*6)).toFixed(3)})`;ctx.fillRect(0,0,W,H);}
+  if(G.flash>0){ctx.fillStyle=`rgba(255,255,255,${(G.flash*1.4).toFixed(3)})`;ctx.fillRect(0,0,W,H);}
+  if(G.blackout>0){const oi=fxI('ortho');const a=.92*oi*Math.min(1,G.blackout/.3);
+    const rg=ctx.createRadialGradient(W/2,H/2,20,W/2,H/2,W*.6);rg.addColorStop(0,`rgba(0,0,0,${(a*.75).toFixed(3)})`);rg.addColorStop(1,`rgba(0,0,0,${a.toFixed(3)})`);
+    ctx.fillStyle=rg;ctx.fillRect(0,0,W,H);}
+}
+
+/* ========== 音（Web Audio で合成。音源ファイルは使わない） ========== */
+// BGMはこのゲームのためのオリジナル曲。症状の重さ G.mh（0=未治療〜1=ほぼ回復）に応じて、面ごとの崩し方を変える
+const SK='fukusayo-sound',BPM=138,VOL=.22;
+const SND={ctx:null,on:true,playing:false,duck:false,next:0,step:0,lastDist:-1,hbNext:0,timer:0,amb:null};
+try{SND.on=localStorage.getItem(SK)!=='off';}catch(e){}
+const mf=m=>440*Math.pow(2,(m-69)/12);
+// 8小節（8分音符単位）：C - Am - F - G | C - Em - F - G
+const MEL=[[64,1],[67,1],[72,2],[71,1],[67,1],[69,2],[69,1],[72,1],[76,2],[74,1],[72,1],[69,2],[65,1],[69,1],[72,1],[69,1],[67,2],[65,2],[67,1],[71,1],[74,1],[71,1],[69,1],[71,1],[67,2],
+  [72,2],[76,1],[74,1],[72,1],[67,1],[64,2],[71,1],[67,1],[64,1],[67,1],[71,2],[74,2],[72,1],[69,1],[65,1],[69,1],[72,1],[74,1],[72,2],[71,1],[67,1],[74,1],[71,1],[67,2],[null,2]];
+const MST=[];{let i=0;for(const [m,l] of MEL){MST[i]=m==null?null:{m,len:l};i+=l;}}
+const MPOOL=MST.filter(Boolean);
+const BASS=[48,45,41,43,48,40,41,43];
+const minorPc=m=>[4,9,11].includes(((m%12)+12)%12)?m-1:m;
+function makeCurve(a){const n=1024,c=new Float32Array(n),k=a*40;for(let i=0;i<n;i++){const x=i/(n-1)*2-1;c[i]=k?((1+k)*x)/(1+k*Math.abs(x)):x;}return c;}
+function audioInit(ctxIn){
+  if(SND.ctx&&!ctxIn)return true;
+  const AC=window.AudioContext||window.webkitAudioContext;
+  let c=ctxIn;if(!c){if(!AC)return false;try{c=new AC();}catch(e){return false;}}
+  const g=v=>{const n=c.createGain();n.gain.value=v;return n;};
+  const master=g(SND.on?VOL:0);master.connect(c.destination);
+  const music=g(1),sfxBus=g(1);sfxBus.connect(master);
+  // 揺れ（ピッチのうねり）＝遅延時間を揺らす
+  const vdel=c.createDelay(.1);vdel.delayTime.value=.03;
+  const vibOsc=c.createOscillator();vibOsc.frequency.value=5;const vibAmt=g(0);vibOsc.connect(vibAmt);vibAmt.connect(vdel.delayTime);vibOsc.start();
+  const shaper=c.createWaveShaper();shaper.curve=makeCurve(0);
+  const lp=c.createBiquadFilter();lp.type='lowpass';lp.frequency.value=12000;lp.Q.value=.7;
+  const trem=g(1),tremLfo=c.createOscillator(),tremDepth=g(0);tremLfo.frequency.value=7;tremLfo.connect(tremDepth);tremDepth.connect(trem.gain);tremLfo.start();
+  music.connect(vdel);vdel.connect(shaper);shaper.connect(lp);lp.connect(trem);trem.connect(master);
+  const echo=c.createDelay(1);echo.delayTime.value=.27;const fb=g(0),wet=g(0);lp.connect(echo);echo.connect(fb);fb.connect(echo);echo.connect(wet);wet.connect(master);
+  const nb=c.createBuffer(1,c.sampleRate*2,c.sampleRate);const d=nb.getChannelData(0);for(let i=0;i<d.length;i++)d[i]=Math.random()*2-1;
+  Object.assign(SND,{ctx:c,master,music,sfxBus,vdel,vibOsc,vibAmt,shaper,lp,trem,tremLfo,tremDepth,echo,fb,wet,noise:nb,amb:null,lastDist:-1});
+  if(!ctxIn&&!SND.timer)SND.timer=setInterval(tick,30);
+  return true;
+}
+function noiseSrc(t,dur){const s=SND.ctx.createBufferSource();s.buffer=SND.noise;s.start(t,Math.random()*1.4,dur+.05);return s;}
+function tone(type,m,t,dur,vol,cents,dest){
+  const c=SND.ctx,o=c.createOscillator(),gn=c.createGain();
+  o.type=type;o.frequency.setValueAtTime(mf(m),t);if(cents)o.detune.setValueAtTime(cents,t);
+  gn.gain.setValueAtTime(0,t);gn.gain.linearRampToValueAtTime(vol,t+.006);gn.gain.setTargetAtTime(vol*.55,t+.02,.06);gn.gain.setTargetAtTime(0,t+Math.max(.02,dur-.03),.015);
+  o.connect(gn);gn.connect(dest||SND.music);o.start(t);o.stop(t+dur+.15);
+}
+function drum(kind,t,v){
+  const c=SND.ctx;
+  if(kind==='kick'){const o=c.createOscillator(),gn=c.createGain();o.frequency.setValueAtTime(120,t);o.frequency.exponentialRampToValueAtTime(45,t+.12);gn.gain.setValueAtTime(v,t);gn.gain.exponentialRampToValueAtTime(.001,t+.16);o.connect(gn);gn.connect(SND.music);o.start(t);o.stop(t+.18);return;}
+  const s=noiseSrc(t,kind==='hat'?.04:.12),f=c.createBiquadFilter(),gn=c.createGain();
+  f.type='highpass';f.frequency.value=kind==='hat'?7000:1300;gn.gain.setValueAtTime(v,t);gn.gain.exponentialRampToValueAtTime(.001,t+(kind==='hat'?.035:.11));
+  s.connect(f);f.connect(gn);gn.connect(SND.music);
+}
+const sid=()=>G.st.music||(G.st.diag?(G.case&&G.case.syn==='dep'?'mdd':'scz'):G.st.id);
+function musicParams(){
+  const h=G.mh,d=1-h;
+  const p={d,h,tempo:1,detune:0,rise:0,wrong:0,second:0,drop:0,minor:0,lp:12000,dist:0,trem:0,tremRate:7,echo:0,vib:0,vibRate:5,orn:0,oct:0,shuffle:0,jitter:0,gain:1};
+  switch(sid()){
+    case 'scz':p.wrong=.55*d;p.second=.55*d;p.detune=45*d;p.drop=.22*d;p.jitter=.22*d;break;       // 不協和音・音のずれ
+    case 'mdd':p.tempo=1-.42*d;p.minor=d;p.lp=500+9500*h*h;p.drop=.45*d;p.gain=.7+.3*h;break;        // 遅い・暗い・こもる・まばら
+    case 'bp':p.tempo=1+.55*d;p.orn=.7*d;p.oct=.35*d;p.dist=.6*d;p.gain=1/(1+p.dist*16);break;         // 速すぎる・音数が多い・ひずむ（ひずみで大きくなる分は下げる）
+    case 'anx':p.tempo=1+.22*d;p.trem=.75*d;p.tremRate=6+6*d;p.rise=30*d;break;                      // 震え・上ずり・鼓動
+    case 'dlr':p.vib=70*d;p.vibRate=.35;p.shuffle=.4*d;p.echo=.55*d;p.jitter=.3*d;p.lp=1500+9500*h;break; // うねり・順番が乱れる・残響
+    case 'alc':p.vib=45*d;p.vibRate=9;p.drop=.2*d;p.detune=20*d;break;                              // 細かい震え
+  }
+  const dk=G.darkNow||0,ac=fxI('anticho');
+  p.lp=Math.min(p.lp,200+12000*(1-.85*dk)*(1-.6*ac));
+  if(G.ss>0){p.jitter=Math.max(p.jitter,.5);p.tempo*=1.3;}
+  if(G.worse>0){p.shuffle=Math.max(p.shuffle,.5);p.echo=Math.max(p.echo,.5);}
+  return p;
+}
+function applyChain(p,t){
+  const s=SND;
+  s.lp.frequency.setTargetAtTime(clamp(p.lp,200,16000),t,.1);
+  s.trem.gain.setTargetAtTime(1-p.trem*.5,t,.1);s.tremDepth.gain.setTargetAtTime(p.trem*.5,t,.1);s.tremLfo.frequency.setTargetAtTime(p.tremRate,t,.2);
+  const vr=Math.max(.1,p.vibRate);s.vibOsc.frequency.setTargetAtTime(vr,t,.2);s.vibAmt.gain.setTargetAtTime(Math.min((Math.pow(2,p.vib/1200)-1)/(2*Math.PI*vr),.025),t,.1);
+  s.fb.gain.setTargetAtTime(p.echo*.45,t,.2);s.wet.gain.setTargetAtTime(p.echo*.5,t,.2);
+  if(Math.abs(p.dist-s.lastDist)>.05){s.lastDist=p.dist;s.shaper.curve=makeCurve(p.dist);}
+  s.music.gain.setTargetAtTime((s.duck?.4:1)*p.gain,t,.1);
+}
+function playStep(i,t,p,spb){
+  const bar=i>>3,R=Math.random;
+  if(!(R()<p.drop*.4)){let r=BASS[bar];if(p.minor&&R()<p.minor)r=minorPc(r);tone('triangle',(i&1)?r+12:r,t,spb*.85,.2,0);}
+  if(i%4===0)drum('kick',t,.5);if(i%8===4)drum('snare',t,.12);if(i&1)drum('hat',t,.05);
+  const n=MST[i];
+  if(n&&!(R()<p.drop)){
+    let m=n.m;
+    if(p.shuffle&&R()<p.shuffle)m=MPOOL[Math.floor(R()*MPOOL.length)].m;
+    if(p.wrong&&R()<p.wrong)m+=[1,-1,6,-6,11][Math.floor(R()*5)];
+    if(p.oct&&R()<p.oct)m+=12;
+    if(p.minor&&R()<p.minor)m=minorPc(m);
+    const dur=n.len*spb*.92;
+    tone('square',m,t,dur,.11,p.rise||(p.detune?(R()*2-1)*p.detune:0));
+    if(p.second&&R()<.85)tone('square',m+(R()<.5?6:1),t,dur,.11*p.second,(R()*2-1)*p.detune);
+    if(p.orn&&R()<p.orn)tone('square',m+(R()<.5?2:-1),t+spb*.5,spb*.45,.07,0);
+  }
+}
+/* 症状の効果音 */
+function whisper(vol,pan,t){ // 幻聴の「ざわざわ」：帯域を絞った雑音に、声の抑揚のような揺れをつける
+  const c=SND.ctx,dur=.25+Math.random()*.35,s=noiseSrc(t,dur);
+  const b1=c.createBiquadFilter(),b2=c.createBiquadFilter(),gn=c.createGain();
+  b1.type=b2.type='bandpass';b1.frequency.setValueAtTime(700+Math.random()*900,t);b1.Q.value=3;b2.frequency.setValueAtTime(1800+Math.random()*1500,t);b2.Q.value=4;
+  b1.frequency.linearRampToValueAtTime((700+Math.random()*900)*(.7+Math.random()*.6),t+dur);
+  gn.gain.setValueAtTime(0,t);const k=3+Math.floor(Math.random()*4);
+  for(let j=0;j<k;j++){const a=t+dur*j/k;gn.gain.linearRampToValueAtTime(vol*(.4+Math.random()*.6),a+dur/k*.4);gn.gain.linearRampToValueAtTime(vol*.1,a+dur/k*.95);}
+  gn.gain.linearRampToValueAtTime(0,t+dur+.03);
+  s.connect(b1);s.connect(b2);b1.connect(gn);b2.connect(gn);
+  if(c.createStereoPanner){const pn=c.createStereoPanner();pn.pan.value=pan;gn.connect(pn);pn.connect(SND.sfxBus);}else gn.connect(SND.sfxBus);
+}
+function blip(t,vol){tone('square',84+Math.floor(Math.random()*14),t,.035,vol,0,SND.sfxBus);}
+function heart(t,vol){
+  const c=SND.ctx;
+  for(const [dt,v] of [[0,1],[.2,.7]]){const o=c.createOscillator(),gn=c.createGain();o.frequency.setValueAtTime(75,t+dt);o.frequency.exponentialRampToValueAtTime(38,t+dt+.13);
+    gn.gain.setValueAtTime(vol*v,t+dt);gn.gain.exponentialRampToValueAtTime(.001,t+dt+.16);o.connect(gn);gn.connect(SND.sfxBus);o.start(t+dt);o.stop(t+dt+.18);}
+}
+function ambNodes(){ // 雨音（抑うつ気分）と虫の羽音（幻視）は鳴らしっぱなしにして音量だけ動かす
+  if(SND.amb)return SND.amb;
+  const c=SND.ctx,rs=c.createBufferSource();rs.buffer=SND.noise;rs.loop=true;
+  const hp=c.createBiquadFilter();hp.type='bandpass';hp.frequency.value=4500;hp.Q.value=.6;const rg=c.createGain();rg.gain.value=0;
+  rs.connect(hp);hp.connect(rg);rg.connect(SND.sfxBus);rs.start();
+  const bz=c.createOscillator();bz.type='sawtooth';bz.frequency.value=190;const am=c.createOscillator();am.frequency.value=31;const amg=c.createGain();amg.gain.value=.5;
+  const bg=c.createGain();bg.gain.value=.5;am.connect(amg);amg.connect(bg.gain);const bf=c.createBiquadFilter();bf.type='bandpass';bf.frequency.value=900;bf.Q.value=2;
+  const bv=c.createGain();bv.gain.value=0;bz.connect(bg);bg.connect(bf);bf.connect(bv);bv.connect(SND.sfxBus);bz.start();am.start();
+  SND.amb={rg,bv,bz};return SND.amb;
+}
+function ambSet(rain,buzz,t){const a=ambNodes();a.rg.gain.setTargetAtTime(rain*.16,t,.3);a.bv.gain.setTargetAtTime(buzz*.12,t,.15);a.bz.frequency.setTargetAtTime(170+Math.random()*50,t,.05);}
+function ambStop(){if(SND.amb&&SND.ctx){const t=SND.ctx.currentTime;SND.amb.rg.gain.setTargetAtTime(0,t,.1);SND.amb.bv.gain.setTargetAtTime(0,t,.1);}}
+function nearestFloater(){let b=1e9;for(const e of EN){if(e.type!=='floater'||!e.alive)continue;const dd=Math.hypot(e.x+e.w/2-(P.x+P.w/2),e.y-P.y);if(dd<b)b=dd;}return b;}
+function ambient(p,t){
+  if(G.state!=='play'){ambSet(0,0,t);return;}
+  const id=sid(),d=p.d,prox=clamp(1-nearestFloater()/220,0,1);
+  if(id==='scz'&&Math.random()<d*(.8+3*prox)*.03){whisper((2.2+3.2*prox)*(.45+.55*d),(Math.random()*2-1)*.8,t);if(prox>.5&&Math.random()<.5)whisper((1.6+2.4*prox)*(.45+.55*d),(Math.random()*2-1)*.8,t+.12);}
+  if(id==='bp'&&Math.random()<d*.22)blip(t,.035);
+  if(id==='anx'){const bpm=68+92*d;if(SND.hbNext<t-.5)SND.hbNext=t;if(t>=SND.hbNext){heart(SND.hbNext,.1+.55*d);SND.hbNext+=60/bpm;}}
+  ambSet(id==='mdd'?d:0,(id==='dlr'||id==='alc')?d*prox:0,t);
+}
+function tick(){
+  const c=SND.ctx;if(!c||!G)return;
+  if(!SND.playing||document.hidden){if(document.hidden)SND.next=c.currentTime+.05;ambStop();return;}
+  const p=musicParams();applyChain(p,c.currentTime);
+  while(SND.next<c.currentTime+.15){
+    const spb=60/(BPM*p.tempo)/2;
+    if(SND.on)playStep(SND.step,SND.next,p,spb);
+    SND.next+=spb*(1+(p.jitter?(Math.random()-.5)*p.jitter:0));
+    SND.step=(SND.step+1)%64;
+  }
+  if(SND.on)ambient(p,c.currentTime);
+}
+function musicStart(){if(!SND.ctx)return;SND.playing=true;SND.step=0;SND.next=SND.ctx.currentTime+.08;SND.hbNext=0;SND.duck=false;}
+function musicStop(){SND.playing=false;ambStop();}
+function sfx(name){
+  const c=SND.ctx;if(!c||!SND.on||c.state!=='running')return;const t=c.currentTime+.01,o=SND.sfxBus;
+  const sweep=(type,f0,f1,dur,vol)=>{const os=c.createOscillator(),gn=c.createGain();os.type=type;os.frequency.setValueAtTime(f0,t);os.frequency.exponentialRampToValueAtTime(f1,t+dur);gn.gain.setValueAtTime(vol,t);gn.gain.exponentialRampToValueAtTime(.001,t+dur);os.connect(gn);gn.connect(o);os.start(t);os.stop(t+dur+.02);};
+  const notes=(arr,type,len,vol)=>arr.forEach((m,i)=>tone(type,m,t+i*len,len*.95,vol,0,o));
+  switch(name){
+    case 'jump':sweep('square',330,700,.13,.06);break;
+    case 'stomp':sweep('square',260,70,.09,.1);break;
+    case 'hurt':sweep('square',520,110,.3,.09);break;
+    case 'rx':notes([81,86,91],'square',.06,.08);break;
+    case 'water':sweep('sine',500,950,.14,.14);break;
+    case 'good':notes([76,79,84],'triangle',.08,.18);break;
+    case 'bad':sweep('sawtooth',220,90,.35,.08);break;
+    case 'stamp':sweep('sine',140,40,.25,.4);break;
+    case 'seizure':{const s=noiseSrc(t,.6),f=c.createBiquadFilter(),gn=c.createGain();f.type='lowpass';f.frequency.value=900;gn.gain.setValueAtTime(.4,t);gn.gain.exponentialRampToValueAtTime(.001,t+.6);s.connect(f);f.connect(gn);gn.connect(o);break;}
+    case 'clear':notes([72,76,79,84,79,84,88],'square',.11,.1);notes([48,52,55,60,55,60,64],'triangle',.11,.18);break;
+    case 'over':notes([67,63,60,55],'triangle',.22,.2);break;
+  }
+}
+function setSound(on){
+  SND.on=on;try{localStorage.setItem(SK,on?'on':'off');}catch(e){}
+  if(SND.master)SND.master.gain.setTargetAtTime(on?VOL:0,SND.ctx.currentTime,.05);
+  const b=$('snd');b.textContent=on?'♪ 音あり':'♪ 音なし';b.setAttribute('aria-pressed',String(on));
+}
+/* ========== 全画面 ========== */
+const stageEl=document.querySelector('.stage');
+const nativeFs=()=>(document.fullscreenElement||document.webkitFullscreenElement)===stageEl;
+function syncFs(){
+  if(nativeFs()){stageEl.classList.add('full');stageEl.classList.remove('fs');}
+  else if(!stageEl.classList.contains('fs'))stageEl.classList.remove('full');
+  const on=stageEl.classList.contains('full');
+  $('fsbtn').textContent=on?'全画面を終了':'全画面';$('fsbtn').setAttribute('aria-pressed',String(on));
+  document.body.classList.toggle('fslock',stageEl.classList.contains('fs'));resize();
+}
+async function toggleFs(){
+  if(stageEl.classList.contains('full')){
+    if(nativeFs()){try{await (document.exitFullscreen||document.webkitExitFullscreen).call(document);}catch(e){}}
+    stageEl.classList.remove('fs','full');syncFs();return;
+  }
+  // まず表示領域いっぱいに広げ、ブラウザの全画面が使えればそちらに切り替わる（fullscreenchange で syncFs）
+  stageEl.classList.add('full','fs');syncFs();
+  const req=stageEl.requestFullscreen||stageEl.webkitRequestFullscreen;
+  if(req){try{const pr=req.call(stageEl);if(pr&&pr.catch)pr.catch(()=>{});}catch(e){}}
+}
+$('fsbtn').addEventListener('click',toggleFs);
+document.addEventListener('fullscreenchange',syncFs);document.addEventListener('webkitfullscreenchange',syncFs);
+addEventListener('keydown',e=>{if(e.key==='Escape'&&stageEl.classList.contains('fs')&&modal.hidden){stageEl.classList.remove('fs','full');syncFs();}});
+$('snd').addEventListener('click',()=>{audioInit();if(SND.ctx&&SND.ctx.state!=='running')SND.ctx.resume();setSound(!SND.on);});
+setSound(SND.on);
+
+/* ========== ループ ========== */
+let last=performance.now(),acc=0;
+function frame(now){
+  let d=(now-last)/1000;last=now;if(d>.1)d=.1;
+  if(G.state==='play'){acc+=d;while(acc>=1/60){update(1/60);acc-=1/60;if(G.state!=='play'){acc=0;break;}}}else acc=0;
+  draw();
+  requestAnimationFrame(frame);
+}
+
+/* ========== 入力 ========== */
+const KM={ArrowLeft:'l',KeyA:'l',ArrowRight:'r',KeyD:'r',ArrowUp:'j',KeyW:'j',Space:'j',KeyZ:'j'};
+const held={l:false,r:false,j:false}; // 実際に押されているキー（選択画面のあいだも追う）
+addEventListener('keydown',e=>{
+  const kh=KM[e.code];if(kh)held[kh]=true;
+  if(!modal.hidden){
+    const n=parseInt(e.key,10);
+    if(n>=1&&n<=4){const b=sheet.querySelectorAll('.card')[n-1];if(b&&!b.disabled){e.preventDefault();b.click();}}
+    return;
+  }
+  if(G.state==='intro'&&e.key==='Enter'&&!(e.target&&e.target.closest&&e.target.closest('.tab'))){e.preventDefault();start();return;}
+  const k=KM[e.code];if(!k)return;
+  if(G.state==='play'){e.preventDefault();if(k==='j'&&!keys.j&&!e.repeat)G.jbuf=.12;keys[k]=true;}
+});
+addEventListener('keyup',e=>{const k=KM[e.code];if(k){keys[k]=false;held[k]=false;}});
+addEventListener('blur',()=>{clearKeys();held.l=held.r=held.j=false;});
+document.querySelectorAll('.pad button').forEach(b=>{
+  const k=b.dataset.k;
+  const on=e=>{e.preventDefault();try{b.setPointerCapture(e.pointerId)}catch(_){}held[k]=true;if(G.state!=='play')return;if(k==='j'&&!keys.j)G.jbuf=.12;keys[k]=true;b.classList.add('on');};
+  const off=()=>{keys[k]=false;held[k]=false;b.classList.remove('on');};
+  b.addEventListener('pointerdown',on);b.addEventListener('pointerup',off);b.addEventListener('pointercancel',off);b.addEventListener('lostpointercapture',off);
+  b.addEventListener('contextmenu',e=>e.preventDefault());
+});
+$('startbtn').addEventListener('click',start);
+
+renderZukan();
+newGame(0);
+requestAnimationFrame(frame);
+})();
+</script>
+
+</body>
+</html>
