@@ -156,6 +156,13 @@ textarea{font:inherit; font-size:var(--fs-s); width:100%; min-height:190px; padd
 .check{list-style:none; margin:0; padding:0; display:grid; gap:4px; font-size:var(--fs-s)}
 .check li{display:grid; grid-template-columns:1.6em minmax(0,1fr); gap:4px}
 .check .o{color:var(--ok); font-weight:700} .check .x{color:var(--seal); font-weight:700}
+.find[aria-expanded="true"]{background:color-mix(in srgb, #ff46a0 15%, var(--paper)); font-weight:700}
+.mean{margin:4px 0 4px 6px; padding:8px 12px; font-size:var(--fs-s); line-height:1.7; background:var(--panel); border:1px dashed #ff46a0; border-radius:var(--r)}
+.guide{display:grid; gap:10px}
+.gsec{display:grid; gap:4px; font-size:var(--fs-s)}
+.chips{display:flex; flex-wrap:wrap; gap:6px}
+.chip{font:inherit; font-size:var(--fs-s); cursor:pointer; min-height:38px; padding:5px 11px; border:1px solid var(--line); border-radius:999px; background:var(--paper); color:var(--ink); text-align:left}
+.chip[aria-pressed="true"]{background:var(--accent); color:var(--accent-ink); border-color:var(--accent); font-weight:700}
 .finds{list-style:none; margin:0; padding:0; display:grid; gap:6px}
 .find{font:inherit; font-size:var(--fs-s); text-align:left; width:100%; cursor:pointer; color:var(--ink); background:var(--paper); border:1px solid var(--line); border-left:4px solid #ff46a0; border-radius:var(--r); padding:7px 10px; min-height:40px}
 .find:hover{background:var(--accent-soft)}
@@ -631,14 +638,144 @@ textarea{font:inherit; font-size:var(--fs-s); width:100%; min-height:190px; padd
     }
     cx.restore();
   }
+
+  // ---- 所見の意味（押したときに開く）
+  var MEAN = {
+    none: '精神科で頭部CTを撮るいちばんの目的は、精神症状の器質的な原因（出血・腫瘍・梗塞・水頭症など）がないことを確かめること。「ない」と書けることにも意味がある。',
+    young: '若い人では脳が頭蓋内をほぼ満たしていて、脳溝も脳室も細い。この見え方を「萎縮のない状態」の基準として目に入れておく。',
+    sulci_age: '脳溝・シルビウス裂の開大は、脳の容積が減っていること（萎縮）を表す。加齢でも起こるので、①年齢に比べて強いか、②左右差や局所性（前頭・側頭・海馬など）がないか、で意味が変わる。年齢相応なら病的意義は乏しい。',
+    sulci_diffuse: '年齢に比べて目立つびまん性の萎縮。考えるもの：①長期の大量飲酒、②認知症（アルツハイマー型など）、③ステロイド・栄養障害・脱水（一部は戻ることがある）、④頭部外傷のあと。',
+    vent_age: '加齢による萎縮で脳室も少し広がる。脳溝の広がりとつり合っていれば萎縮（ex vacuo）、脳室だけが不釣り合いに大きければ水頭症を考える。',
+    wml: '脳室周囲・深部白質の低吸収が表すもの：①慢性虚血性変化（大脳白質病変・加齢性変化）：高齢者に多く、細い血管の動脈硬化や血流の低下、高血圧・糖尿病などが関係。強いと認知機能や意欲の低下、うつ（血管性うつ病）と関係する。②正常圧水頭症：脳室が大きくなり、そのまわりに髄液がしみ出たような低吸収が出ることがある（脳室拡大とセットで判断）。③過去の小さな梗塞：古い小さな虚血の名残。前角・後角の小さなキャップは加齢でも見られ、深部白質へ斑状・融合性に広がるほど意味が大きい（MRI では Fazekas 分類で程度を表す）。',
+    calc_phys: '松果体・脈絡叢・淡蒼球の小さな石灰化は、年齢とともに増える生理的な所見で、ほとんどは病的意義がない。広い範囲に左右対称に強い石灰化があるときは、代謝性の原因（副甲状腺機能低下症など）を考える。',
+    csdh: '慢性硬膜下血腫：硬膜とくも膜の間にたまった血液。高齢・抗血栓薬・飲酒・軽い頭部外傷のあと、数週〜数か月かけて物忘れ・歩行障害・意欲低下などが出る。三日月形で縫合線を越えて広がる。時間がたつと脳と同じ濃さ（等吸収）から黒っぽく（低吸収）なり、見落としやすい。手術で治る「治る認知症」の代表。',
+    bsdh: '両側の硬膜下血腫：左右から押し合うので正中偏位が出にくく、萎縮と読み違えやすい。脳溝が頭蓋骨の内側まで届いているかを確かめる。硬膜下ウィンドウにすると境目が見やすい。',
+    midline: '正中偏位：片側の病変（血腫・腫瘍・大きな梗塞のむくみなど）で脳が押されている。偏位が大きいほど緊急度が高い（脳ヘルニアの危険）。透明中隔や第三脳室が正中からどれだけずれたかを測る。',
+    sulci_effaced: '脳溝の消失（圧排）：外から押されたり、むくんだりして脳溝が見えなくなっている。等吸収の硬膜下血腫や急性期の梗塞を見つける手がかり。左右で脳溝の見え方を比べる。',
+    vent_hydro: '脳室の拡大が表すもの：①萎縮による拡大（ex vacuo）：脳溝も一緒に広がる。②水頭症：脳溝に比べて脳室が不釣り合いに大きく、前角が丸く張り、側脳室下角（側頭角）も広がる。Evans index（前角の最大幅÷頭蓋内の最大幅）が 0.3 を超えると脳室拡大。閉塞の原因（腫瘍など）がないかも見る。',
+    desh: 'DESH（不均衡なくも膜下腔の拡大）：脳室とシルビウス裂は広いのに、頭頂（高位円蓋部）の脳溝が詰まっている。特発性正常圧水頭症に特徴的で、歩行障害・認知障害・尿失禁がそろうときはタップテスト（髄液排除試験）を考える根拠になる。',
+    sylvian: 'シルビウス裂の開大：萎縮でも見られるが、正常圧水頭症では「シルビウス裂は広いのに頭頂の脳溝は狭い」という組み合わせ（DESH）になる。',
+    oldinf: '陳旧性梗塞：以前の脳梗塞のあと。組織が失われて髄液と同じ吸収値になり、境界がはっきりして、まわりの脳溝や脳室が引き寄せられて広がる（ex vacuo）。血管の支配域に沿った形。脳卒中後のうつ・アパシー・認知機能低下の背景になる。',
+    lacune: 'ラクナ梗塞：細い穿通枝の閉塞による小さな梗塞（3〜15mm）。基底核・視床・放線冠に多い。高血圧・糖尿病など小血管病のしるしで、多発すると血管性認知症・アパシー・うつと関係する。小さな丸い血管周囲腔（正常）と見分ける。',
+    oldich: '陳旧性出血：高血圧性の脳出血が吸収されたあとの、細長い（スリット状の）空洞。被殻・視床・皮質下が好発部位。CT ではヘモジデリンが見えないので古い梗塞と見分けにくく、形と場所が手がかり（MRI の T2*・SWI で確かめられる）。',
+    ich: '急性の脳出血：新しい血液は濃いので高吸収（白）に写る。数日〜数週で吸収されて等吸収→低吸収になる。高血圧性なら被殻・視床・皮質下・小脳・橋に多い。若い人や皮質下の出血では、血管奇形やアミロイドアンギオパチーも考える。',
+    edema: '出血のまわりの淡い低吸収は浮腫（むくみ）。数日かけて増え、圧排や正中偏位の原因になる。',
+    cereb: '小脳の萎縮：小脳の溝（小脳回のすきま）が広い。虫部優位ならアルコールが代表。ほかに脊髄小脳変性症、抗てんかん薬（フェニトイン）、甲状腺機能低下症など。歩行のふらつきと合わせて見る。',
+    front: '前頭葉の局所的な萎縮：行動障害型前頭側頭型認知症（脱抑制・常同行動・食行動の変化・無関心）を考える。早い時期は CT で目立たないことも多く、MRI や脳血流 SPECT を加える。',
+    temporal: '側頭葉の萎縮：前部が目立てば意味性認知症・前頭側頭型認知症、内側（海馬）が目立てばアルツハイマー型認知症を考える。海馬は横断像より冠状断で見る。',
+    dense: 'dense artery sign：中大脳動脈の中の新しい血栓。超急性期の梗塞で、低吸収が出る前に見えることがあるサイン。発症からの時間が短ければ血栓溶解・血栓回収の対象になりうる。',
+    inf: '血管の支配域に沿った低吸収＝梗塞。いつの梗塞かは、低吸収の濃さ（淡い→髄液と同じ）、むくみ（脳溝が狭い）か萎縮（脳溝・脳室が引き寄せられる）か、臨床経過で判断する。',
+    pineal: '松果体の嚢胞・石灰化：偶然見つかることが多い。大きくない、大きくならない、水頭症を起こしていなければ、多くは経過を見るだけ。',
+    fahr: 'ファール病・症候群：基底核・歯状核・白質に広く左右対称の石灰化。副甲状腺機能低下症など二次性の原因を調べる（カルシウム・リン・PTH）。パーキンソン症状、認知機能低下、気分障害や精神病症状を起こしうる。',
+    shunt: '点状の強い高吸収で、何枚かの断面に続いている：シャントのチューブなどの人工物が考えられる（画像の説明には記載なし）。手術歴を確認する。'
+  };
+  var FCODE = {
+    normal_young: ['none', 'young', 'young', 'calc_phys'], normal_old: ['sulci_age', 'vent_age', 'wml'], csdh: ['csdh', 'midline', 'sulci_effaced'], nph: ['vent_hydro', 'sylvian', 'desh'],
+    infarct: ['oldinf', 'lacune', 'wml'], old_ich: ['oldich', 'lacune', 'wml'], acute_ich: ['ich', 'edema'], alcohol: ['cereb', 'sulci_diffuse'], ftd: ['front', 'temporal'], calc: ['calc_phys', 'sulci_age'],
+    r_nph: ['vent_hydro', 'desh', 'shunt'], r_hydro: ['vent_hydro'], r_wml: ['wml', 'wml'], r_sdh: ['csdh', 'midline'], r_csdh2: ['bsdh', 'bsdh'], r_infarct: ['inf', 'inf'], r_dense: ['dense'], r_bgh: ['ich'],
+    r_elderly: ['calc_phys', 'calc_phys', 'sulci_age', 'vent_age'], r_pineal: ['pineal'], r_fahr: ['fahr', 'fahr']
+  };
+
+  // ---- ガイドつきの所見（区分ごとに選ぶと文になる）
+  var SEC = [
+    { k: 'bleed', t: '出血', multi: false, o: [['none', '出血はない'], ['acute', '急性の出血（高吸収域）がある'], ['sdh', '硬膜下血腫がある'], ['old', '陳旧性の出血のあと（スリット状の低吸収）がある']] },
+    { k: 'paren', t: '脳実質の低吸収', multi: true, o: [['none', '目立つ低吸収域はない'], ['oldinf', '陳旧性梗塞（髄液と同じ低吸収）'], ['acuteinf', '急性期の梗塞を疑う所見'], ['lacune', 'ラクナ（小さな丸い低吸収）'], ['wml', '脳室周囲・深部白質の低吸収（白質病変）']] },
+    { k: 'csf', t: '脳室・脳溝', multi: false, o: [['age', '年齢相応'], ['diffuse', '年齢に比べて目立つびまん性の萎縮'], ['focal', '局所性の萎縮（前頭・側頭・小脳など）'], ['hydro', '脳溝に不釣り合いな脳室の拡大（水頭症を疑う）']] },
+    { k: 'mid', t: '正中構造', multi: false, o: [['none', '正中偏位はない'], ['shift', '正中偏位がある']] },
+    { k: 'calc', t: '石灰化・その他', multi: false, o: [['none', '特記すべきものはない'], ['phys', '生理的な石灰化（松果体・脈絡叢・淡蒼球）'], ['wide', '広範な両側性の石灰化'], ['vessel', '血管の高吸収（dense artery sign）']] }
+  ];
+  var NEEDS_WHERE = { acute: 1, sdh: 1, old: 1, oldinf: 1, acuteinf: 1, lacune: 1, focal: 1, shift: 1, wide: 1, vessel: 1 };
+  // 正解：[出血, 脳実質（正しい組み合わせの候補）, 脳室・脳溝（どれでも可）, 正中（どれでも可）, 石灰化（どれでも可）]
+  var GA = {
+    normal_young: ['none', [['none']], ['age'], ['none'], ['phys']], normal_old: ['none', [['wml']], ['age'], ['none'], ['phys']],
+    csdh: ['sdh', [['none'], ['wml']], ['age', 'diffuse'], ['shift'], ['phys', 'none']], nph: ['none', [['none'], ['wml']], ['hydro'], ['none'], ['phys', 'none']],
+    infarct: ['none', [['oldinf', 'lacune', 'wml']], ['age', 'diffuse'], ['none'], ['phys', 'none']], old_ich: ['old', [['lacune', 'wml'], ['wml']], ['age', 'diffuse'], ['none'], ['phys', 'none']],
+    acute_ich: ['acute', [['none'], ['wml']], ['age', 'diffuse'], ['none', 'shift'], ['phys', 'none']], alcohol: ['none', [['none']], ['focal', 'diffuse'], ['none'], ['phys', 'none']],
+    ftd: ['none', [['none']], ['focal'], ['none'], ['phys', 'none']], calc: ['none', [['none'], ['wml']], ['age'], ['none'], ['phys']],
+    r_nph: ['none', [['none'], ['wml']], ['hydro'], ['none'], ['none', 'phys']], r_hydro: ['none', [['none']], ['hydro'], ['none'], ['none', 'phys']],
+    r_wml: ['none', [['wml']], ['age', 'diffuse'], ['none'], ['none', 'phys']], r_sdh: ['sdh', [['none']], ['age', 'diffuse'], ['shift'], ['none', 'phys']],
+    r_csdh2: ['sdh', [['none']], ['age', 'diffuse'], ['none'], ['none', 'phys']], r_infarct: ['none', [['oldinf'], ['acuteinf']], ['age', 'diffuse'], ['none'], ['none', 'phys']],
+    r_dense: ['none', [['acuteinf'], ['none']], ['age'], ['none'], ['vessel']], r_bgh: ['acute', [['none']], ['age', 'diffuse'], ['none', 'shift'], ['none', 'phys']],
+    r_elderly: ['none', [['none'], ['wml']], ['age'], ['none'], ['phys']], r_pineal: ['none', [['none']], ['age'], ['none'], ['phys']], r_fahr: ['none', [['none'], ['wml']], ['age', 'diffuse'], ['none'], ['wide']]
+  };
+  var RPT = { mode: 'guide', sel: {}, text: {} };
+  function lab(sec, code) { for (var i = 0; i < sec.o.length; i++) if (sec.o[i][0] === code) return sec.o[i][1]; return code; }
+  function composed(cid) {
+    var sel = RPT.sel[cid] || {};
+    return SEC.map(function (sec) {
+      var v = sel[sec.k]; if (!v || (sec.multi && !v.length)) return '【' + sec.t + '】';
+      var arr = sec.multi ? v : [v], where = arr.some(function (c) { return NEEDS_WHERE[c]; });
+      return '【' + sec.t + '】' + arr.map(function (c) { return lab(sec, c); }).join('、') + '。' + (where ? '（場所・左右・大きさ：　）' : '');
+    }).join('\n') + '\n【まとめ】';
+  }
+  function reportHTML(cid) {
+    var g = RPT.mode === 'guide', sel = RPT.sel[cid] || {};
+    var h = '<h3 class="qh"><span class="qn">所見</span><span>所見を書いてみましょう</span></h3>' +
+      '<div class="row"><span class="seg" id="rptMode"><button type="button" data-rm="guide" aria-pressed="' + g + '">ガイドつき</button><button type="button" data-rm="free" aria-pressed="' + !g + '">白紙から書く</button></span></div>';
+    if (g) {
+      h += '<p class="muted" style="font-size:var(--fs-s)">区分ごとに、見えたものを選んでください。選ぶと下の所見文に入ります。場所・左右・大きさとまとめは、自分で書き足します。</p><div class="guide">' +
+        SEC.map(function (sec) {
+          var v = sel[sec.k];
+          return '<div class="gsec"><b>' + esc(sec.t) + '</b>' + (sec.multi ? '<span class="muted">（いくつでも）</span>' : '') + '<div class="chips">' + sec.o.map(function (o) {
+            var on = sec.multi ? (v || []).indexOf(o[0]) !== -1 : v === o[0];
+            return '<button type="button" class="chip" data-sec="' + sec.k + '" data-code="' + o[0] + '" aria-pressed="' + on + '">' + esc(o[1]) + '</button>';
+          }).join('') + '</div></div>';
+        }).join('') + '</div>';
+    } else {
+      h += '<p class="muted" style="font-size:var(--fs-s)">見えたこと（場所・形・吸収値・広がり）→ まとめ（何を考えるか）の順に書きます。</p><div class="row"><button type="button" class="ghost" id="tmpl">書き方の型を入れる</button></div>';
+    }
+    var t = RPT.text[cid] != null ? RPT.text[cid] : (g ? composed(cid) : '');
+    h += '<textarea id="rep" aria-label="所見">' + esc(t) + '</textarea><button type="button" class="btn" id="grade">答え合わせ</button><div id="gradeOut"></div>';
+    return h;
+  }
+  function chipClick(cid, k, code) {
+    var sec = SEC.filter(function (x) { return x.k === k; })[0], sel = RPT.sel[cid] = RPT.sel[cid] || {};
+    if (sec.multi) {
+      var v = sel[k] || [];
+      if (code === 'none') v = v.indexOf('none') !== -1 ? [] : ['none'];
+      else { v = v.filter(function (c) { return c !== 'none'; }); var i = v.indexOf(code); if (i === -1) v.push(code); else v.splice(i, 1); }
+      sel[k] = v;
+    } else sel[k] = sel[k] === code ? null : code;
+    // 自分で書き足した部分を消さないよう、型の行だけを置き換える
+    var r = document.getElementById('rep'), old = r.value, extra = old.split('【まとめ】')[1] || '';
+    r.value = composed(cid) + extra.replace(/^\n?/, '');
+    RPT.text[cid] = r.value;
+    panel.querySelectorAll('.chip[data-sec="' + k + '"]').forEach(function (b) { var c = b.getAttribute('data-code'); b.setAttribute('aria-pressed', sec.multi ? String((sel[k] || []).indexOf(c) !== -1) : String(sel[k] === c)); });
+  }
+  function gradeGuide(cid) {
+    var a = GA[cid], sel = RPT.sel[cid] || {}, n = 0;
+    var rows = SEC.map(function (sec, i) {
+      var ok, want;
+      if (sec.multi) { var v = (sel[sec.k] || []).slice().sort().join(','); ok = a[i].some(function (set) { return set.slice().sort().join(',') === v; }); want = a[i].map(function (set) { return set.map(function (c) { return lab(sec, c); }).join('＋'); }).join(' / '); }
+      else { var al = typeof a[i] === 'string' ? [a[i]] : a[i]; ok = al.indexOf(sel[sec.k]) !== -1; want = al.map(function (c) { return lab(sec, c); }).join(' / '); }
+      if (ok) n++;
+      return '<li><span class="' + (ok ? 'o' : 'x') + '">' + (ok ? '✓' : '✗') + '</span><span><b>' + esc(sec.t) + '</b>' + (ok ? '' : '　正しくは：' + esc(want)) + '</span></li>';
+    });
+    return { n: n, total: SEC.length, html: '<p><b>区分ごとの判定 ' + n + ' / ' + SEC.length + '</b>（場所・左右とまとめは、下の所見の例と照らし合わせてください）</p><ul class="check">' + rows.join('') + '</ul>' };
+  }
+  function gradeFree(c, text) {
+    var t = (text || '').replace(/【[^】]*】/g, '').replace(/\s/g, '');
+    var items = c.check.filter(function (it) { return !/相談|へ$|専門施設|追加の検査|タップ/.test(it[0]); });
+    var res = items.map(function (it) { return [it[0], it[1].some(function (k) { return t.indexOf(k) !== -1; })]; });
+    var n = res.filter(function (r) { return r[1]; }).length;
+    return { n: n, total: res.length, html: '<p><b>書けた所見 ' + n + ' / ' + res.length + '</b>（言葉の一致で見ています。同じ意味を別の言葉で書いた場合は、自分で照らし合わせてください）</p><ul class="check">' + res.map(function (r) { return '<li><span class="' + (r[1] ? 'o' : 'x') + '">' + (r[1] ? '✓' : '✗') + '</span><span>' + esc(r[0]) + '</span></li>'; }).join('') + '</ul>' };
+  }
+  function gradeAny(c, isReal, finds) {
+    var r = RPT.mode === 'guide' ? gradeGuide(c.id) : gradeFree(c, document.getElementById('rep').value);
+    document.getElementById('gradeOut').innerHTML = r.html + (finds ? findsHTML(finds, isReal, c.id) : '') + '<p><b>書き方の例</b>（次にすることも含めた一例）</p><div class="model">' + esc(c.report) + '</div>';
+    return r;
+  }
+
   function showFind(fd, isReal) {
     if (isReal) { V.ri = fd.img || 0; V.hl = { ell: fd.ell }; draw(); }
     else { V.lv = fd[1]; document.getElementById('lv').value = V.lv; V.hl = { pred: fd[2] === 'midline' ? null : fd[2], midline: fd[2] === 'midline' }; draw(); }
     document.querySelector('.viewer').scrollIntoView({ block: 'nearest', behavior: 'smooth' });
   }
-  function findsHTML(list, isReal) {
-    return '<p><b>所見の例</b>（押すと、画像のその場所に色がつきます）</p><ul class="finds">' + list.map(function (f, i) {
-      return '<li><button type="button" class="find" data-find="' + i + '" data-real="' + (isReal ? 1 : 0) + '">' + esc(isReal ? f.t : f[0]) + '</button></li>';
+  function findsHTML(list, isReal, cid) {
+    var codes = FCODE[cid] || [];
+    return '<p><b>所見の例</b>（押すと画像のその場所に色がつき、その所見が何を表すかが開きます。もう一度押すと消えます）</p><ul class="finds">' + list.map(function (f, i) {
+      var m = MEAN[codes[i]];
+      return '<li><button type="button" class="find" data-find="' + i + '" data-real="' + (isReal ? 1 : 0) + '" aria-expanded="false">' + esc(isReal ? f.t : f[0]) + '</button>' + (m ? '<p class="mean" hidden>' + esc(m) + '</p>' : '') + '</li>';
     }).join('') + '</ul>';
   }
 
@@ -791,12 +928,11 @@ textarea{font:inherit; font-size:var(--fs-s); width:100%; min-height:190px; padd
         }).join('') + '</ol>';
       if (pick != null) {
         html += '<p class="why"><b>' + (pick === 0 ? '正解。' : '正解は「' + esc(c.q.a[0]) + '」。') + '</b>' + esc(c.q.why) + '</p>';
-        if (!c.lesson) html += '<h3 class="qh"><span class="qn">所見</span><span>所見を書いてみましょう</span></h3><div class="row"><button type="button" class="ghost" id="tmpl">書き方の型を入れる</button></div>' +
-          '<textarea id="rep" aria-label="所見">' + esc(RD.text[c.id] || '') + '</textarea><button type="button" class="btn" id="grade">答え合わせ</button><div id="gradeOut"></div>';
+        if (!c.lesson) html += reportHTML(c.id);
       }
     }
     panel.innerHTML = html;
-    var rep = document.getElementById('rep'); if (rep) rep.addEventListener('input', function () { RD.text[RCASES[RD.ci].id] = rep.value; });
+    var rep = document.getElementById('rep'); if (rep) rep.addEventListener('input', function () { RPT.text[RCASES[RD.ci].id] = rep.value; });
     if (focus === 'case') { var h = document.getElementById('caseH'); if (h) h.focus({ preventScroll: true }); } else if (focus) document.getElementById('panelH').focus({ preventScroll: true });
   }
   function gradeText(c, text, out, onGood) {
@@ -909,15 +1045,11 @@ textarea{font:inherit; font-size:var(--fs-s); width:100%; min-height:190px; padd
         html += '<p class="why"><b>' + (pick === 0 ? '正解。' : '正解は「' + esc(q.a[0]) + '」。') + '</b>' + esc(q.why) + '</p>';
       });
       if (all) {
-        var t = D.text[c.id] || '';
-        html += '<h3 class="qh"><span class="qn">所見</span><span>所見を書いてみましょう</span></h3>' +
-          '<div class="row"><button type="button" class="ghost" id="tmpl">書き方の型を入れる</button></div>' +
-          '<label for="rep" class="muted" style="font-size:var(--fs-s)">見えたこと（場所・形・吸収値・広がり）→ まとめ（何を考えるか・次にすること）の順に書きます。</label>' +
-          '<textarea id="rep">' + esc(t) + '</textarea><button type="button" class="btn" id="grade">答え合わせ</button><div id="gradeOut"></div>';
+        html += reportHTML(c.id);
       }
     }
     panel.innerHTML = html;
-    var rep = document.getElementById('rep'); if (rep) rep.addEventListener('input', function () { D.text[CASES[D.ci].id] = rep.value; });
+    var rep = document.getElementById('rep'); if (rep) rep.addEventListener('input', function () { RPT.text[CASES[D.ci].id] = rep.value; });
     if (focus === 'case') { var h = document.getElementById('caseH'); if (h) h.focus({ preventScroll: true }); } else if (focus) document.getElementById('panelH').focus({ preventScroll: true });
   }
   function grade() {
@@ -948,11 +1080,15 @@ textarea{font:inherit; font-size:var(--fs-s); width:100%; min-height:190px; padd
   panel.addEventListener('click', function (e) {
     var b = e.target.closest('button'); if (!b) return;
     if (b.classList.contains('find')) {
-      var fi = +b.getAttribute('data-find');
+      var fi = +b.getAttribute('data-find'), wasOn = b.getAttribute('aria-expanded') === 'true';
+      panel.querySelectorAll('.find').forEach(function (x) { x.setAttribute('aria-expanded', 'false'); var m = x.nextElementSibling; if (m && m.classList.contains('mean')) m.hidden = true; });
+      if (wasOn) { V.hl = null; draw(); return; }
       if (b.getAttribute('data-real') === '1') showFind(RCASES[RD.ci].finds[fi], true); else showFind(FINDS[CASES[D.ci].id][fi], false);
-      panel.querySelectorAll('.find').forEach(function (x) { x.style.background = ''; }); b.style.background = 'color-mix(in srgb, #ff46a0 14%, transparent)';
+      b.setAttribute('aria-expanded', 'true'); var mn = b.nextElementSibling; if (mn && mn.classList.contains('mean')) mn.hidden = false;
       return;
     }
+    if (b.classList.contains('chip')) { var cid0 = V.mode === 'cases' ? RCASES[RD.ci].id : CASES[D.ci].id; chipClick(cid0, b.getAttribute('data-sec'), b.getAttribute('data-code')); return; }
+    if (b.hasAttribute('data-rm')) { RPT.mode = b.getAttribute('data-rm'); if (V.mode === 'cases') renderCases(); else renderDrill(); var rr = document.getElementById('rep'); if (rr) rr.scrollIntoView({ block: 'center' }); return; }
     if (V.mode === 'real') {
       if (b.id === 'rqStart') startRQ();
       else if (b.hasAttribute('data-rq')) { var rq = RQ.items[RQ.i]; if (rq.pick == null) { rq.pick = b.getAttribute('data-rq'); if (rq.pick === rq.name) RQ.right++; V.labels = true; draw(); renderReal(); } }
@@ -962,8 +1098,8 @@ textarea{font:inherit; font-size:var(--fs-s); width:100%; min-height:190px; padd
     if (V.mode === 'cases') {
       if (b.hasAttribute('data-rc')) { RD.ci = +b.getAttribute('data-rc'); var rc = RCASES[RD.ci]; setReal(caseSet(rc)); unlock(rc.id, 1, rc.cat); renderCases('case'); }
       else if (b.hasAttribute('data-ra')) { var c0 = RCASES[RD.ci]; if (RD.picks[c0.id] == null) { RD.picks[c0.id] = +b.getAttribute('data-ra'); if (c0.after != null) { V.ri = c0.after; draw(); } if (c0.lesson && RD.picks[c0.id] === 0) unlock(c0.id, 2, c0.cat); renderCases(); } }
-      else if (b.id === 'tmpl') { var r0 = document.getElementById('rep'); r0.value = '【出血】\n【脳実質（梗塞・腫瘤・白質）】\n【脳室・脳溝（萎縮・水頭症）】\n【正中構造】\n【頭蓋骨・その他】\n【まとめ】\n' + r0.value; RD.text[RCASES[RD.ci].id] = r0.value; r0.focus(); }
-      else if (b.id === 'grade') { var c1 = RCASES[RD.ci]; RD.checked[c1.id] = gradeText(c1, document.getElementById('rep').value, document.getElementById('gradeOut'), function () { unlock(c1.id, 2, c1.cat); }); }
+      else if (b.id === 'tmpl') { var r0 = document.getElementById('rep'); r0.value = '【出血】\n【脳実質（梗塞・腫瘤・白質）】\n【脳室・脳溝（萎縮・水頭症）】\n【正中構造】\n【頭蓋骨・その他】\n【まとめ】\n' + r0.value; RPT.text[RCASES[RD.ci].id] = r0.value; r0.focus(); }
+      else if (b.id === 'grade') { var c1 = RCASES[RD.ci], g1 = gradeAny(c1, true, c1.finds); RD.checked[c1.id] = g1.n + '/' + g1.total; if (g1.n >= g1.total - 1) unlock(c1.id, 2, c1.cat); }
       return;
     }
     if (V.mode === 'atlas') {
@@ -974,8 +1110,8 @@ textarea{font:inherit; font-size:var(--fs-s); width:100%; min-height:190px; padd
     } else if (V.mode === 'drill') {
       if (b.hasAttribute('data-ci')) { D.ci = +b.getAttribute('data-ci'); var c = CASES[D.ci]; setVol(c.id, c.vol, 2); renderDrill('case'); unlock(c.cat === '正常' ? 'n25' : c.id, 1, c.cat === '正常' ? '25歳の正常' : c.cat); }
       else if (b.classList.contains('opt')) { var key = b.getAttribute('data-key'); if (D.picks[key] == null) { D.picks[key] = +b.getAttribute('data-a'); renderDrill(); } }
-      else if (b.id === 'tmpl') { var r = document.getElementById('rep'); r.value = '【出血】\n【脳実質（梗塞・腫瘤・白質）】\n【脳室・脳溝（萎縮・水頭症）】\n【正中構造】\n【頭蓋骨・その他】\n【まとめ】\n' + r.value; D.text[CASES[D.ci].id] = r.value; r.focus(); }
-      else if (b.id === 'grade') grade();
+      else if (b.id === 'tmpl') { var r = document.getElementById('rep'); r.value = '【出血】\n【脳実質（梗塞・腫瘤・白質）】\n【脳室・脳溝（萎縮・水頭症）】\n【正中構造】\n【頭蓋骨・その他】\n【まとめ】\n' + r.value; RPT.text[CASES[D.ci].id] = r.value; r.focus(); }
+      else if (b.id === 'grade') { var c2 = CASES[D.ci], g2 = gradeAny(c2, false, FINDS[c2.id]); D.checked[c2.id] = g2.n + '/' + g2.total; if (g2.n >= g2.total - 1) unlock(c2.cat === '正常' ? 'n25' : c2.id, 2, c2.cat === '正常' ? '25歳の正常' : c2.cat); }
     } else if (V.mode === 'zukan') {
       var z = b.getAttribute('data-z'); if (z) { var it = ZK_ITEMS().filter(function (x) { return x.id === z; })[0]; if (it.real) setReal(caseSet(it.real)); else setVol(it.key, it.vol, it.lv); document.querySelector('.viewer').scrollIntoView({ block: 'start', behavior: 'smooth' }); }
     }
@@ -1000,6 +1136,7 @@ textarea{font:inherit; font-size:var(--fs-s); width:100%; min-height:190px; padd
   window.addEventListener('hashchange', function () { setMode(location.hash.slice(1)); });
   syncWin(); syncZk();
   setMode(location.hash ? location.hash.slice(1) : (REAL ? 'real' : 'atlas'));
+  window.__ctGA = (function(){ var o={}; Object.keys(GA).forEach(function(k){ var a=GA[k]; o[k]=[["bleed",[a[0]]],["paren",a[1][0]],["csf",[ (typeof a[2]==="string"?a[2]:a[2][0]) ]],["mid",[a[3][0]]],["calc",[a[4][0]]]]; }); return o; })();
   window.__ct = { V: V, RCASES: RCASES, CASES: CASES, setVol: setVol, draw: draw, renderSlice: renderSlice, normal: normal };
 })();
 </script>
