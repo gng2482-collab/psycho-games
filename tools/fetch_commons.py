@@ -16,21 +16,20 @@ OK_LIC = re.compile(r'^(CC0|Public domain|PD|CC BY(-SA)? [0-9.]+|CC BY(-SA)?)', 
 # グループ名: (カテゴリ, 検索語の一覧)
 GROUPS = {
     'normal_case1': ('Category:Computed tomography of normal brain in axial plane (case 1)', []),
-    'csdh': (None, ['chronic subdural hematoma CT', 'subdural hematoma computed tomography', 'subdural haematoma CT scan']),
-    'hydrocephalus': (None, ['normal pressure hydrocephalus CT', 'hydrocephalus CT scan', 'ventriculomegaly CT']),
-    'atrophy': (None, ['cerebral atrophy CT', 'brain atrophy computed tomography', 'cerebral atrophy elderly CT']),
-    'infarct': (None, ['old cerebral infarction CT', 'middle cerebral artery infarct CT', 'encephalomalacia CT', 'lacunar infarct CT']),
-    'hemorrhage': (None, ['intracerebral hemorrhage CT', 'basal ganglia hemorrhage CT', 'thalamic hemorrhage CT']),
-    'calcification': (None, ['basal ganglia calcification CT', 'Fahr disease CT', 'pineal gland calcification CT']),
-    'whitematter': (None, ['leukoaraiosis CT', 'white matter hypodensity CT', 'small vessel disease CT brain']),
-    'cerebellum': (None, ['cerebellar atrophy CT', 'alcoholic cerebellar degeneration CT']),
-    'ftd': (None, ['frontotemporal dementia CT', 'frontotemporal atrophy CT', 'Frontotemporale Demenz CT']),
-    # ドイツ語の題名で上がっている放射線科医の画像（Hellerhoff など）
-    'de_csdh': (None, ['Chronisches Subduralhämatom CT', 'Subduralhämatom chronisch', 'bilateral chronic subdural haematoma']),
-    'de_infarct': (None, ['Alter Mediainfarkt CT', 'Hirninfarkt alt CT', 'Lakunäre Infarkte CT', 'Mikroangiopathie CT Gehirn', 'encephalomalacia CT']),
-    'de_atrophy': (None, ['Hirnatrophie CT', 'Kleinhirnatrophie CT', 'Alzheimer CT atrophy', 'Hydrocephalus malresorptivus CT']),
+    # 2回目：シリーズ（スクロールできる一連の断面）と、病名ごとのカテゴリをまるごと集める
+    'nph_series': ('Category:Nevit Dilmen NPH-CT', []),
+    'cat_sdh': ('Category:CT images of subdural hematoma', []),
+    'cat_infarct': ('Category:CT images of cerebral infarction', []),
+    'cat_leuko': ('Category:CT images of leukoaraiosis', []),
+    'cat_hydro': ('Category:CT images of hydrocephalus', []),
+    'cat_nph': ('Category:CT images of normal pressure hydrocephalus', []),
+    'cat_atrophy': ('Category:CT images of cerebral atrophy', []),
+    'cat_calc': ('Category:CT images of brain calcifications', []),
+    'cat_ich': ('Category:CT images of intracerebral hemorrhage', []),
+    'cat_normal': ('Category:Mikael Häggström/Computed tomography images of a normal brain in the axial plane', []),
 }
 WIDTH = {'normal_case1': 1024}
+MAX_PER_GROUP = 140
 PER_QUERY = 12
 
 
@@ -61,13 +60,18 @@ def get(url, tries=5):
 def titles_for(cat, queries):
     out = []
     if cat:
-        cont = {}
-        while True:
-            d = api(dict({'action': 'query', 'list': 'categorymembers', 'cmtitle': cat, 'cmtype': 'file', 'cmlimit': 100}, **cont))
-            out += [m['title'] for m in d.get('query', {}).get('categorymembers', [])]
-            if 'continue' not in d: break
-            cont = d['continue']
-            time.sleep(1)
+        cats = [cat]
+        d = api({'action': 'query', 'list': 'categorymembers', 'cmtitle': cat, 'cmtype': 'subcat', 'cmlimit': 50})
+        cats += [m['title'] for m in d.get('query', {}).get('categorymembers', [])]
+        for c in cats:
+            cont = {}
+            while len(out) < MAX_PER_GROUP:
+                d = api(dict({'action': 'query', 'list': 'categorymembers', 'cmtitle': c, 'cmtype': 'file', 'cmlimit': 100}, **cont))
+                out += [m['title'] for m in d.get('query', {}).get('categorymembers', [])]
+                if 'continue' not in d: break
+                cont = d['continue']
+                time.sleep(1)
+        out = out[:MAX_PER_GROUP]
     for q in queries:
         d = api({'action': 'query', 'list': 'search', 'srnamespace': 6, 'srlimit': PER_QUERY, 'srsearch': q + ' filetype:bitmap'})
         out += [s['title'] for s in d.get('query', {}).get('search', [])]
@@ -105,7 +109,7 @@ def main():
                 name = '%s/%03d%s' % (group, n, '.png' if ii['mime'] == 'image/png' else '.jpg')
                 with open(os.path.join(OUT, name), 'wb') as f: f.write(data)
                 manifest[name] = {
-                    'title': p['title'], 'page': ii.get('descriptionurl', ''), 'license': lic,
+                    'group': group, 'title': p['title'], 'page': ii.get('descriptionurl', ''), 'license': lic,
                     'license_url': strip(g('LicenseUrl')), 'artist': strip(g('Artist')), 'credit': strip(g('Credit'))[:300],
                     'description': strip(g('ImageDescription'))[:600], 'categories': strip(g('Categories'))[:400],
                     'width': ii.get('width'), 'height': ii.get('height'),
