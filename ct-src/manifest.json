@@ -588,18 +588,6 @@
   "height": 488
  },
  "hydrocephalus/008.png": {
-  "title": "File:NPH CT 05.png",
-  "page": "https://commons.wikimedia.org/wiki/File:NPH_CT_05.png",
-  "license": "CC BY-SA 3.0",
-  "license_url": "https://creativecommons.org/licenses/by-sa/3.0",
-  "artist": "Nevit Dilmen (talk)",
-  "credit": "Own work",
-  "description": "This image is part of a series which can be scrolled interactively with the mousewheel or mouse dragging. This is done by using Template:Imagestack. The series is found in the category Computed tomography images of normal pressure hydrocephalus.\nImages from a patient with normal pressure hydrocephalus (NPH)",
-  "categories": "CT images of normal pressure hydrocephalus|Nevit Dilmen NPH-CT",
-  "width": 583,
-  "height": 488
- },
- "hydrocephalus/009.png": {
   "title": "File:NPH CT 17.png",
   "page": "https://commons.wikimedia.org/wiki/File:NPH_CT_17.png",
   "license": "CC BY-SA 3.0",
@@ -611,19 +599,7 @@
   "width": 583,
   "height": 488
  },
- "hydrocephalus/010.png": {
-  "title": "File:NPH CT 18.png",
-  "page": "https://commons.wikimedia.org/wiki/File:NPH_CT_18.png",
-  "license": "CC BY-SA 3.0",
-  "license_url": "https://creativecommons.org/licenses/by-sa/3.0",
-  "artist": "Nevit Dilmen (talk)",
-  "credit": "Own work",
-  "description": "This image is part of a series which can be scrolled interactively with the mousewheel or mouse dragging. This is done by using Template:Imagestack. The series is found in the category Computed tomography images of normal pressure hydrocephalus.\nImages from a patient with normal pressure hydrocephalus (NPH)",
-  "categories": "CT images of normal pressure hydrocephalus|Nevit Dilmen NPH-CT",
-  "width": 583,
-  "height": 488
- },
- "hydrocephalus/011.png": {
+ "hydrocephalus/009.png": {
   "title": "File:NPH CT 28.png",
   "page": "https://commons.wikimedia.org/wiki/File:NPH_CT_28.png",
   "license": "CC BY-SA 3.0",
@@ -635,7 +611,7 @@
   "width": 583,
   "height": 488
  },
- "hydrocephalus/012.png": {
+ "hydrocephalus/010.png": {
   "title": "File:NPH CT 38.png",
   "page": "https://commons.wikimedia.org/wiki/File:NPH_CT_38.png",
   "license": "CC BY-SA 3.0",
@@ -647,7 +623,7 @@
   "width": 512,
   "height": 512
  },
- "hydrocephalus/013.png": {
+ "hydrocephalus/011.png": {
   "title": "File:NPH CT 40.png",
   "page": "https://commons.wikimedia.org/wiki/File:NPH_CT_40.png",
   "license": "CC BY-SA 3.0",
@@ -659,7 +635,19 @@
   "width": 512,
   "height": 512
  },
- "hydrocephalus/014.png": {
+ "hydrocephalus/012.png": {
+  "title": "File:NPH CT 44.png",
+  "page": "https://commons.wikimedia.org/wiki/File:NPH_CT_44.png",
+  "license": "CC BY-SA 3.0",
+  "license_url": "https://creativecommons.org/licenses/by-sa/3.0",
+  "artist": "Nevit Dilmen (talk)",
+  "credit": "Own work",
+  "description": "This image is part of a series which can be scrolled interactively with the mousewheel or mouse dragging. This is done by using Template:Imagestack. The series is found in the category Computed tomography images of normal pressure hydrocephalus.\nImages from a patient with normal pressure hydrocephalus (NPH)",
+  "categories": "CT images of normal pressure hydrocephalus|Nevit Dilmen NPH-CT",
+  "width": 512,
+  "height": 512
+ },
+ "hydrocephalus/013.png": {
   "title": "File:NPH CT 45.png",
   "page": "https://commons.wikimedia.org/wiki/File:NPH_CT_45.png",
   "license": "CC BY-SA 3.0",
@@ -671,9 +659,21 @@
   "width": 512,
   "height": 512
  },
- "hydrocephalus/015.png": {
+ "hydrocephalus/014.png": {
   "title": "File:NPH CT 46.png",
   "page": "https://commons.wikimedia.org/wiki/File:NPH_CT_46.png",
+  "license": "CC BY-SA 3.0",
+  "license_url": "https://creativecommons.org/licenses/by-sa/3.0",
+  "artist": "Nevit Dilmen (talk)",
+  "credit": "Own work",
+  "description": "This image is part of a series which can be scrolled interactively with the mousewheel or mouse dragging. This is done by using Template:Imagestack. The series is found in the category Computed tomography images of normal pressure hydrocephalus.\nImages from a patient with normal pressure hydrocephalus (NPH)",
+  "categories": "CT images of normal pressure hydrocephalus|Nevit Dilmen NPH-CT",
+  "width": 512,
+  "height": 512
+ },
+ "hydrocephalus/015.png": {
+  "title": "File:NPH CT 66.png",
+  "page": "https://commons.wikimedia.org/wiki/File:NPH_CT_66.png",
   "license": "CC BY-SA 3.0",
   "license_url": "https://creativecommons.org/licenses/by-sa/3.0",
   "artist": "Nevit Dilmen (talk)",
@@ -1102,5 +1102,17 @@
   "categories": "Histopathology of amyotrophic lateral sclerosis",
   "width": 900,
   "height": 400
+ },
+ "de_atrophy/001.png": {
+  "title": "File:CT of medial temporal lobe (MTA), posterior atrophy (PA) and frontal cortical atrophy (fGCA).png",
+  "page": "https://commons.wikimedia.org/wiki/File:CT_of_medial_temporal_lobe_(MTA),_posterior_atrophy_(PA)_and_frontal_cortical_atrophy_(fGCA).png",
+  "license": "CC BY 4.0",
+  "license_url": "https://creativecommons.org/licenses/by/4.0",
+  "artist": "V. Velickaite, V. Giedraitis, K. Ström, I. Alafuzoff, H. Zetterberg, L. Lannfelt, L. Kilander, E-M. Larsson and M. Ingelsson",
+  "credit": "(2017). \"Cognitive function in very old men does not correlate to biomarkers of Alzheimer’s disease\". BMC Geriatrics 17 (1). DOI:10.1186/s12877-017-0601-6. ISSN 1471-2318. Creative Commons Attribution 4.0 International License",
+  "description": "Head CTs of cerebral atrophy by different grades: \nMedial temporal lobe atrophy (MTA)\nPosterior atrophy (PA)\nFrontal cortical atrophy (fGCA)",
+  "categories": "CT images of human brain",
+  "width": 804,
+  "height": 563
  }
 }
