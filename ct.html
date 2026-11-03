@@ -1,0 +1,716 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="精神科試験ゲーム">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icon-180.png">
+<style>
+:root{color-scheme:light; padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px)}
+body{margin:0; font:14px system-ui,-apple-system,sans-serif}
+img{max-width:100%}
+[hidden]{display:none!important}
+.ipad-bar{display:flex; flex-wrap:wrap; gap:6px 14px; align-items:center; justify-content:space-between;
+  padding:8px max(16px, env(safe-area-inset-right,0px)) 8px max(16px, env(safe-area-inset-left,0px));
+  font:600 14px system-ui,-apple-system,"Hiragino Sans",sans-serif; background:#1d2a33; color:#f3f6f8}
+.ipad-bar a{color:#f3f6f8; text-decoration:none; padding:6px 10px; border:1px solid #4a5d6a; border-radius:6px}
+.ipad-bar span{opacity:.85; font-weight:400}
+</style>
+<script>
+/* プレイヤーごとに記録を分ける（自分は今までどおり、ゲストは頭に印をつける） */
+(function () {
+  try {
+    var P = window.localStorage.getItem('ipad-player') || 'me';
+    window.__ipadPlayer = P;
+    if (P === 'me') return;
+    var pre = 'p:' + P + ':', S = Storage.prototype, g = S.getItem, s = S.setItem, r = S.removeItem;
+    var map = function (k) { return k === 'ipad-player' ? k : pre + k; };
+    S.getItem = function (k) { return g.call(this, map(k)); };
+    S.setItem = function (k, v) { return s.call(this, map(k), v); };
+    S.removeItem = function (k) { return r.call(this, map(k)); };
+  } catch (e) { /* 保存できない環境 */ }
+})();
+if ('serviceWorker' in navigator) { window.addEventListener('load', function () { navigator.serviceWorker.register('sw.js').catch(function () {}); }); }
+</script>
+</head>
+<body>
+<nav class="ipad-bar" aria-label="アプリ"><a href="index.html">← ゲーム一覧</a><span id="ipadWho"></span></nav>
+<script>(function(){var P=window.__ipadPlayer||'me';document.getElementById('ipadWho').textContent='プレイヤー：'+(P==='me'?'自分':P);})();</script>
+<title>頭部CTよみ道場</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=BIZ+UDGothic:wght@400;700&family=BIZ+UDPGothic:wght@400;700&family=DotGothic16&display=swap">
+<style>
+/* Layout: 上にモードのタブ、左に CT の画面（断面の送り・ウィンドウ・ものさし）、右に問題と所見の欄。スマホでは縦に積む。最大幅1120px */
+:root{
+  --paper:#ecefe9; --panel:#fafbf7; --ink:#1c2321; --muted:#5b6662; --line:#c9d1cb;
+  --film:#0b0d0e; --film-ink:#d9e3e6; --accent:#2c5d8f; --accent-ink:#fff; --mark:#e8b13f; --seal:#bb3333; --ok:#2a7a55;
+  --accent-soft:color-mix(in srgb, var(--accent) 10%, var(--panel));
+  --seal-soft:color-mix(in srgb, var(--seal) 9%, var(--panel));
+  --ok-soft:color-mix(in srgb, var(--ok) 11%, var(--panel));
+  --f-display:"DotGothic16","BIZ UDPGothic","Hiragino Sans",system-ui,sans-serif;
+  --f-body:"BIZ UDPGothic","Hiragino Sans","Hiragino Kaku Gothic ProN","Yu Gothic",Meiryo,system-ui,sans-serif;
+  --f-mono:"BIZ UDGothic",ui-monospace,Menlo,monospace;
+  --fs-xs:.78rem; --fs-s:.875rem; --fs-m:1rem; --fs-l:1.12rem; --fs-xl:1.4rem; --r:5px;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --paper:#111514; --panel:#181e1c; --ink:#e1e8e5; --muted:#96a39e; --line:#2b3633;
+    --film:#050607; --film-ink:#d9e3e6; --accent:#7fb2e6; --accent-ink:#0f1417; --mark:#e8b13f; --seal:#ec6a5f; --ok:#63c993;
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --paper:#111514; --panel:#181e1c; --ink:#e1e8e5; --muted:#96a39e; --line:#2b3633;
+  --film:#050607; --film-ink:#d9e3e6; --accent:#7fb2e6; --accent-ink:#0f1417; --mark:#e8b13f; --seal:#ec6a5f; --ok:#63c993;
+  color-scheme:dark;
+}
+[hidden]{display:none!important}
+*,*::before,*::after{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0; background:var(--paper); color:var(--ink); font-family:var(--f-body); font-size:var(--fs-m); line-height:1.75;
+  padding-left:max(16px, env(safe-area-inset-left, 0px)); padding-right:max(16px, env(safe-area-inset-right, 0px)); padding-block:0 56px; overflow-wrap:anywhere}
+:focus-visible{outline:3px solid var(--accent); outline-offset:2px}
+h1,h2,h3{text-wrap:balance; line-height:1.35}
+p{margin:0}
+.wrap{max-width:1120px; margin:0 auto}
+.muted{color:var(--muted)}
+.top{padding-block:34px 4px; display:grid; gap:12px}
+.eyebrow{font-size:var(--fs-xs); letter-spacing:.16em; color:var(--muted)}
+h1{font-family:var(--f-display); font-weight:400; margin:0; font-size:clamp(2.1rem, 8vw, 3.2rem); letter-spacing:.08em; line-height:1.15; text-shadow:3px 3px 0 var(--line)}
+.lead{max-width:46em}
+.modes{margin-top:20px; display:grid; grid-template-columns:repeat(3, minmax(0,1fr)); gap:8px}
+.mode{font:inherit; text-align:left; cursor:pointer; color:var(--ink); background:var(--panel); border:1px solid var(--line); border-radius:var(--r); padding:8px 12px; display:grid; min-height:48px; text-decoration:none}
+.mode:hover{border-color:var(--accent)}
+.mode[aria-current="page"]{border-color:var(--accent); box-shadow:inset 0 0 0 1px var(--accent); background:var(--accent-soft)}
+.mode .mt{font-family:var(--f-display); font-size:var(--fs-l)}
+.mode .ms{font-size:var(--fs-xs); color:var(--muted)}
+@media (max-width:560px){ .modes{grid-template-columns:minmax(0,1fr)} }
+
+.desk{margin-top:16px; display:grid; grid-template-columns:minmax(0, 470px) minmax(0,1fr); gap:16px; align-items:start}
+@media (max-width:900px){ .desk{grid-template-columns:minmax(0,1fr)} }
+.viewer{display:grid; gap:8px; position:sticky; top:max(10px, env(safe-area-inset-top, 0px))}
+@media (max-width:900px){ .viewer{position:static} }
+.film{background:var(--film); border-radius:var(--r); padding:8px; display:grid; gap:6px; color:var(--film-ink)}
+.film-h{display:flex; justify-content:space-between; gap:8px; font-family:var(--f-mono); font-size:var(--fs-xs); opacity:.85}
+.stage{position:relative}
+#ct{display:block; width:100%; max-width:100%; height:auto; aspect-ratio:360/420; image-rendering:auto; touch-action:manipulation; cursor:pointer}
+.ctl{display:flex; flex-wrap:wrap; gap:8px 12px; align-items:center; font-size:var(--fs-s)}
+.ctl .lb{font-size:var(--fs-xs); color:var(--muted)}
+.seg{display:inline-flex; border:1px solid var(--line); border-radius:var(--r); overflow:hidden; background:var(--panel)}
+.seg button{font:inherit; font-size:var(--fs-s); border:0; background:transparent; color:var(--ink); padding:6px 10px; min-height:38px; cursor:pointer}
+.seg button + button{border-left:1px solid var(--line)}
+.seg button[aria-pressed="true"]{background:var(--accent); color:var(--accent-ink); font-weight:700}
+.act{font:inherit; font-size:var(--fs-s); cursor:pointer; min-height:38px; padding:6px 11px; border:1px solid var(--line); border-radius:var(--r); background:var(--panel); color:var(--ink)}
+.act[aria-pressed="true"]{border-color:var(--accent); background:var(--accent-soft); box-shadow:inset 0 0 0 1px var(--accent); font-weight:700}
+.slice{display:grid; grid-template-columns:auto minmax(0,1fr) auto; gap:10px; align-items:center}
+.slice input{width:100%; accent-color:var(--accent); min-height:36px}
+.slice output{font-size:var(--fs-s); min-width:9em}
+.scout{width:64px; height:56px; display:block}
+.scout .hd{fill:none; stroke:var(--muted); stroke-width:1.5}
+.scout .ln{stroke:var(--line); stroke-width:1}
+.scout .on{stroke:var(--seal); stroke-width:2.2}
+.vnote{font-size:var(--fs-s); color:var(--muted); min-height:1.6em}
+
+#panel{background:var(--panel); border:1px solid var(--line); border-radius:var(--r); padding:16px 18px; display:grid; gap:14px; min-width:0}
+.ph{display:flex; flex-wrap:wrap; gap:4px 14px; align-items:baseline}
+.ph h2{margin:0; font-family:var(--f-display); font-weight:400; font-size:var(--fs-xl)}
+.ph h2:focus{outline:none}
+.ph .sub{font-size:var(--fs-s); color:var(--muted)}
+.qh{margin:0; font-size:var(--fs-l); display:flex; gap:10px; align-items:baseline}
+.qh:focus{outline:none}
+.qn{font-family:var(--f-display); font-weight:400; font-size:var(--fs-s); color:var(--accent); border:1.5px solid var(--accent); padding:0 7px; flex:none; white-space:nowrap}
+.opts{list-style:none; margin:0; padding:0; display:grid; gap:8px}
+.opt{font:inherit; font-size:var(--fs-s); width:100%; text-align:left; color:var(--ink); background:var(--paper); cursor:pointer; border:1px solid var(--line); border-radius:var(--r); padding:9px 12px; min-height:46px;
+  display:grid; grid-template-columns:1.5em minmax(0,1fr) auto; gap:8px; align-items:start; line-height:1.55}
+.opt:hover:not(:disabled){border-color:var(--accent); background:var(--accent-soft)}
+.opt .k{font-family:var(--f-display); color:var(--muted)}
+.opt .v{font-weight:700; white-space:nowrap}
+.opt:disabled{cursor:default}
+.opt.right{border-color:var(--ok); background:var(--ok-soft)} .opt.right .v{color:var(--ok)}
+.opt.wrong{border-color:var(--seal); background:var(--seal-soft)} .opt.wrong .v{color:var(--seal)}
+.opt.dim{opacity:.6}
+.why{border-left:3px solid var(--accent); padding:4px 0 4px 12px; font-size:var(--fs-s)}
+.btn{font:inherit; font-weight:700; cursor:pointer; min-height:46px; padding:8px 18px; border:0; border-radius:var(--r); background:var(--accent); color:var(--accent-ink); justify-self:start}
+.btn:hover{filter:brightness(1.08)}
+.ghost{font:inherit; font-size:var(--fs-s); cursor:pointer; min-height:44px; padding:8px 14px; border:1px solid var(--line); border-radius:var(--r); background:var(--panel); color:var(--ink)}
+.row{display:flex; flex-wrap:wrap; gap:8px; align-items:center}
+.cases{list-style:none; margin:0; padding:0; display:grid; grid-template-columns:repeat(auto-fill, minmax(200px,1fr)); gap:8px}
+.case{font:inherit; text-align:left; width:100%; height:100%; cursor:pointer; color:var(--ink); background:var(--paper); border:1px solid var(--line); border-radius:var(--r); padding:8px 10px; display:grid; gap:2px}
+.case:hover{border-color:var(--accent)}
+.case[aria-current="true"]{border-color:var(--accent); box-shadow:inset 0 0 0 1px var(--accent)}
+.case .cn{font-weight:700; font-size:var(--fs-s)} .case .cs{font-size:var(--fs-xs); color:var(--muted)}
+.case .done{font-size:var(--fs-xs); color:var(--ok); font-weight:700}
+.story{max-width:42em}
+textarea{font:inherit; font-size:var(--fs-s); width:100%; min-height:190px; padding:10px 12px; border:1px solid var(--line); border-radius:var(--r); background:var(--paper); color:var(--ink); line-height:1.7; resize:vertical}
+.check{list-style:none; margin:0; padding:0; display:grid; gap:4px; font-size:var(--fs-s)}
+.check li{display:grid; grid-template-columns:1.6em minmax(0,1fr); gap:4px}
+.check .o{color:var(--ok); font-weight:700} .check .x{color:var(--seal); font-weight:700}
+.model{white-space:pre-wrap; font-size:var(--fs-s); background:var(--paper); border:1px solid var(--line); border-radius:var(--r); padding:10px 12px; font-family:var(--f-body)}
+.ages{display:grid; grid-template-columns:repeat(4, minmax(0,1fr)); gap:6px}
+.age{font:inherit; cursor:pointer; min-height:44px; border:1px solid var(--line); border-radius:var(--r); background:var(--paper); color:var(--ink); font-weight:700}
+.age[aria-pressed="true"]{border-color:var(--accent); background:var(--accent); color:var(--accent-ink)}
+.pts{list-style:none; margin:0; padding:0; display:grid; gap:4px; font-size:var(--fs-s)}
+.pts li::before{content:"・"; color:var(--accent)}
+.zk{list-style:none; margin:0; padding:0; display:grid; grid-template-columns:repeat(auto-fill, minmax(150px,1fr)); gap:8px}
+.zc{border:1px solid var(--line); border-radius:var(--r); background:var(--paper); padding:6px; display:grid; gap:4px; font-size:var(--fs-xs); height:100%; align-content:start}
+.zc canvas{width:100%; display:block; border-radius:3px; background:var(--film)}
+.zc.on{border-color:var(--mark); box-shadow:inset 0 0 0 1px var(--mark)}
+.zc.off{border-style:dashed; color:var(--muted); min-height:90px; place-content:center; text-align:center}
+.zc b{font-size:var(--fs-s)}
+.foot{margin-top:28px; font-size:var(--fs-xs); color:var(--muted); max-width:58em}
+.toast{position:fixed; z-index:20; right:max(16px, env(safe-area-inset-right, 0px)); bottom:calc(16px + env(safe-area-inset-bottom, 0px)); max-width:min(340px, calc(100vw - 32px));
+  background:var(--panel); color:var(--ink); border:2px solid var(--mark); border-radius:var(--r); padding:10px 14px; font-size:var(--fs-s); box-shadow:0 6px 24px var(--line)}
+.toast b{color:var(--accent)}
+</style>
+
+<div class="wrap">
+  <header class="top">
+    <p class="eyebrow">精神科試験ゲーム ・ 自分で読む頭部CT</p>
+    <h1>頭部CTよみ道場</h1>
+    <p class="lead">精神科の病院では、頭部CTを自分で読むことがあります。まず年齢ごとの正常を目に入れ、次に精神科でよく出会う変化を読み、最後に所見を自分の言葉で書きます。</p>
+  </header>
+
+  <nav class="modes" aria-label="モード">
+    <a class="mode" href="#atlas" data-mode="atlas"><span class="mt">正常アトラス</span><span class="ms">20代〜80代の正常と、構造の名前</span></a>
+    <a class="mode" href="#drill" data-mode="drill"><span class="mt">読影ドリル</span><span class="ms">精神科でよく出会う10例・所見を書く</span></a>
+    <a class="mode" href="#zukan" data-mode="zukan"><span class="mt">所見図鑑</span><span class="ms" id="zkTab">集めた所見</span></a>
+  </nav>
+
+  <div class="desk">
+    <section class="viewer" aria-label="CT の画面">
+      <div class="film">
+        <div class="film-h"><span id="filmL">—</span><span id="filmR">WL 40 / WW 80</span></div>
+        <div class="stage"><canvas id="ct" width="720" height="840" role="img" aria-label="頭部CTの断面"></canvas></div>
+      </div>
+      <div class="slice">
+        <svg class="scout" viewBox="0 0 64 56" aria-hidden="true"><path class="hd" d="M8,40 C6,20 20,6 36,6 C52,6 60,18 58,32 C57,40 54,44 50,48 L20,50 C14,50 9,46 8,40 Z"/><g id="scoutLines"></g></svg>
+        <input type="range" id="lv" min="0" max="4" step="1" value="2" aria-label="断面の高さ">
+        <output id="lvName" for="lv"></output>
+      </div>
+      <div class="ctl">
+        <span class="lb">ウィンドウ</span>
+        <span class="seg" id="winSeg"><button type="button" data-w="brain">脳</button><button type="button" data-w="sub">硬膜下</button><button type="button" data-w="bone">骨</button></span>
+        <button type="button" class="act" id="rulerBtn" aria-pressed="false">ものさし</button>
+        <button type="button" class="act" id="labelBtn" aria-pressed="false">構造の名前</button>
+      </div>
+      <p class="vnote" id="vnote">断面は下（小脳）から上（頭頂）まで5枚。画面の左が患者さんの右（足のほうから見上げた向き）です。</p>
+    </section>
+    <main id="panel"></main>
+  </div>
+
+  <p class="foot">CT の画像は、このページの中で形と CT 値（HU）から合成した学習用の図で、実在の患者さんの画像ではありません。本物の CT の質感とは違うところがあります。所見の書き方は一例です。実際の読影で迷うときは、放射線科医や脳神経外科医に相談してください。</p>
+  <div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
+</div>
+
+<script>
+(function () {
+  'use strict';
+  /* ====================== 1. CT の合成 ====================== */
+  var W = 360, H = 420, PX = 2; // 1mm = 2画素。中心は (180, 210)。y は下（後ろ）がプラス
+  var LEVELS = [
+    { name: '小脳・橋', short: '後頭蓋窩' }, { name: '中脳・鞍上槽', short: '中脳' }, { name: '基底核・視床', short: '基底核' },
+    { name: '側脳室体部', short: '側脳室' }, { name: '半卵円中心', short: '頭頂' }
+  ];
+  var HU = { air: -1000, fat: -80, csf: 6, wm: 28, gm: 38, bone: 900, blood: 66, calc: 220, skin: 40 };
+  var LB = { out: 0, skin: 1, bone: 2, csf: 3, gm: 4, wm: 5, vent: 6, lesion: 7, calc: 8, air: 9 };
+  function rng(seed) { var a = seed >>> 0; return function () { a |= 0; a = a + 0x6D2B79F5 | 0; var t = Math.imul(a ^ a >>> 15, 1 | a); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
+  function sig(x) { return 1 / (1 + Math.exp(-x)); }
+  // なめらかな揺らぎ（値ノイズ）。脳回の曲がり具合や深さのむらに使う
+  function hash2(i, j, s) { var h = Math.sin(i * 127.1 + j * 311.7 + s * 74.7) * 43758.5453; return h - Math.floor(h); }
+  function vn(x, y, s) { var i = Math.floor(x), j = Math.floor(y), fx = x - i, fy = y - j; fx = fx * fx * (3 - 2 * fx); fy = fy * fy * (3 - 2 * fy);
+    var a = hash2(i, j, s), b = hash2(i + 1, j, s), c = hash2(i, j + 1, s), d = hash2(i + 1, j + 1, s); return a + (b - a) * fx + (c - a) * fy + (a - b - c + d) * fx * fy; }
+  // 楕円の中なら 1 未満
+  function E(x, y, cx, cy, a, b, rot) {
+    var dx = x - cx, dy = y - cy;
+    if (rot) { var c = Math.cos(rot), s = Math.sin(rot), t = dx * c + dy * s; dy = -dx * s + dy * c; dx = t; }
+    return (dx * dx) / (a * a) + (dy * dy) / (b * b);
+  }
+  // p: 体の条件 { age, A(萎縮0〜1), wml(白質病変0〜1), seed, ... 病変 }
+  function headSize(lv) { return [0.93, 1, 1, 0.97, 0.86][lv]; }
+
+  function renderSlice(p, lv) {
+    var R = rng((p.seed || 1) * 31 + lv * 7), hu = new Float32Array(W * H), lb = new Uint8Array(W * H);
+    var hs = headSize(lv), oa = 72 * hs, ob = 92 * hs, sk = 6.5, ia = oa - 4 - sk, ib = ob - 4 - sk;
+    var A = p.A || 0, vs = 1 + 1.0 * A + (p.vent || 0), gap = 1 + 4.5 * A;
+    var ph1 = R() * 6.3, ph2 = R() * 6.3, ph3 = R() * 6.3;
+    var shift = 0, side = 0;
+    if (p.csdh) { side = p.csdh.side; shift = lv >= 2 ? p.csdh.shift * (lv === 4 ? 0.6 : 1) : lv === 1 ? p.csdh.shift * 0.5 : 0; }
+    // 白質病変の斑点（深部）
+    var spots = [];
+    var nsp = Math.round((p.wml || 0) * 14);
+    for (var k = 0; k < nsp; k++) spots.push([(R() * 2 - 1) * 30, (R() * 2 - 1) * 40, 1.5 + R() * 3.5]);
+    for (var py = 0; py < H; py++) {
+      for (var px = 0; px < W; px++) {
+        var x = (px - W / 2) / PX, y = (py - H / 2) / PX, v = HU.air, l = LB.out;
+        var eo = E(x, y, 0, 0, oa, ob);
+        if (eo < 1) {
+          var ei = E(x, y, 0, 0, ia, ib), esk = E(x, y, 0, 0, ia + sk, ib + sk);
+          if (esk >= 1) { v = eo > 0.96 ? HU.skin : HU.fat * 0.3 + 20; l = LB.skin; }
+          else if (ei >= 1) { v = HU.bone + 150 * Math.sin(x * 0.9 + y * 0.7); l = LB.bone; }
+          else {
+            // 頭蓋の中
+            var o = brain(x, y);
+            v = o[0]; l = o[1];
+          }
+        }
+        hu[py * W + px] = v; lb[py * W + px] = l;
+      }
+    }
+    function brain(x0, y0) {
+      // 慢性硬膜下血腫（頭蓋の内側の三日月）
+      var rn = Math.sqrt(E(x0, y0, 0, 0, ia, ib));
+      if (p.csdh && lv >= 1 && x0 * side > 0) {
+        var ang = Math.atan2(y0 / ib, Math.abs(x0) / ia), th = p.csdh.th * (lv === 1 ? 0.5 : 1) * Math.max(0, Math.cos(ang * 1.25));
+        if (rn > 1 - th / Math.min(ia, ib)) return [p.csdh.hu + (p.csdh.mixed && y0 > 10 ? 18 : 0), LB.lesion];
+      }
+      // 正中偏位：中のものを反対側へずらして描く
+      var x = x0 + side * shift * Math.max(0, 1 - Math.abs(y0) / ib) * (x0 * side > 0 ? 1 : 0.9), y = y0;
+      if (p.csdh) { var th2 = p.csdh.th * (lv === 1 ? 0.5 : 1); if (x0 * side > 0) { var ang2 = Math.atan2(y0 / ib, Math.abs(x0) / ia); var cut = th2 * Math.max(0, Math.cos(ang2 * 1.25)); x = x0 * (1 + side * x0 * cut / (ia * ia)) + side * shift * 0.3; } }
+      var ba = ia - gap, bb = ib - gap, en = E(x, y, 0, 0, ba, bb);
+      if (lv === 0) return fossa(x, y);
+      if (en >= 1) return [HU.csf, LB.csf];
+      var r = Math.sqrt(en), d = (1 - r) * Math.min(ba, bb), th = Math.atan2(y / bb, x / ba);
+      // 局所の萎縮（前頭側頭型など）
+      var Aloc = A + (p.ftd ? p.ftd * sig((-y - 18) / 6) : 0) + (p.ftd && lv <= 2 ? p.ftd * 0.6 * sig((Math.abs(x) - 25) / 6) : 0);
+      var desh = p.desh && lv === 4 ? -0.6 : 0;
+      // 半球間裂
+      var fw = 0.8 + 3.2 * Aloc + (p.desh && lv === 4 ? -0.6 : 0);
+      if (Math.abs(x) < fw && (y < -12 || y > 18 || lv === 4) && d < 45) return Math.abs(x) < 0.6 ? [70, LB.csf] : [HU.csf, LB.csf];
+      if (lv >= 3 && Math.abs(x) < 0.6) return [62, LB.wm];
+      // シルビウス裂
+      if (lv === 1 || lv === 2) {
+        var sw = 1.2 + 4 * Aloc + (p.desh ? 4.5 : 0);
+        var sx = Math.abs(x) - (lv === 1 ? 40 : 37), sy = y - (lv === 1 ? -14 : -4);
+        if (lv === 1 ? (Math.abs(sy + sx * 0.35) < sw && sx > -14 && sx < 22) : (Math.abs(sx + 0.1 * sy) < sw && Math.abs(sy) < 15 + 6 * Aloc)) return [HU.csf, LB.csf];
+      }
+      // 脳溝
+      var sd = p.seed || 1, ws = Math.max(0.02, 0.05 + 0.2 * Aloc + desh * 0.15), dep = 7 + 13 * vn(x * 0.05 + 9, y * 0.05, sd + 3);
+      var warp = 2.4 * vn(x * 0.055, y * 0.055, sd) + 1.3 * vn(x * 0.14 + 5, y * 0.14, sd + 1);
+      var s = Math.sin(th * 17 + warp * 3.2 + 0.16 * d * (vn(x * 0.04, y * 0.04, sd + 2) - 0.5) * 4);
+      var gap2 = vn(x * 0.09 + 3, y * 0.09, sd + 4) > 0.2;
+      if (gap2 && d < dep && s > 1 - ws * 2) return [HU.csf, LB.csf];
+      // 深部構造
+      var deep = deepStruct(x, y, lv, vs);
+      if (deep) return deep;
+      // 皮質と白質
+      var gmz = d < 2.6 + 1.2 * vn(x * 0.2, y * 0.2, sd + 5) || (gap2 && d < dep + 2.5 && s > 1 - ws * 2 - 0.3);
+      var val = gmz ? HU.gm : HU.wm, lab = gmz ? LB.gm : LB.wm;
+      if (!gmz) {
+        // 白質病変：脳室周囲のキャップと帯、深部の斑点
+        var wml = p.wml || 0;
+        if (wml > 0 && lv >= 2) {
+          var vb = ventDist(x, y, lv, vs);
+          if (vb < 1 + 0.35 * wml + (wml > 0.6 ? 0.4 : 0)) val -= 9 * Math.min(1, wml * 1.4);
+          for (var i = 0; i < spots.length; i++) if (lv >= 3 && (x - spots[i][0]) * (x - spots[i][0]) + (y - spots[i][1]) * (y - spots[i][1]) < spots[i][2] * spots[i][2]) val -= 8;
+        }
+      }
+      return [val, lab];
+    }
+    function ventDist(x, y, lv, s) {
+      if (lv === 2) return Math.min(E(x, y, -8 * s, -22, 7 * s, 15 * s), E(x, y, 8 * s, -22, 7 * s, 15 * s), E(x, y, -19 * s, 34, 8 * s, 14), E(x, y, 19 * s, 34, 8 * s, 14));
+      if (lv === 3) return Math.min(E(x, y, -10 * s, -2, 7 * s, 33), E(x, y, 10 * s, -2, 7 * s, 33));
+      return 9;
+    }
+    function lesionAt(x, y, lv) {
+      var L = p.lesions || [];
+      for (var i = 0; i < L.length; i++) {
+        var q = L[i];
+        if (q.lv && q.lv.indexOf(lv) === -1) continue;
+        if (q.type === 'infarct') {
+          var th = Math.atan2(y, x * q.side), en = E(x, y, 0, 0, ia - gap, ib - gap), dd = (1 - Math.sqrt(en)) * 60;
+          var jit = 0.12 * (vn(x * 0.15, y * 0.15, 77) - 0.5), dj = q.depth + 6 * (vn(x * 0.1, y * 0.1, 78) - 0.5);
+          if (x * q.side > 0 && th > q.a0 + jit && th < q.a1 - jit && dd < dj) return [en < 1 && dd > dj - 3 ? 18 : 9, LB.lesion];
+        } else if (q.type === 'dot') {
+          if (E(x, y, q.x, q.y, q.r, q.r * (q.e || 1), q.rot || 0) < 1) return [q.hu, q.hu > 100 ? LB.calc : LB.lesion];
+        } else if (q.type === 'ich') {
+          var e1 = E(x, y, q.x, q.y, q.a, q.b, q.rot || 0);
+          if (e1 < 1) return [HU.blood + 6 * Math.sin(x * 2), LB.lesion];
+          if (e1 < 1.7) return [20, LB.lesion];
+        }
+      }
+      return null;
+    }
+    function deepStruct(x, y, lv, s) {
+      var les = lesionAt(x, y, lv); if (les) return les;
+      if (lv === 1) {
+        // 中脳と鞍上槽・迂回槽
+        var mid = Math.min(E(x, y, -6.5, 2, 8.5, 11), E(x, y, 6.5, 2, 8.5, 11));
+        if (mid < 1) return E(x, y, 0, 8, 3, 2.5) < 1 ? [HU.csf, LB.vent] : [33, LB.gm];
+        if (E(x, y, 0, 2, 17 + 3 * (p.A || 0), 16 + 2 * (p.A || 0)) < 1) return [HU.csf, LB.csf];
+        var sup = E(x, y, 0, -20, 13 + 2 * (p.A || 0), 8);
+        if (sup < 1) return [HU.csf, LB.csf];
+        if (Math.min(E(x, y, -26 * (1 + 0.2 * (s - 1)), -4, 2 * s * s, 6 * s, 0.3), E(x, y, 26 * (1 + 0.2 * (s - 1)), -4, 2 * s * s, 6 * s, -0.3)) < 1) return [HU.csf, LB.vent];
+        if (E(x, y, 0, 40, 26, 14) < 1 && (p.alc || 0) > 0 && Math.sin(y * 1.6 + x * 0.2) > 1 - 0.5 * p.alc) return [HU.csf, LB.csf];
+        return null;
+      }
+      if (lv === 2) {
+        // 側脳室前角・第三脳室・後角
+        if (Math.abs(x) < 0.9 && y > -32 && y < -12 && !p.cavum) return [32, LB.wm];
+        var fh = Math.min(E(x, y, -6.5 * s, -21, 4.5 * s * (p.nph ? 1.15 : 1), 11 + 3 * (s - 1), -0.25), E(x, y, 6.5 * s, -21, 4.5 * s * (p.nph ? 1.15 : 1), 11 + 3 * (s - 1), 0.25));
+        if (fh < 1) return [HU.csf, LB.vent];
+        if (E(x, y, 0, -1, 1.6 + 3.2 * (s - 1), 10) < 1) return [HU.csf, LB.vent];
+        var oh = Math.min(E(x, y, -18 * Math.sqrt(s), 36, 5 * s, 10, 0.35), E(x, y, 18 * Math.sqrt(s), 36, 5 * s, 10, -0.35));
+        if (oh < 1) { if ((p.age || 40) >= 18 && Math.min(E(x, y, -18 * Math.sqrt(s), 33, 2.2, 2.2), E(x, y, 18 * Math.sqrt(s), 33, 2.2, 2.2)) < 1) return [HU.calc, LB.calc]; return [HU.csf, LB.vent]; }
+        if ((p.age || 40) >= 18 && E(x, y, 0, 21, 2.6, 2.6) < 1) return [HU.calc + 40, LB.calc];
+        if (E(x, y, 0, 25, 7 + 2 * (p.A || 0), 4) < 1) return [HU.csf, LB.csf];
+        // 島と基底核
+        if (p.bgcalc && Math.min(E(x, y, -16, -5, 3, 5), E(x, y, 16, -5, 3, 5)) < 1) return [HU.calc - 40, LB.calc];
+        var cd = Math.min(E(x, y, -12.5 * Math.sqrt(s), -19, 4.5, 7.5), E(x, y, 12.5 * Math.sqrt(s), -19, 4.5, 7.5));
+        if (cd < 1) return [HU.gm - 2, LB.gm];
+        var pu = Math.min(E(x, y, -23, -7, 6.5, 14, 0.22), E(x, y, 23, -7, 6.5, 14, -0.22));
+        if (pu < 1) return [HU.gm - 1, LB.gm];
+        var gp = Math.min(E(x, y, -16.5, -6, 3.2, 7, 0.22), E(x, y, 16.5, -6, 3.2, 7, -0.22));
+        if (gp < 1) return [HU.gm - 6, LB.gm];
+        var thl = Math.min(E(x, y, -9.5, 11, 8, 10.5), E(x, y, 9.5, 11, 8, 10.5));
+        if (thl < 1) return [HU.gm - 1, LB.gm];
+        if (Math.min(E(x, y, -35, -6, 2.4, 15, 0.12), E(x, y, 35, -6, 2.4, 15, -0.12)) < 1) return [HU.gm, LB.gm];
+        return null;
+      }
+      if (lv === 3) {
+        var bd = Math.min(E(x, y, -9.5 * s, -2 + 2 * Math.sin(y * 0.03), 4.8 * s * (p.nph ? 1.2 : 1), 30 + 4 * (s - 1)), E(x, y, 9.5 * s, -2, 4.8 * s * (p.nph ? 1.2 : 1), 30 + 4 * (s - 1)));
+        if (bd < 1 && Math.abs(x) > 0.9) { if (Math.min(E(x, y, -9.5 * s, 22, 2, 2.5), E(x, y, 9.5 * s, 22, 2, 2.5)) < 1 && (p.age || 40) >= 18) return [HU.calc - 60, LB.calc]; return [HU.csf, LB.vent]; }
+        if (Math.min(E(x, y, -15 * s, -14, 2.5, 9), E(x, y, 15 * s, -14, 2.5, 9)) < 1) return [HU.gm - 3, LB.gm];
+        return null;
+      }
+      return null;
+    }
+    function fossa(x, y) {
+      // 後頭蓋窩の高さ：前に蝶形骨洞と中頭蓋窩の側頭葉、錐体骨と斜台をはさんで、後ろに橋・第4脳室・小脳
+      var ax = Math.abs(x), sd = p.seed || 1, alc = p.alc || 0, Aa = p.A || 0;
+      if (E(x, y, 0, -52, 13, 8) < 1) return [HU.air, LB.air];
+      if (E(x, y, 0, -50, 16, 10.5) < 1) return [HU.bone - 100 + 200 * vn(x * 0.4, y * 0.4, 5), LB.bone];
+      if (E(x, y, 0, -17, 5.5, 11) < 1 || (ax < 9 && y < -27 && y > -40)) return [HU.bone, LB.bone];
+      if (E(x, y, 0, -1, 11, 4.5) < 1) return [HU.csf, LB.csf];
+      var pl = (y + 14) - 0.55 * (ax - 10);
+      if (ax > 8 && pl > -2.6 && pl < 2.6 && ax < 52) return [HU.bone + 250 * vn(x * 0.5, y * 0.5, 6), LB.bone];
+      if (ax > 44 && pl > 2.6 && pl < 10 && y < 20) return vn(x * 0.9, y * 0.9, 7) > 0.55 ? [HU.air, LB.air] : [HU.bone, LB.bone];
+      var en = E(x, y, 0, 0, ia - 1 - 2.5 * Aa, ib - 1 - 2.5 * Aa);
+      if (en >= 1) return [HU.csf, LB.csf];
+      if (pl <= -2.6) {
+        // 中頭蓋窩：側頭葉（下角と脳溝）
+        if (E(x, y, (x < 0 ? -1 : 1) * 27, -20, 2.2 * (1 + (p.vent || 0) + Aa), 5.5, x < 0 ? 0.35 : -0.35) < 1) return [HU.csf, LB.vent];
+        var tAt = Aa + (p.ftd ? p.ftd * 0.9 : 0), dd = (1 - Math.sqrt(en)) * 40;
+        if (dd < 2 + 9 * tAt * vn(x * 0.2, y * 0.2, sd)) return [HU.csf, LB.csf];
+        if (pl > -4.5 - 6 * tAt) return [HU.csf, LB.csf];
+        var tw = Math.sin(y * 0.55 + 2.5 * vn(x * 0.08, y * 0.08, sd));
+        if (tw > 0.93 - 0.3 * tAt && dd < 12) return [HU.csf, LB.csf];
+        return [dd < 4 || tw > 0.6 ? HU.gm : 31, LB.gm];
+      }
+      // 後頭蓋窩
+      if (E(x, y, 0, 9, 13, 9.5) < 1) return [31, LB.wm];
+      if (E(x, y, 0, 21, 5.5 + 1.5 * alc, 3.5 + alc) < 1) return [HU.csf, LB.vent];
+      if (ax < 1.2 + 4 * alc && y > 27) return [HU.csf, LB.csf];
+      if (E(x, y, 0, ib - 4, 9 + 4 * alc, 9 + 3 * alc) < 1) return [HU.csf, LB.csf];
+      var cd2 = (1 - Math.sqrt(en)) * 40;
+      if (cd2 < 1.2 + 3 * (Aa + alc)) return [HU.csf, LB.csf];
+      var fol = Math.sin(Math.hypot(x * 0.9, y - 8) * 1.45 + 1.4 * vn(x * 0.1, y * 0.1, sd + 8));
+      if (fol > 0.97 - 0.55 * alc - 0.18 * Aa && cd2 > 2 && cd2 < 13 + 6 * alc && ax > 4) return [HU.csf, LB.csf];
+      if (cd2 >= 13 + 6 * alc) return [31, LB.wm];
+      if (E(x, y, x < 0 ? -14 : 14, 34, 7, 5) < 1) return [33, LB.wm];
+      return [fol > 0.3 ? 37 : 33, LB.gm];
+    }
+    // ぼかし（部分体積）とノイズ
+    var out = new Float32Array(W * H);
+    for (var pass = 0; pass < 2; pass++) {
+      for (var yy = 1; yy < H - 1; yy++) for (var xx = 1; xx < W - 1; xx++) {
+        var i0 = yy * W + xx, sum = 0;
+        for (var dy = -1; dy <= 1; dy++) for (var dx = -1; dx <= 1; dx++) sum += hu[i0 + dy * W + dx];
+        out[i0] = sum / 9;
+      }
+      for (var c = 0; c < W * H; c++) if (out[c] !== 0 || hu[c] === 0) hu[c] = out[c] || hu[c];
+    }
+    var N2 = rng((p.seed || 1) * 97 + lv);
+    for (var j = 0; j < W * H; j++) if (lb[j] !== LB.out) hu[j] += (N2() + N2() + N2() - 1.5) * 4.2;
+    return { hu: hu, lb: lb, ia: ia, ib: ib, shift: shift };
+  }
+
+  /* ====================== 2. 症例 ====================== */
+  function normal(age, seed) {
+    var A = age < 30 ? 0 : age < 50 ? 0.15 : age < 70 ? 0.38 : 0.62;
+    return { age: age, A: A, wml: age < 50 ? 0 : age < 70 ? 0.25 : 0.55, seed: seed || age };
+  }
+  var AGES = [25, 45, 65, 82];
+  var AGE_PTS = {
+    25: ['脳溝は細く、ほとんど見えないところもある。脳表と頭蓋骨のすきま（くも膜下腔）は狭い。', '側脳室は細い。第三脳室は線のように細い。', '松果体と脈絡叢の石灰化は、若い人でもよく見られる正常な所見。'],
+    45: ['脳溝が少し見えるようになる。', '脳室の大きさはまだ小さい。', '白質はまだ均一。'],
+    65: ['脳溝とシルビウス裂が広がり、脳表のすきまも広くなる（年齢相応の萎縮）。', '側脳室と第三脳室がやや大きくなる。', '脳室の角のまわりに、淡い低吸収（キャップ）が出てくる。'],
+    82: ['脳溝・シルビウス裂がはっきり広く、脳室も大きい。これも80代なら年齢相応。', '脳室周囲や深部白質に低吸収が増える（加齢・小血管病）。', '「萎縮」と書く前に、年齢に比べて強いか、左右差や局所性がないかを考える。']
+  };
+  var CASES = [
+    { id: 'normal_young', name: '初発の幻覚妄想', who: '22歳・男性', cat: '正常', vol: normal(22, 301),
+      story: '2週間前から「盗聴されている」と言い、初めて入院しました。神経学的な異常はありません。器質的な原因を除くために頭部CTを撮りました。',
+      qs: [{ q: '異常所見は？', a: ['なし（年齢相応の正常）', '脳室の拡大', '両側の脳溝の開大（萎縮）', '松果体の石灰化（異常）'], why: '20代の正常です。脳溝は細く、脳室も小さい。松果体や脈絡叢の石灰化は正常でもよく見られ、異常ではありません。' }],
+      report: '頭蓋内に出血、腫瘤、梗塞を示唆する所見はない。脳溝・脳室の拡大はなく、年齢相応。正中偏位なし。松果体・脈絡叢に生理的石灰化。\nまとめ：明らかな器質的異常なし。',
+      check: [['出血・腫瘤・梗塞がないこと', ['出血', '腫瘤', '梗塞', '異常なし', '異常は認め', '器質的異常']], ['脳溝・脳室が年齢相応', ['年齢相応', '脳室', '脳溝']], ['正中偏位がないこと', ['正中偏位', '偏位', '偏移', 'シフト']], ['石灰化は生理的', ['生理的', '石灰化']]] },
+    { id: 'normal_old', name: '物忘れの相談', who: '84歳・女性', cat: '加齢', vol: normal(84, 302),
+      story: '最近、同じ話をくり返すと家族が心配して来院しました。歩行や排尿には問題ありません。',
+      qs: [{ q: 'この CT の評価として最も適切なのは？', a: ['年齢相応のびまん性の萎縮と、脳室周囲の軽い白質低吸収', '正常圧水頭症', '多発脳梗塞', '慢性硬膜下血腫'], why: '脳溝・シルビウス裂・脳室が左右対称に広がっています。80代では年齢相応の範囲です。脳室周囲の淡い低吸収は、加齢や小血管病による白質の変化です。CT だけで認知症の原因は決められません。' }],
+      report: '脳溝・シルビウス裂の開大と側脳室の拡大があり、左右差のないびまん性の萎縮で、年齢相応の範囲。側脳室周囲に淡い低吸収域（白質病変）。出血・新しい梗塞・腫瘤なし。正中偏位なし。\nまとめ：年齢相応の脳萎縮と軽度の白質病変。',
+      check: [['萎縮がびまん性で左右差がない', ['びまん', '左右差', '対称']], ['年齢相応と判断', ['年齢相応']], ['脳室周囲の白質低吸収', ['白質', '脳室周囲', 'PVL', '低吸収']], ['出血・腫瘤・新しい梗塞がない', ['出血', '腫瘤', '梗塞']]] },
+    { id: 'csdh', name: '転んでから物忘れ', who: '78歳・男性', cat: '慢性硬膜下血腫', vol: { age: 78, A: 0.5, wml: 0.35, seed: 303, csdh: { side: -1, th: 13, hu: 24, shift: 6, mixed: true } },
+      story: '2か月前に自宅で転んで頭を打ちました。抗血小板薬を飲んでいます。この数週間で物忘れと歩行のふらつきが進み、「うつ病ではないか」と紹介されました。',
+      qs: [{ q: '最も重要な所見は？', a: ['右の慢性硬膜下血腫（三日月形）と正中偏位', '年齢相応の萎縮だけ', '右の急性硬膜外血腫', '右中大脳動脈領域の陳旧性梗塞'], why: '右の頭蓋骨の内側に沿って、三日月形に広がる低〜等吸収の液体があります。脳は左へ押され、正中偏位があります。等吸収の部分は脳と見分けにくいので、「硬膜下」ウィンドウにすると境目が見やすくなります。' },
+        { q: 'このあとすることは？', a: ['脳神経外科にすぐ相談する（穿頭術の適応を検討）', 'うつ病として抗うつ薬を始める', '3か月後に CT を撮り直す', '抗血小板薬を増やす'], why: '慢性硬膜下血腫は、手術（穿頭ドレナージ）で治る認知機能低下の代表です。物忘れや歩行障害、意欲低下で精神科に来ることがあります。抗血小板薬・抗凝固薬の扱いも脳外科と相談します。' }],
+      report: '右大脳半球の円蓋部に沿って、三日月形の低〜等吸収の液体貯留があり、慢性硬膜下血腫を考える。最大の厚さ約○mm。右の脳溝は狭く、正中構造は左へ約○mm偏位。\nまとめ：右慢性硬膜下血腫、正中偏位あり。脳神経外科に相談。',
+      check: [['左右（右）', ['右']], ['硬膜下血腫', ['硬膜下']], ['三日月形', ['三日月']], ['正中偏位', ['正中偏位', '偏位', '偏移', 'シフト']], ['脳神経外科に相談', ['脳外', '脳神経外科']]] },
+    { id: 'nph', name: '歩きにくい・物忘れ・失禁', who: '76歳・男性', cat: '正常圧水頭症', vol: { age: 76, A: 0.28, vent: 0.9, nph: true, desh: true, wml: 0.25, seed: 304 },
+      story: '1年前から小刻みで足が開いた歩き方になり、物忘れと尿失禁も出てきました。うつ病の治療中ですが改善しません。',
+      qs: [{ q: '目立つ所見は？', a: ['脳室の拡大、シルビウス裂の開大、頭頂部の脳溝の狭小化（DESH）', '年齢相応の萎縮', '多発するラクナ梗塞', '両側の慢性硬膜下血腫'], why: '脳室が年齢に比べて大きく、シルビウス裂は広いのに、頭頂部（高い位置）の脳溝はむしろ狭く詰まっています。この組み合わせ（DESH）は特発性正常圧水頭症を示唆します。「ものさし」で前角の幅と頭蓋内の幅を測ると、Evans index が 0.3 を超えます。' },
+        { q: '歩行障害・認知障害・尿失禁がそろうとき、次にすることは？', a: ['脳神経外科（または神経内科）に相談し、タップテスト（髄液排除試験）を検討する', '抗うつ薬を増やす', '抗認知症薬だけを始める', '年齢相応なので経過を見る'], why: '特発性正常圧水頭症は、シャント術で改善しうる「治る認知症」の一つです。髄液を抜いて症状が良くなるか（タップテスト）で手術の適応を考えます。' }],
+      report: '側脳室の拡大（Evans index 約○）、シルビウス裂の開大があり、一方で高位円蓋部の脳溝は狭小化している（DESH）。出血・腫瘤なし。\nまとめ：特発性正常圧水頭症を疑う所見。脳神経外科（神経内科）に相談。',
+      check: [['脳室の拡大', ['脳室', '拡大']], ['Evans index', ['Evans', 'エバンス']], ['シルビウス裂の開大', ['シルビウス']], ['高位円蓋部の脳溝の狭小化（DESH）', ['高位', '円蓋', 'DESH', '狭小']], ['正常圧水頭症を疑う', ['水頭症', 'NPH']]] },
+    { id: 'infarct', name: '脳梗塞のあとのうつ', who: '71歳・男性', cat: '陳旧性脳梗塞', vol: { age: 71, A: 0.4, wml: 0.5, seed: 305, lesions: [{ type: 'infarct', side: -1, a0: -0.55, a1: 0.45, depth: 30, lv: [1, 2, 3] }, { type: 'dot', x: -19, y: -10, r: 2.2, hu: 9, lv: [2] }, { type: 'dot', x: -11, y: 12, r: 1.8, hu: 9, lv: [2] }, { type: 'dot', x: 14, y: -18, r: 2.5, hu: 9, lv: [3] }] },
+      story: '3年前に脳梗塞で左の麻痺が出て、いまも左手が少し不自由です。この半年、意欲が落ちて眠れないため精神科に紹介されました。',
+      qs: [{ q: '所見として正しいのは？', a: ['右中大脳動脈領域の陳旧性梗塞（髄液と同じ低吸収）と、基底核・放線冠の多発ラクナ', '右の急性期脳梗塞', '右の脳腫瘍', '年齢相応の萎縮だけ'], why: '右の前頭葉〜側頭葉の外側に、皮質を含むくさび形の低吸収域があり、髄液とほぼ同じ濃さです。境界がはっきりしていて、そばの脳室や脳溝が引き寄せられて広がっています。これは古い梗塞の特徴です。急性期の梗塞はもっと淡く、むくみで脳溝が狭くなります。小さな丸い低吸収（ラクナ）も複数あります。' }],
+      report: '右中大脳動脈領域（前頭葉〜側頭葉外側）に、皮質を含む境界明瞭なくさび形の低吸収域があり、髄液と同程度の吸収値。隣接する脳溝と側脳室の拡大を伴う（陳旧性梗塞）。左右の基底核・放線冠に小さな低吸収域が散在（多発ラクナ梗塞）。脳室周囲白質に低吸収域。出血なし。\nまとめ：右中大脳動脈領域の陳旧性梗塞、多発ラクナ梗塞、白質病変。',
+      check: [['右・中大脳動脈領域', ['右']], ['陳旧性（古い）梗塞', ['陳旧', '古い']], ['髄液と同じ低吸収・境界明瞭', ['髄液', '境界']], ['ラクナ梗塞', ['ラクナ']], ['白質病変', ['白質']]] },
+    { id: 'old_ich', name: '昔の脳出血', who: '62歳・男性', cat: '陳旧性脳出血', vol: { age: 62, A: 0.3, wml: 0.45, seed: 306, lesions: [{ type: 'dot', x: 25, y: -6, r: 2.3, e: 5, rot: -0.22, hu: 7, lv: [2] }, { type: 'dot', x: -12, y: 10, r: 2, hu: 9, lv: [2] }] },
+      story: '10年前に高血圧性の脳出血がありました。易怒性が強く、家族とのトラブルで受診しました。',
+      qs: [{ q: '左の被殻〜外包に見える細長い低吸収は？', a: ['陳旧性の脳出血のあと（スリット状の空洞）', '急性の脳出血', '生理的な石灰化', '血管周囲腔の正常像'], why: '脳出血は時間がたつと吸収されて、被殻や外包に沿った細長い（スリット状の）低吸収の空洞を残します。CT ではヘモジデリンが見えないので、古い梗塞と区別しにくいこともあります。形と場所（高血圧性出血の好発部位）が手がかりです。急性の出血なら白く（高吸収）写ります。' }],
+      report: '左被殻〜外包にスリット状の低吸収域があり、陳旧性脳出血後の変化を考える。右視床に小さな低吸収域（ラクナ梗塞）。脳室周囲白質に低吸収域。新しい出血なし。\nまとめ：左被殻の陳旧性出血、ラクナ梗塞、白質病変。',
+      check: [['左の被殻', ['左', '被殻']], ['スリット状の低吸収', ['スリット', '細長']], ['陳旧性出血', ['陳旧', '出血']], ['新しい出血がない', ['新しい出血', '急性', '新たな']]] },
+    { id: 'acute_ich', name: '急に反応が鈍くなった', who: '80歳・女性', cat: '急性脳出血', vol: { age: 80, A: 0.55, wml: 0.5, seed: 307, lesions: [{ type: 'ich', x: -12, y: 9, a: 9, b: 12, rot: -0.2, lv: [2, 3] }] },
+      story: 'せん妄で入院中です。今朝から急に反応が鈍くなり、左手足が動きにくい様子です。血圧 196/104。',
+      qs: [{ q: '最も重要な所見は？', a: ['右視床の高吸収域（急性の脳出血）', '右視床の石灰化', '年齢相応の萎縮', '右視床の陳旧性梗塞'], why: '右の視床に、白い（高吸収の）塊があり、周りに淡い低吸収（むくみ）があります。急性の出血は CT で白く見えます。せん妄の悪化と思い込まず、体の急変として扱います。' },
+        { q: 'このあとすることは？', a: ['ただちに脳神経外科・脳卒中の担当医に連絡し、血圧を管理しながら転院・治療を手配する', 'せん妄なので抗精神病薬を増やす', '翌日に CT を撮り直して判断する', '鎮静して様子を見る'], why: '急性の脳出血は時間との勝負です。精神科病院では、すぐに専門の施設と連絡をとります。' }],
+      report: '右視床に約○mmの高吸収域があり、周囲に低吸収域（浮腫）を伴う。急性期の脳出血を考える。脳室穿破の有無を確認。正中偏位は軽度。\nまとめ：右視床出血（急性期）。ただちに脳神経外科へ連絡。',
+      check: [['右の視床', ['右', '視床']], ['高吸収（白い）', ['高吸収', '白']], ['急性の脳出血', ['急性', '出血']], ['周りのむくみ・脳室穿破・偏位', ['浮腫', 'むくみ', '穿破', '偏位']], ['すぐ脳外科へ', ['脳外', '脳神経外科', '脳卒中']]] },
+    { id: 'alcohol', name: '長く大量に飲んできた', who: '58歳・男性', cat: 'アルコール', vol: { age: 58, A: 0.45, alc: 0.8, wml: 0.15, seed: 308 },
+      story: 'アルコール使用障害で入院しました。30年以上、毎日大量に飲んでいます。歩くと体が左右に揺れます。',
+      qs: [{ q: '目立つ所見は？', a: ['小脳（特に虫部）の萎縮と、年齢に比べて強いびまん性の萎縮', '正常圧水頭症', '多発脳梗塞', '異常なし'], why: '小脳の脳溝（小脳回のすきま）が広く、正中の虫部が細くなっています。大脳も年齢に比べて萎縮しています。長期の大量飲酒では、小脳虫部の萎縮とびまん性の萎縮が見られます。断酒で一部が回復することもあります。' }],
+      report: '小脳半球と虫部の脳溝が開大し、小脳萎縮（虫部優位）。大脳もびまん性に萎縮し、年齢に比べて目立つ。出血・梗塞なし。\nまとめ：小脳虫部優位の萎縮と、びまん性脳萎縮。長期飲酒による変化を考える。',
+      check: [['小脳（虫部）の萎縮', ['小脳', '虫部']], ['びまん性の萎縮', ['びまん', '萎縮']], ['年齢に比べて強い', ['年齢', '目立']], ['飲酒との関連', ['飲酒', 'アルコール']]] },
+    { id: 'ftd', name: '人が変わった', who: '64歳・女性', cat: '前頭側頭葉の萎縮', vol: { age: 64, A: 0.2, ftd: 0.7, wml: 0.15, seed: 309 },
+      story: 'この1年で万引きをくり返し、同じ物ばかり食べ、身なりに無頓着になりました。本人は困っていません。',
+      qs: [{ q: '目立つ所見は？', a: ['前頭葉と側頭葉に強い萎縮（局所性の萎縮）', '年齢相応のびまん性の萎縮', '正常圧水頭症', '慢性硬膜下血腫'], why: '前頭葉の脳溝と、側頭葉（特に前方）のまわりのすきまが、ほかの場所に比べて目立って広くなっています。性格の変化、脱抑制、常同行動、食行動の変化と合わせて、行動障害型前頭側頭型認知症を考えます。早い時期は CT で目立たないことも多く、MRI や脳血流 SPECT を加えます。' }],
+      report: '前頭葉および側頭葉前部に優位な脳溝の開大と萎縮があり、頭頂・後頭葉に比べて目立つ。左右差は乏しい。出血・梗塞・腫瘤なし。\nまとめ：前頭葉・側頭葉優位の萎縮。臨床像と合わせ前頭側頭型認知症を考える。MRI・SPECT での評価を。',
+      check: [['前頭葉', ['前頭']], ['側頭葉', ['側頭']], ['局所的（ほかより目立つ）', ['優位', '局所', '目立']], ['追加の検査（MRI・SPECT）', ['MRI', 'SPECT', 'スペクト']]] },
+    { id: 'calc', name: '「石灰化がある」と言われた', who: '67歳・女性', cat: '生理的石灰化', vol: { age: 67, A: 0.38, wml: 0.25, bgcalc: true, seed: 310 },
+      story: 'うつ病で通院中です。他院で撮った CT で「脳に石灰化がある」と言われ、心配しています。',
+      qs: [{ q: '両側の淡蒼球の小さな高吸収について正しいのは？', a: ['高齢者ではよく見られる生理的な石灰化で、多くは病的意義がない', 'ファール病と診断できる', '急性の出血なので、すぐ脳外科へ', '脳腫瘍の石灰化'], why: '両側の淡蒼球の小さな石灰化は、中高年ではよく見られ、多くは病的意義がありません。広い範囲（歯状核・白質など）に強い石灰化があり症状がある場合に、副甲状腺の病気などを調べます。松果体・脈絡叢の石灰化も正常です。' }],
+      report: '両側淡蒼球に小さな石灰化。松果体・脈絡叢にも石灰化があり、いずれも生理的範囲と考える。年齢相応の萎縮と軽度の白質病変。出血・梗塞・腫瘤なし。\nまとめ：生理的石灰化。明らかな異常なし。',
+      check: [['両側の淡蒼球', ['淡蒼球']], ['生理的（病的意義は乏しい）', ['生理的', '意義']], ['松果体・脈絡叢', ['松果体', '脈絡']], ['ほかの異常がない', ['出血', '梗塞', '腫瘤', '異常なし']]] }
+  ];
+  var LABELS = {
+    0: [['側頭葉', -33, -26], ['橋', 0, 8], ['第4脳室', 0, 20], ['小脳', 28, 42], ['錐体骨', 32, 4], ['蝶形骨洞', 0, -48]],
+    1: [['中脳', 0, 2], ['鞍上槽', 0, -20], ['迂回槽', 15, 10], ['シルビウス裂', 37, -6], ['側脳室下角', -26, -4], ['前頭葉', 0, -55]],
+    2: [['側脳室前角', -7, -21], ['尾状核頭', 13, -19], ['被殻', -23, -7], ['淡蒼球', 16.5, -6], ['内包', -14, 3], ['視床', 9.5, 11], ['第三脳室', 0, -1], ['松果体', 0, 21], ['脈絡叢', -18, 33], ['島', 35, -6]],
+    3: [['側脳室体部', -9.5, -6], ['脈絡叢', 9.5, 22], ['放線冠', -26, -4], ['大脳鎌', 0, -45], ['尾状核体部', 15, -14]],
+    4: [['半卵円中心', -22, -2], ['大脳鎌', 0, -40], ['中心溝あたり', 30, 8], ['脳溝', -38, -30]]
+  };
+
+  /* ====================== 3. 画面の状態と描画 ====================== */
+  var V = { mode: 'atlas', vol: normal(25), key: 'n25', lv: 2, win: 'brain', ruler: false, labels: false, line: null, arrow: null };
+  var cache = {};
+  var cv = document.getElementById('ct'), cx = cv.getContext('2d');
+  var WINS = { brain: [40, 80], sub: [55, 160], bone: [500, 2000] };
+  function getSlice(key, vol, lv) { var k = key + ':' + lv; if (!cache[k]) cache[k] = renderSlice(vol, lv); return cache[k]; }
+  var off = document.createElement('canvas'); off.width = W; off.height = H;
+  function draw() {
+    var sl = getSlice(V.key, V.vol, V.lv), w = WINS[V.win], lo = w[0] - w[1] / 2, oc = off.getContext('2d'), im = oc.createImageData(W, H);
+    for (var i = 0; i < W * H; i++) { var g2 = Math.max(0, Math.min(255, (sl.hu[i] - lo) / w[1] * 255)); im.data[i * 4] = im.data[i * 4 + 1] = im.data[i * 4 + 2] = g2; im.data[i * 4 + 3] = 255; }
+    oc.putImageData(im, 0, 0);
+    cx.imageSmoothingEnabled = true; cx.drawImage(off, 0, 0, cv.width, cv.height);
+    var sc = cv.width / W;
+    cx.fillStyle = '#d9e3e6'; cx.font = (11 * sc) + 'px "BIZ UDGothic", monospace'; cx.textAlign = 'left';
+    cx.fillText('R', 6 * sc, 16 * sc); cx.textAlign = 'right'; cx.fillText('L', (W - 6) * sc, 16 * sc);
+    if (V.labels && LABELS[V.lv]) {
+      cx.font = '700 ' + (10 * sc) + 'px "BIZ UDPGothic", sans-serif';
+      LABELS[V.lv].forEach(function (L) {
+        var x = (W / 2 + L[1] * PX) * sc, y = (H / 2 + L[2] * PX) * sc;
+        cx.fillStyle = '#e8b13f'; cx.beginPath(); cx.arc(x, y, 2.5 * sc, 0, 6.3); cx.fill();
+        cx.textAlign = L[1] > 0 ? 'left' : 'right'; var tx = x + (L[1] > 0 ? 5 : -5) * sc;
+        cx.lineWidth = 3 * sc; cx.strokeStyle = 'rgba(0,0,0,.8)'; cx.strokeText(L[0], tx, y + 3 * sc); cx.fillText(L[0], tx, y + 3 * sc);
+      });
+    }
+    if (V.arrow) {
+      var ax = (W / 2 + V.arrow[0] * PX) * sc, ay = (H / 2 + V.arrow[1] * PX) * sc;
+      cx.strokeStyle = '#e8b13f'; cx.fillStyle = '#e8b13f'; cx.lineWidth = 3 * sc;
+      cx.beginPath(); cx.moveTo(ax + 26 * sc, ay - 26 * sc); cx.lineTo(ax + 6 * sc, ay - 6 * sc); cx.stroke();
+      cx.beginPath(); cx.moveTo(ax + 3 * sc, ay - 3 * sc); cx.lineTo(ax + 14 * sc, ay - 6 * sc); cx.lineTo(ax + 6 * sc, ay - 14 * sc); cx.closePath(); cx.fill();
+    }
+    if (V.line) {
+      var L2 = V.line, mm = Math.hypot(L2[2] - L2[0], L2[3] - L2[1]) / (PX * sc);
+      cx.strokeStyle = '#4fd1ff'; cx.fillStyle = '#4fd1ff'; cx.lineWidth = 2 * sc;
+      cx.beginPath(); cx.moveTo(L2[0], L2[1]); cx.lineTo(L2[2], L2[3]); cx.stroke();
+      [[L2[0], L2[1]], [L2[2], L2[3]]].forEach(function (pt) { cx.beginPath(); cx.arc(pt[0], pt[1], 3 * sc, 0, 6.3); cx.fill(); });
+      var t = mm.toFixed(1) + ' mm'; cx.font = '700 ' + (12 * sc) + 'px "BIZ UDGothic", monospace'; cx.textAlign = 'left';
+      var tx2 = Math.min(Math.max(L2[0], L2[2]) + 6 * sc, cv.width - cx.measureText(t).width - 4), ty2 = Math.max(16 * sc, Math.min(L2[1], L2[3]) - 6 * sc);
+      cx.lineWidth = 3 * sc; cx.strokeStyle = 'rgba(0,0,0,.85)'; cx.strokeText(t, tx2, ty2); cx.fillText(t, tx2, ty2);
+    }
+    document.getElementById('filmL').textContent = (V.vol.age ? V.vol.age + '歳' : '') + ' ・ ' + LEVELS[V.lv].name;
+    document.getElementById('filmR').textContent = 'WL ' + w[0] + ' / WW ' + w[1];
+    document.getElementById('lvName').textContent = (V.lv + 1) + ' / 5　' + LEVELS[V.lv].name;
+    var ys = [42, 34, 27, 21, 14];
+    document.getElementById('scoutLines').innerHTML = ys.map(function (y, i) { return '<line class="ln' + (i === V.lv ? ' on' : '') + '" x1="6" x2="60" y1="' + y + '" y2="' + (y - 4) + '"/>'; }).join('');
+    cv.setAttribute('aria-label', '頭部CT、' + LEVELS[V.lv].name + 'の高さ、' + (V.vol.age || '') + '歳');
+  }
+  function setVol(key, vol, lv) { V.key = key; V.vol = vol; if (lv != null) V.lv = lv; V.line = null; V.arrow = null; document.getElementById('lv').value = V.lv; draw(); }
+
+  // 断面送り・ウィンドウ・ものさし
+  document.getElementById('lv').addEventListener('input', function (e) { V.lv = +e.target.value; V.line = null; if (V.mode !== 'atlas' || !atlasQ) V.arrow = null; draw(); });
+  cv.setAttribute('tabindex', '0');
+  cv.addEventListener('keydown', function (e) { if (e.key === 'ArrowUp' || e.key === 'ArrowDown') { e.preventDefault(); V.lv = Math.max(0, Math.min(4, V.lv + (e.key === 'ArrowUp' ? 1 : -1))); document.getElementById('lv').value = V.lv; V.line = null; draw(); } });
+  var winSeg = document.getElementById('winSeg');
+  function syncWin() { winSeg.querySelectorAll('button').forEach(function (b) { b.setAttribute('aria-pressed', b.getAttribute('data-w') === V.win ? 'true' : 'false'); }); }
+  winSeg.addEventListener('click', function (e) {
+    var b = e.target.closest('button'); if (!b) return; V.win = b.getAttribute('data-w'); syncWin(); draw();
+    var n = { brain: '脳ウィンドウ：灰白質と白質の差、出血・梗塞を見る基本の設定。', sub: '硬膜下ウィンドウ：幅を広げて、頭蓋骨のそばの薄い血腫と脳の境目を見やすくする。', bone: '骨ウィンドウ：骨折や骨の病変を見る設定。脳の中はほぼ同じ灰色になる。' }[V.win];
+    document.getElementById('vnote').textContent = n;
+  });
+  document.getElementById('rulerBtn').addEventListener('click', function () {
+    V.ruler = !V.ruler; this.setAttribute('aria-pressed', V.ruler ? 'true' : 'false'); cv.style.touchAction = V.ruler ? 'none' : 'manipulation'; cv.style.cursor = V.ruler ? 'crosshair' : 'pointer';
+    if (!V.ruler) { V.line = null; draw(); }
+    document.getElementById('vnote').textContent = V.ruler ? 'ものさし：画像の上をなぞると長さ（mm）を出します。Evans index は「側脳室前角の最大幅 ÷ 同じ断面の頭蓋内の最大幅」。0.3 を超えると脳室拡大。' : '断面は下（小脳）から上（頭頂）まで5枚。';
+  });
+  document.getElementById('labelBtn').addEventListener('click', function () { V.labels = !V.labels; this.setAttribute('aria-pressed', V.labels ? 'true' : 'false'); draw(); });
+  var drag = false;
+  function cpt(e) { var r = cv.getBoundingClientRect(), s = cv.width / r.width; return [(e.clientX - r.left) * s, (e.clientY - r.top) * s]; }
+  cv.addEventListener('pointerdown', function (e) { if (!V.ruler) return; e.preventDefault(); drag = true; if (cv.setPointerCapture) cv.setPointerCapture(e.pointerId); var p = cpt(e); V.line = [p[0], p[1], p[0], p[1]]; draw(); });
+  cv.addEventListener('pointermove', function (e) { if (!drag) return; var p = cpt(e); V.line[2] = p[0]; V.line[3] = p[1]; draw(); });
+  cv.addEventListener('pointerup', function () { drag = false; });
+
+  /* ====================== 4. モード ====================== */
+  var panel = document.getElementById('panel');
+  function lsGet(k) { try { return window.localStorage.getItem(k); } catch (e) { return null; } }
+  function lsSet(k, v) { try { window.localStorage.setItem(k, v); } catch (e) { /* 保存できない環境 */ } }
+  function esc(s) { return String(s).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); }
+  function shuffled(n) { var a = []; for (var i = 0; i < n; i++) a.push(i); for (var j = n - 1; j > 0; j--) { var r = Math.floor(Math.random() * (j + 1)); var t = a[j]; a[j] = a[r]; a[r] = t; } return a; }
+  var ZKEY = 'ct-zukan-v1', ZK = {}; try { ZK = JSON.parse(lsGet(ZKEY) || '{}') || {}; } catch (e) { ZK = {}; }
+  var toastEl = document.getElementById('toast'), toastT = 0;
+  function toast(h) { toastEl.innerHTML = h; toastEl.hidden = false; clearTimeout(toastT); toastT = setTimeout(function () { toastEl.hidden = true; }, 3200); }
+  function unlock(id, tier, name) { var cur = ZK[id] || 0; if (tier <= cur) return; ZK[id] = tier; lsSet(ZKEY, JSON.stringify(ZK)); toast('<b>' + (tier === 2 ? '所見図鑑に金の札' : '所見図鑑に追加') + '</b><br>' + esc(name)); syncZk(); }
+  function syncZk() { var n = 0; ZK_ITEMS().forEach(function (z) { if (ZK[z.id]) n++; }); document.getElementById('zkTab').textContent = n + ' / ' + ZK_ITEMS().length + ' 枚'; }
+  function ZK_ITEMS() { return AGES.map(function (a) { return { id: 'n' + a, name: a + '歳の正常', vol: normal(a), lv: 2, key: 'n' + a }; }).concat(CASES.filter(function (c) { return c.cat !== '正常'; }).map(function (c) { return { id: c.id, name: c.cat, vol: c.vol, lv: c.id === 'alcohol' ? 0 : c.id === 'nph' ? 4 : c.id === 'csdh' ? 3 : 2, key: c.id }; })); }
+
+  // ---- 正常アトラス
+  var atlasAge = 25, atlasQ = null;
+  var QPOOL = [];
+  Object.keys(LABELS).forEach(function (lv) { LABELS[lv].forEach(function (L) { QPOOL.push({ lv: +lv, name: L[0], x: L[1], y: L[2] }); }); });
+  function renderAtlas(focus) {
+    var html = '<div class="ph"><h2 id="panelH" tabindex="-1">正常アトラス</h2><span class="sub">年齢を選び、断面を送って見比べる</span></div>' +
+      '<div class="ages" role="group" aria-label="年齢">' + AGES.map(function (a) { return '<button type="button" class="age" data-age="' + a + '" aria-pressed="' + (a === atlasAge) + '">' + Math.floor(a / 10) * 10 + '代</button>'; }).join('') + '</div>' +
+      '<div><p><b>' + Math.floor(atlasAge / 10) * 10 + '代の正常で見るところ</b></p><ul class="pts">' + AGE_PTS[atlasAge].map(function (t) { return '<li>' + esc(t) + '</li>'; }).join('') + '</ul></div>' +
+      '<p class="muted" style="font-size:var(--fs-s)">「構造の名前」を押すと、その断面の主な構造に名前が出ます。年齢を切り替えて、同じ高さの断面を見比べてください。</p>';
+    if (!atlasQ) html += '<button type="button" class="btn" id="qStart">構造の名前クイズ（10問）</button>';
+    else {
+      var q = atlasQ.items[atlasQ.i];
+      if (atlasQ.i >= atlasQ.items.length) html += '<p><b>クイズ終了：' + atlasQ.right + ' / ' + atlasQ.items.length + ' 問正解</b></p><button type="button" class="btn" id="qStart">もう一度</button>';
+      else {
+        html += '<h3 class="qh" id="qh" tabindex="-1"><span class="qn">' + (atlasQ.i + 1) + '/10</span><span>黄色の矢印の構造は？（' + LEVELS[q.lv].name + 'の高さ）</span></h3><ol class="opts">' +
+          q.opts.map(function (o, i) { var cls = '', tag = ''; if (q.pick != null) { if (o === q.name) { cls = ' right'; tag = '正解'; } else if (o === q.pick) { cls = ' wrong'; tag = 'あなたの答え'; } else cls = ' dim'; } return '<li><button type="button" class="opt' + cls + '" data-qa="' + esc(o) + '"' + (q.pick != null ? ' disabled' : '') + '><span class="k">' + (i + 1) + '</span><span>' + esc(o) + '</span><span class="v">' + tag + '</span></button></li>'; }).join('') + '</ol>';
+        if (q.pick != null) html += '<button type="button" class="btn" id="qNext">' + (atlasQ.i === 9 ? '結果を見る' : '次へ') + '</button>';
+      }
+    }
+    panel.innerHTML = html;
+    if (focus) document.getElementById('panelH').focus({ preventScroll: true });
+  }
+  function startAtlasQ() {
+    var idx = shuffled(QPOOL.length).slice(0, 10);
+    atlasQ = { i: 0, right: 0, items: idx.map(function (k) { var q = QPOOL[k]; var others = QPOOL.filter(function (o) { return o.name !== q.name; }).map(function (o) { return o.name; }).filter(function (v, i, a) { return a.indexOf(v) === i; }); var o3 = shuffled(others.length).slice(0, 3).map(function (i) { return others[i]; }); var all = [q.name].concat(o3); return { lv: q.lv, name: q.name, x: q.x, y: q.y, opts: shuffled(4).map(function (i) { return all[i]; }), pick: null }; }) };
+    showAtlasQ();
+  }
+  function showAtlasQ() { var q = atlasQ.items[atlasQ.i]; V.labels = false; document.getElementById('labelBtn').setAttribute('aria-pressed', 'false'); setVol('n' + atlasAge, normal(atlasAge), q.lv); V.arrow = [q.x, q.y]; draw(); renderAtlas(); }
+
+  // ---- 読影ドリル
+  var D = { ci: null, picks: {}, opt: {}, text: {}, checked: {} };
+  function renderDrill(focus) {
+    var html = '<div class="ph"><h2 id="panelH" tabindex="-1">読影ドリル</h2><span class="sub">症例を選ぶ</span></div><ul class="cases">' +
+      CASES.map(function (c, i) { var done = D.checked[c.id]; return '<li><button type="button" class="case" data-ci="' + i + '" aria-current="' + (D.ci === i) + '"><span class="cn">' + esc(c.name) + '</span><span class="cs">' + esc(c.who) + '</span>' + (done ? '<span class="done">所見 ' + done + '</span>' : '') + '</button></li>'; }).join('') + '</ul>';
+    if (D.ci != null) {
+      var c = CASES[D.ci];
+      html += '<div class="ph"><h2 id="caseH" tabindex="-1">' + esc(c.name) + '</h2><span class="sub">' + esc(c.who) + '</span></div><p class="story">' + esc(c.story) + '</p>' +
+        '<p class="muted" style="font-size:var(--fs-s)">左の CT を、断面を送ってすべて見てから答えてください。</p>';
+      var all = true;
+      c.qs.forEach(function (q, qi) {
+        if (!all) return;
+        var key = c.id + qi, pick = D.picks[key];
+        if (!D.opt[key]) D.opt[key] = shuffled(q.a.length);
+        html += '<h3 class="qh"><span class="qn">問' + (qi + 1) + '</span><span>' + esc(q.q) + '</span></h3><ol class="opts">' + D.opt[key].map(function (ai, pos) {
+          var cls = '', tag = ''; if (pick != null) { if (ai === 0) { cls = ' right'; tag = '正解'; } else if (ai === pick) { cls = ' wrong'; tag = 'あなたの答え'; } else cls = ' dim'; }
+          return '<li><button type="button" class="opt" data-key="' + key + '" data-a="' + ai + '"' + (pick != null ? ' disabled' : '') + '><span class="k">' + (pos + 1) + '</span><span>' + esc(q.a[ai]) + '</span><span class="v">' + tag + '</span></button></li>';
+        }).join('').replace(/class="opt" data-key="([^"]+)" data-a="(\d+)"/g, function (m, k2, a2) { var pk = D.picks[k2]; if (pk == null) return m; var cl = +a2 === 0 ? ' right' : +a2 === pk ? ' wrong' : ' dim'; return 'class="opt' + cl + '" data-key="' + k2 + '" data-a="' + a2 + '"'; }) + '</ol>';
+        if (pick == null) { all = false; return; }
+        html += '<p class="why"><b>' + (pick === 0 ? '正解。' : '正解は「' + esc(q.a[0]) + '」。') + '</b>' + esc(q.why) + '</p>';
+      });
+      if (all) {
+        var t = D.text[c.id] || '';
+        html += '<h3 class="qh"><span class="qn">所見</span><span>所見を書いてみましょう</span></h3>' +
+          '<div class="row"><button type="button" class="ghost" id="tmpl">書き方の型を入れる</button></div>' +
+          '<label for="rep" class="muted" style="font-size:var(--fs-s)">見えたこと（場所・形・吸収値・広がり）→ まとめ（何を考えるか・次にすること）の順に書きます。</label>' +
+          '<textarea id="rep">' + esc(t) + '</textarea><button type="button" class="btn" id="grade">答え合わせ</button><div id="gradeOut"></div>';
+      }
+    }
+    panel.innerHTML = html;
+    var rep = document.getElementById('rep'); if (rep) rep.addEventListener('input', function () { D.text[CASES[D.ci].id] = rep.value; });
+    if (focus === 'case') { var h = document.getElementById('caseH'); if (h) h.focus({ preventScroll: true }); } else if (focus) document.getElementById('panelH').focus({ preventScroll: true });
+  }
+  function grade() {
+    var c = CASES[D.ci], t = (document.getElementById('rep').value || '').replace(/【[^】]*】/g, '').replace(/\s/g, '');
+    var res = c.check.map(function (it) { return [it[0], it[1].some(function (k) { return t.indexOf(k) !== -1; })]; });
+    var n = res.filter(function (r) { return r[1]; }).length;
+    D.checked[c.id] = n + '/' + res.length;
+    if (n >= res.length - 1) unlock(c.cat === '正常' ? 'n25' : c.id, 2, c.cat === '正常' ? '25歳の正常' : c.cat);
+    document.getElementById('gradeOut').innerHTML = '<p><b>書けた項目 ' + n + ' / ' + res.length + '</b>（言葉の一致で見ています。同じ意味を別の言葉で書いた場合は、自分で照らし合わせてください）</p><ul class="check">' +
+      res.map(function (r) { return '<li><span class="' + (r[1] ? 'o' : 'x') + '">' + (r[1] ? '✓' : '✗') + '</span><span>' + esc(r[0]) + '</span></li>'; }).join('') + '</ul><p><b>所見の例</b></p><div class="model">' + esc(c.report) + '</div>';
+  }
+
+  // ---- 所見図鑑
+  function renderZukan(focus) {
+    var items = ZK_ITEMS();
+    var html = '<div class="ph"><h2 id="panelH" tabindex="-1">所見図鑑</h2><span class="sub">正常アトラスで見た年齢と、ドリルで所見を書けた症例が集まります。所見の項目をほぼすべて書けると金の札になります。</span></div><ul class="zk">' +
+      items.map(function (z) { var t = ZK[z.id] || 0; if (!t) return '<li><div class="zc off">？？？</div></li>'; return '<li><button type="button" class="zc' + (t === 2 ? ' on' : '') + '" data-z="' + z.id + '" style="font:inherit;color:inherit;text-align:left;cursor:pointer"><canvas width="180" height="210" data-zc="' + z.id + '" aria-hidden="true"></canvas><b>' + esc(z.name) + '</b><span>' + (t === 2 ? '金：所見を書けた' : '見た') + '</span></button></li>'; }).join('') + '</ul>';
+    panel.innerHTML = html;
+    panel.querySelectorAll('canvas[data-zc]').forEach(function (c2) {
+      var z = items.filter(function (x) { return x.id === c2.getAttribute('data-zc'); })[0], sl = getSlice(z.key, z.vol, z.lv), oc = c2.getContext('2d'), im = oc.createImageData(180, 210);
+      for (var y = 0; y < 210; y++) for (var x = 0; x < 180; x++) { var v = sl.hu[(y * 2) * W + x * 2], g2 = Math.max(0, Math.min(255, (v - 0) / 80 * 255)), o = (y * 180 + x) * 4; im.data[o] = im.data[o + 1] = im.data[o + 2] = g2; im.data[o + 3] = 255; }
+      oc.putImageData(im, 0, 0);
+    });
+    if (focus) document.getElementById('panelH').focus({ preventScroll: true });
+  }
+
+  panel.addEventListener('click', function (e) {
+    var b = e.target.closest('button'); if (!b) return;
+    if (V.mode === 'atlas') {
+      if (b.hasAttribute('data-age')) { atlasAge = +b.getAttribute('data-age'); atlasQ = null; setVol('n' + atlasAge, normal(atlasAge)); unlock('n' + atlasAge, 1, atlasAge + '歳の正常'); renderAtlas(); }
+      else if (b.id === 'qStart') startAtlasQ();
+      else if (b.hasAttribute('data-qa')) { var q = atlasQ.items[atlasQ.i]; if (q.pick == null) { q.pick = b.getAttribute('data-qa'); if (q.pick === q.name) atlasQ.right++; V.labels = true; draw(); renderAtlas(); } }
+      else if (b.id === 'qNext') { atlasQ.i++; V.labels = false; if (atlasQ.i < atlasQ.items.length) showAtlasQ(); else { V.arrow = null; draw(); renderAtlas(); } }
+    } else if (V.mode === 'drill') {
+      if (b.hasAttribute('data-ci')) { D.ci = +b.getAttribute('data-ci'); var c = CASES[D.ci]; setVol(c.id, c.vol, 2); renderDrill('case'); unlock(c.cat === '正常' ? 'n25' : c.id, 1, c.cat === '正常' ? '25歳の正常' : c.cat); }
+      else if (b.classList.contains('opt')) { var key = b.getAttribute('data-key'); if (D.picks[key] == null) { D.picks[key] = +b.getAttribute('data-a'); renderDrill(); } }
+      else if (b.id === 'tmpl') { var r = document.getElementById('rep'); r.value = '【出血】\n【脳実質（梗塞・腫瘤・白質）】\n【脳室・脳溝（萎縮・水頭症）】\n【正中構造】\n【頭蓋骨・その他】\n【まとめ】\n' + r.value; D.text[CASES[D.ci].id] = r.value; r.focus(); }
+      else if (b.id === 'grade') grade();
+    } else if (V.mode === 'zukan') {
+      var z = b.getAttribute('data-z'); if (z) { var it = ZK_ITEMS().filter(function (x) { return x.id === z; })[0]; setVol(it.key, it.vol, it.lv); document.querySelector('.viewer').scrollIntoView({ block: 'start', behavior: 'smooth' }); }
+    }
+  });
+  document.addEventListener('keydown', function (e) {
+    if (e.altKey || e.ctrlKey || e.metaKey) return;
+    if (e.target.closest && e.target.closest('input, select, textarea')) return;
+    if (/^[1-4]$/.test(e.key)) { var bs = panel.querySelectorAll('.opt:not(:disabled)'), b = bs[+e.key - 1]; if (b) { e.preventDefault(); b.click(); } }
+  });
+
+  function setMode(m) {
+    if (['atlas', 'drill', 'zukan'].indexOf(m) === -1) m = 'atlas';
+    V.mode = m;
+    document.querySelectorAll('.mode').forEach(function (a) { if (a.getAttribute('data-mode') === m) a.setAttribute('aria-current', 'page'); else a.removeAttribute('aria-current'); });
+    V.arrow = null; atlasQ = null;
+    if (m === 'atlas') { setVol('n' + atlasAge, normal(atlasAge)); renderAtlas(); unlock('n' + atlasAge, 1, atlasAge + '歳の正常'); }
+    else if (m === 'drill') { if (D.ci != null) { var c = CASES[D.ci]; setVol(c.id, c.vol); } renderDrill(); }
+    else renderZukan();
+  }
+  window.addEventListener('hashchange', function () { setMode(location.hash.slice(1)); });
+  syncWin(); syncZk();
+  setMode((location.hash || '#atlas').slice(1));
+  window.__ct = { V: V, CASES: CASES, setVol: setVol, draw: draw, renderSlice: renderSlice, normal: normal };
+})();
+</script>
+
+</body>
+</html>
