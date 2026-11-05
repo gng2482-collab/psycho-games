@@ -200,6 +200,7 @@ body.ctfs #panel{overflow:auto;max-height:100%;margin:0;align-content:start}
   body.ctfs .viewer{justify-items:center}
 }
 body.ctfs #panel .opts{grid-template-columns:minmax(0,1fr)}
+@media (pointer:coarse){ body.ctfs.natfs .film-h{padding-left:72px} }
 </style>
 
 <div class="wrap">
@@ -1168,7 +1169,7 @@ body.ctfs #panel .opts{grid-template-columns:minmax(0,1fr)}
       sync();
     }
     b.addEventListener('click', function () { setFs(!on()); });
-    function fsc() { if (!(document.fullscreenElement || document.webkitFullscreenElement) && on()) document.body.classList.remove('ctfs'); sync(); }
+    function fsc() { document.body.classList.toggle('natfs', !!(document.fullscreenElement || document.webkitFullscreenElement)); if (!(document.fullscreenElement || document.webkitFullscreenElement) && on()) document.body.classList.remove('ctfs'); sync(); }
     document.addEventListener('fullscreenchange', fsc); document.addEventListener('webkitfullscreenchange', fsc);
     document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && on()) setFs(false); });
     var sw = null;

@@ -209,6 +209,7 @@ body.ectfs #panel{grid-area:panel;margin:0;overflow:auto;align-content:start}
 }
 #ectFsBar{display:flex;justify-content:flex-end;margin-top:10px}
 body.ectfs #panel .opts{grid-template-columns:minmax(0,1fr)}
+@media (pointer:coarse){ body.ectfs.natfs #ectFsBar{min-height:66px;align-items:flex-start} }
 </style>
 
 <div class="wrap">
@@ -761,7 +762,7 @@ body.ectfs #panel .opts{grid-template-columns:minmax(0,1fr)}
       sync();
     }
     b.addEventListener('click', function () { setFs(!on()); });
-    function fsc() { if (!(document.fullscreenElement || document.webkitFullscreenElement) && on()) document.body.classList.remove('ectfs'); sync(); }
+    function fsc() { document.body.classList.toggle('natfs', !!(document.fullscreenElement || document.webkitFullscreenElement)); if (!(document.fullscreenElement || document.webkitFullscreenElement) && on()) document.body.classList.remove('ectfs'); sync(); }
     document.addEventListener('fullscreenchange', fsc); document.addEventListener('webkitfullscreenchange', fsc);
     document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && on()) setFs(false); });
   })();
