@@ -318,6 +318,17 @@ body.eegfs .mihon-c-h{display:block;margin:2px 0 0;font-size:var(--fs-xs);color:
 .mihon-wrap h2{margin:0;font-family:var(--f-display);font-weight:400;font-size:var(--fs-l)}
 .mihon-wrap h2 small{font-family:var(--f-body);font-size:var(--fs-xs);color:var(--muted);margin-left:8px}
 body.eegfs .mihon-wrap{display:none}
+.side-info{width:100%;font-size:var(--fs-xs);display:grid;gap:3px;align-content:start;line-height:1.4}
+.side-info:empty{display:none}
+.side-info p{margin:0}
+.side-info .lb{color:var(--muted);margin-right:6px}
+.si-list{list-style:none;margin:0;padding:0;display:grid;gap:3px}
+.si-list li{background:color-mix(in srgb,var(--mark) 32%,var(--panel));border-radius:4px;padding:2px 6px}
+.si-list li span{font-family:var(--f-mono);color:var(--muted);margin-left:6px;font-size:.92em}
+.si-tip{margin-top:2px}
+body.eegfs .mihon-box{border-top:1px dashed var(--line);padding-top:6px;display:grid;gap:4px}
+body.eegfs #panel.qz-on .mihon-box,body.eegfs #panel.rp-on .mihon-box{display:none}
+.rp .qz-next{background:var(--accent);color:var(--accent-ink);border-color:var(--accent);font-weight:700;min-height:40px;padding:4px 16px}
 .rp{display:grid;gap:6px}
 .rp .rs{display:flex;flex-wrap:wrap;gap:4px;align-items:center}
 .rp .rs b{min-width:5em;font-size:var(--fs-xs)}
@@ -335,8 +346,12 @@ body.eegfs .mihon-wrap{display:none}
   body.eegfs{--sw:clamp(300px,30vw,420px)}
   body.eegfs .desk{grid-template-columns:minmax(0,1fr) var(--sw)}
   body.eegfs .desk-side{align-self:start}
-  body.eegfs #head{max-width:180px}
+  body.eegfs .desk-side{grid-template-columns:150px minmax(0,1fr);align-items:start;justify-items:stretch;column-gap:10px}
+  body.eegfs #head{width:150px;max-width:none}
+  body.eegfs .side-info{max-height:144px;overflow:hidden}
   body.eegfs .map-note{display:none}
+  body.eegfs #panel:has(.mihon-box){grid-template-rows:auto auto minmax(0,1fr)}
+  body.eegfs .mihon-box{align-self:end}
   body.eegfs #panel,body.eegfs.panelhide #panel{display:grid;left:auto;right:max(8px,env(safe-area-inset-right,0px));top:var(--sideH,280px);bottom:calc(6px + env(safe-area-inset-bottom,0px));
     width:var(--sw);max-height:none;box-shadow:none;border-width:1px;padding:12px 14px;align-content:start}
   body.eegfs #panel .opts{grid-template-columns:minmax(0,1fr)}
@@ -346,6 +361,7 @@ body.eegfs .mihon-wrap{display:none}
   body.eegfs .desk{grid-template-columns:minmax(0,1fr);grid-template-rows:minmax(0,1fr) auto}
   body.eegfs .desk-side{grid-template-columns:120px minmax(0,1fr);align-items:center;justify-items:start}
   body.eegfs #head{max-width:120px}
+  body.eegfs .map-note{display:none}
   body.eegfs #panel{width:calc(100vw - 24px);max-height:40vh}
 }
 .foot{margin-top:28px; font-size:var(--fs-xs); color:var(--muted); max-width:56em}
@@ -408,6 +424,7 @@ body.eegfs .mihon-wrap{display:none}
     </div>
     <aside class="desk-side" aria-label="頭の図（10-20法）">
       <svg id="head" viewBox="-1.3 -1.24 2.6 2.48" role="group" aria-label="電極の配置"></svg>
+      <div class="side-info" id="sideInfo" aria-live="polite"></div>
       <p class="map-note" id="mapNote">上が鼻、左が左半球。奇数は左、偶数は右、z は正中。波をタップすると、その瞬間の電位を色で出します。</p>
     </aside>
   </section>
@@ -828,7 +845,7 @@ body.eegfs .mihon-wrap{display:none}
   MONT.bip.bip = true; MONT.tr.bip = true;
 
   /* ====================== 4. 画面の状態 ====================== */
-  var V = { mode: 'lab', mont: 'bip', sens: 10, win: 10, notch: false, real: false, tc: 0.3, hff: 60, meas: false, mline: null, cur: null, sel: -1, src: null, live: false, off: 0, hl: null, spec: null, playing: true };
+  var V = { mode: 'lab', mont: 'bip', sens: 10, win: 10, notch: false, real: false, tc: 0.3, hff: 60, meas: false, mline: null, cur: null, sel: -1, src: null, live: false, off: 0, hl: null, spec: null, playing: true, lback: 0 };
   var cv = document.getElementById('trace'), ctx = cv.getContext('2d');
   var panel = document.getElementById('panel');
   var headSvg = document.getElementById('head');
@@ -853,7 +870,7 @@ body.eegfs .mihon-wrap{display:none}
   var TOK = {};
   function readTokens() {
     var cs = getComputedStyle(document.documentElement);
-    ['--sheet','--grid','--grid2','--trace','--accent','--mark','--ann','--muted','--ink','--hot','--neg','--pos'].forEach(function (k) { TOK[k] = cs.getPropertyValue(k).trim(); });
+    ['--sheet','--grid','--grid2','--trace','--accent','--mark','--ann','--muted','--ink','--hot','--neg','--pos','--accent-ink'].forEach(function (k) { TOK[k] = cs.getPropertyValue(k).trim(); });
   }
   readTokens();
   if (window.matchMedia) { var mq = window.matchMedia('(prefers-color-scheme: dark)'); if (mq.addEventListener) mq.addEventListener('change', function () { readTokens(); draw(); }); }
@@ -874,7 +891,8 @@ body.eegfs .mihon-wrap{display:none}
     var plotW = W0 - LW - RP;
     var win = V.live ? V.win : Math.min(V.win, src.dur);
     var n = Math.min(Math.round(win * FS), src.N);
-    var s0 = V.live ? Math.max(0, src.N - n) : Math.min(Math.round(V.off * FS), src.N - n);
+    if (V.live) V.lback = Math.max(0, Math.min(V.lback || 0, Math.min(src.N, BUF) - n - 2 * FS));
+    var s0 = V.live ? Math.max(0, src.N - n - V.lback) : Math.min(Math.round(V.off * FS), src.N - n);
     var tw0 = s0 / FS;
     var xOf = function (t) { return LW + (t - tw0) / win * plotW; };
 
@@ -1026,6 +1044,15 @@ body.eegfs .mihon-wrap{display:none}
       });
     }
 
+    // 巻き戻して見ているとき：右上に表示
+    if (V.live && V.lback > 0) {
+      var lt = '◀ ' + (V.lback / FS).toFixed(1) + '秒前を表示中（再生で今に戻る）';
+      ctx.font = '700 12px "BIZ UDPGothic", sans-serif'; ctx.textAlign = 'right';
+      var ltw = ctx.measureText(lt).width;
+      ctx.fillStyle = TOK['--accent']; ctx.fillRect(W0 - RP - ltw - 12, 15, ltw + 12, 17);
+      ctx.fillStyle = TOK['--accent-ink']; ctx.fillText(lt, W0 - RP - 6, 28);
+    }
+    if (V.live) syncLiveSide(tw0, win); else clearLiveSide();
     cv.setAttribute('aria-label', MONT[V.mont].name + '、' + chans.length + 'チャンネル、' + win + '秒分の脳波');
   }
 
@@ -1064,7 +1091,7 @@ body.eegfs .mihon-wrap{display:none}
     else if (sel && (sel.b === 'A1' || sel.b === 'A2')) lines += line(sel.a, sel.b, 'sel ref');
     else if (sel && sel.b === 'LE') { lines += line(sel.a, 'A1', 'sel ref') + line(sel.a, 'A2', 'sel ref'); }
     headSvg.querySelector('#hmLines').innerHTML = lines;
-    var hlEl = V.hl ? V.hl.el : [];
+    var hlEl = V.hl ? V.hl.el : (V.live ? liveHlEl : []);
     headSvg.querySelectorAll('.el').forEach(function (g2) {
       var e = g2.getAttribute('data-e');
       g2.classList.toggle('sel', !!sel && (sel.a === e || sel.b === e));
@@ -1106,7 +1133,7 @@ body.eegfs .mihon-wrap{display:none}
 
   var swipeEat = false;
   cv.addEventListener('click', function (ev) {
-    if (swipeEat) { swipeEat = false; return; }
+    if (swipeEat) return;
     if (!layout || V.meas) return;
     var r = cv.getBoundingClientRect(), x = ev.clientX - r.left, y = ev.clientY - r.top, best = -1, bd = 1e9;
     layout.rows.forEach(function (ry, i) { var d = Math.abs(ry - y); if (d < bd) { bd = d; best = i; } });
@@ -1173,7 +1200,7 @@ body.eegfs .mihon-wrap{display:none}
   });
   document.getElementById('pgPrev').addEventListener('click', function () { V.off = Math.max(0, V.off - V.win); draw(); });
   document.getElementById('pgNext').addEventListener('click', function () { V.off = Math.min(V.src.dur - V.win, V.off + V.win); draw(); });
-  document.getElementById('playBtn').addEventListener('click', function () { V.playing = !V.playing; syncToolbar(); if (V.playing) kick(); });
+  document.getElementById('playBtn').addEventListener('click', function () { V.playing = !V.playing; if (V.playing) V.lback = 0; syncToolbar(); draw(); if (V.playing) kick(); });
 
   function setPage(spec, keepView) {
     var s2 = Object.assign({}, spec, { notch: V.notch, real: V.real });
@@ -1183,7 +1210,7 @@ body.eegfs .mihon-wrap{display:none}
   }
 
   /* ====================== 8. 触ってみる（流れる脳波） ====================== */
-  var BUF = FS * 32;
+  var BUF = FS * 64;
   var LIVE = null, lastTs = 0, rafId = 0;
   function newLive(preset) {
     var sim = makeSim({ seed: 1 + Math.floor(Math.random() * 1e6), preset: preset, real: V.real });
@@ -1191,8 +1218,8 @@ body.eegfs .mihon-wrap{display:none}
     sim.notch = V.notch;
     var data = []; for (var k = 0; k < NS; k++) data.push(new Float32Array(BUF));
     LIVE = { sim: sim, data: data, w: 0, schedT: 0, ann: [], st: { eo: 0, hv: 0, sleep: 0, photic: 0 }, flags: { hum: false, ecg: false } };
-    LIVE.hls = [];
-    LIVE.src = { get N() { return LIVE.w; }, dur: 32, photic: true, ann: LIVE.ann, hls: LIVE.hls, get: function (k2, i) { return LIVE.data[k2][i % BUF]; } };
+    LIVE.hls = []; V.lback = 0;
+    LIVE.src = { get N() { return LIVE.w; }, dur: 64, photic: true, ann: LIVE.ann, hls: LIVE.hls, get: function (k2, i) { return LIVE.data[k2][i % BUF]; } };
     advance(Math.round(10 * FS));
   }
   var outBuf = new Float64Array(NS);
@@ -1207,13 +1234,13 @@ body.eegfs .mihon-wrap{display:none}
       L.w++;
     }
     var tNow = L.w / FS;
-    if (sim.events.length > 60) sim.events = sim.events.filter(function (ev) { return ev.t0 + ev.dur > tNow - 33; });
-    while (L.ann.length && L.ann[0][0] < tNow - 33) L.ann.shift();
+    if (sim.events.length > 60) sim.events = sim.events.filter(function (ev) { return ev.t0 + ev.dur > tNow - 65; });
+    while (L.ann.length && L.ann[0][0] < tNow - 65) L.ann.shift();
   }
   function frame(ts) {
     rafId = 0;
     if (V.mode !== 'lab' || !V.playing || document.hidden) { lastTs = 0; return; }
-    if (lastTs) { var dt = Math.min(0.2, (ts - lastTs) / 1000); var nS = Math.round(dt * FS); if (nS > 0) { advance(nS); draw(); } }
+    if (lastTs) { var dt = Math.min(0.2, (ts - lastTs) / 1000); var nS = Math.round(dt * FS); if (nS > 0) { advance(nS); quizMissCheck(); draw(); } }
     lastTs = ts;
     rafId = requestAnimationFrame(frame);
   }
@@ -1282,8 +1309,8 @@ body.eegfs .mihon-wrap{display:none}
         '<button type="button" class="act" id="qzBtn">見つけてクイズ</button>' +
         '<button type="button" class="act" id="rpBtn">判読レポートを書く</button></div>' +
       '</div><div class="explain" id="explain" aria-live="polite"></div></div>' +
-      '<p class="mihon-c-h">異常脳波の見本（押すとその脳波が流れる）</p><div class="mihon-c">' +
-      MIHON.map(function (m) { var c = CARDS.filter(function (x) { return x.id === m[0]; })[0]; return c ? '<button type="button" data-mihon="' + m[1] + '" aria-pressed="' + pr(pre === m[1]) + '">' + esc(m[3] || c.name) + '</button>' : ''; }).join('') + '</div>';
+      '<div class="mihon-box"><p class="mihon-c-h">異常脳波の見本（押すと脳の状態が切りかわります）</p><div class="mihon-c">' +
+      MIHON.map(function (m) { var c = CARDS.filter(function (x) { return x.id === m[0]; })[0]; return c ? '<button type="button" data-mihon="' + m[1] + '" aria-pressed="' + pr(pre === m[1]) + '">' + esc(m[3] || c.name) + '</button>' : ''; }).join('') + '</div></div>';
   }
   // 押すと、その状態の脳波が流れ始める見本（カードの id, 脳の状態, ひとこと）
   var MIHON = [['alpha', 'normal', '比べる基準', '正常（基準）'], ['spike', 'tle', '側頭葉てんかん', '棘波'], ['sw3', 'absence', '欠神（過呼吸で出る）', '3Hz棘徐波'], ['diffuse_slow', 'delirium', 'せん妄', 'びまん性徐波'], ['triphasic', 'hepatic', '肝性脳症', '三相波'],
@@ -1306,7 +1333,7 @@ body.eegfs .mihon-wrap{display:none}
       if (LIVE.sim.preset === 'absence' && LIVE.st.hv) setTimeout(function () { unlock('sw3', 1); }, 6000);
       if (LIVE.sim.preset === 'jme' && LIVE.st.photic >= 12) setTimeout(function () { unlock('polysw', 1); }, 3000);
     }
-    panel.classList.remove('rp-on');
+    panel.classList.remove('rp-on', 'qz-on');
     var t = isPreset ? LAB_TXT[key] : ACT_TXT[key];
     var el = document.getElementById('explain'); if (!el || !t) return;
     el.innerHTML = '<h3>' + esc(t[0]) + '</h3><p>' + esc(t[1]) + '</p>';
@@ -1382,6 +1409,45 @@ body.eegfs .mihon-wrap{display:none}
   });
 
 
+  /* 頭の図の横：いま記録紙に出ている反応と、その電極 */
+  var liveHlEl = [], sideKey = '', sideInfo = document.getElementById('sideInfo');
+  function clearLiveSide() { if (!sideKey) return; sideKey = ''; liveHlEl = []; sideInfo.innerHTML = ''; }
+  function syncLiveSide(tw0, win) {
+    if (!LIVE) return;
+    var vis = LIVE.hls.filter(function (h) { return h.txt && h.t1 > tw0 && h.t0 < tw0 + win; });
+    var els = []; vis.forEach(function (h) { h.el.forEach(function (e) { if (els.indexOf(e) < 0) els.push(e); }); });
+    var key = 'k' + els.join(',') + '|' + vis.map(function (h) { return h.txt; }).join(',') + '|' + LIVE.sim.preset + '|' + QZ.ok + '/' + QZ.n;
+    if (key === sideKey) return; sideKey = key;
+    liveHlEl = els; updateHead();
+    var seen = {};
+    sideInfo.innerHTML = '<p><span class="lb">いまの状態</span><b>' + esc(PRE[LIVE.sim.preset].name) + '</b></p>' +
+      '<p class="lb">記録紙に出ている反応</p>' +
+      (vis.length ? '<ul class="si-list">' + vis.filter(function (h) { if (seen[h.txt]) return false; seen[h.txt] = 1; return true; }).slice(-4).map(function (h) { return '<li><b>' + esc(h.txt) + '</b><span>' + esc(h.el.length > 6 ? h.el.slice(0, 5).join(' ') + ' ほか' : h.el.join(' ')) + '</span></li>'; }).join('') + '</ul>'
+        : '<p class="muted">ボタンを押すと、反応が出る電極が頭の図でも黄色になります。</p>') +
+      (QZ.n ? '<p><span class="lb">クイズ</span><b>' + QZ.ok + ' / ' + QZ.n + '</b></p>' : '') +
+      '<p class="muted si-tip">記録紙を左右になぞると、巻き戻し・早送り</p>';
+  }
+  // 記録紙を左右になぞる：右へ＝巻き戻し、左へ＝早送り（なぞると一時停止。再生で今に戻る）
+  var ld = null;
+  cv.addEventListener('pointerdown', function (ev) { if (!V.live || V.meas || !layout) return; ld = { x: ev.clientX, y: ev.clientY, moved: false, id: ev.pointerId }; });
+  cv.addEventListener('pointermove', function (ev) {
+    if (!ld || ev.pointerId !== ld.id || !layout) return;
+    var dx = ev.clientX - ld.x, dy = ev.clientY - ld.y;
+    if (!ld.moved) {
+      if (Math.abs(dx) < 12 || Math.abs(dx) < Math.abs(dy) * 1.2) { if (Math.abs(dy) > 16) ld = null; return; }
+      ld.moved = true; swipeEat = true;
+      if (V.playing) { V.playing = false; syncToolbar(); }
+    }
+    var ds = Math.round(dx / layout.plotW * layout.n); if (!ds) return;
+    ld.x = ev.clientX;
+    var nb = V.lback + ds;
+    if (nb < 0) { advance(Math.min(-nb, 2 * FS)); quizMissCheck(); nb = 0; }
+    V.lback = nb; draw();
+  });
+  function ldEnd() { if (ld && ld.moved) setTimeout(function () { swipeEat = false; }, 350); ld = null; }
+  cv.addEventListener('pointerup', ldEnd); cv.addEventListener('pointercancel', ldEnd);
+  function liveStep(sec) { if (!V.live || !LIVE) return; if (V.playing) { V.playing = false; syncToolbar(); } var nb = V.lback + Math.round(sec * FS); if (nb < 0) { advance(-nb); quizMissCheck(); nb = 0; } V.lback = nb; draw(); }
+
   /* ====================== 8b. 見つけてクイズ・判読レポート（触ってみる） ====================== */
   var QZ = { n: 0, ok: 0, cur: null, timer: 0 };
   var QZ_POOL = [
@@ -1397,9 +1463,22 @@ body.eegfs .mihon-wrap{display:none}
     var t = L.w / FS + 3 + Math.random() * 5, p = QZ_POOL[Math.floor(Math.random() * QZ_POOL.length)], m = p.make(t);
     m.ev.forEach(function (e) { sim.events.push(e); });
     QZ.cur = { t0: t, t1: t + m.dur, el: m.el, name: p.name, where: m.where, found: false };
-    exEl().innerHTML = '<h3>見つけてクイズ（' + (QZ.n + 1) + '問目）</h3><p>このあと数秒のうちに、いつもと違う波が1回出ます。見つけたら、記録紙のその場所をタップしてください。</p>';
-    clearTimeout(QZ.timer);
-    QZ.timer = setTimeout(function () { if (QZ.cur && !QZ.cur.found) { quizReveal('見逃しました。黄色の帯のところです。'); QZ.n++; } }, (t - L.w / FS + 12) * 1000);
+    panel.classList.remove('rp-on'); panel.classList.add('qz-on');
+    exEl().innerHTML = '<h3>見つけてクイズ（' + (QZ.n + 1) + '問目）</h3><p>このあと数秒のうちに、いつもと違う波が<b>1回だけ</b>出ます。見つけたら、記録紙のその波を指でタップしてください。見逃すと、止めて答えを見せます。</p>';
+    // 止まっていたら、今の時刻に戻して再生する
+    V.lback = 0; if (!V.playing) { V.playing = true; syncToolbar(); kick(); }
+    draw();
+  }
+  // 答えを見せるとき：止めて、その波が画面のまん中に来るようにする
+  function quizFocus(q) {
+    var end = (q.t0 + q.t1) / 2 + V.win / 2, need = Math.round(end * FS) - LIVE.w;
+    if (need > 0) advance(need);
+    V.playing = false; V.lback = Math.max(0, LIVE.w - Math.round(end * FS));
+    syncToolbar(); draw();
+  }
+  function quizMissCheck() {
+    var q = QZ.cur; if (!q || q.found || !LIVE) return;
+    if (LIVE.w / FS > q.t1 + V.win * 0.6) { QZ.n++; quizReveal('<span class="ng">見逃しました</span>。止めて、黄色の帯のところに出しています。'); }
   }
   function quizTap(sec) {
     var q = QZ.cur; if (!q || q.found) return false;
@@ -1409,6 +1488,7 @@ body.eegfs .mihon-wrap{display:none}
       var opts = QZ_NAMES.slice().sort(function () { return Math.random() - 0.5; });
       exEl().innerHTML = '<h3>見つけました。この波の名前は？</h3><div class="rp"><div class="rs">' + opts.map(function (o) { return '<button type="button" data-qz="' + esc(o) + '">' + esc(o) + '</button>'; }).join('') + '</div></div>';
       LIVE.hls.push({ t0: q.t0, t1: q.t1, el: q.el, txt: '？' });
+      quizFocus(q);
     } else toast('<b>そこではありません</b><br>ほかの時間を探してください');
     return true;
   }
@@ -1421,10 +1501,11 @@ body.eegfs .mihon-wrap{display:none}
     var q = QZ.cur; QZ.cur = null; if (!q) return;
     var h = LIVE.hls.filter(function (x) { return x.t0 === q.t0; })[0];
     if (h) h.txt = q.name; else LIVE.hls.push({ t0: q.t0, t1: q.t1, el: q.el, txt: q.name });
-    exEl().innerHTML = '<h3>' + esc(q.name) + '</h3><p>' + msg + '　成績 ' + QZ.ok + ' / ' + QZ.n + '</p><div class="rp"><div class="rs"><button type="button" id="qzBtn">次の問題</button></div></div>';
+    exEl().innerHTML = '<h3>答え：' + esc(q.name) + '</h3><p>' + msg + '</p><p>一時停止して、黄色の帯で示しています。成績 ' + QZ.ok + ' / ' + QZ.n + '</p><div class="rp"><div class="rs"><button type="button" id="qzBtn" class="qz-next">次の問題（自動で再生）</button></div></div>';
+    quizFocus(q);
   }
   cv.addEventListener('click', function (ev) {
-    if (V.mode !== 'lab' || !LIVE || !layout || !QZ.cur) return;
+    if (swipeEat || V.mode !== 'lab' || !LIVE || !layout || !QZ.cur) return;
     var r = cv.getBoundingClientRect(), x = ev.clientX - r.left; if (x < layout.LW) return;
     quizTap((layout.s0 + (x - layout.LW) / layout.plotW * layout.n) / FS);
   });
@@ -2083,6 +2164,7 @@ body.eegfs .mihon-wrap{display:none}
   });
   document.addEventListener('keydown', function (e) {
     if (e.target && /INPUT|SELECT|TEXTAREA/.test(e.target.tagName)) return;
+    if (V.live && V.mode === 'lab' && (e.key === 'ArrowRight' || e.key === 'ArrowLeft')) { liveStep(e.key === 'ArrowLeft' ? 1 : -1); e.preventDefault(); return; }
     if (e.key === 'ArrowRight' && page(1)) e.preventDefault();
     else if (e.key === 'ArrowLeft' && page(-1)) e.preventDefault();
     else if (e.key === 'Escape' && isFs()) setFs(false);
