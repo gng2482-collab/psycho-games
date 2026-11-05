@@ -244,7 +244,7 @@ select{
 .tb-item{display:inline-flex; gap:6px; align-items:center}
 .tb-item .lb{font-size:var(--fs-xs); color:var(--muted)}
 .trace-wrap{border:1px solid var(--line); border-radius:var(--r); background:var(--sheet); overflow:hidden}
-#trace{display:block; width:100%; cursor:pointer; touch-action:manipulation}
+#trace{display:block; width:100%; cursor:pointer; touch-action:pan-y}
 .chan-note{font-size:var(--fs-s); color:var(--muted); min-height:1.75em}
 .chan-note b{color:var(--ink); font-family:var(--f-mono)}
 .desk-side{position:sticky; top:max(10px, env(safe-area-inset-top, 0px)); display:grid; gap:6px; justify-items:center; background:var(--panel); border:1px solid var(--line); border-radius:var(--r); padding:10px}
@@ -267,6 +267,42 @@ select{
 #head .el:focus{outline:none}
 #head .el:focus-visible circle{stroke:var(--accent); stroke-width:.04}
 .map-note{font-size:var(--fs-xs); color:var(--muted); text-align:center}
+.fsonly{display:none}
+/* 全画面（脳波計の前に座ったつもりで）：記録紙を画面いっぱいに、問題は左下に浮かせる */
+body.eegfs{overflow:hidden}
+body.eegfs .top,body.eegfs .primer,body.eegfs .modes,body.eegfs .level,body.eegfs .foot{display:none}
+body.eegfs .fsonly{display:inline-flex}
+body.eegfs .desk{position:fixed;inset:0;z-index:15;margin:0;background:var(--paper);
+  padding:calc(6px + env(safe-area-inset-top,0px)) max(8px,env(safe-area-inset-right,0px)) calc(6px + env(safe-area-inset-bottom,0px)) max(8px,env(safe-area-inset-left,0px));
+  grid-template-columns:minmax(0,1fr) clamp(150px,17vw,220px);gap:8px;align-items:stretch}
+body.eegfs .desk-main{height:100%;grid-template-rows:auto minmax(0,1fr) auto;gap:4px;min-height:0}
+body.eegfs .toolbar{gap:4px 8px}
+body.eegfs .toolbar .seg button,body.eegfs .toolbar .act,body.eegfs .toolbar select{min-height:36px;padding-block:4px}
+body.eegfs .trace-wrap{min-height:0;overflow:hidden}
+body.eegfs .chan-note{font-size:var(--fs-xs);min-height:0;margin:0}
+body.eegfs .desk-side{position:static;align-content:start;overflow:auto;max-height:100%}
+body.eegfs #panel{position:fixed;z-index:16;margin:0;left:max(12px,env(safe-area-inset-left,0px));bottom:calc(12px + env(safe-area-inset-bottom,0px));
+  width:min(620px,calc(100vw - clamp(150px,17vw,220px) - 48px));max-height:52vh;overflow:auto;box-shadow:0 10px 32px rgba(0,0,0,.28);border-width:2px}
+body.eegfs.panelhide #panel{display:none}
+#fsPanelBtn{position:fixed;z-index:17;left:max(12px,env(safe-area-inset-left,0px));bottom:calc(12px + env(safe-area-inset-bottom,0px));min-height:44px;font-weight:700;box-shadow:0 4px 14px rgba(0,0,0,.2)}
+body.eegfs:not(.panelhide) #fsPanelBtn{bottom:calc(12px + env(safe-area-inset-bottom,0px) + min(52vh, var(--ph,52vh)) + 8px)}
+@media (orientation:landscape){
+  body.eegfs{--sw:clamp(300px,30vw,420px)}
+  body.eegfs .desk{grid-template-columns:minmax(0,1fr) var(--sw)}
+  body.eegfs .desk-side{align-self:start}
+  body.eegfs #head{max-width:180px}
+  body.eegfs .map-note{display:none}
+  body.eegfs #panel,body.eegfs.panelhide #panel{display:grid;left:auto;right:max(8px,env(safe-area-inset-right,0px));top:var(--sideH,280px);bottom:calc(6px + env(safe-area-inset-bottom,0px));
+    width:var(--sw);max-height:none;box-shadow:none;border-width:1px;padding:12px 14px;align-content:start}
+  body.eegfs #panel .opts{grid-template-columns:minmax(0,1fr)}
+  body.eegfs #fsPanelBtn{display:none}
+}
+@media (orientation:portrait){
+  body.eegfs .desk{grid-template-columns:minmax(0,1fr);grid-template-rows:minmax(0,1fr) auto}
+  body.eegfs .desk-side{grid-template-columns:120px minmax(0,1fr);align-items:center;justify-items:start}
+  body.eegfs #head{max-width:120px}
+  body.eegfs #panel{width:calc(100vw - 24px);max-height:40vh}
+}
 .foot{margin-top:28px; font-size:var(--fs-xs); color:var(--muted); max-width:56em}
 </style>
 
@@ -320,6 +356,7 @@ select{
         <button type="button" class="act" id="measBtn" aria-pressed="false">ものさし</button>
         <span class="tb-item" id="pager" hidden><button type="button" class="act" id="pgPrev" aria-label="前の5秒">◀</button><button type="button" class="act" id="pgNext" aria-label="次の5秒">▶</button></span>
         <button type="button" class="act" id="playBtn" hidden>一時停止</button>
+        <button type="button" class="act" id="fsBtn" aria-pressed="false">全画面</button>
       </div>
       <div class="trace-wrap"><canvas id="trace" role="img" aria-label="脳波の記録"></canvas></div>
       <p class="chan-note" id="chanNote">線をタップすると、どの2つの電極の差かを頭の図に出します。</p>
@@ -330,6 +367,7 @@ select{
     </aside>
   </section>
 
+  <button type="button" class="ghost fsonly" id="fsPanelBtn" aria-pressed="true">問題を隠す</button>
   <div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
   <p class="foot">波形はこのページの中で合成したもので、実在の患者さんの記録ではありません。形や数値は学習用に単純化しています。「実践」レベルの波も本物に近づけたものですが、実際の記録そのものではありません。図鑑の集まり具合は、このブラウザの中にだけ保存されます。電極名は日本で広く使われる T3・T4・T5・T6（新しい呼び方では T7・T8・P7・P8）です。実際の判読は、記録の条件や臨床経過と合わせて、専門の医師が行ってください。</p>
 </div>
@@ -781,6 +819,7 @@ select{
     var chans = channels();
     var W0 = cv.clientWidth || 600, nar = W0 < 560;
     var LW = nar ? 50 : 62, RP = 8, top = 30, bottom = 26, sp = nar ? 20 : 26, gapPx = 6;
+    if (document.body.classList.contains('eegfs')) { var avail = cv.parentNode.clientHeight, ng = chans.filter(function (c) { return c.gap; }).length; if (avail > 120) sp = Math.max(12, Math.min(48, Math.floor((avail - top - bottom - ng * gapPx) / chans.length))); }
     var H = top + bottom + chans.length * sp + chans.filter(function (c) { return c.gap; }).length * gapPx;
     var dpr = Math.min(window.devicePixelRatio || 1, 2);
     if (cv.width !== Math.round(W0 * dpr) || cv.height !== Math.round(H * dpr)) { cv.width = Math.round(W0 * dpr); cv.height = Math.round(H * dpr); cv.style.height = H + 'px'; }
@@ -982,7 +1021,9 @@ select{
     return '<b>' + esc(c.label) + '</b> ＝ ' + c.a + ' の電位 − ' + ref + ' の電位。上に振れたら ' + c.a + ' のほうがマイナス、下に振れたらプラスです。';
   }
 
+  var swipeEat = false;
   cv.addEventListener('click', function (ev) {
+    if (swipeEat) { swipeEat = false; return; }
     if (!layout || V.meas) return;
     var r = cv.getBoundingClientRect(), x = ev.clientX - r.left, y = ev.clientY - r.top, best = -1, bd = 1e9;
     layout.rows.forEach(function (ry, i) { var d = Math.abs(ry - y); if (d < bd) { bd = d; best = i; } });
@@ -1016,7 +1057,7 @@ select{
     document.getElementById('notch').setAttribute('aria-pressed', V.notch ? 'true' : 'false');
     document.getElementById('tc').value = String(V.tc); document.getElementById('hff').value = String(V.hff);
     document.getElementById('measBtn').setAttribute('aria-pressed', V.meas ? 'true' : 'false');
-    cv.style.touchAction = V.meas ? 'none' : 'manipulation'; cv.style.cursor = V.meas ? 'crosshair' : 'pointer';
+    cv.style.touchAction = V.meas ? 'none' : 'pan-y'; cv.style.cursor = V.meas ? 'crosshair' : 'pointer';
     var pager = document.getElementById('pager');
     pager.hidden = V.live || !V.src || V.win >= V.src.dur;
     var pb = document.getElementById('playBtn');
@@ -1796,8 +1837,47 @@ select{
   /* ====================== 12. はじめる ====================== */
   buildHead();
   if (narrow()) V.win = 5;
+  /* ====================== 全画面（脳波計の前に座る） ====================== */
+  var fsBtn = document.getElementById('fsBtn'), fsPanelBtn = document.getElementById('fsPanelBtn');
+  function isFs() { return document.body.classList.contains('eegfs'); }
+  function syncFs() {
+    var on = isFs();
+    fsBtn.textContent = on ? '全画面を終了' : '全画面'; fsBtn.setAttribute('aria-pressed', on ? 'true' : 'false');
+    var hide = document.body.classList.contains('panelhide');
+    fsPanelBtn.textContent = hide ? '問題を出す' : '問題を隠す'; fsPanelBtn.setAttribute('aria-pressed', hide ? 'false' : 'true');
+    if (on && !hide) document.documentElement.style.setProperty('--ph', panel.offsetHeight + 'px');
+    var side = document.querySelector('.desk-side'); if (on && side) requestAnimationFrame(function () { document.documentElement.style.setProperty('--sideH', Math.round(side.getBoundingClientRect().bottom + 8) + 'px'); });
+    requestAnimationFrame(function () { draw(); });
+  }
+  function setFs(on) {
+    document.body.classList.toggle('eegfs', on);
+    var de = document.documentElement, natv = document.fullscreenElement || document.webkitFullscreenElement;
+    if (on && !natv) { var rq = de.requestFullscreen || de.webkitRequestFullscreen; if (rq) { try { var pr = rq.call(de); if (pr && pr.catch) pr.catch(function () {}); } catch (e) {} } }
+    if (!on && natv) { var ex = document.exitFullscreen || document.webkitExitFullscreen; try { var px2 = ex.call(document); if (px2 && px2.catch) px2.catch(function () {}); } catch (e) {} }
+    syncFs();
+  }
+  fsBtn.addEventListener('click', function () { setFs(!isFs()); });
+  fsPanelBtn.addEventListener('click', function () { document.body.classList.toggle('panelhide'); syncFs(); });
+  function fsChange() { if (!(document.fullscreenElement || document.webkitFullscreenElement) && isFs()) { document.body.classList.remove('eegfs'); } syncFs(); }
+  document.addEventListener('fullscreenchange', fsChange); document.addEventListener('webkitfullscreenchange', fsChange);
+  new MutationObserver(function () { if (isFs() && !document.body.classList.contains('panelhide')) document.documentElement.style.setProperty('--ph', panel.offsetHeight + 'px'); }).observe(panel, { childList: true, subtree: true });
+  // 記録紙を指で左右にはらうと、前後のページへ（ものさしを使っていないとき）
+  var sw = null;
+  function page(dir) { if (!V.src || V.live || V.win >= V.src.dur) return false; var o = Math.max(0, Math.min(V.src.dur - V.win, V.off + dir * V.win)); if (o === V.off) return false; V.off = o; draw(); return true; }
+  cv.addEventListener('pointerdown', function (ev) { if (V.meas) return; sw = { x: ev.clientX, y: ev.clientY }; });
+  cv.addEventListener('pointerup', function (ev) {
+    if (!sw || V.meas) { sw = null; return; }
+    var dx = ev.clientX - sw.x, dy = ev.clientY - sw.y; sw = null;
+    if (Math.abs(dx) > 60 && Math.abs(dx) > Math.abs(dy) * 1.5) { swipeEat = true; page(dx < 0 ? 1 : -1); setTimeout(function () { swipeEat = false; }, 350); }
+  });
+  document.addEventListener('keydown', function (e) {
+    if (e.target && /INPUT|SELECT|TEXTAREA/.test(e.target.tagName)) return;
+    if (e.key === 'ArrowRight' && page(1)) e.preventDefault();
+    else if (e.key === 'ArrowLeft' && page(-1)) e.preventDefault();
+    else if (e.key === 'Escape' && isFs()) setFs(false);
+  });
   var resizeT = 0;
-  window.addEventListener('resize', function () { clearTimeout(resizeT); resizeT = setTimeout(function () { draw(); }, 80); });
+  window.addEventListener('resize', function () { clearTimeout(resizeT); resizeT = setTimeout(function () { if (isFs()) syncFs(); else draw(); }, 80); });
   setMode((location.hash || '#lab').slice(1));
   if (document.fonts && document.fonts.ready) document.fonts.ready.then(function () { draw(); });
 

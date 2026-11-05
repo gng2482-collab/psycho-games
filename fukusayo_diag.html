@@ -172,7 +172,22 @@ canvas{display:block;width:100%;aspect-ratio:16/9;image-rendering:pixelated;back
 .pad{display:none;grid-template-columns:1fr 1fr 1.6fr;gap:10px;padding:10px;border-top:1px solid var(--line)}
 .pad button{height:64px;font-family:var(--f-display);font-size:20px;border:1px solid var(--line);border-radius:8px;background:var(--paper);color:var(--ink);touch-action:none;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none}
 .pad button.on{background:var(--accent);color:var(--accent-ink)}
-@media (pointer:coarse){.pad{display:grid}.keys{display:none}}
+.tl{position:absolute;inset:0;display:none;touch-action:none;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none;--pd:clamp(96px,20vmin,160px)}
+.tl.on{display:block}
+.dpad{position:absolute;left:max(3%,env(safe-area-inset-left,0px));bottom:6%;width:var(--pd);height:var(--pd);border-radius:50%;border:3px solid rgba(255,255,255,.55);background:radial-gradient(circle,rgba(20,30,40,.18) 0 40%,rgba(20,30,40,.38) 70%);box-shadow:0 0 0 2px rgba(0,0,0,.18);display:grid;grid-template-columns:repeat(3,1fr);grid-template-rows:repeat(3,1fr);pointer-events:none;transition:opacity .5s}
+.arm,.hub{display:grid;place-items:center;color:rgba(255,255,255,.8);font-family:var(--f-display);font-size:calc(var(--pd)*.14);line-height:1;text-shadow:0 1px 2px #000;transition:color .06s}
+.arm small{display:none}
+.arm.u{grid-area:1/2}.arm.l{grid-area:2/1}.arm.r{grid-area:2/3}
+.arm.d{grid-area:3/2;font-size:calc(var(--pd)*.09);text-align:center;white-space:nowrap}
+.hub{grid-area:2/2}
+.arm.on{color:#7ff0cf}
+.arm.d.urge{color:#ffd36a}
+.knob{position:absolute;left:50%;top:50%;width:calc(var(--pd)*.36);height:calc(var(--pd)*.36);margin:calc(var(--pd)*-.18) 0 0 calc(var(--pd)*-.18);border-radius:50%;background:radial-gradient(circle at 40% 35%,rgba(255,255,255,.85),rgba(200,210,220,.55) 60%,rgba(120,130,140,.5));border:2px solid rgba(255,255,255,.7);pointer-events:none}
+.tl.dim .dpad:not(.float){opacity:.55}
+.tjump{position:absolute;right:3%;bottom:5%;font-family:var(--f-display);font-size:clamp(12px,1.6vw,16px);color:rgba(255,255,255,.85);text-shadow:0 1px 2px #000;pointer-events:none;transition:opacity .5s}
+.tl.dim .tjump{opacity:0}
+.tact{display:none}
+@media (pointer:coarse){.keys{display:none}}
 
 .side{display:grid;gap:16px;min-width:0}
 .box{background:var(--panel);border:1px solid var(--line);border-radius:6px;padding:14px 16px}
@@ -262,6 +277,7 @@ kbd{font-family:var(--f-display);font-size:12px;border:1px solid var(--line);bor
         <span class="hudbtns"><button type="button" class="sndbtn" id="snd" aria-pressed="true">♪ 音あり</button><button type="button" class="sndbtn" id="fsbtn" aria-pressed="false">全画面</button></span>
       </div>
       <div class="screen">
+        <div class="tl" id="tl" aria-hidden="true"><div class="dpad" id="dpad"><span class="arm u" data-k="j">▲<small>ジャンプ</small></span><span class="arm l" data-k="l">◀</span><span class="hub"></span><span class="arm r" data-k="r">▶</span><span class="arm d" data-k="act" id="darm"></span><span class="knob" id="knob"></span></div><span class="tjump">右側を押してもジャンプ</span><button type="button" class="tact" id="tact" hidden>行動</button></div>
         <canvas id="cv" width="960" height="540" aria-label="横スクロールのゲーム画面。医師のキャラクターが症状の敵を避けながら右へ進む"></canvas>
         <div class="toast" id="toast" hidden><b></b><span></span></div>
         <div class="startov" id="startov">
@@ -302,6 +318,7 @@ kbd{font-family:var(--f-display);font-size:12px;border:1px solid var(--line);bor
           <li>金色の <b>Rx</b> ブロックで見立て（診断）を選び、次の Rx で治療を選びます。</li>
           <li>見立てが外れていると治療に反応しません。次の Rx で見立てを見直せます。</li>
           <li>最後の Rx は再診。治療のあとの判断で、正しければハートが回復します。</li>
+          <li>iPad では画面の左半分に親指を置くと、そこに十字キーが出ます。親指1本で、◀ ▶ で移動、▲ でジャンプ、斜め上で走りながらジャンプ。画面の右側を押してもジャンプ。はじめると全画面になります。</li>
           <li>上級者モードは、解説・その場の採点・副作用の名前を伏せ、検査券が2枚になります。</li>
         </ul>
         <p class="keys"><kbd>←</kbd> <kbd>→</kbd> 移動　<kbd>Space</kbd> / <kbd>↑</kbd> ジャンプ<br>処方を選ぶ画面では <kbd>1</kbd>〜<kbd>4</kbd> でも選べます</p>
@@ -1709,6 +1726,36 @@ document.querySelectorAll('.pad button').forEach(b=>{
   b.addEventListener('pointerdown',on);b.addEventListener('pointerup',off);b.addEventListener('pointercancel',off);b.addEventListener('lostpointercapture',off);
   b.addEventListener('contextmenu',e=>e.preventDefault());
 });
+/* ========== タッチ操作（iPad など）：左下の十字キーを親指1本で。斜め上で走りながらジャンプ、▼は「行動」。画面の右側を押してもジャンプ ========== */
+const TL=$('tl'),DP=$('dpad'),TP=new Map();let touchMode=matchMedia('(pointer:coarse)').matches;
+function dpRead(e){const r=DP.getBoundingClientRect(),R=r.width/2,nx=(e.clientX-r.left-R)/R,ny=(e.clientY-r.top-R)/R;
+  return {nx,ny,d:Math.hypot(nx,ny),l:nx<-.3,r:nx>.3,j:ny<-.38,act:ny>.45&&Math.abs(nx)<.7};}
+function tlSync(){const z={l:false,r:false,j:false,act:false};
+  for(const p of TP.values()){if(p.kind==='j')z.j=true;else for(const k in z)if(p[k])z[k]=true;}
+  for(const k of ['l','r','j']){held[k]=z[k];if(G.state==='play'){if(k==='j'&&z.j&&!keys.j)G.jbuf=.12;keys[k]=z[k];}}
+  DP.querySelectorAll('.arm').forEach(e=>e.classList.toggle('on',!!z[e.dataset.k]));}
+function padSet(id,e){const p=dpRead(e),o=TP.get(id)||{};
+  if(p.act&&!o.act&&G.state==='play'&&G.st.expo&&typeof expoAct==='function')expoAct();
+  TP.set(id,Object.assign(p,{kind:'pad'}));tlSync();
+  const R=DP.offsetWidth/2,m=Math.min(1,.62/Math.max(p.d,.001));const kx=(p.nx||0)*m*R,ky=(p.ny||0)*m*R;$('knob').style.transform=`translate(${kx.toFixed(0)}px,${ky.toFixed(0)}px)`;}
+TL.addEventListener('pointerdown',e=>{if(e.target.closest('button')||TP.has(e.pointerId))return;
+  const rr=TL.getBoundingClientRect(),right=(e.clientX-rr.left)/rr.width>.5;
+  e.preventDefault();try{TL.setPointerCapture(e.pointerId)}catch(_){}
+  if(right){TP.set(e.pointerId,{kind:'j'});tlSync();return;}
+  // 左半分：親指を置いたところに十字キーを動かす（スマホのRPGの操作のように）
+  if(![...TP.values()].some(o=>o.kind==='pad')){const w=DP.offsetWidth,x=clamp(e.clientX-rr.left-w/2,0,rr.width/2-w/2),y=clamp(e.clientY-rr.top-w/2,0,rr.height-w);
+    DP.style.left=x+'px';DP.style.top=y+'px';DP.style.bottom='auto';DP.classList.add('float');}
+  padSet(e.pointerId,e);});
+TL.addEventListener('pointermove',e=>{const o=TP.get(e.pointerId);if(o&&o.kind==='pad')padSet(e.pointerId,e);});
+const tlEnd=e=>{if(TP.delete(e.pointerId)){tlSync();if(![...TP.values()].some(o=>o.kind==='pad')){DP.style.left=DP.style.top=DP.style.bottom='';DP.classList.remove('float');$('knob').style.transform='';}}};
+['pointerup','pointercancel','lostpointercapture'].forEach(n=>TL.addEventListener(n,tlEnd));
+TL.addEventListener('contextmenu',e=>e.preventDefault());
+function tlShow(){TL.classList.toggle('on',touchMode);}
+addEventListener('pointerdown',e=>{if(e.pointerType==='touch'&&!touchMode){touchMode=true;tlShow();}},true);
+tlShow();
+setInterval(()=>{const a=$('actbtn'),d=$('darm');if(!a||!d)return;const t=a.hidden?'':'▼'+a.textContent;if(d.textContent!==t)d.textContent=t;d.classList.toggle('urge',!a.hidden&&a.classList.contains('urge'));},200);
+let tlDimT=0;
+$('startbtn').addEventListener('click',()=>{if(touchMode&&!stageEl.classList.contains('full'))toggleFs();TL.classList.remove('dim');clearTimeout(tlDimT);tlDimT=setTimeout(()=>TL.classList.add('dim'),7000);});
 $('startbtn').addEventListener('click',start);
 
 renderZukan();

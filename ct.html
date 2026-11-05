@@ -182,6 +182,24 @@ textarea{font:inherit; font-size:var(--fs-s); width:100%; min-height:190px; padd
 .toast{position:fixed; z-index:20; right:max(16px, env(safe-area-inset-right, 0px)); bottom:calc(16px + env(safe-area-inset-bottom, 0px)); max-width:min(340px, calc(100vw - 32px));
   background:var(--panel); color:var(--ink); border:2px solid var(--mark); border-radius:var(--r); padding:10px 14px; font-size:var(--fs-s); box-shadow:0 6px 24px var(--line)}
 .toast b{color:var(--accent)}
+
+/* 全画面（読影端末のつもりで）：断面を画面の高さいっぱいに、問題は右の列。画像を上下になぞると断面が送れる */
+body.ctfs{overflow:hidden}
+body.ctfs .wrap > *:not(.desk):not(.toast){display:none}
+body.ctfs .desk{position:fixed;inset:0;z-index:15;margin:0;background:var(--paper);
+  padding:calc(6px + env(safe-area-inset-top,0px)) max(8px,env(safe-area-inset-right,0px)) calc(6px + env(safe-area-inset-bottom,0px)) max(8px,env(safe-area-inset-left,0px));
+  grid-template-columns:auto minmax(300px,1fr);gap:10px;align-items:stretch}
+body.ctfs .viewer{position:static;align-content:start;gap:6px;max-height:100%}
+body.ctfs .vnote{display:none}
+body.ctfs .credit{margin:0}
+body.ctfs #ct{height:calc(100vh - env(safe-area-inset-top,0px) - env(safe-area-inset-bottom,0px) - 150px);width:auto;max-width:100%;touch-action:none}
+body.ctfs #panel{overflow:auto;max-height:100%;margin:0;align-content:start}
+@media (orientation:portrait){
+  body.ctfs .desk{grid-template-columns:minmax(0,1fr);grid-template-rows:auto minmax(0,1fr)}
+  body.ctfs #ct{height:min(52vh,calc(100vw * 420 / 360 - 40px))}
+  body.ctfs .viewer{justify-items:center}
+}
+body.ctfs #panel .opts{grid-template-columns:minmax(0,1fr)}
 </style>
 
 <div class="wrap">
@@ -215,6 +233,7 @@ textarea{font:inherit; font-size:var(--fs-s); width:100%; min-height:190px; padd
         <span class="seg" id="winSeg"><button type="button" data-w="brain">脳</button><button type="button" data-w="sub">硬膜下</button><button type="button" data-w="bone">骨</button></span>
         <button type="button" class="act" id="rulerBtn" aria-pressed="false">ものさし</button>
         <button type="button" class="act" id="labelBtn" aria-pressed="false">構造の名前</button>
+        <button type="button" class="act" id="ctFsBtn" aria-pressed="false">全画面</button>
       </div>
       <p class="credit" id="credit" hidden></p>
       <p class="vnote" id="vnote">断面は下（小脳）から上（頭頂）まで5枚。画面の左が患者さんの右（足のほうから見上げた向き）です。</p>
@@ -1137,6 +1156,33 @@ textarea{font:inherit; font-size:var(--fs-s); width:100%; min-height:190px; padd
   syncWin(); syncZk();
   setMode(location.hash ? location.hash.slice(1) : (REAL ? 'real' : 'atlas'));
   window.__ctGA = (function(){ var o={}; Object.keys(GA).forEach(function(k){ var a=GA[k]; o[k]=[["bleed",[a[0]]],["paren",a[1][0]],["csf",[ (typeof a[2]==="string"?a[2]:a[2][0]) ]],["mid",[a[3][0]]],["calc",[a[4][0]]]]; }); return o; })();
+  /* 全画面と、指でなぞって断面を送る */
+  (function () {
+    var b = document.getElementById('ctFsBtn'), lvEl = document.getElementById('lv');
+    function on() { return document.body.classList.contains('ctfs'); }
+    function sync() { b.textContent = on() ? '全画面を終了' : '全画面'; b.setAttribute('aria-pressed', on() ? 'true' : 'false'); requestAnimationFrame(function () { draw(); }); }
+    function setFs(v) {
+      document.body.classList.toggle('ctfs', v);
+      var de = document.documentElement, nat = document.fullscreenElement || document.webkitFullscreenElement;
+      try { if (v && !nat) { var rq = de.requestFullscreen || de.webkitRequestFullscreen; if (rq) { var pr = rq.call(de); if (pr && pr.catch) pr.catch(function () {}); } } else if (!v && nat) { var ex = (document.exitFullscreen || document.webkitExitFullscreen).call(document); if (ex && ex.catch) ex.catch(function () {}); } } catch (e) {}
+      sync();
+    }
+    b.addEventListener('click', function () { setFs(!on()); });
+    function fsc() { if (!(document.fullscreenElement || document.webkitFullscreenElement) && on()) document.body.classList.remove('ctfs'); sync(); }
+    document.addEventListener('fullscreenchange', fsc); document.addEventListener('webkitfullscreenchange', fsc);
+    document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && on()) setFs(false); });
+    var sw = null;
+    function step(d) { var v = Math.max(+lvEl.min, Math.min(+lvEl.max, +lvEl.value + d)); if (v === +lvEl.value) return; lvEl.value = v; lvEl.dispatchEvent(new Event('input', { bubbles: true })); }
+    cv.addEventListener('pointerdown', function (e) { if (V.ruler) return; sw = { y: e.clientY, acc: 0, moved: false }; });
+    cv.addEventListener('pointermove', function (e) {
+      if (!sw || V.ruler) return;
+      var dy = e.clientY - sw.y; sw.y = e.clientY; sw.acc += dy;
+      var stepPx = Math.max(14, cv.clientHeight / (+lvEl.max - +lvEl.min + 1) / 1.5);
+      while (Math.abs(sw.acc) >= stepPx) { step(sw.acc > 0 ? 1 : -1); sw.acc -= (sw.acc > 0 ? 1 : -1) * stepPx; sw.moved = true; }
+    });
+    ['pointerup', 'pointercancel'].forEach(function (n) { cv.addEventListener(n, function () { sw = null; }); });
+    window.addEventListener('resize', function () { if (on()) sync(); });
+  })();
   window.__ct = { V: V, RCASES: RCASES, CASES: CASES, setVol: setVol, draw: draw, renderSlice: renderSlice, normal: normal };
 })();
 </script>

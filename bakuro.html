@@ -188,7 +188,22 @@ canvas{display:block;width:100%;aspect-ratio:16/9;image-rendering:pixelated;back
 @keyframes urge{to{background:#f3d9a0;border-color:#a8720c}}
 .xic{width:1.3em;height:1.3em;image-rendering:pixelated;vertical-align:-.28em;margin-right:.25em}
 .rxhead h2 .dic{width:1.5em;height:1.5em;image-rendering:pixelated;vertical-align:-.3em;margin-right:.3em}
-@media (pointer:coarse){.pad{display:grid}.keys{display:none}}
+.tl{position:absolute;inset:0;display:none;touch-action:none;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none;--pd:clamp(96px,20vmin,160px)}
+.tl.on{display:block}
+.dpad{position:absolute;left:max(3%,env(safe-area-inset-left,0px));bottom:6%;width:var(--pd);height:var(--pd);border-radius:50%;border:3px solid rgba(255,255,255,.55);background:radial-gradient(circle,rgba(20,30,40,.18) 0 40%,rgba(20,30,40,.38) 70%);box-shadow:0 0 0 2px rgba(0,0,0,.18);display:grid;grid-template-columns:repeat(3,1fr);grid-template-rows:repeat(3,1fr);pointer-events:none;transition:opacity .5s}
+.arm,.hub{display:grid;place-items:center;color:rgba(255,255,255,.8);font-family:var(--f-display);font-size:calc(var(--pd)*.14);line-height:1;text-shadow:0 1px 2px #000;transition:color .06s}
+.arm small{display:none}
+.arm.u{grid-area:1/2}.arm.l{grid-area:2/1}.arm.r{grid-area:2/3}
+.arm.d{grid-area:3/2;font-size:calc(var(--pd)*.09);text-align:center;white-space:nowrap}
+.hub{grid-area:2/2}
+.arm.on{color:#7ff0cf}
+.arm.d.urge{color:#ffd36a}
+.knob{position:absolute;left:50%;top:50%;width:calc(var(--pd)*.36);height:calc(var(--pd)*.36);margin:calc(var(--pd)*-.18) 0 0 calc(var(--pd)*-.18);border-radius:50%;background:radial-gradient(circle at 40% 35%,rgba(255,255,255,.85),rgba(200,210,220,.55) 60%,rgba(120,130,140,.5));border:2px solid rgba(255,255,255,.7);pointer-events:none}
+.tl.dim .dpad:not(.float){opacity:.55}
+.tjump{position:absolute;right:3%;bottom:5%;font-family:var(--f-display);font-size:clamp(12px,1.6vw,16px);color:rgba(255,255,255,.85);text-shadow:0 1px 2px #000;pointer-events:none;transition:opacity .5s}
+.tl.dim .tjump{opacity:0}
+.tact{display:none}
+@media (pointer:coarse){.keys{display:none}}
 
 .side{display:grid;gap:16px;min-width:0}
 .box{background:var(--panel);border:1px solid var(--line);border-radius:6px;padding:14px 16px}
@@ -279,6 +294,7 @@ kbd{font-family:var(--f-display);font-size:12px;border:1px solid var(--line);bor
         <span class="hudbtns"><button type="button" class="sndbtn" id="snd" aria-pressed="true">♪ 音あり</button><button type="button" class="sndbtn" id="shk" aria-pressed="true">揺れ あり</button><button type="button" class="sndbtn" id="fsbtn" aria-pressed="false">全画面</button></span>
       </div>
       <div class="screen">
+        <div class="tl" id="tl" aria-hidden="true"><div class="dpad" id="dpad"><span class="arm u" data-k="j">▲<small>ジャンプ</small></span><span class="arm l" data-k="l">◀</span><span class="hub"></span><span class="arm r" data-k="r">▶</span><span class="arm d" data-k="act" id="darm"></span><span class="knob" id="knob"></span></div><span class="tjump">右側を押してもジャンプ</span><button type="button" class="tact" id="tact" hidden>行動</button></div>
         <canvas id="cv" width="960" height="540" aria-label="横スクロールのゲーム画面。怖い場面の前にとどまり、不安が下がるのを待ちながら右へ進む"></canvas>
         <div class="toast" id="toast" hidden><b></b><span></span></div>
         <div class="startov" id="startov">
@@ -317,7 +333,8 @@ kbd{font-family:var(--f-display);font-size:12px;border:1px solid var(--line);bor
         <h2>遊び方</h2>
         <ul>
           <li>怖い場面の前には見えない壁があります。近づくほど不安が上がり、足取りが重くなります。</li>
-          <li>→を押していれば少しずつ進めます。手を離すと押し戻されます。壁の前で→を押し続け、不安が半分に下がると壁が消えます。</li>
+          <li>→（iPad では十字キーの ▶）を押していれば少しずつ進めます。手を離すと押し戻されます。壁の前で押し続け、不安が半分に下がると壁が消えます。</li>
+          <li>iPad では画面の左半分に親指を置くと、そこに十字キーが出ます。親指1本で、◀ ▶ で移動、▲ でジャンプ、斜め上で走りながらジャンプ。画面の右側を押してもジャンプ。はじめると全画面になります。</li>
           <li>不安が強いほど、画面が揺れ、視野が狭まり、心拍が速くなります。頭に浮かぶ考え（自動思考）も出てきます。</li>
           <li>途中で離れると「回避」。不安は元に戻り、次はもっと怖くなります。</li>
           <li>光るアイテム（家族の腕・水・マスクなど）は安全行動。取るとその場は楽ですが、慣れが止まります。</li>
@@ -1650,7 +1667,7 @@ function expoUpdate(dt){
     }else{
       const prox=clamp(1-d/150,0,1);
       val=g.int*g.hab*g.sens*(.25+.75*prox);
-      if(inZone&&!g.engaged){g.engaged=true;cp('sudsc');hint('stay','とどまろう','→を押し続けて、不安が半分に下がるまでとどまる');}
+      if(inZone&&!g.engaged){g.engaged=true;cp('sudsc');hint('stay','とどまろう',(touchMode?'▶':'→')+'を押し続けて、不安が半分に下がるまでとどまる');}
       if(inZone&&G.safeT<=0)g.hab-=dt*.075*G.habK;
       if(g.engaged&&!inZone)g.away=(g.away||0)+dt;else g.away=0;
       if(g.engaged&&(d>90||g.away>1.5)){ // 回避：壁の前を離れて1.5秒たつか、大きく離れたら
@@ -1931,8 +1948,8 @@ function xfScreenTop(){ // 画面に重ねる：浮かぶ考え・印・衝動�
   ctx.globalAlpha=1;
   const cg=expoCur();
   if(!ba&&cg&&cg.engaged&&!cg.cleared&&!keys.r&&G.state==='play'){
-    ctx.font=`11px ${PF}`;ctx.textAlign='center';const tw=ctx.measureText('→ 押し続ける').width+12,x=Math.round(clamp(P.x+P.w/2-cam,tw/2+2,W-tw/2-2)),y=Math.round(P.y-14);
-    ctx.fillStyle=Math.floor(G.t*4)%2?'#1d7566':'#2a9a86';ctx.fillRect(x-tw/2,y-9,tw,18);ctx.fillRect(x-3,y+9,6,3);ctx.fillStyle='#ffffff';ctx.fillText('→ 押し続ける',x,y+.5);}
+    ctx.font=`11px ${PF}`;ctx.textAlign='center';const tw=ctx.measureText((touchMode?'▶':'→')+' 押し続ける').width+12,x=Math.round(clamp(P.x+P.w/2-cam,tw/2+2,W-tw/2-2)),y=Math.round(P.y-14);
+    ctx.fillStyle=Math.floor(G.t*4)%2?'#1d7566':'#2a9a86';ctx.fillRect(x-tw/2,y-9,tw,18);ctx.fillRect(x-3,y+9,6,3);ctx.fillStyle='#ffffff';ctx.fillText((touchMode?'▶':'→')+' 押し続ける',x,y+.5);}
   if(X.urge){const ic=G.st.act.kind==='comp'?'手洗い':'目',x=Math.round(P.x-cam-30),y=Math.round(P.y+4),s=1+.12*X.beat;
     ctx.save();ctx.translate(x,y);ctx.scale(s,s);ctx.fillStyle='#fff5dc';ctx.fillRect(-9,-9,32,18);ctx.strokeStyle='#a8720c';ctx.lineWidth=1.5;ctx.strokeRect(-9,-9,32,18);
     drawIcon(ic,-7,-6,1);ctx.fillStyle='#a8720c';ctx.font=`10px ${PF}`;ctx.textAlign='center';ctx.fillText('C?',15,.5);ctx.restore();}
@@ -1979,10 +1996,10 @@ function expoSnd(k,v){ // 曝露ランナーの効果音（合成）
   const c=SND.ctx;if(!c||!SND.on||c.state!=='running')return;const t=c.currentTime+.01,o=SND.sfxBus;v=v||1;
   if(k==='bark'){for(const [dt,f0] of [[0,560],[.17,500]]){const os=c.createOscillator(),fl=c.createBiquadFilter(),gn=c.createGain();
       os.type='sawtooth';os.frequency.setValueAtTime(f0,t+dt);os.frequency.exponentialRampToValueAtTime(f0*.5,t+dt+.1);fl.type='bandpass';fl.frequency.value=1100;fl.Q.value=1.4;
-      gn.gain.setValueAtTime(.0001,t+dt);gn.gain.exponentialRampToValueAtTime(.4*v,t+dt+.012);gn.gain.exponentialRampToValueAtTime(.001,t+dt+.12);
+      gn.gain.setValueAtTime(.0001,t+dt);gn.gain.exponentialRampToValueAtTime(1*v,t+dt+.012);gn.gain.exponentialRampToValueAtTime(.001,t+dt+.12);
       os.connect(fl);fl.connect(gn);gn.connect(o);os.start(t+dt);os.stop(t+dt+.14);}return;}
   if(k==='train'){const s=noiseSrc(t,.5),fl=c.createBiquadFilter(),gn=c.createGain();fl.type='lowpass';fl.frequency.value=260;gn.gain.setValueAtTime(.0001,t);
-    for(const dt of [0,.17]){gn.gain.exponentialRampToValueAtTime(1.2*v,t+dt+.02);gn.gain.exponentialRampToValueAtTime(.01,t+dt+.15);}
+    for(const dt of [0,.17]){gn.gain.exponentialRampToValueAtTime(2.7*v,t+dt+.02);gn.gain.exponentialRampToValueAtTime(.01,t+dt+.15);}
     s.connect(fl);fl.connect(gn);gn.connect(o);return;}
   if(k==='screech'){const os=c.createOscillator(),os2=c.createOscillator(),gn=c.createGain();os.type=os2.type='square';
     os.frequency.setValueAtTime(1900,t);os.frequency.linearRampToValueAtTime(1500,t+.7);os2.frequency.setValueAtTime(1937,t);os2.frequency.linearRampToValueAtTime(1540,t+.7);
@@ -2031,6 +2048,36 @@ document.querySelectorAll('.pad button').forEach(b=>{
   b.addEventListener('pointerdown',on);b.addEventListener('pointerup',off);b.addEventListener('pointercancel',off);b.addEventListener('lostpointercapture',off);
   b.addEventListener('contextmenu',e=>e.preventDefault());
 });
+/* ========== タッチ操作（iPad など）：左下の十字キーを親指1本で。斜め上で走りながらジャンプ、▼は「行動」。画面の右側を押してもジャンプ ========== */
+const TL=$('tl'),DP=$('dpad'),TP=new Map();let touchMode=matchMedia('(pointer:coarse)').matches;
+function dpRead(e){const r=DP.getBoundingClientRect(),R=r.width/2,nx=(e.clientX-r.left-R)/R,ny=(e.clientY-r.top-R)/R;
+  return {nx,ny,d:Math.hypot(nx,ny),l:nx<-.3,r:nx>.3,j:ny<-.38,act:ny>.45&&Math.abs(nx)<.7};}
+function tlSync(){const z={l:false,r:false,j:false,act:false};
+  for(const p of TP.values()){if(p.kind==='j')z.j=true;else for(const k in z)if(p[k])z[k]=true;}
+  for(const k of ['l','r','j']){held[k]=z[k];if(G.state==='play'){if(k==='j'&&z.j&&!keys.j)G.jbuf=.12;keys[k]=z[k];}}
+  DP.querySelectorAll('.arm').forEach(e=>e.classList.toggle('on',!!z[e.dataset.k]));}
+function padSet(id,e){const p=dpRead(e),o=TP.get(id)||{};
+  if(p.act&&!o.act&&G.state==='play'&&G.st.expo&&typeof expoAct==='function')expoAct();
+  TP.set(id,Object.assign(p,{kind:'pad'}));tlSync();
+  const R=DP.offsetWidth/2,m=Math.min(1,.62/Math.max(p.d,.001));const kx=(p.nx||0)*m*R,ky=(p.ny||0)*m*R;$('knob').style.transform=`translate(${kx.toFixed(0)}px,${ky.toFixed(0)}px)`;}
+TL.addEventListener('pointerdown',e=>{if(e.target.closest('button')||TP.has(e.pointerId))return;
+  const rr=TL.getBoundingClientRect(),right=(e.clientX-rr.left)/rr.width>.5;
+  e.preventDefault();try{TL.setPointerCapture(e.pointerId)}catch(_){}
+  if(right){TP.set(e.pointerId,{kind:'j'});tlSync();return;}
+  // 左半分：親指を置いたところに十字キーを動かす（スマホのRPGの操作のように）
+  if(![...TP.values()].some(o=>o.kind==='pad')){const w=DP.offsetWidth,x=clamp(e.clientX-rr.left-w/2,0,rr.width/2-w/2),y=clamp(e.clientY-rr.top-w/2,0,rr.height-w);
+    DP.style.left=x+'px';DP.style.top=y+'px';DP.style.bottom='auto';DP.classList.add('float');}
+  padSet(e.pointerId,e);});
+TL.addEventListener('pointermove',e=>{const o=TP.get(e.pointerId);if(o&&o.kind==='pad')padSet(e.pointerId,e);});
+const tlEnd=e=>{if(TP.delete(e.pointerId)){tlSync();if(![...TP.values()].some(o=>o.kind==='pad')){DP.style.left=DP.style.top=DP.style.bottom='';DP.classList.remove('float');$('knob').style.transform='';}}};
+['pointerup','pointercancel','lostpointercapture'].forEach(n=>TL.addEventListener(n,tlEnd));
+TL.addEventListener('contextmenu',e=>e.preventDefault());
+function tlShow(){TL.classList.toggle('on',touchMode);}
+addEventListener('pointerdown',e=>{if(e.pointerType==='touch'&&!touchMode){touchMode=true;tlShow();}},true);
+tlShow();
+setInterval(()=>{const a=$('actbtn'),d=$('darm');if(!a||!d)return;const t=a.hidden?'':'▼'+a.textContent;if(d.textContent!==t)d.textContent=t;d.classList.toggle('urge',!a.hidden&&a.classList.contains('urge'));},200);
+let tlDimT=0;
+$('startbtn').addEventListener('click',()=>{if(touchMode&&!stageEl.classList.contains('full'))toggleFs();TL.classList.remove('dim');clearTimeout(tlDimT);tlDimT=setTimeout(()=>TL.classList.add('dim'),7000);});
 $('startbtn').addEventListener('click',start);
 
 renderZukan();

@@ -192,6 +192,23 @@ tbody th{white-space:nowrap}
 .toast b{color:var(--gold)}
 @media (prefers-reduced-motion: no-preference){ .toast:not([hidden]){animation:tp .35s cubic-bezier(.2,1.4,.4,1)} }
 @keyframes tp{from{transform:translateY(12px); opacity:0} to{transform:none; opacity:1}}
+
+/* 全画面：記録紙を画面いっぱいに、問題とコース表は右の列 */
+body.ectfs{overflow:hidden}
+body.ectfs .wrap > *:not(.course):not(#panel):not(.strip-wrap):not(.toast):not(#ectFsBar){display:none}
+body.ectfs .wrap{position:fixed;inset:0;z-index:15;max-width:none;margin:0;background:var(--paper);
+  padding:calc(6px + env(safe-area-inset-top,0px)) max(8px,env(safe-area-inset-right,0px)) calc(6px + env(safe-area-inset-bottom,0px)) max(8px,env(safe-area-inset-left,0px));
+  display:grid;grid-template-columns:minmax(0,1fr) clamp(320px,32vw,440px);grid-template-rows:auto auto minmax(0,1fr);
+  grid-template-areas:"bar panel" "course panel" "strip panel";gap:8px}
+body.ectfs #ectFsBar{grid-area:bar;display:flex}
+body.ectfs .course{grid-area:course;margin:0}
+body.ectfs .strip-wrap{grid-area:strip;margin:0;min-height:0}
+body.ectfs #panel{grid-area:panel;margin:0;overflow:auto;align-content:start}
+@media (orientation:portrait){
+  body.ectfs .wrap{grid-template-columns:minmax(0,1fr);grid-template-rows:auto auto minmax(0,1fr) minmax(0,40vh);grid-template-areas:"bar" "course" "strip" "panel"}
+}
+#ectFsBar{display:flex;justify-content:flex-end;margin-top:10px}
+body.ectfs #panel .opts{grid-template-columns:minmax(0,1fr)}
 </style>
 
 <div class="wrap">
@@ -210,6 +227,7 @@ tbody th{white-space:nowrap}
 
   <main id="panel"></main>
 
+  <div id="ectFsBar"><button type="button" class="ghost" id="ectFsBtn" aria-pressed="false">記録紙を全画面で見る</button></div>
   <section class="strip-wrap" aria-label="感熱紙の記録">
     <div class="strip-h"><span id="stripTitle">記録紙</span><span>上から EEG 左（Fp1–M1）・EEG 右（Fp2–M2）・筋電図（カフをした足）・心拍数</span></div>
     <canvas id="strip" role="img" aria-label="ECT の記録"></canvas>
@@ -460,6 +478,7 @@ tbody th{white-space:nowrap}
     opt = opt || {};
     var W0 = cv.clientWidth || 600, rows = opt.rows || 3, secs = DUR / rows, small = opt.small;
     var tk = small ? 18 : (W0 < 560 ? 22 : 28), rowH = tk * 4 + (small ? 6 : 22), LW = small ? 0 : (W0 < 560 ? 34 : 44);
+    if (!small && cv.id === 'strip' && document.body.classList.contains('ectfs')) { var av = cv.parentNode.clientHeight - (cv.previousElementSibling ? cv.previousElementSibling.offsetHeight : 0) - 10; tk = Math.max(18, Math.min(64, Math.floor((av - 6 - rows * 22) / (rows * 4)))); rowH = tk * 4 + 22; }
     var H = rows * rowH + (small ? 2 : 6), dpr = Math.min(window.devicePixelRatio || 1, 2);
     cv.width = Math.round(W0 * dpr); cv.height = Math.round(H * dpr); cv.style.height = H + 'px';
     var x = cv.getContext('2d'); x.setTransform(dpr, 0, 0, dpr, 0, 0);
@@ -730,6 +749,22 @@ tbody th{white-space:nowrap}
   start(0);
   renderCards();
   if (document.fonts && document.fonts.ready) document.fonts.ready.then(function () { drawStrip(); renderCards(); });
+  /* 全画面 */
+  (function () {
+    var b = document.getElementById('ectFsBtn');
+    function on() { return document.body.classList.contains('ectfs'); }
+    function sync() { b.textContent = on() ? '全画面を終了' : '記録紙を全画面で見る'; b.setAttribute('aria-pressed', on() ? 'true' : 'false'); requestAnimationFrame(function () { drawStrip(); }); }
+    function setFs(v) {
+      document.body.classList.toggle('ectfs', v);
+      var de = document.documentElement, nat = document.fullscreenElement || document.webkitFullscreenElement;
+      try { if (v && !nat) { var rq = de.requestFullscreen || de.webkitRequestFullscreen; if (rq) { var pr = rq.call(de); if (pr && pr.catch) pr.catch(function () {}); } } else if (!v && nat) { var ex = (document.exitFullscreen || document.webkitExitFullscreen).call(document); if (ex && ex.catch) ex.catch(function () {}); } } catch (e) {}
+      sync();
+    }
+    b.addEventListener('click', function () { setFs(!on()); });
+    function fsc() { if (!(document.fullscreenElement || document.webkitFullscreenElement) && on()) document.body.classList.remove('ectfs'); sync(); }
+    document.addEventListener('fullscreenchange', fsc); document.addEventListener('webkitfullscreenchange', fsc);
+    document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && on()) setFs(false); });
+  })();
   window.__ect = { S: function () { return S; }, start: start };
 })();
 </script>

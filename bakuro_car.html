@@ -1,0 +1,718 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="精神科試験ゲーム">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icon-180.png">
+<style>
+:root{color-scheme:light; padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px)}
+body{margin:0; font:14px system-ui,-apple-system,sans-serif}
+img{max-width:100%}
+[hidden]{display:none!important}
+.ipad-bar{display:flex; flex-wrap:wrap; gap:6px 14px; align-items:center; justify-content:space-between;
+  padding:8px max(16px, env(safe-area-inset-right,0px)) 8px max(16px, env(safe-area-inset-left,0px));
+  font:600 14px system-ui,-apple-system,"Hiragino Sans",sans-serif; background:#1d2a33; color:#f3f6f8}
+.ipad-bar a{color:#f3f6f8; text-decoration:none; padding:6px 10px; border:1px solid #4a5d6a; border-radius:6px}
+.ipad-bar span{opacity:.85; font-weight:400}
+</style>
+<script>
+/* プレイヤーごとに記録を分ける（自分は今までどおり、ゲストは頭に印をつける） */
+(function () {
+  try {
+    var P = window.localStorage.getItem('ipad-player') || 'me';
+    window.__ipadPlayer = P;
+    if (P === 'me') return;
+    var pre = 'p:' + P + ':', S = Storage.prototype, g = S.getItem, s = S.setItem, r = S.removeItem;
+    var map = function (k) { return k === 'ipad-player' ? k : pre + k; };
+    S.getItem = function (k) { return g.call(this, map(k)); };
+    S.setItem = function (k, v) { return s.call(this, map(k), v); };
+    S.removeItem = function (k) { return r.call(this, map(k)); };
+  } catch (e) { /* 保存できない環境 */ }
+})();
+if ('serviceWorker' in navigator) { window.addEventListener('load', function () { navigator.serviceWorker.register('sw.js').catch(function () {}); }); }
+</script>
+</head>
+<body>
+<nav class="ipad-bar" aria-label="アプリ"><a href="index.html">← ゲーム一覧</a><span id="ipadWho"></span></nav>
+<script>(function(){var P=window.__ipadPlayer||'me';document.getElementById('ipadWho').textContent='プレイヤー：'+(P==='me'?'自分':P);})();</script>
+<title>曝露ランナー 車内編</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=BIZ+UDPGothic:wght@400;700&family=DotGothic16&display=swap">
+<style>
+/* Layout: 夜の車内を患者の目線で見る1画面（16:9）＋その下に「つり革」と安全行動のボタン。場面の合間は同じ列に地図・記録・振り返りを出す。夜の電車の一つの見た目に決めている（ダーク固定） */
+:root{
+  --night:#0d121c; --car:#18202d; --panel:#1f2938; --line:#34425a;
+  --ink:#eef0f3; --dim:#97a1b4; --led:#ffb547; --alarm:#e5615b; --calm:#6cc7aa; --safe:#d9a23a;
+  --f-display:"DotGothic16","Hiragino Kaku Gothic ProN","Yu Gothic",monospace;
+  --f-body:"BIZ UDPGothic","Hiragino Kaku Gothic ProN","Yu Gothic","Meiryo",sans-serif;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+html,body{background:var(--night)}
+body{color:var(--ink);font-family:var(--f-body);font-size:15px;line-height:1.75;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:14px 48px}
+.app{max-width:820px;margin:0 auto;display:grid;gap:12px}
+.bar{display:flex;flex-wrap:wrap;align-items:center;gap:6px 12px}
+.bar h1{margin:0;font-family:var(--f-display);font-weight:400;font-size:22px;letter-spacing:.06em;text-wrap:balance}
+.bar small{color:var(--dim);font-size:12px}
+.bar .sp{flex:1}
+.tg{font:inherit;font-family:var(--f-display);font-size:13px;color:var(--ink);background:transparent;border:1px solid var(--line);border-radius:4px;padding:2px 10px;cursor:pointer;min-height:32px}
+.tg[aria-pressed="false"]{color:var(--dim);border-style:dashed}
+button:focus-visible{outline:3px solid var(--led);outline-offset:2px}
+
+/* ---- 車内 ---- */
+.view{position:relative;width:100%;aspect-ratio:16/9;max-width:100%;border-radius:6px;overflow:hidden;background:#000;user-select:none;-webkit-user-select:none;touch-action:none}
+#cv{position:absolute;inset:0;width:100%;height:100%;image-rendering:pixelated;transition:filter .4s}
+.vig{position:absolute;inset:-10%;pointer-events:none;background:radial-gradient(ellipse at 50% 48%,transparent var(--r,70%),rgba(0,0,0,.94) calc(var(--r,70%) + 22%));transition:transform .12s}
+.vig.beat{transform:scale(.97)}
+.flash{position:absolute;inset:0;pointer-events:none;background:#fff;opacity:0;transition:opacity .5s}
+.hud{position:absolute;left:8px;top:8px;display:grid;gap:4px;font-family:var(--f-display);font-size:13px;line-height:1.3;text-shadow:0 1px 2px #000;pointer-events:none}
+.suds{display:flex;align-items:center;gap:6px}
+.sm{width:clamp(80px,22vw,150px);height:12px;border:2px solid var(--ink);background:rgba(0,0,0,.5);position:relative}
+.sm i{position:absolute;inset:0 auto 0 0;width:0;background:linear-gradient(90deg,#e2b03a,var(--alarm))}
+.sm.down i{background:linear-gradient(90deg,#8fb4c9,var(--calm))}
+.suds b{font-weight:400;font-size:18px;min-width:2em;font-variant-numeric:tabular-nums}
+.body{display:grid;grid-template-columns:auto auto;gap:0 6px;font-size:11px;color:#d7dbe2}
+.body span:nth-child(even){letter-spacing:-1px;color:var(--alarm)}
+.clock{position:absolute;right:8px;bottom:8px;font-family:var(--f-display);font-size:13px;text-align:right;text-shadow:0 1px 2px #000;pointer-events:none;line-height:1.35}
+.clock b{display:block;font-weight:400;font-size:17px;color:var(--led);font-variant-numeric:tabular-nums}
+.thoughts{position:absolute;inset:0;pointer-events:none;overflow:hidden}
+.th{position:absolute;font-family:var(--f-display);color:#fff;font-size:clamp(13px,2.6vw,20px);text-shadow:0 0 6px #000,0 0 2px #000;white-space:nowrap;animation:th 3.2s ease-out forwards}
+.th.calm{color:#bff0de}
+.th.safe{color:#ffe09a}
+@keyframes th{0%{opacity:0;transform:translateY(6px) scale(.96)}12%{opacity:1}70%{opacity:.9}100%{opacity:0;transform:translateY(-14px) scale(1.04)}}
+.banner{position:absolute;left:50%;top:40%;transform:translate(-50%,-50%);width:max-content;max-width:92%;text-align:center;background:rgba(10,14,22,.86);border:2px solid var(--ink);border-radius:6px;padding:8px 16px;font-family:var(--f-display);font-size:clamp(14px,2.8vw,20px);line-height:1.45;pointer-events:none}
+.banner small{display:block;font-family:var(--f-body);font-size:12px;color:var(--dim)}
+.banner.calm{border-color:var(--calm)}
+.banner.bad{border-color:var(--alarm)}
+.prompt{position:absolute;inset:0;display:grid;place-items:center;background:rgba(6,9,15,.55);text-align:center;padding:12px}
+.prompt div{display:grid;gap:8px;justify-items:center;max-width:30em}
+.prompt p{margin:0;font-family:var(--f-display);font-size:clamp(15px,3vw,21px);line-height:1.5;text-wrap:balance}
+.prompt small{color:var(--dim);font-size:13px}
+
+/* ---- 操作 ---- */
+.ctl{display:grid;grid-template-columns:minmax(0,1.5fr) minmax(0,1fr);gap:10px}
+.grip{position:relative;font:inherit;font-family:var(--f-display);font-size:clamp(16px,3.4vw,21px);min-height:96px;border-radius:10px;border:2px solid var(--line);background:var(--panel);color:var(--ink);cursor:pointer;touch-action:none;display:grid;place-items:center;gap:2px;line-height:1.3;-webkit-touch-callout:none}
+.grip small{font-family:var(--f-body);font-size:12px;color:var(--dim)}
+.grip.on{background:#26364d;border-color:var(--calm)}
+.grip.pull{animation:pull .6s ease-in-out infinite alternate}
+@keyframes pull{to{border-color:var(--alarm)}}
+.side{display:grid;gap:6px;align-content:start}
+.side h2{margin:0;font-size:12px;color:var(--dim);font-weight:700;letter-spacing:.06em}
+.sb{font:inherit;font-size:14px;text-align:left;min-height:40px;padding:4px 10px;border-radius:6px;border:1px solid var(--safe);background:transparent;color:var(--safe);cursor:pointer;line-height:1.35}
+.sb:disabled{opacity:.4;cursor:default}
+.exit{grid-column:1/-1;font:inherit;font-family:var(--f-display);font-size:19px;min-height:52px;border-radius:8px;border:2px solid var(--alarm);background:rgba(229,97,91,.16);color:#ffd7d3;cursor:pointer;animation:pull .9s ease-in-out infinite alternate}
+.exit small{font-family:var(--f-body);font-size:12px;color:var(--dim);margin-left:8px}
+
+/* ---- 文章の画面 ---- */
+.card{background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:16px clamp(14px,3vw,24px);display:grid;gap:12px;min-width:0}
+.card h2{margin:0;font-family:var(--f-display);font-weight:400;font-size:21px;letter-spacing:.04em;text-wrap:balance}
+.card h3{margin:4px 0 0;font-family:var(--f-display);font-weight:400;font-size:16px;color:var(--led)}
+.card p{margin:0;max-width:62ch}
+.card ul,.card ol{margin:0;padding-left:1.3em;display:grid;gap:4px}
+.who{display:grid;grid-template-columns:5.5em minmax(0,1fr);gap:4px 12px;margin:0}
+.who dt{color:var(--dim);font-size:13px;padding-top:2px}
+.who dd{margin:0}
+.hier{list-style:none;padding:0!important}
+.hier li{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px;align-items:center;border-top:1px dashed var(--line);padding:6px 0}
+.hier b{font-family:var(--f-display);font-weight:400;color:var(--alarm);font-variant-numeric:tabular-nums}
+.btns{display:flex;flex-wrap:wrap;gap:10px}
+.btn{font:inherit;font-family:var(--f-display);font-size:17px;padding:8px 20px;min-height:46px;border-radius:6px;border:2px solid var(--calm);background:var(--calm);color:#08130f;cursor:pointer}
+.btn.sub{background:transparent;color:var(--ink);border-color:var(--line)}
+.btn.warn{background:transparent;color:#ffd7d3;border-color:var(--alarm)}
+
+.map{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,170px),1fr));gap:8px}
+.pl{border:1px solid var(--line);border-radius:6px;padding:8px 10px;display:grid;gap:2px;font-size:13px;line-height:1.5}
+.pl b{font-family:var(--f-display);font-weight:400;font-size:16px}
+.pl .st{font-size:12px}
+.pl.ok{border-color:var(--calm)}.pl.ok .st{color:var(--calm)}
+.pl.no{border-style:dashed;color:var(--dim)}.pl.no .st{color:var(--alarm)}
+.week{font-family:var(--f-display);color:var(--led)}
+.msgs{display:grid;gap:8px}
+.msg{display:grid;grid-template-columns:4.5em minmax(0,1fr);gap:8px;align-items:start}
+.msg .from{font-size:12px;color:var(--dim);padding-top:6px;text-align:right}
+.msg .txt{background:#2a3850;border-radius:4px 12px 12px 12px;padding:6px 12px;max-width:34em}
+.chart{width:100%;max-width:100%;height:auto;display:block;border:1px solid var(--line);border-radius:6px;background:var(--car)}
+.legend{display:flex;flex-wrap:wrap;gap:4px 14px;font-size:12px;color:var(--dim)}
+.legend i{display:inline-block;width:10px;height:10px;margin-right:4px;vertical-align:-1px}
+.q{border-top:1px solid var(--line);padding-top:12px;display:grid;gap:8px}
+.q p.lead{font-weight:700}
+.opt{font:inherit;text-align:left;width:100%;padding:8px 12px;min-height:44px;border:1px solid var(--line);border-radius:6px;background:transparent;color:var(--ink);cursor:pointer;line-height:1.6;display:flex;gap:10px}
+.opt:hover:not(:disabled){border-color:var(--calm)}
+.opt:disabled{cursor:default}
+.opt .g{font-family:var(--f-display);font-size:18px;min-width:1.2em;text-align:center}
+.opt.pick{border-color:var(--led);background:rgba(255,181,71,.08)}
+.g3,.g2{color:var(--calm)}.g1{color:var(--led)}.g0{color:var(--alarm)}
+.why{font-size:14px;color:#cdd3dd;border-left:3px solid var(--line);padding-left:10px}
+.score{font-family:var(--f-display);font-size:40px;color:var(--led);line-height:1}
+.note{font-size:12px;color:var(--dim);margin:0}
+/* 全画面：車内の絵を画面いっぱいにし、ボタンは絵の上に重ねる */
+#scr-play.full{position:fixed;inset:0;z-index:20;background:#000;display:grid;place-items:center;padding:env(safe-area-inset-top,0px) env(safe-area-inset-right,0px) env(safe-area-inset-bottom,0px) env(safe-area-inset-left,0px)}
+#scr-play.full>.app{max-width:none;width:min(100%,calc((100vh - env(safe-area-inset-top,0px) - env(safe-area-inset-bottom,0px))*16/9));gap:0;position:relative}
+#scr-play.full .view{border-radius:0}
+#scr-play.full .ctl{position:absolute;inset:0;display:block;pointer-events:none}
+#scr-play.full .grip{display:none}
+#scr-play.full .side{position:absolute;left:1.5%;bottom:2.5%;display:flex;flex-wrap:wrap;gap:8px;pointer-events:auto;max-width:62%}
+#scr-play.full .side h2{display:none}
+#scr-play.full .sb{background:rgba(13,18,28,.72);font-size:clamp(13px,1.8vw,18px);min-height:clamp(40px,6vh,58px);padding:4px 14px}
+#scr-play.full .exit{position:absolute;left:max(1.5%,env(safe-area-inset-left,0px));top:42%;width:auto;padding:0 22px;min-height:clamp(52px,9vh,80px);font-size:clamp(18px,3vw,28px);pointer-events:auto;background:rgba(60,18,16,.75)}
+.fsx{position:absolute;right:1.5%;top:2.5%;pointer-events:auto;background:rgba(13,18,28,.72)}
+#scr-play:not(.full) .fsx{display:none}
+.ghint{position:absolute;left:50%;bottom:16%;transform:translateX(-50%);width:max-content;max-width:90%;font-family:var(--f-display);font-size:clamp(14px,2.4vw,22px);color:#fff;background:rgba(13,18,28,.7);border:2px dashed rgba(255,255,255,.6);border-radius:8px;padding:4px 14px;pointer-events:none;text-shadow:0 1px 2px #000}
+@media (max-width:560px){.ctl{grid-template-columns:1fr}.grip{min-height:84px}.body{display:none}}
+@media (prefers-reduced-motion:reduce){.th,.grip.pull,.exit{animation:none}.vig{transition:none}}
+</style>
+
+<div class="app">
+  <div class="bar">
+    <h1>曝露ランナー 車内編</h1><small>パニック症・試作</small>
+    <span class="sp"></span>
+    <button type="button" class="tg" id="snd" aria-pressed="true">♪ 音あり</button>
+    <button type="button" class="tg" id="shk" aria-pressed="true">揺れ あり</button>
+    <button type="button" class="tg" id="fs" aria-pressed="false">全画面</button>
+  </div>
+
+  <!-- 物語のはじまり -->
+  <section class="card" id="scr-story">
+    <h2>Kさんの通勤</h2>
+    <dl class="who">
+      <dt>患者</dt><dd>34歳 男性。営業職。妻と、7歳の娘の3人暮らし</dd>
+      <dt>経過</dt><dd>半年前、通勤の急行の中で、突然の動悸・息苦しさ・「このまま死ぬ」という恐怖に襲われた（パニック発作）。救急で心電図・甲状腺の検査を受けたが異常なし。それから電車に乗れず、2か月前から休職している。</dd>
+      <dt>いま</dt><dd>外出は妻の車か徒歩だけ。上司からは「来月までに通勤できなければ内勤に異動」と言われた。娘の運動会は4駅先の緑ヶ丘小学校。</dd>
+    </dl>
+    <h3>治療者の説明（心理教育）</h3>
+    <ul>
+      <li>パニック発作は数分でピークに達し、時間とともにおさまる。つらいが、体に危険はない。</li>
+      <li>逃げるとその場は楽になる。でも「逃げたから助かった」と体が覚え、次はもっと怖くなる。</li>
+      <li>水・頓服・出口のそば・スマホで気をそらす、といった「安全行動」も、同じように慣れを止める。</li>
+    </ul>
+    <h3>不安階層表（予想のつらさ：SUDS 0〜100）</h3>
+    <ol class="hier">
+      <li><span>各駅停車で2駅（中町の図書館まで）</span><b>60</b></li>
+      <li><span>各駅停車で4駅（緑ヶ丘：実家と運動会）</span><b>75</b></li>
+      <li><span>急行で本町まで（会社。途中で扉が開かない）</span><b>95</b></li>
+    </ol>
+    <p>このゲームでは、あなたが <b>Kさん</b> です。つり革を<b>押し続けて</b>いるあいだ、Kさんはその場にとどまります。手を離すと、体は出口のほうへ引き寄せられます。</p>
+    <div class="btns"><button type="button" class="btn" id="go-map">地図を見る</button></div>
+    <p class="note">登場人物はすべて架空です。音が出ます（右上で切れます）。</p>
+  </section>
+
+  <!-- 地図 -->
+  <section class="card" id="scr-map" hidden>
+    <h2>Kさんの行ける場所 <span class="week" id="m-week"></span></h2>
+    <div class="map" id="m-places"></div>
+    <div class="msgs" id="m-msgs"></div>
+    <div class="btns" id="m-btns"></div>
+  </section>
+
+  <!-- 車内 -->
+  <section id="scr-play" hidden>
+    <div class="app">
+      <div class="view" id="view">
+        <canvas id="cv" width="960" height="540" aria-label="電車の車内をKさんの目線で見た画面"></canvas>
+        <div class="vig" id="vig"></div>
+        <div class="flash" id="flash"></div>
+        <div class="thoughts" id="thoughts" aria-live="polite"></div>
+        <div class="hud">
+          <div class="suds">不安<span class="sm" id="sm"><i id="sf"></i></span><b id="sv">0</b></div>
+          <div class="body" id="bodyfx"></div>
+        </div>
+        <div class="clock" id="clock"></div>
+        <div class="banner" id="banner" hidden></div>
+        <div class="ghint" id="ghint" hidden>画面を押し続ける ＝ つり革をにぎる</div>
+        <div class="prompt" id="prompt" hidden><div id="prompt-in"></div></div>
+      </div>
+      <div class="ctl">
+        <button type="button" class="grip" id="grip" aria-pressed="false">つり革をにぎる<small>押しているあいだ、とどまる（Space キーでも）</small></button>
+        <div class="side">
+          <h2>楽になる方法（安全行動）</h2>
+          <button type="button" class="sb" data-s="water">水を飲む</button>
+          <button type="button" class="sb" data-s="pill">ポケットの頓服をにぎる</button>
+          <button type="button" class="sb" data-s="phone">スマホを見て気をそらす</button>
+        </div>
+        <button type="button" class="tg fsx" id="fsx">全画面を終了</button>
+        <button type="button" class="exit" id="exit" hidden>降りる<small>すぐに楽になる</small></button>
+      </div>
+    </div>
+  </section>
+
+  <!-- 記録 -->
+  <section class="card" id="scr-result" hidden></section>
+  <!-- 振り返り -->
+  <section class="card" id="scr-review" hidden></section>
+</div>
+
+<script>
+(()=>{
+'use strict';
+const $=id=>document.getElementById(id);
+const clamp=(v,a=0,b=100)=>Math.max(a,Math.min(b,v));
+const RM=matchMedia('(prefers-reduced-motion: reduce)').matches;
+const store={get(k){try{return localStorage.getItem(k)}catch(e){return null}},set(k,v){try{localStorage.setItem(k,v)}catch(e){}}};
+
+/* ================= 練習の場面 ================= */
+const SCENES=[
+  {no:1,name:'各駅停車で2駅',kind:'各駅停車',from:'東山',stops:['桜台','中町'],legs:[28,30],base:96,expect:60,place:'lib',
+   pre:'各駅停車がホームに入ってきた。中町まで2駅。'},
+  {no:2,name:'各駅停車で4駅',kind:'各駅停車',from:'東山',stops:['桜台','中町','川辺','緑ヶ丘'],legs:[22,22,22,26],base:100,expect:75,place:'jikka',
+   pre:'各駅停車がホームに入ってきた。緑ヶ丘まで4駅。'},
+  {no:3,name:'急行で本町まで',kind:'急行',from:'東山',stops:['本町'],legs:[100],base:108,expect:95,place:'office',express:true,
+   pre:'急行がホームに入ってきた。本町まで約10分、途中の駅には止まらない。'},
+];
+const PLACES=[
+  {id:'home',name:'自宅',how:'',fixed:true},
+  {id:'super',name:'近所のスーパー',how:'徒歩5分',fixed:true},
+  {id:'lib',name:'中町の図書館',how:'各駅停車で2駅'},
+  {id:'jikka',name:'緑ヶ丘（実家・娘の運動会）',how:'各駅停車で4駅'},
+  {id:'office',name:'本町の会社',how:'急行で約10分'},
+];
+const DEADLINE=5;
+
+/* ================= 進み具合 ================= */
+const P={week:1,stage:0,sens:1,learn:0,open:new Set(['home','super']),log:[],avoid:0,safety:0,safetyKinds:new Set(),msgs:[]};
+function resetP(){Object.assign(P,{week:1,stage:0,sens:1,learn:0,open:new Set(['home','super']),log:[],avoid:0,safety:0,safetyKinds:new Set(),msgs:[]});}
+
+/* ================= 画面切り替え ================= */
+function show(id){['story','map','play','result','review'].forEach(n=>$('scr-'+n).hidden=n!==id);window.scrollTo(0,0);}
+$('go-map').onclick=()=>{Snd.ensure();renderMap();show('map');};
+
+/* ================= 地図 ================= */
+function msgList(){
+  const m=[];const s=P.stage;
+  if(P.week===1&&!P.log.length){
+    m.push(['上司','来月の1日までに、通勤できるかどうか教えてください。難しければ内勤への異動を考えます。']);
+    m.push(['娘','パパ、うんどうかい みにきてね。みどりがおか しょうがっこうだよ']);
+    m.push(['妻','無理しないでね。どこでも車で送るから。']);
+  }
+  const last=P.log[P.log.length-1];
+  if(last){
+    if(last.out==='avoid'||last.out==='exit'){
+      m.push(['妻','今日も車で送ったよ。気にしないで。']);
+      if(s>=1)m.push(['娘','パパ、また でんしゃ のれなかったの？']);
+      else m.push(['Kさん','やっぱり無理だった。あの電車の中を思い出すだけで、胸がどきどきする。']);
+    }else{
+      if(s===1)m.push(['Kさん','中町の図書館に行けた。半年ぶりに、ひとりで駅の外に出た。']);
+      if(s===2)m.push(['娘','パパ、うんどうかい きてくれた！ リレー みた？']);
+      if(s===3)m.push(['上司','出社ありがとう。無理のない範囲で、少しずつ戻していきましょう。']);
+    }
+  }
+  if(P.week>=DEADLINE&&s<3)m.push(['上司','来週が期限です。急行で来られそうですか。']);
+  return m;
+}
+function renderMap(){
+  $('m-week').textContent=`第${P.week}週（期限まで あと${Math.max(0,DEADLINE-P.week+1)}週）`;
+  $('m-places').innerHTML=PLACES.map(p=>{const ok=P.open.has(p.id);
+    return `<div class="pl ${ok?'ok':'no'}"><b>${p.name}</b>${p.how?`<span>${p.how}</span>`:''}<span class="st">${ok?'行ける':'行けない'}</span></div>`;}).join('');
+  $('m-msgs').innerHTML=msgList().map(([f,t])=>`<div class="msg"><span class="from">${f}</span><span class="txt">${t}</span></div>`).join('');
+  const b=$('m-btns');
+  if(P.stage>=3||P.week>DEADLINE){b.innerHTML='<button type="button" class="btn" id="m-rev">治療者として振り返る</button>';$('m-rev').onclick=()=>{renderReview();show('review');};return;}
+  const sc=SCENES[P.stage],ex=expectNow(sc);
+  b.innerHTML=`<button type="button" class="btn" id="m-go">練習${sc.no}：${sc.name}（予想 SUDS ${ex}）</button>`;
+  $('m-go').onclick=()=>{Snd.ensure();startScene(P.stage);};
+}
+function expectNow(sc){return Math.round(clamp(sc.expect*P.sens*(1-.25*P.learn),20,100));}
+
+/* ================= 1つの場面 ================= */
+let G=null;
+function startScene(i){
+  const sc=SCENES[i];
+  G={sc,phase:'platform',t:0,pt:0,leg:0,legT:0,s:clamp(18+expectNow(sc)*.25),hab:0,surge:0,nextSurge:7,
+     hold:false,pos:0,safeT:0,safeUse:[],peak:0,peakShown:false,rec:[],recT:0,speed:0,door:0,
+     doorOpen:false,signal:false,out:null,thT:1,beat:0,bannerT:0,cool:0,doneT:0,haltShown:false,B:sc.base*P.sens*(1-.2*P.learn)};
+  show('play');$('banner').hidden=true;$('thoughts').innerHTML='';
+  setPrompt(`<p>${sc.pre}</p><small>予想のつらさ SUDS ${expectNow(sc)}</small>
+    <div class="btns"><button type="button" class="btn" id="p-on">乗る</button><button type="button" class="btn warn" id="p-off">今日はやめておく</button></div>`);
+  $('p-on').onclick=()=>{Snd.ensure();if(touchDev&&!fsOn())toggleFs();setPrompt(`<p>扉が閉まる前に、つり革をにぎろう</p><small>画面のどこか（または下の「つり革をにぎる」）を押し続ける。Space キーでも</small>`);G.phase='grip';Snd.chime();};
+  $('p-off').onclick=()=>{G.out='avoid';finish();};
+  $('exit').hidden=true;
+  syncSafety();
+}
+function setPrompt(h){const p=$('prompt');if(h==null){p.hidden=true;return;}$('prompt-in').innerHTML=h;p.hidden=false;}
+
+/* ---- 不安の動き ---- */
+const TH={
+  high:['心臓がおかしい','息ができない','倒れる','ここで発作が起きたら','逃げられない','みんな見てる','死ぬかもしれない','降りたい','手がしびれてきた','気が遠くなる'],
+  mid:['また来るかも','大丈夫か…','胸が苦しい','次の駅まで何分？','汗が止まらない'],
+  calm:['あれ…少し楽','波が引いてきた','何も起きていない','思ったより平気','まだ立っていられる'],
+  safe:['薬があるから大丈夫','水があれば平気','これがないと無理だ'],
+  halt:['なんで止まった？','扉が開かない','閉じこめられた'],
+};
+function step(dt){
+  if(!G)return;
+  G.t+=dt;
+  if(G.phase==='platform'||G.phase==='grip'){
+    if(G.phase==='grip'&&G.hold){setPrompt(null);G.phase='closing';G.pt=0;Snd.doorClose();}
+    G.s+= (clamp(18+expectNow(G.sc)*.35)-G.s)*.5*dt;
+    feed(dt);return;
+  }
+  if(G.phase==='done'){G.doneT+=dt;G.speed=Math.max(0,G.speed-dt*.5);if(G.doneT>2.6&&!G.finished){G.finished=true;finish();return;}feed(dt);return;}
+  G.pt+=dt;
+  const sc=G.sc;let I;
+  if(G.phase==='closing'){G.door=Math.max(0,G.door-dt*1.5);I=G.B*.62;if(G.pt>2){G.phase='moving';G.pt=0;G.surge+=10;}}
+  if(G.phase==='moving'){
+    const L=sc.legs[G.leg],r=G.pt/L;
+    G.speed=clamp(Math.min(G.pt/4,1,(L-G.pt)/4),0,1);
+    const ramp=Math.min(1,G.pt/16);I=G.B*(.5+.5*ramp);
+    if(sc.express){ // 信号待ちで、駅でもないのに止まる
+      const hs=L*.42,he=hs+11;G.signal=G.pt>hs&&G.pt<he;
+      if(G.signal){G.speed=Math.max(0,G.speed*.0);I=G.B*1.05;if(!G.haltShown){G.haltShown=true;G.surge+=22;banner('ただいま 信号待ちで 停車しています','扉は開かない','bad',4);Snd.halt();}}
+    }
+    if(G.pt>=L){G.speed=0;G.pt=0;
+      if(G.leg===sc.legs.length-1){G.phase='done';G.out='done';G.doorOpen=true;Snd.chime();banner(`${sc.stops[G.leg]}に着いた`,'最後まで乗れた','calm',3);}
+      else{G.phase='dwell';G.doorOpen=true;Snd.chime();$('exit').hidden=false;}
+    }
+  }
+  if(G.phase==='dwell'){I=G.B*.6;G.door=Math.min(1,G.door+dt*1.5);
+    if(G.pt>6){G.phase='closing';G.pt=0;G.doorOpen=false;G.leg++;$('exit').hidden=true;Snd.doorClose();}}
+  if(G.phase==='done'){I=G.B*.3;}
+  if(G.doorOpen)G.door=Math.min(1,G.door+dt*1.5);
+
+  // 手を離すと出口へ引き寄せられる。にぎれば戻る
+  if(G.hold)G.pos=Math.max(0,G.pos-dt*.3);else G.pos=Math.min(1,G.pos+dt*(.06+.28*G.s/100));
+  if(G.safeT>0)G.safeT-=dt;
+  // 慣れ（馴化）：その場にとどまり、安全行動がないときに進む
+  const expo=(G.hold?1:.45)*(G.safeT>0?.12:1)*(G.pos>.85?.5:1);
+  G.hab=Math.min(.84,G.hab+dt*.034*expo*Math.pow(G.s/80,3));
+  if((G.phase==='moving')&&G.t>G.nextSurge){G.surge+=(12+Math.random()*9)*(1-G.hab*.9);G.nextSurge=G.t+8+Math.random()*7;}
+  G.surge*=Math.exp(-dt/4);
+  const tg=clamp(I*(1-G.hab)+G.surge+(G.hold?0:4));
+  G.s=clamp(G.s+(tg-G.s)*(tg>G.s?.9:.3)*dt);
+  if(G.s>G.peak)G.peak=G.s;
+  if(!G.peakShown&&G.peak>55&&G.s<G.peak-15&&G.safeT<=0){G.peakShown=true;banner('ピークを越えた','とどまっていれば、不安は自然に下がる','calm',3.5);Snd.good();}
+  feed(dt);
+  G.recT+=dt;if(G.recT>=.25){G.recT=0;G.rec.push({t:G.t,s:G.s,d:G.doorOpen&&G.phase!=='done',h:G.signal});}
+}
+function feed(dt){
+  // 頭に浮かぶ考え
+  G.thT-=dt*(.12+G.s/110);
+  if(G.thT<=0&&G.phase!=='platform'){G.thT=1;
+    let pool=G.s>65?TH.high:G.s>40?TH.mid:null;
+    if(G.peakShown&&G.s<G.peak-12&&Math.random()<.6)pool=TH.calm;
+    if(G.safeT>0&&Math.random()<.5)pool=TH.safe;
+    if(G.signal&&Math.random()<.6)pool=TH.halt;
+    if(pool)thought(pool[Math.floor(Math.random()*pool.length)],pool===TH.calm?'calm':pool===TH.safe?'safe':'');}
+  if(G.bannerT>0){G.bannerT-=dt;if(G.bannerT<=0)$('banner').hidden=true;}
+  if(G.cool>0)G.cool-=dt;
+}
+function thought(txt,cls){
+  const box=$('thoughts');if(box.children.length>=3)box.firstChild.remove();const el=document.createElement('div');el.className='th '+cls;el.textContent=txt;
+  el.style.left=(6+Math.random()*62)+'%';el.style.top=(22+Math.random()*58)+'%';
+  $('thoughts').appendChild(el);setTimeout(()=>el.remove(),3300);
+}
+function banner(a,b,cls,sec){const el=$('banner');el.className='banner '+(cls||'');el.innerHTML=a+(b?`<small>${b}</small>`:'');el.hidden=false;G.bannerT=sec||3;}
+
+/* ---- 安全行動・降りる ---- */
+const SAFE={water:'水を飲む',pill:'頓服をにぎる',phone:'スマホで気をそらす'};
+// 押した瞬間に反応させる（つり革を押したまま、別の指でもすぐ効くように）。キーボードは click で
+const tapOrKey=(el,fn)=>{el.addEventListener('pointerdown',e=>{e.preventDefault();e.stopPropagation();fn();});el.addEventListener('click',e=>{if(e.detail===0)fn();});};
+document.querySelectorAll('.sb').forEach(b=>tapOrKey(b,()=>{
+  if(!G||!['closing','moving','dwell'].includes(G.phase)||G.cool>0)return;
+  const k=b.dataset.s;G.s=clamp(G.s-18);G.surge*=.4;G.safeT=12;G.cool=4;G.safeUse.push({t:G.t,k});P.safety++;P.safetyKinds.add(k);
+  thought(TH.safe[Math.floor(Math.random()*TH.safe.length)],'safe');Snd.relief();syncSafety();
+}));
+function syncSafety(){document.querySelectorAll('.sb').forEach(b=>b.disabled=!G||G.cool>0);}
+setInterval(syncSafety,500);
+tapOrKey($('exit'),()=>{if(!G||G.phase!=='dwell')return;G.out='exit';G.exitS=G.s;G.exitStop=G.sc.stops[G.leg];
+  G.rec.push({t:G.t,s:G.s,d:true});for(let k=1;k<=12;k++)G.rec.push({t:G.t+k*.25,s:G.s*Math.exp(-k*.35),d:false,x:true});
+  Snd.relief();$('flash').style.opacity=.25;setTimeout(()=>$('flash').style.opacity=0,120);finish();});
+
+/* ---- にぎる操作 ---- */
+const grip=$('grip');
+function setHold(v){if(!G)return;G.hold=v;grip.classList.toggle('on',v);grip.setAttribute('aria-pressed',String(v));
+  grip.firstChild.textContent=v?'にぎっている':'つり革をにぎる';}
+// 押している指（とキー）を数え、全部離れたときだけ手を離す
+const holdIds=new Set();let keyHold=false;
+const syncHold=()=>setHold(holdIds.size>0||keyHold);
+const holdOn=(el,e)=>{e.preventDefault();Snd.ensure();try{el.setPointerCapture(e.pointerId)}catch(_){}holdIds.add(e.pointerId);syncHold();};
+const holdOff=e=>{if(holdIds.delete(e.pointerId))syncHold();};
+grip.addEventListener('pointerdown',e=>holdOn(grip,e));
+['pointerup','pointercancel','lostpointercapture'].forEach(n=>grip.addEventListener(n,holdOff));
+grip.addEventListener('contextmenu',e=>e.preventDefault());
+// 車内の絵そのものを押しても、つり革をにぎる
+const view=$('view');
+view.addEventListener('pointerdown',e=>{if(e.target.closest('button')||!G||G.phase==='platform')return;holdOn(view,e);});
+['pointerup','pointercancel','lostpointercapture'].forEach(n=>view.addEventListener(n,holdOff));
+view.addEventListener('contextmenu',e=>e.preventDefault());
+/* ---- 全画面 ---- */
+const playEl=$('scr-play');let touchDev=matchMedia('(pointer:coarse)').matches;
+addEventListener('pointerdown',e=>{if(e.pointerType==='touch')touchDev=true;},true);
+const nativeFs=()=>(document.fullscreenElement||document.webkitFullscreenElement)===playEl;
+const fsOn=()=>playEl.classList.contains('full');
+function syncFs(){if(!nativeFs()&&!playEl.dataset.fake)playEl.classList.remove('full');const on=fsOn();$('fs').textContent=on?'全画面を終了':'全画面';$('fs').setAttribute('aria-pressed',String(on));}
+function toggleFs(){
+  if(fsOn()){delete playEl.dataset.fake;playEl.classList.remove('full');if(nativeFs()){try{const x=(document.exitFullscreen||document.webkitExitFullscreen).call(document);if(x&&x.catch)x.catch(()=>{});}catch(e){}}syncFs();return;}
+  playEl.classList.add('full');playEl.dataset.fake='1';
+  const req=playEl.requestFullscreen||playEl.webkitRequestFullscreen;
+  if(req){try{const pr=req.call(playEl);if(pr&&pr.then)pr.then(()=>{delete playEl.dataset.fake;},()=>{});}catch(e){}}
+  syncFs();}
+$('fs').onclick=()=>{if($('scr-play').hidden)return;toggleFs();};
+$('fsx').onclick=toggleFs;
+document.addEventListener('fullscreenchange',syncFs);document.addEventListener('webkitfullscreenchange',syncFs);
+addEventListener('keydown',e=>{if(e.key==='Escape'&&fsOn()&&playEl.dataset.fake)toggleFs();});
+addEventListener('keydown',e=>{if(e.code==='Space'&&!$('scr-play').hidden&&!(e.target instanceof HTMLButtonElement&&e.target!==grip)){e.preventDefault();if(!e.repeat){Snd.ensure();keyHold=true;syncHold();}}});
+addEventListener('keyup',e=>{if(e.code==='Space'){keyHold=false;syncHold();}});
+addEventListener('blur',()=>{keyHold=false;holdIds.clear();syncHold();});
+
+/* ================= 終わり方 ================= */
+function finish(){
+  const g=G;g.phase='over';holdIds.clear();keyHold=false;setHold(false);if(fsOn())toggleFs();$('exit').hidden=true;setPrompt(null);Snd.stopTrain();
+  const sc=g.sc,used=g.safeUse.length;
+  let rec={no:sc.no,name:sc.name,out:g.out,peak:Math.round(g.peak),end:Math.round(g.s),safe:g.safeUse.map(u=>u.k),week:P.week,rows:g.rec,safeUse:g.safeUse,exitStop:g.exitStop};
+  if(g.out==='done'){
+    P.open.add(sc.place);P.stage++;P.learn=Math.min(1,P.learn+(used?.15:.4));P.sens=Math.max(.85,P.sens*(used?1:.95));
+  }else{P.avoid++;P.sens=Math.min(1.35,P.sens*1.15);}
+  P.log.push(rec);P.week++;
+  G=null;renderResult(rec);show('result');
+}
+function renderResult(r){
+  const el=$('scr-result');let head,body;
+  if(r.out==='avoid'){head='今日はやめておいた';
+    body=`<p>乗らないと決めた瞬間、胸のどきどきがすっと引いた。<b>その場はとても楽になる。</b></p>
+      <p>でも体は「乗らなかったから助かった」と覚える。次に駅へ来たときの不安は、今日より強くなる（回避が恐怖を保つ：負の強化）。</p>`;}
+  else if(r.out==='exit'){head=`${r.exitStop}で降りた`;
+    body=`<p>扉の外に出たとたん、不安は ${r.peak} から一気に下がった。<b>逃げると、その場はすぐ楽になる。</b>グラフの最後の急な下がり方がそれ。</p>
+      <p>そのかわり「降りたから発作で倒れずにすんだ」と学習してしまう。とどまっていれば下がったはずの不安を、確かめられなかった。</p>`;}
+  else{head=`${SCENES[r.no-1].stops.slice(-1)[0]}まで乗れた`;
+    const s=r.safe.length;
+    body=`<p>不安はピーク ${r.peak} から、着いたときには ${r.end} まで下がった。倒れることも、死ぬこともなかった。</p>`+
+      (s?`<p><b>ただし安全行動が ${s}回</b>（${[...new Set(r.safe)].map(k=>SAFE[k]).join('・')}）。使った直後だけ不安が下がり、そのあいだ慣れは止まっていた。Kさんは「${r.safe.includes('pill')?'頓服':'水'}があったから乗れた」と思っている。</p>`
+        :`<p>安全行動を使わずにとどまれた。「発作が来ても、時間がたてばおさまる」と体で学べた。</p>`);}
+  el.innerHTML=`<h2>練習${r.no}：${head}</h2>
+    <canvas class="chart" id="chart" width="760" height="260" aria-label="不安の強さの時間変化"></canvas>
+    <div class="legend"><span><i style="background:var(--alarm)"></i>不安（SUDS）</span><span><i style="background:#3d4e6a"></i>扉が開いていた時間</span><span><i style="background:var(--safe)"></i>安全行動</span>${r.out==='exit'?'<span><i style="background:var(--calm)"></i>降りたあと</span>':''}</div>
+    ${body}<div class="btns"><button type="button" class="btn" id="r-next">地図へ（第${P.week}週）</button></div>`;
+  drawChart($('chart'),r);
+  $('r-next').onclick=()=>{renderMap();show('map');};
+}
+function drawChart(cv,r){
+  const c=cv.getContext('2d'),W=cv.width,H=cv.height,L=40,R=12,T=14,B=30;
+  const css=getComputedStyle(document.documentElement),col=n=>css.getPropertyValue(n).trim();
+  c.fillStyle=col('--car');c.fillRect(0,0,W,H);
+  const rows=r.rows;if(!rows.length){c.fillStyle=col('--dim');c.font='14px '+col('--f-body');c.fillText('電車には乗らなかった（記録なし）',L,H/2);return;}
+  const t0=rows[0].t,t1=Math.max(t0+10,rows[rows.length-1].t);
+  const X=t=>L+(t-t0)/(t1-t0)*(W-L-R),Y=s=>T+(1-s/100)*(H-T-B);
+  c.fillStyle='#3d4e6a';let st=null;
+  rows.forEach((p,i)=>{if((p.d||p.h)&&st==null)st=p.t;if((!(p.d||p.h)||i===rows.length-1)&&st!=null){c.fillRect(X(st),T,Math.max(2,X(p.t)-X(st)),H-T-B);st=null;}});
+  c.strokeStyle=col('--line');c.fillStyle=col('--dim');c.font='12px '+col('--f-body');c.lineWidth=1;
+  for(const v of [0,50,100]){c.beginPath();c.moveTo(L,Y(v));c.lineTo(W-R,Y(v));c.stroke();c.fillText(String(v),8,Y(v)+4);}
+  const span=t1-t0;for(let s=0;s<=span;s+=20){c.fillText(s+'秒',X(t0+s)-8,H-10);}
+  c.lineWidth=2.5;c.strokeStyle=col('--alarm');c.beginPath();let ex=false;
+  rows.forEach((p,i)=>{if(p.x&&!ex){c.stroke();c.strokeStyle=col('--calm');c.beginPath();c.moveTo(X(rows[i-1].t),Y(rows[i-1].s));ex=true;}i?c.lineTo(X(p.t),Y(p.s)):c.moveTo(X(p.t),Y(p.s));});c.stroke();
+  c.fillStyle=col('--safe');r.safeUse.forEach(u=>{const p=rows.reduce((a,b)=>Math.abs(b.t-u.t)<Math.abs(a.t-u.t)?b:a);c.beginPath();c.arc(X(p.t),Y(p.s),5,0,7);c.fill();});
+  const pk=rows.reduce((a,b)=>b.s>a.s?b:a);c.fillStyle=col('--ink');c.font='13px '+col('--f-display');c.fillText('ピーク '+Math.round(pk.s),Math.min(W-90,X(pk.t)+6),Math.max(T+12,Y(pk.s)-6));
+}
+
+/* ================= 治療者として振り返る ================= */
+function shuffle(a){for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
+const GS={'◎':3,'○':2,'△':1,'×':0},GC={'◎':'g3','○':'g2','△':'g1','×':'g0'};
+function renderReview(){
+  const done=P.log.filter(r=>r.out==='done'),first=done[0],kinds=[...P.safetyKinds].map(k=>SAFE[k]);
+  const ctxLine=first?`練習${first.no}では、不安がピーク ${first.peak} から ${first.end} まで下がった。`:'Kさんは、まだ最後まで乗れた練習がない。';
+  const safeLine=P.safety?`記録では、安全行動が ${P.safety}回（${kinds.join('・')}）あった。`:'記録では安全行動はなかった。でもKさんは「実はポケットの頓服を、ずっと指でさわっていた」と話した。';
+  const Q=[
+    {lead:`${ctxLine} とどまっていると不安が下がるのは、なぜか。`,opts:[
+      ['恐れていた結果（倒れる・死ぬ）が起きないことを、その場で体験して学ぶから','◎'],
+      ['時間とともに体の反応が落ち着く（馴化）から','○'],
+      ['疲れて、不安を感じる力がなくなるから','△'],
+      ['水や頓服で、体の症状が和らぐから','×']],
+     why:'曝露療法では、不安が自然に下がる体験（馴化）とともに、「発作が来ても危険なことは起きない」という予測の修正が起きる。疲れや安全行動のおかげと受け取ると、学びが残らない。'},
+    {lead:`${safeLine} 次の練習の課題として、最も適切なのはどれか。`,opts:[
+      ['頓服と水を家に置き、同じ区間にもう一度乗る','◎'],
+      ['頓服は持つが、使わない約束で乗る','○'],
+      ['頓服を増やして、急行に挑戦する','△'],
+      ['発作が怖いなら、しばらく電車は避けてよいと伝える','×']],
+     why:'安全行動があると「それがあったから助かった」と学習し、慣れが止まる。安全行動を見つけて、段階的に外していく。持つだけでも安全行動になりうるので、最後は持たずに乗るのが目標。回避を勧めると広場恐怖が強まる。'},
+    {lead:'急行に乗れるようになった。再発を防ぐために、まず勧めることはどれか。',opts:[
+      ['練習を続け、その場で駆け足して動悸を起こすなど、体の感覚にも慣れる練習（内部感覚曝露）を加える','◎'],
+      ['SSRIを使っている場合は続け、やめるときはゆっくり減らす','○'],
+      ['調子がよいので、SSRIはすぐにやめる','△'],
+      ['もう乗れたので、練習はやめる','×']],
+     why:'パニック症の認知行動療法は、心理教育・内部感覚曝露・状況への曝露を組み合わせる。動悸や息苦しさそのものへの恐れ（体の感覚＝危険という結びつき）を弱めると再発しにくい。SSRIは寛解後もしばらく続け、中止は漸減する（急な中止は中断症候群）。'},
+  ];
+  const el=$('scr-review');let got=0,ans=0;
+  const outcome=P.stage>=3?'Kさんは急行で会社に行けるようになった。':P.stage===2?'Kさんは運動会には行けたが、期限までに急行には乗れず、内勤に異動した。':'期限までに電車で通勤できず、Kさんは内勤に異動した。';
+  el.innerHTML=`<h2>治療者として振り返る</h2>
+    <p>${outcome} 回避 ${P.avoid}回、安全行動 ${P.safety}回。ここからは主治医の立場で考える。</p>
+    <div id="qs"></div><div id="fin" hidden></div>`;
+  const qs=el.querySelector('#qs');
+  Q.forEach((q,qi)=>{const d=document.createElement('div');d.className='q';
+    d.innerHTML=`<p class="lead">問${qi+1}　${q.lead}</p>`+shuffle(q.opts.slice()).map(([t,g])=>`<button type="button" class="opt" data-g="${g}"><span class="g"></span><span>${t}</span></button>`).join('')+`<p class="why" hidden></p>`;
+    d.querySelectorAll('.opt').forEach(b=>b.onclick=()=>{
+      d.querySelectorAll('.opt').forEach(o=>{o.disabled=true;const g=o.dataset.g;o.querySelector('.g').textContent=g;o.querySelector('.g').className='g '+GC[g];});
+      b.classList.add('pick');got+=GS[b.dataset.g];ans++;const w=d.querySelector('.why');w.textContent=q.why;w.hidden=false;
+      if(ans===Q.length)final(got);});
+    qs.appendChild(d);});
+  function final(g){const f=el.querySelector('#fin');f.hidden=false;f.className='card';
+    f.innerHTML=`<div class="score">${g} / 9</div>
+      <h3>試験のつぼ</h3><ul>
+      <li>パニック症：予期しないパニック発作がくり返し起こり、予期不安や回避が1か月以上続く。広場恐怖（逃げられない場所を避ける）を伴いやすい。</li>
+      <li>まず身体疾患（甲状腺機能亢進症・不整脈・褐色細胞腫・低血糖など）と物質（カフェイン・覚醒剤など）を除外する。</li>
+      <li>第一選択は SSRI と認知行動療法。ベンゾジアゼピン系は即効性があるが、依存のため短期・補助的に。</li>
+      <li>認知行動療法：心理教育、内部感覚曝露、状況への曝露。回避と安全行動が恐怖を保つ。</li>
+      <li>家族の「送っていくよ」も、善意の回避の手助けになりうる。仕組みを家族と共有する。</li></ul>
+      <div class="btns"><button type="button" class="btn" id="again">はじめからもう一度</button></div>`;
+    f.querySelector('#again').onclick=()=>{resetP();show('story');};}
+}
+
+/* ================= 音 ================= */
+const Snd={ctx:null,on:store.get('xr-car-snd')!=='off',
+  ensure(){if(!this.ctx){try{this.ctx=new (window.AudioContext||window.webkitAudioContext)();this.build();}catch(e){this.ctx=null;return;}}if(this.ctx.state==='suspended')this.ctx.resume();},
+  build(){const c=this.ctx;
+    this.master=c.createGain();this.master.gain.value=this.on?.55:0;
+    this.lp=c.createBiquadFilter();this.lp.type='lowpass';this.lp.frequency.value=12000;this.lp.connect(this.master);this.master.connect(c.destination);
+    const nb=c.createBuffer(1,c.sampleRate*2,c.sampleRate),d=nb.getChannelData(0);for(let i=0;i<d.length;i++)d[i]=Math.random()*2-1;this.nb=nb;
+    // 走行音
+    const rs=c.createBufferSource();rs.buffer=nb;rs.loop=true;const rf=c.createBiquadFilter();rf.type='lowpass';rf.frequency.value=220;this.rg=c.createGain();this.rg.gain.value=0;rs.connect(rf);rf.connect(this.rg);this.rg.connect(this.lp);rs.start();
+    // 息
+    const bs=c.createBufferSource();bs.buffer=nb;bs.loop=true;const bf=c.createBiquadFilter();bf.type='bandpass';bf.frequency.value=1100;bf.Q.value=.8;this.bg=c.createGain();this.bg.gain.value=0;bs.connect(bf);bf.connect(this.bg);this.bg.connect(this.master);bs.start();
+    // 耳鳴り
+    const to=c.createOscillator();to.frequency.value=6100;this.tg=c.createGain();this.tg.gain.value=0;to.connect(this.tg);this.tg.connect(this.master);to.start();
+    this.next=0;this.ktn=0;this.br=0;},
+  noise(t,dur,f,v,type){const c=this.ctx,s=c.createBufferSource();s.buffer=this.nb;const fl=c.createBiquadFilter();fl.type=type||'lowpass';fl.frequency.value=f;const g=c.createGain();
+    g.gain.setValueAtTime(v,t);g.gain.exponentialRampToValueAtTime(.001,t+dur);s.connect(fl);fl.connect(g);g.connect(this.lp);s.start(t,Math.random()*1.5,dur+.05);},
+  tone(f,t,dur,v,type,dest){const c=this.ctx,o=c.createOscillator(),g=c.createGain();o.type=type||'sine';o.frequency.value=f;g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(v,t+.01);g.gain.exponentialRampToValueAtTime(.001,t+dur);o.connect(g);g.connect(dest||this.lp);o.start(t);o.stop(t+dur+.05);},
+  heart(t,v){const c=this.ctx;for(const [dt,k] of [[0,1],[.19,.7]]){const o=c.createOscillator(),g=c.createGain();o.frequency.setValueAtTime(72,t+dt);o.frequency.exponentialRampToValueAtTime(38,t+dt+.13);g.gain.setValueAtTime(v*k,t+dt);g.gain.exponentialRampToValueAtTime(.001,t+dt+.16);o.connect(g);g.connect(this.master);o.start(t+dt);o.stop(t+dt+.18);}},
+  ok(){return this.ctx&&this.on&&this.ctx.state==='running';},
+  chime(){if(!this.ok())return;const t=this.ctx.currentTime+.02;this.tone(880,t,.6,.12);this.tone(698,t+.35,.8,.12);},
+  doorClose(){if(!this.ok())return;const t=this.ctx.currentTime+.02;[0,.22,.44].forEach(d=>this.tone(1320,t+d,.12,.06,'square'));this.noise(t+.7,.7,1800,.25,'highpass');},
+  halt(){if(!this.ok())return;const t=this.ctx.currentTime+.02;this.noise(t,1.2,600,.5);this.tone(520,t+.3,.9,.05,'triangle');},
+  relief(){if(!this.ok())return;const t=this.ctx.currentTime+.02;[523,659,784].forEach((f,i)=>this.tone(f,t+i*.05,.9,.06,'triangle'));this.lp.frequency.cancelScheduledValues(t);this.lp.frequency.setValueAtTime(12000,t);},
+  good(){if(!this.ok())return;const t=this.ctx.currentTime+.02;[659,784,988,1319].forEach((f,i)=>this.tone(f,t+i*.09,.7,.07,'triangle'));},
+  stopTrain(){if(!this.ctx)return;const t=this.ctx.currentTime;this.rg.gain.setTargetAtTime(0,t,.2);this.bg.gain.setTargetAtTime(0,t,.2);this.tg.gain.setTargetAtTime(0,t,.2);this.lp.frequency.setTargetAtTime(12000,t,.2);},
+  tick(){ // 不安と走行に合わせて音を動かす
+    if(!this.ok()||!G||G.phase==='over')return;const c=this.ctx,t=c.currentTime,s=G.s/100;
+    this.rg.gain.setTargetAtTime(.12+.55*G.speed,t,.3);
+    this.lp.frequency.setTargetAtTime(11000-8800*Math.max(0,s-.35)/.65,t,.3);
+    this.tg.gain.setTargetAtTime(s>.65?(s-.65)/.35*.022:0,t,.4);
+    if(G.speed>.05&&t>this.ktn){const gap=.5+(1-G.speed)*.8;this.noise(t+.01,.08,500,.5*G.speed);this.noise(t+.14,.08,500,.42*G.speed);this.ktn=t+gap*2.2;}
+    if(G.phase!=='platform'&&t>this.next){const bpm=64+100*s;this.heart(t+.02,.12+.6*s);this.next=t+60/bpm;$('vig').classList.add('beat');setTimeout(()=>$('vig').classList.remove('beat'),120);}
+    const per=4.2-2.8*s;this.br+=.03;const ph=(this.br%per)/per,env=Math.sin(Math.PI*Math.min(1,ph*1.6))*(ph<.62?1:0);
+    this.bg.gain.setTargetAtTime((.01+.22*s*s)*env,t,.05);
+  }};
+function syncSnd(){const b=$('snd');b.textContent=Snd.on?'♪ 音あり':'♪ 音なし';b.setAttribute('aria-pressed',String(Snd.on));if(Snd.master)Snd.master.gain.setTargetAtTime(Snd.on?.55:0,Snd.ctx.currentTime,.05);}
+$('snd').onclick=()=>{Snd.ensure();Snd.on=!Snd.on;store.set('xr-car-snd',Snd.on?'on':'off');syncSnd();};
+syncSnd();
+let shake=store.get('xr-car-shk')!=='weak'&&!RM;
+function syncShk(){const b=$('shk');b.textContent=shake?'揺れ あり':'揺れ 弱く';b.setAttribute('aria-pressed',String(shake));}
+$('shk').onclick=()=>{shake=!shake;store.set('xr-car-shk',shake?'on':'weak');syncShk();};
+syncShk();
+
+/* ================= 車内の絵（320×180 を3倍） ================= */
+const cv=$('cv'),ctx=cv.getContext('2d'),W=320,H=180,S=3;
+ctx.imageSmoothingEnabled=false;
+let far=0,near=0;
+const hash=i=>{let x=(i*9301+49297)%233280;return x/233280;};
+function draw(dt){
+  ctx.setTransform(S,0,0,S,0,0);
+  const g=G,s=g?g.s/100:.2,t=performance.now()/1000,sp=g?g.speed:0;
+  far+=sp*dt*30;near+=sp*dt*120;
+  const amp=(shake?1:.3)*(sp*.6+s*s*3.2);
+  const cx=Math.round(-(g?g.pos:0)*46+Math.sin(t*2.3)*amp),cy=Math.round(Math.sin(t*3.1)*amp*.5);
+  ctx.fillStyle='#0b0f17';ctx.fillRect(0,0,W,H);
+  ctx.save();ctx.translate(cx,cy);
+  // 壁と天井
+  ctx.fillStyle='#d9dee3';ctx.fillRect(-60,0,W+120,10);
+  ctx.fillStyle='#f6f7f2';for(let x=-50;x<W+60;x+=70)ctx.fillRect(x,3,50,3);
+  ctx.fillStyle='#8c96a3';ctx.fillRect(-60,10,W+120,4);
+  ctx.fillStyle='#b9c2cc';ctx.fillRect(-60,14,W+120,16);
+  [['#e8a3a3',-40],['#9cc7e6',30],['#e6d39c',150],['#b5dbb0',210]].forEach(([c,x])=>{ctx.fillStyle=c;ctx.fillRect(x,16,46,12);ctx.fillStyle='rgba(0,0,0,.25)';ctx.fillRect(x+4,19,30,2);ctx.fillRect(x+4,23,22,2);});
+  ctx.fillStyle='#b9c2cc';ctx.fillRect(-60,30,W+120,110);
+  // 窓
+  const stopped=g&&(g.phase==='dwell'||g.phase==='done'||g.phase==='closing'||g.phase==='platform'||g.phase==='grip');
+  const stName=g?(g.phase==='platform'||g.phase==='grip'||(g.phase==='closing'&&g.leg===0)?g.sc.from:g.sc.stops[Math.min(g.leg,g.sc.stops.length-1)]):'';
+  for(let k=0;k<4;k++){const wx=-40+k*92;if(wx>238)continue;outside(wx+6,34,72,54,stopped,stName,k);
+    ctx.strokeStyle='#7d8794';ctx.lineWidth=3;ctx.strokeRect(wx+6,34,72,54);}
+  // 扉
+  const dx=250,dw=60,op=g?g.door:0;
+  ctx.fillStyle='#0b0f17';ctx.fillRect(dx,30,dw,140);
+  if(op>0)outside(dx+2,32,dw-4,136,true,stName,9,true);
+  const half=dw/2,sh=op*half*.9;
+  ctx.fillStyle='#a7b0bb';ctx.fillRect(dx-sh,30,half,140);ctx.fillRect(dx+half+sh,30,half,140);
+  ctx.fillStyle='#2b3b52';ctx.fillRect(dx-sh+6,44,half-12,44);ctx.fillRect(dx+half+sh+6,44,half-12,44);
+  ctx.fillStyle='#ffcf3a';ctx.fillRect(dx-sh,168,half,2);ctx.fillRect(dx+half+sh,168,half,2);
+  // 扉の上の案内
+  ctx.fillStyle='#111';ctx.fillRect(dx-4,17,dw+8,11);ctx.fillStyle='#ffb547';ctx.font='8px "DotGothic16",monospace';
+  let led='';if(g){if(g.signal)led='信号待ち 停車中';else if(g.phase==='moving')led=(g.sc.express?'急行 ':'')+'つぎは '+g.sc.stops[g.leg];else if(g.phase==='dwell')led=g.sc.stops[g.leg];else led=g.sc.kind+' '+g.sc.stops.slice(-1)[0]+'ゆき';}
+  ctx.save();ctx.beginPath();ctx.rect(dx-3,17,dw+6,11);ctx.clip();const lw=ctx.measureText(led).width;const lx=lw>dw?dx+dw-((t*22)%(lw+dw)):dx+(dw-lw)/2;ctx.fillText(led,lx,26);ctx.restore();
+  // 座席と座っている人
+  ctx.fillStyle='#2f4a7a';ctx.fillRect(-60,140,312,18);ctx.fillStyle='#253b62';ctx.fillRect(-60,156,312,24);
+  for(let i=0;i<7;i++){const px=-40+i*42+(hash(i)*8|0);ctx.fillStyle=['#2a2f3a','#3a3240','#30383a'][i%3];ctx.fillRect(px,118,22,30);ctx.beginPath();ctx.arc(px+11,112,8,0,7);ctx.fillStyle='#1c1f26';ctx.fill();}
+  // 立っている人
+  const crowd=g&&g.sc.express?6:3;
+  for(let i=0;i<crowd;i++){const px=[-30,40,196,110,0,160][i],h=[0,6,3,10,4,8][i];ctx.fillStyle='#161b25';ctx.fillRect(px,62+h,26,118);ctx.beginPath();ctx.arc(px+13,54+h,10,0,7);ctx.fill();ctx.fillRect(px+20,40+h,4,22);}
+  // つり革
+  const sw=Math.sin(t*1.4)*(sp*.18+.04)+(g&&g.phase==='moving'&&g.pt<4?-.12:0);
+  ctx.strokeStyle='#e9edf0';ctx.lineWidth=1.5;
+  for(let x=-40;x<W+40;x+=30){const ex=x+Math.sin(sw)*18,ey=12+Math.cos(sw)*18;ctx.beginPath();ctx.moveTo(x,12);ctx.lineTo(ex,ey);ctx.stroke();ctx.beginPath();ctx.arc(ex,ey+4,4,0,7);ctx.stroke();}
+  ctx.restore();
+  // 手前のつり革と、Kさんの手（画面に固定）
+  const hx=150+Math.sin(sw)*28,hy=70+Math.cos(sw)*6;
+  ctx.strokeStyle='#e9edf0';ctx.lineWidth=5;ctx.beginPath();ctx.moveTo(150+cx*.3,-4);ctx.lineTo(hx,hy-12);ctx.stroke();
+  ctx.lineWidth=4;ctx.beginPath();ctx.arc(hx,hy,12,0,7);ctx.stroke();
+  const holding=g&&g.hold;
+  ctx.fillStyle='#29364a';
+  if(holding){ctx.beginPath();ctx.moveTo(hx+4,hy+6);ctx.lineTo(hx+60,H+4);ctx.lineTo(hx+92,H+4);ctx.lineTo(hx+18,hy+2);ctx.fill();
+    const tr=s>.6?(Math.random()-.5)*s*2.4:0;ctx.fillStyle='#e6b48c';ctx.fillRect(hx-9+tr,hy-6,18,13);ctx.fillStyle='#c98f63';for(let k=0;k<4;k++)ctx.fillRect(hx-9+k*5+tr,hy-6,1,8);}
+  else{const d=g?g.pos:0;ctx.beginPath();ctx.moveTo(220+d*30,H);ctx.lineTo(244+d*30,128-d*10);ctx.lineTo(270+d*30,128-d*10);ctx.lineTo(276+d*30,H);ctx.fill();ctx.fillStyle='#e6b48c';ctx.fillRect(242+d*30,118-d*10,24,12);}
+  // 画面の効果
+  const vr=Math.round(78-50*Math.max(0,s-.25)/.75);$('vig').style.setProperty('--r',vr+'%');
+  cv.style.filter=`saturate(${(1-.75*Math.max(0,s-.3)).toFixed(2)}) brightness(${(1-.25*s).toFixed(2)})${s>.75?` blur(${((s-.75)*3).toFixed(1)}px)`:''}`;
+}
+function outside(x,y,w,h,station,name,k,door){
+  ctx.save();ctx.beginPath();ctx.rect(x,y,w,h);ctx.clip();
+  if(station){
+    ctx.fillStyle='#3b4250';ctx.fillRect(x,y,w,h);ctx.fillStyle='#e9e5d6';ctx.fillRect(x,y,w,h*.35);
+    ctx.fillStyle='#9aa3ad';ctx.fillRect(x,y+h*.72,w,h*.28);ctx.fillStyle='#ffcf3a';ctx.fillRect(x,y+h*.72,w,2);
+    if(k===1||door){ctx.fillStyle='#fff';ctx.fillRect(x+w/2-24,y+4,48,13);ctx.fillStyle='#1d3f8a';ctx.fillRect(x+w/2-24,y+15,48,2);ctx.fillStyle='#111';ctx.font='8px "DotGothic16",monospace';const tw=ctx.measureText(name).width;ctx.fillText(name,x+w/2-tw/2,y+13);}
+    for(let i=0;i<3;i++){const px=x+((k*37+i*29)%w);ctx.fillStyle='#20242c';ctx.fillRect(px,y+h*.38,7,h*.4);ctx.beginPath();ctx.arc(px+3.5,y+h*.36,3.5,0,7);ctx.fill();}
+  }else{
+    const gr=ctx.createLinearGradient(0,y,0,y+h);gr.addColorStop(0,'#0c1530');gr.addColorStop(1,'#28385a');ctx.fillStyle=gr;ctx.fillRect(x,y,w,h);
+    for(let i=-1;i<8;i++){const bw=24,bx=x+((i*bw-far+k*13)%(w+bw)+(w+bw))%(w+bw)-bw,bh=14+hash(Math.floor((far+i*bw)/bw)+i)*20;ctx.fillStyle='#141c30';ctx.fillRect(bx,y+h-bh,bw-2,bh);}
+    for(let i=-1;i<6;i++){const bw=34,o=near+k*31,id=Math.floor((o+i*bw)/bw),bx=x+((i*bw-o)%(w+bw)+(w+bw))%(w+bw)-bw,bh=20+hash(id)*26;
+      ctx.fillStyle='#0a0e18';ctx.fillRect(bx,y+h-bh,bw-3,bh);ctx.fillStyle='#ffd27a';for(let r=0;r<bh-6;r+=6)for(let c2=3;c2<bw-6;c2+=6)if(hash(id*31+r*7+c2)>.62)ctx.fillRect(bx+c2,y+h-bh+3+r,2,2);}
+    ctx.fillStyle='#4c5566';ctx.fillRect(x,y+h-4,w,4);
+  }
+  ctx.restore();
+}
+
+/* ================= 画面表示の更新 ================= */
+const BODY=[['動悸',0],['息苦しさ',6],['めまい',14],['手のしびれ',22]];
+function hud(){
+  if(!G)return;const s=G.s;
+  $('sf').style.width=s.toFixed(1)+'%';$('sv').textContent=Math.round(s);$('sm').classList.toggle('down',G.peakShown&&s<G.peak-10);
+  $('bodyfx').innerHTML=BODY.map(([n,o])=>{const v=clamp((s-o-20)/16,0,5)|0;return `<span>${n}</span><span>${'■'.repeat(v)}${'□'.repeat(5-v)}</span>`;}).join('');
+  let c='';
+  if(G.phase==='moving'){const L=G.sc.legs[G.leg],r=Math.max(0,Math.ceil(L-G.pt));c=`${G.sc.express?'本町まで 止まらない':'つぎの '+G.sc.stops[G.leg]+' まで'}<b>${Math.floor(r/60)}:${String(r%60).padStart(2,'0')}</b>`;}
+  else if(G.phase==='dwell')c=`${G.sc.stops[G.leg]} 扉が開いている<b>${Math.max(0,Math.ceil(6-G.pt))}秒</b>`;
+  else if(G.phase==='closing')c='扉が閉まります';
+  c+=`<br>${G.sc.stops.length>1?`目的地 ${G.sc.stops.slice(-1)[0]}（${G.sc.stops.length}駅）`:''}`;
+  $('clock').innerHTML=c;
+  $('ghint').hidden=G.hold||!['grip','closing','moving','dwell'].includes(G.phase);
+  grip.classList.toggle('pull',!G.hold&&['closing','moving','dwell'].includes(G.phase)&&G.pos>.3);
+}
+
+/* ================= ループ ================= */
+let last=performance.now();
+function loop(now){const dt=Math.min(.05,(now-last)/1000);last=now;
+  if(!$('scr-play').hidden){step(dt);draw(dt);hud();}
+  requestAnimationFrame(loop);}
+requestAnimationFrame(loop);
+setInterval(()=>{if(!$('scr-play').hidden)Snd.tick();},30);
+document.addEventListener('visibilitychange',()=>{if(document.hidden){holdIds.clear();setHold(false);}});
+
+// 確かめ用（画面には出ない）
+window.__car={get G(){return G},P,step,startScene,finish,setHold,show,renderMap};
+})();
+</script>
+
+</body>
+</html>
