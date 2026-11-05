@@ -293,8 +293,40 @@ body.eegfs .lab-grid{grid-template-columns:minmax(0,1fr)}
 .pick{position:fixed;z-index:40;background:var(--panel);border:2px solid var(--accent);border-radius:var(--r);box-shadow:0 10px 30px rgba(0,0,0,.35);padding:6px;display:grid;gap:4px;max-height:70vh;overflow:auto;min-width:9em}
 .pick button{font:inherit;font-size:var(--fs-s);text-align:left;min-height:42px;padding:6px 12px;border:1px solid var(--line);border-radius:var(--r);background:var(--paper);color:var(--ink);cursor:pointer}
 .pick button[aria-pressed="true"]{background:var(--accent);color:var(--accent-ink);border-color:var(--accent);font-weight:700}
+/* 全画面：選択メニューは触らせず、まわりを押すとページの中のメニューを出す。スクロールが外へ伝わらないようにする */
+body.eegfs select{pointer-events:none}
+html:has(body.eegfs){overscroll-behavior:none}
+body.eegfs{overscroll-behavior:none}
+body.eegfs .desk,body.eegfs #panel,body.eegfs .desk-side{overscroll-behavior:contain}
+/* 全画面：右の欄をスクロールなしで収まるように詰める */
+body.eegfs #panel{padding:10px 12px;gap:8px}
+body.eegfs #panel .ph .prog{display:none}
+body.eegfs #panel .ph h2{font-size:var(--fs-l)}
+body.eegfs .ctl{gap:5px}
+body.eegfs .ctl-row{gap:4px}
+body.eegfs .ctl-row .lb{min-width:4.2em}
+body.eegfs #panel .act,body.eegfs #panel .seg button,body.eegfs #panel select{min-height:34px;padding:3px 8px;font-size:var(--fs-xs)}
+body.eegfs .explain{font-size:var(--fs-xs);gap:2px}
+body.eegfs .explain h3{font-size:var(--fs-s)}
+.mihon-c,.mihon-c-h{display:none}
+body.eegfs #panel.rp-on .mihon-c,body.eegfs #panel.rp-on .mihon-c-h{display:none!important}
+body.eegfs .mihon-c{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:4px}
+body.eegfs .mihon-c-h{display:block;margin:2px 0 0;font-size:var(--fs-xs);color:var(--muted)}
+.mihon-c button{font:inherit;font-size:var(--fs-xs);line-height:1.3;min-height:32px;padding:2px 6px;text-align:left;border:1px solid var(--line);border-radius:var(--r);background:var(--paper);color:var(--ink);cursor:pointer}
+.mihon-c button[aria-pressed="true"]{border-color:var(--accent);background:var(--accent-soft);font-weight:700}
+.mihon-wrap{margin-top:16px;display:grid;gap:8px}
+.mihon-wrap h2{margin:0;font-family:var(--f-display);font-weight:400;font-size:var(--fs-l)}
+.mihon-wrap h2 small{font-family:var(--f-body);font-size:var(--fs-xs);color:var(--muted);margin-left:8px}
+body.eegfs .mihon-wrap{display:none}
+.rp{display:grid;gap:6px}
+.rp .rs{display:flex;flex-wrap:wrap;gap:4px;align-items:center}
+.rp .rs b{min-width:5em;font-size:var(--fs-xs)}
+.rp button{font:inherit;font-size:var(--fs-xs);min-height:32px;padding:2px 8px;border:1px solid var(--line);border-radius:999px;background:var(--paper);color:var(--ink);cursor:pointer}
+.rp button[aria-pressed="true"]{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.rp .ok{color:var(--ok);font-weight:700}.rp .ng{color:var(--hot);font-weight:700}
+@media (orientation:landscape){ body.eegfs #head{max-width:130px} }
 /* 異常脳波の見本 */
-.mihon{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:6px}
+.mihon{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:6px}
 .mihon button{font:inherit;font-size:var(--fs-xs);text-align:left;cursor:pointer;color:var(--ink);background:var(--paper);border:1px solid var(--line);border-radius:var(--r);padding:4px;display:grid;gap:2px}
 .mihon button[aria-pressed="true"]{border-color:var(--accent);box-shadow:inset 0 0 0 1px var(--accent)}
 .mihon canvas{width:100%;display:block;border-radius:3px}
@@ -380,6 +412,7 @@ body.eegfs .lab-grid{grid-template-columns:minmax(0,1fr)}
     </aside>
   </section>
 
+  <section class="mihon-wrap" id="mihonSec" hidden aria-labelledby="mhh"><h2 id="mhh">異常脳波の見本<small>押すと、上の脳波計でその状態の脳波が流れます。最初の1枚は比べる基準の正常です</small></h2><div class="mihon" id="mihon"></div></section>
   <button type="button" class="ghost fsonly" id="fsPanelBtn" aria-pressed="true">問題を隠す</button>
   <div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
   <p class="foot">波形はこのページの中で合成したもので、実在の患者さんの記録ではありません。形や数値は学習用に単純化しています。「実践」レベルの波も本物に近づけたものですが、実際の記録そのものではありません。図鑑の集まり具合は、このブラウザの中にだけ保存されます。電極名は日本で広く使われる T3・T4・T5・T6（新しい呼び方では T7・T8・P7・P8）です。実際の判読は、記録の条件や臨床経過と合わせて、専門の医師が行ってください。</p>
@@ -1245,13 +1278,24 @@ body.eegfs .lab-grid{grid-template-columns:minmax(0,1fr)}
         '<button type="button" class="act" data-act="pop">C4 の電極が浮く</button>' +
         '<button type="button" class="act" data-act="hum" aria-pressed="' + pr(f.hum) + '">O2 にハム</button>' +
         '<button type="button" class="act" data-act="ecg" aria-pressed="' + pr(f.ecg) + '">耳に心電図</button></div>' +
+      '<div class="ctl-row"><span class="lb">練習</span>' +
+        '<button type="button" class="act" id="qzBtn">見つけてクイズ</button>' +
+        '<button type="button" class="act" id="rpBtn">判読レポートを書く</button></div>' +
       '</div><div class="explain" id="explain" aria-live="polite"></div></div>' +
-      '<div class="ctl-row" style="margin-top:4px"><span class="lb">異常脳波の見本</span></div><div class="mihon" id="mihon">' +
-      MIHON.map(function (m) { var c = CARDS.filter(function (x) { return x.id === m[0]; })[0]; return c ? '<button type="button" data-mihon="' + m[1] + '" aria-pressed="' + pr(pre === m[1]) + '"><canvas data-mc="' + c.id + '" aria-hidden="true"></canvas><b>' + esc(c.name) + '</b><span class="muted">' + esc(m[2]) + '</span></button>' : ''; }).join('') + '</div>';
+      '<p class="mihon-c-h">異常脳波の見本（押すとその脳波が流れる）</p><div class="mihon-c">' +
+      MIHON.map(function (m) { var c = CARDS.filter(function (x) { return x.id === m[0]; })[0]; return c ? '<button type="button" data-mihon="' + m[1] + '" aria-pressed="' + pr(pre === m[1]) + '">' + esc(m[3] || c.name) + '</button>' : ''; }).join('') + '</div>';
   }
   // 押すと、その状態の脳波が流れ始める見本（カードの id, 脳の状態, ひとこと）
-  var MIHON = [['spike', 'tle', '側頭葉てんかん'], ['sw3', 'absence', '欠神（過呼吸で出る）'], ['diffuse_slow', 'delirium', 'せん妄'], ['triphasic', 'hepatic', '肝性脳症'],
-    ['psd', 'cjd', 'クロイツフェルト・ヤコブ病'], ['lpd', 'hsv', 'ヘルペス脳炎'], ['brush', 'nmdar', '抗NMDA受容体脳炎'], ['beta_benzo', 'benzo', 'ベンゾジアゼピン']];
+  var MIHON = [['alpha', 'normal', '比べる基準', '正常（基準）'], ['spike', 'tle', '側頭葉てんかん', '棘波'], ['sw3', 'absence', '欠神（過呼吸で出る）', '3Hz棘徐波'], ['diffuse_slow', 'delirium', 'せん妄', 'びまん性徐波'], ['triphasic', 'hepatic', '肝性脳症', '三相波'],
+    ['psd', 'cjd', 'クロイツフェルト・ヤコブ病', 'PSD'], ['lpd', 'hsv', 'ヘルペス脳炎', 'LPDs'], ['brush', 'nmdar', '抗NMDA受容体脳炎', 'delta brush'], ['beta_benzo', 'benzo', 'ベンゾジアゼピン', '薬の速波']];
+  function renderMihonSec() {
+    var sec = document.getElementById('mihonSec'), pre = LIVE ? LIVE.sim.preset : '';
+    sec.hidden = V.mode !== 'lab'; if (sec.hidden) return;
+    document.getElementById('mihon').innerHTML = MIHON.map(function (m) { var c = CARDS.filter(function (x) { return x.id === m[0]; })[0]; return c ? '<button type="button" data-mihon="' + m[1] + '" aria-pressed="' + (pre === m[1]) + '"><canvas data-mc="' + c.id + '" aria-hidden="true"></canvas><b>' + esc(m[3]) + '</b><span class="muted">' + esc(m[2]) + '</span></button>' : ''; }).join('');
+    requestAnimationFrame(drawMihon);
+  }
+  function mihonGo(v) { var sel0 = document.getElementById('preset'); sel0.value = v; sel0.dispatchEvent(new Event('change', { bubbles: true })); if (v === 'absence') setTimeout(function () { if (LIVE && !LIVE.st.hv) labAct('hv'); }, 400); }
+  document.getElementById('mihonSec').addEventListener('click', function (e) { var b = e.target.closest('[data-mihon]'); if (b) { mihonGo(b.getAttribute('data-mihon')); var d = document.querySelector('.desk'); if (d) d.scrollIntoView({ block: 'start', behavior: 'smooth' }); } });
   function drawMihon() { document.querySelectorAll('#mihon canvas[data-mc]').forEach(function (cv2) { var c = CARDS.filter(function (x) { return x.id === cv2.getAttribute('data-mc'); })[0]; if (c) { try { drawMini(cv2, { spec: c.spec, ch: c.ch.slice(0, 2), sens: c.sens }, false); } catch (e) {} } }); }
   var ACT_CARD = { eo1: 'alpha_block', blink: 'blink', lookL: 'look', lookR: 'look', clench: 'emg', hv1: 'hv_buildup', ph: 'photic_drive', s1: 'vertex', s2: 'spindle_kc', pop: 'pop', hum1: 'hum', ecg1: 'ecg' };
   var PRESET_CARD = { normal: 'alpha', benzo: 'beta_benzo', delirium: 'diffuse_slow', tle: 'spike', hepatic: 'triphasic', cjd: 'psd', hsv: 'lpd', ncse: 'ncse', clozapine: 'cloz', nmdar: 'brush', wicket: 'wicket' };
@@ -1262,6 +1306,7 @@ body.eegfs .lab-grid{grid-template-columns:minmax(0,1fr)}
       if (LIVE.sim.preset === 'absence' && LIVE.st.hv) setTimeout(function () { unlock('sw3', 1); }, 6000);
       if (LIVE.sim.preset === 'jme' && LIVE.st.photic >= 12) setTimeout(function () { unlock('polysw', 1); }, 3000);
     }
+    panel.classList.remove('rp-on');
     var t = isPreset ? LAB_TXT[key] : ACT_TXT[key];
     var el = document.getElementById('explain'); if (!el || !t) return;
     el.innerHTML = '<h3>' + esc(t[0]) + '</h3><p>' + esc(t[1]) + '</p>';
@@ -1308,7 +1353,7 @@ body.eegfs .lab-grid{grid-template-columns:minmax(0,1fr)}
     V.live = true; V.src = LIVE.src; V.spec = null; V.hl = null; V.sel = -1;
     if (!V.playInit) { V.playing = !reduceMotion; V.playInit = true; }
     panel.innerHTML = labHTML();
-    requestAnimationFrame(drawMihon);
+    renderMihonSec();
     explain(LIVE.sim.preset, true);
     chanNote.innerHTML = noteFor(null);
     syncToolbar(); draw(); updateHead(); kick();
@@ -1318,7 +1363,12 @@ body.eegfs .lab-grid{grid-template-columns:minmax(0,1fr)}
     var b = e.target.closest('[data-act]');
     if (b) { labAct(b.getAttribute('data-act')); return; }
     var mh = e.target.closest('[data-mihon]');
-    if (mh) { var sel0 = document.getElementById('preset'); sel0.value = mh.getAttribute('data-mihon'); sel0.dispatchEvent(new Event('change', { bubbles: true })); if (sel0.value === 'absence') setTimeout(function () { if (LIVE && !LIVE.st.hv) labAct('hv'); }, 400); return; }
+    if (mh) { mihonGo(mh.getAttribute('data-mihon')); return; }
+    if (e.target.closest('#qzBtn')) { quizStart(); return; }
+    if (e.target.closest('#rpBtn')) { reportOpen(); return; }
+    var qa = e.target.closest('[data-qz]'); if (qa) { quizName(qa.getAttribute('data-qz')); return; }
+    var rb = e.target.closest('[data-rp]'); if (rb) { reportPick(rb.getAttribute('data-rp'), rb.getAttribute('data-v')); return; }
+    if (e.target.closest('#rpCheck')) { reportCheck(); return; }
     var s = e.target.closest('#sleepSeg button');
     if (s) labAct('sleep', +s.getAttribute('data-s'));
   });
@@ -1331,6 +1381,80 @@ body.eegfs .lab-grid{grid-template-columns:minmax(0,1fr)}
     if (e.target.id === 'photic') labAct('photic', +e.target.value);
   });
 
+
+  /* ====================== 8b. 見つけてクイズ・判読レポート（触ってみる） ====================== */
+  var QZ = { n: 0, ok: 0, cur: null, timer: 0 };
+  var QZ_POOL = [
+    { name: '棘波', make: function (t) { var e = ['T3', 'T4', 'F7', 'F8', 'C3', 'C4', 'P3', 'P4'][Math.floor(Math.random() * 8)]; return { ev: [mkEv('spike', t, { e: e, amp: 170 })], el: [e], dur: 0.5, where: e }; } },
+    { name: '棘徐波（群発）', make: function (t) { return { ev: [mkEv('sw', t, { f0: 3.3, f1: 3, dur: 2.5, amp: 300 })], el: ['Fp1', 'Fp2', 'F3', 'F4', 'Fz', 'C3', 'C4', 'Cz'], dur: 2.5, where: '全体' }; } },
+    { name: '電極ポップ（アーチファクト）', make: function (t) { var e = ['O1', 'P4', 'C3', 'F4', 'T6'][Math.floor(Math.random() * 5)]; return { ev: [mkEv('pop', t, { e: e, amp: -170 })], el: [e], dur: 1, where: e }; } },
+    { name: '三相波', make: function (t) { var a = []; for (var i = 0; i < 4; i++) a.push(mkEv('tri', t + i * 0.55, { amp: 150 })); return { ev: a, el: ['Fp1', 'Fp2', 'F3', 'F4', 'Fz'], dur: 2.3, where: '前頭' }; } }
+  ];
+  var QZ_NAMES = ['棘波', '棘徐波（群発）', '電極ポップ（アーチファクト）', '三相波', 'まばたき'];
+  function exEl() { return document.getElementById('explain'); }
+  function quizStart() {
+    if (!LIVE) return; var L = LIVE, sim = L.sim; MK_REAL = sim.real; MKR = Math.random;
+    var t = L.w / FS + 3 + Math.random() * 5, p = QZ_POOL[Math.floor(Math.random() * QZ_POOL.length)], m = p.make(t);
+    m.ev.forEach(function (e) { sim.events.push(e); });
+    QZ.cur = { t0: t, t1: t + m.dur, el: m.el, name: p.name, where: m.where, found: false };
+    exEl().innerHTML = '<h3>見つけてクイズ（' + (QZ.n + 1) + '問目）</h3><p>このあと数秒のうちに、いつもと違う波が1回出ます。見つけたら、記録紙のその場所をタップしてください。</p>';
+    clearTimeout(QZ.timer);
+    QZ.timer = setTimeout(function () { if (QZ.cur && !QZ.cur.found) { quizReveal('見逃しました。黄色の帯のところです。'); QZ.n++; } }, (t - L.w / FS + 12) * 1000);
+  }
+  function quizTap(sec) {
+    var q = QZ.cur; if (!q || q.found) return false;
+    if (sec < q.t0 - 0.8) { toast('<b>まだ出ていません</b><br>もう少し待ってください'); return true; }
+    if (Math.abs(sec - (q.t0 + q.t1) / 2) <= (q.t1 - q.t0) / 2 + 0.8) {
+      q.found = true; clearTimeout(QZ.timer);
+      var opts = QZ_NAMES.slice().sort(function () { return Math.random() - 0.5; });
+      exEl().innerHTML = '<h3>見つけました。この波の名前は？</h3><div class="rp"><div class="rs">' + opts.map(function (o) { return '<button type="button" data-qz="' + esc(o) + '">' + esc(o) + '</button>'; }).join('') + '</div></div>';
+      LIVE.hls.push({ t0: q.t0, t1: q.t1, el: q.el, txt: '？' });
+    } else toast('<b>そこではありません</b><br>ほかの時間を探してください');
+    return true;
+  }
+  function quizName(n) {
+    var q = QZ.cur; if (!q) return; QZ.n++;
+    var ok = n === q.name; if (ok) QZ.ok++;
+    quizReveal((ok ? '<span class="ok">正解</span>。' : '<span class="ng">ちがいます</span>。正しくは「' + esc(q.name) + '」。') + '場所：' + esc(q.where) + '。');
+  }
+  function quizReveal(msg) {
+    var q = QZ.cur; QZ.cur = null; if (!q) return;
+    var h = LIVE.hls.filter(function (x) { return x.t0 === q.t0; })[0];
+    if (h) h.txt = q.name; else LIVE.hls.push({ t0: q.t0, t1: q.t1, el: q.el, txt: q.name });
+    exEl().innerHTML = '<h3>' + esc(q.name) + '</h3><p>' + msg + '　成績 ' + QZ.ok + ' / ' + QZ.n + '</p><div class="rp"><div class="rs"><button type="button" id="qzBtn">次の問題</button></div></div>';
+  }
+  cv.addEventListener('click', function (ev) {
+    if (V.mode !== 'lab' || !LIVE || !layout || !QZ.cur) return;
+    var r = cv.getBoundingClientRect(), x = ev.clientX - r.left; if (x < layout.LW) return;
+    quizTap((layout.s0 + (x - layout.LW) / layout.plotW * layout.n) / FS);
+  });
+  // 判読レポート：区分ごとに選ぶ。いまの「脳の状態」と照らし合わせる
+  var RP_SEC = [
+    { k: 'bg', t: '背景活動', o: ['正常なα律動', '徐波化（θ・δが多い）', '速波が多い', '低振幅'] },
+    { k: 'lr', t: '左右差', o: ['なし', 'あり'] },
+    { k: 'pa', t: '突発波', o: ['なし', '棘波・鋭波', '棘徐波の群発', '持続する棘徐波（重積）', '多棘徐波', '三相波', 'PSD', 'LPDs', 'delta brush', 'ウィケット棘波'] }
+  ];
+  var RP_KEY = {
+    normal: [['正常なα律動'], ['なし'], ['なし']], benzo: [['速波が多い', '正常なα律動'], ['なし'], ['なし']], delirium: [['徐波化（θ・δが多い）'], ['なし'], ['なし']],
+    absence: [['正常なα律動'], ['なし'], ['棘徐波の群発']], jme: [['正常なα律動'], ['なし'], ['多棘徐波']], tle: [['正常なα律動'], ['あり'], ['棘波・鋭波']],
+    hepatic: [['徐波化（θ・δが多い）'], ['なし'], ['三相波']], cjd: [['低振幅', '徐波化（θ・δが多い）'], ['なし'], ['PSD']], hsv: [['正常なα律動', '徐波化（θ・δが多い）'], ['あり'], ['LPDs']],
+    ncse: [['徐波化（θ・δが多い）', '低振幅'], ['なし'], ['持続する棘徐波（重積）']], nmdar: [['徐波化（θ・δが多い）'], ['なし'], ['delta brush']],
+    wicket: [['正常なα律動'], ['なし'], ['ウィケット棘波']], clozapine: [['徐波化（θ・δが多い）'], ['なし'], ['棘徐波の群発', '棘波・鋭波']]
+  };
+  var RP = {};
+  function reportOpen() {
+    RP = {}; panel.classList.add('rp-on');
+    exEl().innerHTML = '<h3>判読レポート</h3><p>いま流れている脳波を、区分ごとに選んでください。</p><div class="rp">' +
+      RP_SEC.map(function (sc) { return '<div class="rs"><b>' + sc.t + '</b>' + sc.o.map(function (o) { return '<button type="button" data-rp="' + sc.k + '" data-v="' + esc(o) + '" aria-pressed="false">' + esc(o) + '</button>'; }).join('') + '</div>'; }).join('') +
+      '<div class="rs"><button type="button" id="rpCheck">答え合わせ</button></div><p id="rpOut"></p></div>';
+  }
+  function reportPick(k, v) { RP[k] = v; exEl().querySelectorAll('[data-rp="' + k + '"]').forEach(function (b) { b.setAttribute('aria-pressed', String(b.getAttribute('data-v') === v)); }); }
+  function reportCheck() {
+    var key = RP_KEY[LIVE.sim.preset] || RP_KEY.normal, n = 0;
+    var rows = RP_SEC.map(function (sc, i) { var ok = key[i].indexOf(RP[sc.k]) !== -1; if (ok) n++; return '<span class="' + (ok ? 'ok' : 'ng') + '">' + (ok ? '✓' : '✗') + '</span> ' + sc.t + (ok ? '' : '：' + esc(key[i].join(' / '))); });
+    var txt = '背景活動は' + (RP.bg || '（未選択）') + '。左右差' + (RP.lr || '（未選択）') + '。突発波は' + (RP.pa || '（未選択）') + '。';
+    document.getElementById('rpOut').innerHTML = '<b>' + n + ' / 3</b>（いまの状態：' + esc(PRE[LIVE.sim.preset].name) + '）<br>' + rows.join('<br>') + '<br><span class="muted">レポートの文：' + esc(txt) + '</span>';
+  }
   /* ====================== 9. 問題のしくみ（道場とカンファ） ====================== */
   var DOJO = [
     { title: '目を閉じた安静時', spec: { seed: 11, preset: 'normal', mont: 'ref' },
@@ -1875,6 +1999,7 @@ body.eegfs .lab-grid{grid-template-columns:minmax(0,1fr)}
     document.querySelectorAll('.mode').forEach(function (a) { if (a.getAttribute('data-mode') === m) a.setAttribute('aria-current', 'page'); else a.removeAttribute('aria-current'); });
     headSvg.classList.remove('picking');
     headSvg.querySelectorAll('.el').forEach(function (g2) { g2.classList.remove('ok', 'ng'); g2.removeAttribute('tabindex'); g2.removeAttribute('role'); });
+    var ms0 = document.getElementById('mihonSec'); if (ms0 && m !== 'lab') ms0.hidden = true;
     if (m === 'lab') { enterLab(); }
     else if (m === 'zukan') { V.live = false; setPage(ZK_DEFAULT_SPEC); renderZukan(); }
     else {
@@ -1917,7 +2042,8 @@ body.eegfs .lab-grid{grid-template-columns:minmax(0,1fr)}
   function setFs(on) {
     document.body.classList.toggle('eegfs', on);
     var de = document.documentElement, natv = document.fullscreenElement || document.webkitFullscreenElement;
-    if (on && !natv) { var rq = de.requestFullscreen || de.webkitRequestFullscreen; if (rq) { try { var pr = rq.call(de); if (pr && pr.catch) pr.catch(function () {}); } catch (e) {} } }
+    var standalone = (window.matchMedia && matchMedia('(display-mode: standalone)').matches) || navigator.standalone;
+    if (on && !natv && !standalone) { var rq = de.requestFullscreen || de.webkitRequestFullscreen; if (rq) { try { var pr = rq.call(de); if (pr && pr.catch) pr.catch(function () {}); } catch (e) {} } }
     if (!on && natv) { var ex = document.exitFullscreen || document.webkitExitFullscreen; try { var px2 = ex.call(document); if (px2 && px2.catch) px2.catch(function () {}); } catch (e) {} }
     syncFs();
   }
@@ -1935,9 +2061,14 @@ body.eegfs .lab-grid{grid-template-columns:minmax(0,1fr)}
     pickEl.style.left = Math.max(8, Math.min(r.left, innerWidth - pickEl.offsetWidth - 8)) + 'px'; pickEl.style.top = top2 + 'px';
     pickEl.addEventListener('click', function (ev) { var bb = ev.target.closest('button[data-v]'); if (!bb) return; sel.value = bb.getAttribute('data-v'); closePick(); sel.dispatchEvent(new Event('input', { bubbles: true })); sel.dispatchEvent(new Event('change', { bubbles: true })); });
   }
-  function selGrab(ev) { if (!isFs()) return; var sel = ev.target.closest && ev.target.closest('select'); if (!sel) { if (pickEl && !ev.target.closest('.pick')) closePick(); return; } ev.preventDefault(); ev.stopPropagation(); openPick(sel); }
-  document.addEventListener('touchstart', selGrab, { capture: true, passive: false });
-  document.addEventListener('mousedown', selGrab, true);
+  // 全画面中は select に触れさせない（CSS）。まわりのラベルや枠を押したら、中の select のメニューを出す
+  document.addEventListener('click', function (ev) {
+    if (!isFs()) return;
+    if (ev.target.closest('.pick')) return;
+    var host = ev.target.closest('label, .tb-item, .ctl-row'), sel = host && !ev.target.closest('button') ? host.querySelector('select') : null;
+    if (!sel) { closePick(); return; }
+    ev.preventDefault(); ev.stopPropagation(); openPick(sel);
+  }, true);
   function fsChange() { var nat = !!(document.fullscreenElement || document.webkitFullscreenElement); document.body.classList.toggle('natfs', nat); if (!nat && isFs()) { document.body.classList.remove('eegfs'); } closePick(); syncFs(); }
   document.addEventListener('fullscreenchange', fsChange); document.addEventListener('webkitfullscreenchange', fsChange);
   new MutationObserver(function () { if (isFs() && !document.body.classList.contains('panelhide')) document.documentElement.style.setProperty('--ph', panel.offsetHeight + 'px'); }).observe(panel, { childList: true, subtree: true });
