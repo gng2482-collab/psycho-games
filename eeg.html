@@ -256,7 +256,7 @@ select{
 #head .ln.sel{stroke:var(--accent); stroke-width:.04}
 #head .ln.ref{stroke-dasharray:.04 .03}
 #head .el circle{fill:var(--panel); stroke:var(--muted); stroke-width:.012}
-#head .el text{font-family:var(--f-mono); font-size:.068px; fill:var(--ink); text-anchor:middle; dominant-baseline:central; pointer-events:none}
+#head .el text{font-family:var(--f-mono); font-size:.105px; font-weight:700; fill:var(--ink); text-anchor:middle; dominant-baseline:central; pointer-events:none}
 #head .el.sel circle{stroke:var(--accent); stroke-width:.03}
 #head .el.hl circle{fill:color-mix(in srgb, var(--mark) 55%, var(--panel))}
 #head .el.ok circle{fill:var(--ok); stroke:var(--ok)} #head .el.ok text{fill:var(--accent-ink)}
@@ -346,9 +346,9 @@ body.eegfs #panel.qz-on .mihon-box,body.eegfs #panel.rp-on .mihon-box{display:no
   body.eegfs{--sw:clamp(300px,30vw,420px)}
   body.eegfs .desk{grid-template-columns:minmax(0,1fr) var(--sw)}
   body.eegfs .desk-side{align-self:start}
-  body.eegfs .desk-side{grid-template-columns:150px minmax(0,1fr);align-items:start;justify-items:stretch;column-gap:10px}
-  body.eegfs #head{width:150px;max-width:none}
-  body.eegfs .side-info{max-height:144px;overflow:hidden}
+  body.eegfs .desk-side{grid-template-columns:175px minmax(0,1fr);align-items:start;justify-items:stretch;column-gap:10px}
+  body.eegfs #head{width:175px;max-width:none}
+  body.eegfs .side-info{max-height:168px;overflow:hidden}
   body.eegfs .map-note{display:none}
   body.eegfs #panel:has(.mihon-box){grid-template-rows:auto auto minmax(0,1fr)}
   body.eegfs .mihon-box{align-self:end}
@@ -417,6 +417,7 @@ body.eegfs #panel.qz-on .mihon-box,body.eegfs #panel.rp-on .mihon-box{display:no
         <button type="button" class="act" id="measBtn" aria-pressed="false">ものさし</button>
         <span class="tb-item" id="pager" hidden><button type="button" class="act" id="pgPrev" aria-label="前の5秒">◀</button><button type="button" class="act" id="pgNext" aria-label="次の5秒">▶</button></span>
         <button type="button" class="act" id="playBtn" hidden>一時停止</button>
+        <span class="tb-item fsonly"><span class="lb">波</span><span class="seg" id="lvSeg2"><button type="button" data-lv="0">入門</button><button type="button" data-lv="1">実践</button></span></span>
         <button type="button" class="act" id="fsBtn" aria-pressed="false">全画面</button>
       </div>
       <div class="trace-wrap"><canvas id="trace" role="img" aria-label="脳波の記録"></canvas></div>
@@ -1024,12 +1025,12 @@ body.eegfs #panel.qz-on .mihon-box,body.eegfs #panel.rp-on .mihon-box{display:no
     ctx.beginPath(); ctx.moveTo(cx0 - pxPerSec, cyB); ctx.lineTo(cx0, cyB); ctx.stroke();
     ctx.fillStyle = TOK['--muted']; ctx.font = '10px "BIZ UDPGothic", sans-serif'; ctx.textAlign = 'right';
     ctx.fillText('50µV ┃  1秒 ━  感度 ' + V.sens + 'µV/mm', cx0 - pxPerSec - 6, cyB);
-    // 周波数の帯ごとの、おおよその大きさ（いまの感度で1秒分を描く）
+    // 周波数の帯ごとの見本：大きさはそろえて（50µV）、1秒の中の波の数の違いだけを見せる
     var calW = ctx.measureText('50µV ┃  1秒 ━  感度 ' + V.sens + 'µV/mm').width + pxPerSec + 20;
-    var BANDS = [['δ', 2, 100, '〜4Hz'], ['θ', 6, 50, '4〜8Hz'], ['α', 10, 50, '8〜13Hz'], ['β', 20, 15, '14Hz〜']];
-    // 波（1秒分）を上に、名前と大きさをその下の行（50µV の目盛りと同じ行）に書く
+    var BANDS = [['δ', 2, 50, '〜4Hz'], ['θ', 6, 50, '4〜8Hz'], ['α', 10, 50, '8〜13Hz'], ['β', 20, 50, '14Hz〜']];
+    // 波（1秒分）を上に、名前と周波数をその下の行（50µV の目盛りと同じ行）に書く
     ctx.font = '10px "BIZ UDPGothic", sans-serif'; ctx.textAlign = 'left';
-    var lbl = function (bd) { return bd[0] + ' ' + bd[3] + ' ' + bd[2] + 'µV'; };
+    var lbl = function (bd) { return bd[0] + ' ' + bd[3]; };
     var segW = Math.max(pxPerSec, ctx.measureText(lbl(BANDS[2])).width + 4), gapB = 8, bx = LW, by = H - 34, room = W0 - RP - calW - LW;
     if (room >= (segW + gapB) * 2) {
       BANDS.forEach(function (bd) {
@@ -1078,7 +1079,7 @@ body.eegfs #panel.qz-on .mihon-box,body.eegfs #panel.rp-on .mihon-box{display:no
       '<g id="hmLines"></g>';
     E.forEach(function (e) {
       var p = POS[e], ear = (e === 'A1' || e === 'A2');
-      s += '<g class="el' + (ear ? ' ear-el' : '') + '" data-e="' + e + '" transform="translate(' + p[0] + ',' + (-p[1]) + ')"><circle r="' + (ear ? 0.085 : 0.1) + '"/><text>' + e + '</text></g>';
+      s += '<g class="el' + (ear ? ' ear-el' : '') + '" data-e="' + e + '" transform="translate(' + p[0] + ',' + (-p[1]) + ')"><circle r="' + (ear ? 0.1 : 0.125) + '"/><text>' + e + '</text></g>';
     });
     headSvg.innerHTML = s;
   }
@@ -2061,14 +2062,15 @@ body.eegfs #panel.qz-on .mihon-box,body.eegfs #panel.rp-on .mihon-box{display:no
 
   // 波のレベル
   var lvSeg = document.getElementById('lvSeg');
-  function syncLevel() { lvSeg.querySelectorAll('button').forEach(function (b) { b.setAttribute('aria-pressed', (b.getAttribute('data-lv') === '1') === V.real ? 'true' : 'false'); }); }
-  lvSeg.addEventListener('click', function (e) {
+  function syncLevel() { document.querySelectorAll('#lvSeg button, #lvSeg2 button').forEach(function (b) { b.setAttribute('aria-pressed', (b.getAttribute('data-lv') === '1') === V.real ? 'true' : 'false'); }); }
+  function onLevel(e) {
     var b = e.target.closest('button'); if (!b) return;
     var real = b.getAttribute('data-lv') === '1'; if (real === V.real) return;
     V.real = real; lsSet('eeg-level', real ? 'real' : 'basic'); syncLevel();
     if (V.mode === 'lab') { var pre = LIVE ? LIVE.sim.preset : 'normal'; newLive(pre); enterLab(); }
     else if (V.spec) { var keepHl = V.hl; setPage(V.spec, true); V.hl = keepHl; draw(); updateHead(); }
-  });
+  }
+  lvSeg.addEventListener('click', onLevel); document.getElementById('lvSeg2').addEventListener('click', onLevel);
   V.real = lsGet('eeg-level') === 'real';
   syncLevel(); syncZkTab();
 
