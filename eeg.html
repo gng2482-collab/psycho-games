@@ -319,13 +319,56 @@ body.eegfs .mihon-c-h{display:block;margin:2px 0 0;font-size:var(--fs-xs);color:
 .mihon-wrap h2 small{font-family:var(--f-body);font-size:var(--fs-xs);color:var(--muted);margin-left:8px}
 body.eegfs .mihon-wrap{display:none}
 .side-info{width:100%;font-size:var(--fs-xs);display:grid;gap:3px;align-content:start;line-height:1.4}
-.side-info:empty{display:none}
+.side-info:empty,.side-info[hidden]{display:none}
 .side-info p{margin:0}
 .side-info .lb{color:var(--muted);margin-right:6px}
 .si-list{list-style:none;margin:0;padding:0;display:grid;gap:3px}
 .si-list li{background:color-mix(in srgb,var(--mark) 32%,var(--panel));border-radius:4px;padding:2px 6px}
 .si-list li span{font-family:var(--f-mono);color:var(--muted);margin-left:6px;font-size:.92em}
-.si-tip{margin-top:2px}
+.si-top{display:flex;gap:8px;align-items:center}
+#face{width:72px;height:72px;flex:none;overflow:visible}
+#siState{display:grid;gap:1px;line-height:1.35}
+#siState span{color:var(--muted)}
+#face .f-skin{fill:#f6d7bd;stroke:#7a5a44;stroke-width:1.2}
+#face .f-ear{fill:#efc9aa;stroke:#7a5a44;stroke-width:1.2}
+#face .f-hair{fill:#3b3330}
+#face .f-cap circle{fill:#c9d4d8;stroke:#6b7d84;stroke-width:.8}
+#face .f-white{fill:#fff;stroke:#7a5a44;stroke-width:.9;display:none}
+#face .f-pupil{fill:#2b2420;display:none;transition:transform .25s}
+#face .f-shut{fill:none;stroke:#4a3a30;stroke-width:1.6;stroke-linecap:round}
+#face .f-lid{stroke:#f6d7bd;stroke-width:5;display:none}
+#face .f-brow{stroke:#3b3330;stroke-width:1.6;stroke-linecap:round;display:none}
+#face .f-mouth{display:none} #face .f-m0{display:inline;fill:none;stroke:#8a4a3a;stroke-width:1.6;stroke-linecap:round}
+#face .f-m1 rect{fill:#fff;stroke:#8a4a3a;stroke-width:1.2} #face .f-m1 path{stroke:#b9a99a;stroke-width:.7}
+#face .f-m2,#face .f-m3{fill:#8a4a3a}
+#face .f-pop{fill:var(--hot);font:700 18px sans-serif;display:none}
+#face .f-puff circle{fill:#bcd3dc;opacity:0}
+#face .f-z{fill:var(--accent);font:700 11px sans-serif;opacity:0}
+#face .f-lamp{display:none} #face .f-lamp circle{fill:#ffe9a0;stroke:#c9a33a;stroke-width:1.2} #face .f-lamp text{font:700 9px sans-serif;fill:var(--muted);text-anchor:middle}
+#face .f-head{transform-origin:50px 88px;transition:transform .6s}
+#face.eo .f-white,#face.eo .f-pupil{display:inline} #face.eo .f-shut{display:none}
+#face.blink .f-white,#face.blink .f-pupil{display:none} #face.blink .f-shut{display:inline}
+#face.lookL .f-pupil{transform:translateX(-3px)} #face.lookR .f-pupil{transform:translateX(3px)}
+#face.lookL:not(.eo) .f-white,#face.lookL:not(.eo) .f-pupil,#face.lookR:not(.eo) .f-white,#face.lookR:not(.eo) .f-pupil{display:inline} #face.lookL .f-shut,#face.lookR .f-shut{display:none}
+#face.dull.eo .f-lid{display:inline}
+#face.clench .f-mouth{display:none} #face.clench .f-m1{display:inline} #face.clench .f-brow{display:inline}
+#face.hv:not(.clench) .f-mouth{display:none} #face.hv:not(.clench) .f-m2{display:inline}
+#face.hv .f-puff circle{animation:fPuff 1.6s ease-out infinite} #face.hv .f-puff circle:nth-child(2){animation-delay:.15s} #face.hv .f-puff circle:nth-child(3){animation-delay:.3s}
+#face.s2:not(.hv):not(.clench) .f-mouth{display:none} #face.s2:not(.hv):not(.clench) .f-m3{display:inline}
+#face.s1 .f-head{animation:fNod 3.2s ease-in-out infinite}
+#face.s2 .f-head{transform:rotate(-12deg)}
+#face.s1 .f-z1,#face.s2 .f-z{animation:fZ 2.4s ease-in-out infinite} #face.s2 .f-z2{animation-delay:.4s} #face.s2 .f-z3{animation-delay:.8s}
+#face.ph .f-lamp{display:inline}
+#face.pop .f-pop{display:inline}
+@keyframes fNod{0%,100%{transform:rotate(0)}55%{transform:rotate(-4deg) translateY(1px)}70%{transform:rotate(-10deg) translateY(3px)}80%{transform:rotate(0)}}
+@keyframes fZ{0%{opacity:0;transform:translateY(4px)}40%{opacity:1}100%{opacity:0;transform:translateY(-4px)}}
+@keyframes fPuff{0%{opacity:.9;transform:translate(0,0)}100%{opacity:0;transform:translate(6px,3px)}}
+@media (prefers-reduced-motion:reduce){#face *{animation:none!important;transition:none!important}}
+.tut{border:2px solid var(--mark);background:color-mix(in srgb,var(--mark) 14%,var(--panel));border-radius:var(--r);padding:8px 10px;margin-bottom:8px;display:grid;gap:4px}
+.tut p{margin:0}.tut .tut-next{font-weight:700}
+.tut-skip{justify-self:end;font:inherit;font-size:var(--fs-xs);background:none;border:none;color:var(--muted);text-decoration:underline;cursor:pointer;padding:2px 4px}
+.tut-hl{animation:tutPulse 1.2s ease-in-out infinite;border-color:var(--mark)!important}
+@keyframes tutPulse{0%,100%{box-shadow:0 0 0 0 color-mix(in srgb,var(--mark) 80%,transparent)}50%{box-shadow:0 0 0 6px color-mix(in srgb,var(--mark) 0%,transparent)}}
 body.eegfs .mihon-box{border-top:1px dashed var(--line);padding-top:6px;display:grid;gap:4px}
 body.eegfs #panel.qz-on .mihon-box,body.eegfs #panel.rp-on .mihon-box{display:none}
 .rp .qz-next{background:var(--accent);color:var(--accent-ink);border-color:var(--accent);font-weight:700;min-height:40px;padding:4px 16px}
@@ -348,7 +391,8 @@ body.eegfs #panel.qz-on .mihon-box,body.eegfs #panel.rp-on .mihon-box{display:no
   body.eegfs .desk-side{align-self:start}
   body.eegfs .desk-side{grid-template-columns:175px minmax(0,1fr);align-items:start;justify-items:stretch;column-gap:10px}
   body.eegfs #head{width:175px;max-width:none}
-  body.eegfs .side-info{max-height:168px;overflow:hidden}
+  body.eegfs .side-info{max-height:172px;overflow:hidden}
+  body.eegfs #face{width:70px;height:70px}
   body.eegfs .map-note{display:none}
   body.eegfs #panel:has(.mihon-box){grid-template-rows:auto auto minmax(0,1fr)}
   body.eegfs .mihon-box{align-self:end}
@@ -425,7 +469,31 @@ body.eegfs #panel.qz-on .mihon-box,body.eegfs #panel.rp-on .mihon-box{display:no
     </div>
     <aside class="desk-side" aria-label="頭の図（10-20法）">
       <svg id="head" viewBox="-1.3 -1.24 2.6 2.48" role="group" aria-label="電極の配置"></svg>
-      <div class="side-info" id="sideInfo" aria-live="polite"></div>
+      <div class="side-info" id="sideInfo" aria-live="polite" hidden>
+        <div class="si-top">
+          <svg id="face" viewBox="0 0 100 100" aria-hidden="true">
+            <g class="f-lamp"><circle cx="86" cy="14" r="9"/><text x="86" y="31" id="fLampHz">15Hz</text></g>
+            <g class="f-head">
+              <ellipse class="f-ear" cx="21" cy="56" rx="6" ry="9"/><ellipse class="f-ear" cx="79" cy="56" rx="6" ry="9"/>
+              <ellipse class="f-skin" cx="50" cy="54" rx="29" ry="33"/>
+              <path class="f-hair" d="M21 50 C20 24 38 16 52 17 C68 18 81 28 79 50 C74 38 64 32 50 33 C38 33 27 38 21 50 Z"/>
+              <g class="f-cap"><circle cx="40" cy="27" r="2.2"/><circle cx="50" cy="24" r="2.2"/><circle cx="60" cy="27" r="2.2"/><circle cx="31" cy="35" r="2.2"/><circle cx="69" cy="35" r="2.2"/></g>
+              <g class="f-eye" transform="translate(39 55)"><ellipse class="f-white" rx="6.5" ry="4.6"/><circle class="f-pupil" r="2.6"/><path class="f-shut" d="M-6.5 0 Q0 4 6.5 0"/><path class="f-lid" d="M-7 -1 L7 -1"/></g>
+              <g class="f-eye" transform="translate(61 55)"><ellipse class="f-white" rx="6.5" ry="4.6"/><circle class="f-pupil" r="2.6"/><path class="f-shut" d="M-6.5 0 Q0 4 6.5 0"/><path class="f-lid" d="M-7 -1 L7 -1"/></g>
+              <path class="f-mouth f-m0" d="M43 72 Q50 75 57 72"/>
+              <g class="f-mouth f-m1"><rect x="41" y="69" width="18" height="7" rx="2"/><path d="M41 72.5 H59 M45.5 69 V76 M50 69 V76 M54.5 69 V76"/></g>
+              <ellipse class="f-mouth f-m2" cx="50" cy="73" rx="4.5" ry="5"/>
+              <ellipse class="f-mouth f-m3" cx="50" cy="73" rx="2.2" ry="1.8"/>
+              <path class="f-brow" d="M32 45 L45 47 M68 45 L55 47"/>
+              <text class="f-pop" x="72" y="30">!</text>
+            </g>
+            <g class="f-puff"><circle cx="64" cy="80" r="3"/><circle cx="71" cy="84" r="2.2"/><circle cx="77" cy="87" r="1.5"/></g>
+            <text class="f-z f-z1" x="80" y="44">z</text><text class="f-z f-z2" x="86" y="34">z</text><text class="f-z f-z3" x="91" y="24">Z</text>
+          </svg>
+          <div id="siState"></div>
+        </div>
+        <div id="siBody"></div>
+      </div>
       <p class="map-note" id="mapNote">上が鼻、左が左半球。奇数は左、偶数は右、z は正中。波をタップすると、その瞬間の電位を色で出します。</p>
     </aside>
   </section>
@@ -1125,7 +1193,7 @@ body.eegfs #panel.qz-on .mihon-box,body.eegfs #panel.rp-on .mihon-box{display:no
   function hexRgb(h) { h = (h || '#888888').replace('#', ''); if (h.length === 3) h = h.replace(/(.)/g, '$1$1'); var n3 = parseInt(h, 16); return [n3 >> 16 & 255, n3 >> 8 & 255, n3 & 255]; }
 
   function noteFor(c) {
-    if (!c) return '線をタップすると、どの2つの電極の差かを頭の図に出します。';
+    if (!c) return '線をタップすると、どの2つの電極の差かを頭の図に出します。' + (V.live ? '左右になぞると、巻き戻し・早送り。' : '');
     if (c.kind === 'ecg') return '<b>ECG</b>：同時にとっている心電図。規則正しい波が脳波に混じっていたら、ここと時刻を比べます。';
     if (c.kind === 'ph') return '<b>光刺激</b>：光が点滅した時刻の印です。';
     var ref = c.b === 'AV' ? '19個の電極の平均' : c.b === 'LE' ? '左右の耳朶の平均' : c.b;
@@ -1308,7 +1376,8 @@ body.eegfs #panel.qz-on .mihon-box,body.eegfs #panel.rp-on .mihon-box{display:no
         '<button type="button" class="act" data-act="ecg" aria-pressed="' + pr(f.ecg) + '">耳に心電図</button></div>' +
       '<div class="ctl-row"><span class="lb">練習</span>' +
         '<button type="button" class="act" id="qzBtn">見つけてクイズ</button>' +
-        '<button type="button" class="act" id="rpBtn">判読レポートを書く</button></div>' +
+        '<button type="button" class="act" id="rpBtn">判読レポートを書く</button>' +
+        '<button type="button" class="act" id="tutBtn">はじめの1分</button></div>' +
       '</div><div class="explain" id="explain" aria-live="polite"></div></div>' +
       '<div class="mihon-box"><p class="mihon-c-h">異常脳波の見本（押すと脳の状態が切りかわります）</p><div class="mihon-c">' +
       MIHON.map(function (m) { var c = CARDS.filter(function (x) { return x.id === m[0]; })[0]; return c ? '<button type="button" data-mihon="' + m[1] + '" aria-pressed="' + pr(pre === m[1]) + '">' + esc(m[3] || c.name) + '</button>' : ''; }).join('') + '</div></div>';
@@ -1337,7 +1406,7 @@ body.eegfs #panel.qz-on .mihon-box,body.eegfs #panel.rp-on .mihon-box{display:no
     panel.classList.remove('rp-on', 'qz-on');
     var t = isPreset ? LAB_TXT[key] : ACT_TXT[key];
     var el = document.getElementById('explain'); if (!el || !t) return;
-    el.innerHTML = '<h3>' + esc(t[0]) + '</h3><p>' + esc(t[1]) + '</p>';
+    el.innerHTML = (TUT.step >= 0 ? tutBox((TUT.step + 1) + ' / 3', TUT_STEPS[TUT.step].ask) : '') + '<h3>' + esc(t[0]) + '</h3><p>' + esc(t[1]) + '</p>';
   }
   function labAct(act, val) {
     var L = LIVE, sim = L.sim, t = L.w / FS + 0.05, st = L.st;
@@ -1361,8 +1430,9 @@ body.eegfs #panel.qz-on .mihon-box,body.eegfs #panel.rp-on .mihon-box{display:no
       case 'hum': L.flags.hum = !L.flags.hum; sim.bg.hum = L.flags.hum ? { e: 'O2', amp: 22, f: 50 } : null; explain(L.flags.hum ? 'hum1' : 'hum0'); break;
       case 'ecg': L.flags.ecg = !L.flags.ecg; sim.bg.ecgArt = L.flags.ecg ? 16 : 0; explain(L.flags.ecg ? 'ecg1' : 'ecg0'); break;
     }
-    renderLabButtons();
+    renderLabButtons(); faceSync(act, val);
     if (!V.playing) { advance(Math.round(1.5 * FS)); draw(); }
+    tutAfter(act, val);
   }
   function renderLabButtons() {
     var st = LIVE.st, f = LIVE.flags;
@@ -1384,16 +1454,45 @@ body.eegfs #panel.qz-on .mihon-box,body.eegfs #panel.rp-on .mihon-box{display:no
     renderMihonSec();
     explain(LIVE.sim.preset, true);
     chanNote.innerHTML = noteFor(null);
-    syncToolbar(); draw(); updateHead(); kick();
+    syncToolbar(); draw(); updateHead(); kick(); faceSync();
+    if (TUT.step >= 0) tutShow();
+    else if (!lsGet('eeg-tut') && LIVE.sim.preset === 'normal') { lsSet('eeg-tut', '1'); TUT.step = 0; tutShow(); }
   }
+  /* はじめの1分：3つのボタンを順に押してもらう */
+  var TUT = { step: -1 };
+  var TUT_STEPS = [
+    { act: 'eyes', sel: '[data-act="eyes"]', ask: 'いまは目を閉じて安静にしています。後ろの O1・O2 に、大きな波（α波）が出ています。まず<b>「目を開ける」</b>を押してみてください。',
+      done: 'α波がすっと小さくなりました（黄色の帯）。目を開けると小さくなる。これが正常なα波のしるしです。' },
+    { act: 'blink', sel: '[data-act="blink"]', ask: '次は<b>「まばたき」</b>。どこに波が出るか見ていてください。',
+      done: 'いちばん上の Fp に、大きな下向きの波。目の動きも脳波に写ります。てんかんの波と見分ける第一歩です。' },
+    { act: 'sleep', val: 1, sel: '#sleepSeg button[data-s="1"]', ask: '最後に<b>「うとうと N1」</b>で、眠りかけてもらいましょう。',
+      done: 'α波が消えて、頭のてっぺん（Cz）に鋭い波が出ます（頭蓋頂鋭波）。眠りかけの正常な波です。' }
+  ];
+  function tutBox(head, body) { return '<div class="tut"><b>はじめの1分 ' + head + '</b><p>' + body + '</p><button type="button" class="tut-skip" id="tutSkip">' + (TUT.step >= 0 ? 'スキップ' : '閉じる') + '</button></div>'; }
+  function tutMark() { panel.querySelectorAll('.tut-hl').forEach(function (b) { b.classList.remove('tut-hl'); }); var s2 = TUT_STEPS[TUT.step]; if (s2) { var b = panel.querySelector(s2.sel); if (b) b.classList.add('tut-hl'); } }
+  function tutShow() { var el = exEl(); if (!el || TUT.step < 0) return; el.innerHTML = tutBox((TUT.step + 1) + ' / 3', TUT_STEPS[TUT.step].ask); tutMark(); }
+  function tutAfter(act, val) {
+    var s2 = TUT_STEPS[TUT.step]; if (!s2 || s2.act !== act || (s2.val != null && s2.val !== val)) return;
+    var el = exEl(), old = el.querySelector('.tut'); if (old) old.remove(); var prev = el.innerHTML; TUT.step++;
+    if (TUT.step < TUT_STEPS.length) { el.innerHTML = '<div class="tut"><b>はじめの1分 ' + TUT.step + ' / 3 できました</b><p>' + s2.done + '</p><p class="tut-next">' + TUT_STEPS[TUT.step].ask + '</p><button type="button" class="tut-skip" id="tutSkip">スキップ</button></div>' + prev; tutMark(); }
+    else { TUT.step = -1; tutMark(); el.innerHTML = '<div class="tut"><b>はじめの1分 おしまい</b><p>' + s2.done + '</p><p class="tut-next">あとは自由に押してみてください。記録紙を左右になぞると巻き戻し・早送り。下には異常脳波の見本、「練習」にはクイズもあります。</p><button type="button" class="tut-skip" id="tutSkip">閉じる</button></div>' + prev; }
+  }
+  function tutStart() {
+    TUT.step = 0;
+    var st = LIVE.st;
+    if (LIVE.sim.preset !== 'normal' || st.eo || st.sleep || st.hv || st.photic) { newLive('normal'); V.mont = 'bip'; enterLab(); } else tutShow();
+  }
+  function tutEnd() { TUT.step = -1; tutMark(); var t = panel.querySelector('.tut'); if (t) t.remove(); }
   panel.addEventListener('click', function (e) {
     if (V.mode !== 'lab') return;
     var b = e.target.closest('[data-act]');
     if (b) { labAct(b.getAttribute('data-act')); return; }
     var mh = e.target.closest('[data-mihon]');
     if (mh) { mihonGo(mh.getAttribute('data-mihon')); return; }
-    if (e.target.closest('#qzBtn')) { quizStart(); return; }
-    if (e.target.closest('#rpBtn')) { reportOpen(); return; }
+    if (e.target.closest('#tutSkip')) { tutEnd(); return; }
+    if (e.target.closest('#tutBtn')) { tutStart(); return; }
+    if (e.target.closest('#qzBtn')) { TUT.step = -1; tutMark(); quizStart(); return; }
+    if (e.target.closest('#rpBtn')) { TUT.step = -1; tutMark(); reportOpen(); return; }
     var qa = e.target.closest('[data-qz]'); if (qa) { quizName(qa.getAttribute('data-qz')); return; }
     var rb = e.target.closest('[data-rp]'); if (rb) { reportPick(rb.getAttribute('data-rp'), rb.getAttribute('data-v')); return; }
     if (e.target.closest('#rpCheck')) { reportCheck(); return; }
@@ -1404,7 +1503,7 @@ body.eegfs #panel.qz-on .mihon-box,body.eegfs #panel.rp-on .mihon-box{display:no
     if (V.mode !== 'lab') return;
     if (e.target.id === 'preset') {
       var mont = ['hepatic', 'cjd', 'benzo', 'delirium', 'nmdar'].indexOf(e.target.value) !== -1 ? 'ref' : 'bip';
-      newLive(e.target.value); V.mont = mont; enterLab(); explain(e.target.value, true);
+      TUT.step = -1; newLive(e.target.value); V.mont = mont; enterLab(); explain(e.target.value, true);
     }
     if (e.target.id === 'photic') labAct('photic', +e.target.value);
   });
@@ -1412,7 +1511,27 @@ body.eegfs #panel.qz-on .mihon-box,body.eegfs #panel.rp-on .mihon-box{display:no
 
   /* 頭の図の横：いま記録紙に出ている反応と、その電極 */
   var liveHlEl = [], sideKey = '', sideInfo = document.getElementById('sideInfo');
-  function clearLiveSide() { if (!sideKey) return; sideKey = ''; liveHlEl = []; sideInfo.innerHTML = ''; }
+  function clearLiveSide() { if (!sideKey) return; sideKey = ''; liveHlEl = []; sideInfo.hidden = true; }
+  /* 患者さんの顔：操作と同時に、目・口・首が動く（光刺激は点滅させない） */
+  var face = document.getElementById('face'), faceT = {};
+  var DULL = ['delirium', 'hepatic', 'cjd', 'ncse', 'hsv', 'nmdar'];
+  function faceFlash(cls, ms) { face.classList.add(cls); clearTimeout(faceT[cls]); faceT[cls] = setTimeout(function () { face.classList.remove(cls); }, ms); }
+  function faceSync(act, val) {
+    if (!LIVE) return; var st = LIVE.st;
+    face.classList.toggle('eo', !!st.eo && !st.sleep);
+    face.classList.toggle('s1', st.sleep === 1); face.classList.toggle('s2', st.sleep === 2);
+    face.classList.toggle('hv', !!st.hv); face.classList.toggle('ph', !!st.photic);
+    face.classList.toggle('dull', DULL.indexOf(LIVE.sim.preset) !== -1);
+    document.getElementById('fLampHz').textContent = st.photic ? st.photic + 'Hz' : '';
+    if (act === 'blink' || (act === 'eyes' && st.eo)) faceFlash('blink', 260);
+    if (act === 'lookL') { face.classList.remove('lookR'); faceFlash('lookL', 1400); }
+    if (act === 'lookR') { face.classList.remove('lookL'); faceFlash('lookR', 1400); }
+    if (act === 'clench') faceFlash('clench', 2500);
+    if (act === 'pop') faceFlash('pop', 1600);
+    var t = st.sleep === 2 ? '眠っている（N2）' : st.sleep === 1 ? 'うとうと（N1）' : st.eo ? '目を開けている' : '目を閉じて安静';
+    if (st.hv) t += '・過呼吸中'; if (st.photic) t += '・光刺激 ' + st.photic + 'Hz';
+    document.getElementById('siState').innerHTML = '<b>' + esc(PRE[LIVE.sim.preset].name) + '</b><span>' + t + '</span>';
+  }
   function syncLiveSide(tw0, win) {
     if (!LIVE) return;
     var vis = LIVE.hls.filter(function (h) { return h.txt && h.t1 > tw0 && h.t0 < tw0 + win; });
@@ -1421,12 +1540,11 @@ body.eegfs #panel.qz-on .mihon-box,body.eegfs #panel.rp-on .mihon-box{display:no
     if (key === sideKey) return; sideKey = key;
     liveHlEl = els; updateHead();
     var seen = {};
-    sideInfo.innerHTML = '<p><span class="lb">いまの状態</span><b>' + esc(PRE[LIVE.sim.preset].name) + '</b></p>' +
-      '<p class="lb">記録紙に出ている反応</p>' +
+    sideInfo.hidden = false;
+    document.getElementById('siBody').innerHTML = '<p class="lb">記録紙に出ている反応</p>' +
       (vis.length ? '<ul class="si-list">' + vis.filter(function (h) { if (seen[h.txt]) return false; seen[h.txt] = 1; return true; }).slice(-4).map(function (h) { return '<li><b>' + esc(h.txt) + '</b><span>' + esc(h.el.length > 6 ? h.el.slice(0, 5).join(' ') + ' ほか' : h.el.join(' ')) + '</span></li>'; }).join('') + '</ul>'
-        : '<p class="muted">ボタンを押すと、反応が出る電極が頭の図でも黄色になります。</p>') +
-      (QZ.n ? '<p><span class="lb">クイズ</span><b>' + QZ.ok + ' / ' + QZ.n + '</b></p>' : '') +
-      '<p class="muted si-tip">記録紙を左右になぞると、巻き戻し・早送り</p>';
+        : '<p class="muted">ボタンを押すと、反応が出る電極が黄色になります。</p>') +
+      (QZ.n ? '<p><span class="lb">クイズ</span><b>' + QZ.ok + ' / ' + QZ.n + '</b></p>' : '');
   }
   // 記録紙を左右になぞる：右へ＝巻き戻し、左へ＝早送り（なぞると一時停止。再生で今に戻る）
   var ld = null;
