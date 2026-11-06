@@ -324,6 +324,7 @@ body.eegfs .mihon-wrap{display:none}
 .side-info{width:100%;font-size:var(--fs-xs);display:grid;gap:3px;align-content:start;line-height:1.4}
 .side-info:empty,.side-info[hidden]{display:none}
 /* ストーリー */
+.mk-btn{min-height:30px;padding:2px 10px;margin-left:8px;font-size:var(--fs-xs)}
 .st-reset{display:flex;flex-wrap:wrap;gap:8px;align-items:center;border-top:1px dashed var(--line);padding-top:10px;font-size:var(--fs-s)}
 .st-reset p{flex-basis:100%;margin:0}
 .st-reset .armed{border-color:var(--hot);color:var(--hot);font-weight:700}
@@ -1238,7 +1239,7 @@ body.eegfs #panel.qz-on .mihon-box,body.eegfs #panel.rp-on .mihon-box{display:no
     }
 
     // 答えのあと：指導医の赤ペンで、見るところに丸をつける
-    if (V.hl && !V.live) {
+    if (V.hl && !V.live && !V.hl.nomark) {
       if (V.hl !== markHl) { markHl = V.hl; markT0 = performance.now(); }
       staticMarks(src, chans, rows, sp, tw0, win, xOf, W0, H).forEach(function (m) { redMark(m[0], m[1], m[2], m[3], m[4], markT0, W0, H); });
     }
@@ -1272,11 +1273,22 @@ body.eegfs #panel.qz-on .mihon-box,body.eegfs #panel.rp-on .mihon-box{display:no
     });
     return best;
   }
+  // 問いごとの丸：q.mk があればそれ、なければ問いの中身から決める（診断の問い→同じ所見に診断名を添える、脳波と関係ない問い→丸を消す）
+  function shortA(t) { return t.replace(/（[^）]*）/g, '').replace(/^.*?：/, '').slice(0, 16); }
+  function qMark(c, q, qi) {
+    var base = c.hl; if (!base) return null;
+    if (q.mk === false) return Object.assign({}, base, { nomark: true });
+    if (q.mk) return Object.assign({}, base, q.mk);
+    if (qi === 0) return Object.assign({}, base);
+    if (/診断|疑う|原因|病気/.test(q.q)) return Object.assign({}, base, { pre: '→ ' + shortA(q.a[0]) });
+    if (/脳波|波|所見|見分け/.test(q.q)) return Object.assign({}, base);
+    return Object.assign({}, base, { nomark: true });
+  }
   function staticMarks(src, chans, rows, sp, tw0, win, xOf, W0, H) {
     var hl = V.hl, out = [], spec = V.spec || {}, main = {};
-    (spec.ev || []).forEach(function (x) { main[x[0]] = 1; });
+    if (hl.type) main[hl.type] = 1; else (spec.ev || []).forEach(function (x) { main[x[0]] = 1; });
     var hasMain = Object.keys(main).length > 0;
-    var evs = (src.events || []).filter(function (e) {
+    var evs = hl.region ? [] : (src.events || []).filter(function (e) {
       if (!MK_NAME[e.type]) return false;
       if (hasMain ? !main[e.type] : MK_ART[e.type]) return false;
       var c = e.t0 + Math.min(e.dur || 0.5, 3) / 2;
@@ -1287,14 +1299,14 @@ body.eegfs #panel.qz-on .mihon-box,body.eegfs #panel.rp-on .mihon-box{display:no
     picked.forEach(function (e) {
       var el = e.e && hl.el.indexOf(e.e) !== -1 ? [e.e] : hl.el, rr = rowRun(chans, rows, el); if (!rr) return;
       var t0 = Math.max(e.t0 - 0.08, tw0), t1 = Math.min(e.t0 + Math.max(e.dur || 0.5, 0.3) + 0.05, tw0 + win);
-      out.push([xOf(t0), xOf(t1), rows[rr[0]] - sp / 2, rows[rr[1]] + sp / 2, out.length ? '' : (hl.txt || MK_NAME[e.type])]);
+      out.push([xOf(t0), xOf(t1), rows[rr[0]] - sp / 2, rows[rr[1]] + sp / 2, out.length ? '' : (hl.txt || MK_NAME[e.type]) + (hl.pre ? '　' + hl.pre : '')]);
     });
     if (!out.length) {
       var rr2 = rowRun(chans, rows, hl.el); if (!rr2) return out;
       var a = Math.max(hl.t0, tw0), b = Math.min(hl.t1, tw0 + win); if (b <= a) return out;
       if (b - a > 3.5) { a = a + Math.min(1, (b - a) / 4); b = a + 2.5; }
       var pc = PRESET_CARD[spec.preset], cd = pc && spec.preset !== 'normal' ? CARDS.filter(function (x) { return x.id === pc; })[0] : null;
-      out.push([xOf(a), xOf(b), rows[rr2[0]] - sp / 2, rows[rr2[1]] + sp / 2, hl.txt || (cd ? cd.name : '')]);
+      out.push([xOf(a), xOf(b), rows[rr2[0]] - sp / 2, rows[rr2[1]] + sp / 2, (hl.txt || (cd ? cd.name : '')) + (hl.pre ? '　' + hl.pre : '')]);
     }
     return out;
   }
@@ -2129,6 +2141,11 @@ body.eegfs #panel.qz-on .mihon-box,body.eegfs #panel.rp-on .mihon-box{display:no
   var BEST = { dojo: 'eeg-dojo-best', conf: 'eeg-conf-best', hunter: 'eeg-hunter-best' };
   function rankOf(p) { return p >= 90 ? 'S' : p >= 75 ? 'A' : p >= 60 ? 'B' : p >= 40 ? 'C' : 'D'; }
 
+  function markTip(m, attr) {
+    if (!m) return '';
+    if (m.nomark) return '<p class="tip">この問いは脳波の場所の問題ではないので、赤丸は消しています（黄色の帯は残します）。</p>';
+    return '<p class="tip">赤丸と黄色の帯が、見るところです。<button type="button" class="ghost mk-btn" ' + attr + '>この問いの赤丸を出す</button></p>';
+  }
   function optsHTML(a, order, pick) {
     return '<ol class="opts">' + order.map(function (ai, pos) {
       var cls = '', tag = '';
@@ -2196,7 +2213,7 @@ body.eegfs #panel.qz-on .mihon-box,body.eegfs #panel.rp-on .mihon-box{display:no
       var p = picks[qi];
       if (p === null && qi !== k) return;
       html += '<h3 class="qh" id="qh' + qi + '" tabindex="-1"><span class="qn">問' + (qi + 1) + '</span><span>' + esc(q.q) + '</span></h3>' + optsHTML(q.a, S.opt[S.i][qi], p);
-      if (p !== null) html += '<div class="why"><p><b>' + (p === 0 ? '正解。' : '正解は「' + esc(q.a[0]) + '」。') + '</b>' + esc(q.why) + '</p>' + (qi === 0 ? '<p class="tip">黄色の帯が、見るところです。</p>' : '') + '</div>';
+      if (p !== null) html += '<div class="why"><p><b>' + (p === 0 ? '正解。' : '正解は「' + esc(q.a[0]) + '」。') + '</b>' + esc(q.why) + '</p>' + markTip(qMark(c, q, qi), 'data-cmk="' + qi + '"') + '</div>';
     });
     if (k === -1) html += '<button type="button" class="btn" data-go="next">' + (S.i === CONF.length - 1 ? '結果を見る' : '次の症例へ') + '</button>';
     panel.innerHTML = html;
@@ -2205,7 +2222,8 @@ body.eegfs #panel.qz-on .mihon-box,body.eegfs #panel.rp-on .mihon-box{display:no
   function answerConf(ai) {
     var S = Q.conf, picks = S.picks[S.i], k = picks.indexOf(null); if (k === -1) return;
     picks[k] = ai;
-    if (k === 0) { V.hl = CONF[S.i].hl; draw(); updateHead(); if (ai === 0) unlock(CONF_CARD[CONF[S.i].title], V.real ? 3 : 2); }
+    V.hl = qMark(CONF[S.i], CONF[S.i].qs[k], k); draw(); updateHead();
+    if (k === 0 && ai === 0) unlock(CONF_CARD[CONF[S.i].title], V.real ? 3 : 2);
     renderConf(); var q = document.getElementById('qh' + k); if (q) q.focus({ preventScroll: true });
   }
 
@@ -2300,6 +2318,8 @@ body.eegfs #panel.qz-on .mihon-box,body.eegfs #panel.rp-on .mihon-box{display:no
     if (V.mode === 'lab' || V.mode === 'story') return;
     var b = e.target.closest('button'); if (!b) return;
     if (V.mode === 'zukan') { var cid = b.getAttribute('data-card'); if (cid) showCard(cid); return; }
+    var cmk = b.getAttribute('data-cmk');
+    if (cmk != null && V.mode === 'conf') { var cc = CONF[Q.conf.i]; V.hl = qMark(cc, cc.qs[+cmk], +cmk); draw(); updateHead(); var dk2 = document.querySelector('.desk'); if (dk2 && !isFs()) dk2.scrollIntoView({ block: 'start', behavior: 'smooth' }); return; }
     if (b.classList.contains('opt')) {
       var ai = +b.getAttribute('data-a');
       if (V.mode === 'dojo') answerDojo(ai);
@@ -2357,11 +2377,11 @@ body.eegfs #panel.qz-on .mihon-box,body.eegfs #panel.rp-on .mihon-box{display:no
         [6.5, 'cap closed', '', 'また目を閉じる。']] },
       spec: { seed: 12, preset: 'normal', mont: 'ref', tl: [[5, 'eo', 1]], ev: [['blink', 5.0], ['blink', 7.6]] }, hl: { t0: 0, t1: 10, el: ['O1', 'O2'] },
       qs: [
-        { q: '目を閉じているとき（0〜5秒）、いちばん目立つ波はどれか。', a: ['後頭部で大きい α 波（約10Hz）', '前頭部で大きい β 波', '全体に広がる θ 波', '左側頭部の棘波', 'Fp の眼球運動'],
+        { mk: { t0: 0.5, t1: 4.7, el: ['O1', 'O2'], region: true, txt: 'α波（約10Hz）' }, q: '目を閉じているとき（0〜5秒）、いちばん目立つ波はどれか。', a: ['後頭部で大きい α 波（約10Hz）', '前頭部で大きい β 波', '全体に広がる θ 波', '左側頭部の棘波', 'Fp の眼球運動'],
           why: 'O1・O2 でいちばん大きく、前へ行くほど小さくなる、1秒に10個ほどの波です。大きくなったり小さくなったりします（漸増・漸減）。' },
-        { q: '5秒で目を開けたあとの変化として正しいのはどれか。', a: ['後頭部の α 波が小さくなった（α減衰）', 'α 波が大きくなった', '全体に徐波が増えた', '左右差が出た', '変化はない'],
+        { mk: { t0: 5.1, t1: 8.5, el: ['O1', 'O2'], region: true, txt: 'α波が小さくなった' }, q: '5秒で目を開けたあとの変化として正しいのはどれか。', a: ['後頭部の α 波が小さくなった（α減衰）', 'α 波が大きくなった', '全体に徐波が増えた', '左右差が出た', '変化はない'],
           why: '目を開けると α 波は小さくなります。同じ時刻に Fp1・Fp2 にまばたきの波も出ています。' },
-        { q: '正常な後頭部の α 律動について正しいのはどれか。2つ選べ。', n: 2, a: ['後頭部で大きく、前に行くほど小さい', '目を開けると小さくなる', '左右で大きさが2倍以上違うのがふつうである', '眠くなると大きくなる', '成人では 8Hz 未満がふつうである'],
+        { mk: { t0: 0.5, t1: 4.7, el: ['O1', 'O2', 'P3', 'P4'], region: true, txt: '後ろで大きい' }, q: '正常な後頭部の α 律動について正しいのはどれか。2つ選べ。', n: 2, a: ['後頭部で大きく、前に行くほど小さい', '目を開けると小さくなる', '左右で大きさが2倍以上違うのがふつうである', '眠くなると大きくなる', '成人では 8Hz 未満がふつうである'],
           why: '後頭部優位で、開眼で小さくなるのが正常な α 律動です。左右差は少しならあってよいですが、大きければ異常を考えます。眠くなると α 波は消えていきます。成人の α 波は 8〜13Hz です。' }
       ],
       sensei: 'これがあなたの「ふつう」。後ろで大きく、目を開けると小さくなる。異常を探す前に、まずこれを確かめる。読む順番の1番目だったね。' },
@@ -2377,9 +2397,9 @@ body.eegfs #panel.qz-on .mihon-box,body.eegfs #panel.rp-on .mihon-box{display:no
       spec: { seed: 20, preset: 'normal', mont: 'ref', auto: false, init: { sleep: 2 }, ev: [['spindle', 1.3, { dur: 1.1, amp: 44 }], ['kc', 4.3, { amp: 170 }], ['spindle', 4.9, { dur: 0.9, amp: 40 }], ['spindle', 8.0, { dur: 1.2, amp: 44 }]] },
       hl: { t0: 0, t1: 10, el: ['C3', 'C4', 'Cz', 'Fz'] },
       qs: [
-        { q: '中心部に出ている、12〜14Hz の短い波の束はどれか。', a: ['紡錘波', '棘波', 'α 波', '筋電図', '三相波'],
+        { mk: { type: 'spindle', txt: '紡錘波' }, q: '中心部に出ている、12〜14Hz の短い波の束はどれか。', a: ['紡錘波', '棘波', 'α 波', '筋電図', '三相波'],
           why: '中心部（C3・C4・Cz）に、12〜14Hz の波が 0.5〜1秒ほどの束で出ています。睡眠紡錘波です。' },
-        { q: 'この記録の睡眠段階はどれか。', a: ['N2', '覚醒（閉眼）', 'N1', 'N3', 'レム睡眠'],
+        { mk: { type: 'kc', el: ['C3', 'C4', 'Cz', 'Fz'], txt: 'K複合 → N2' }, q: 'この記録の睡眠段階はどれか。', a: ['N2', '覚醒（閉眼）', 'N1', 'N3', 'レム睡眠'],
           why: '紡錘波と、大きな二相性の K 複合が出ているので N2 です。N1 では α 波が消えて頭蓋頂鋭波が出ます。N3 では大きなδ波が多くなります。' },
         { q: '正しいのはどれか。2つ選べ。', n: 2, a: ['眠ると出やすくなるてんかん性放電があるので、眠りの記録は役に立つ', 'K 複合と頭蓋頂鋭波は、正常な眠りの波である', 'K 複合はてんかん性の波である', '紡錘波が出たら異常である', '眠ってしまった記録は役に立たない'],
           why: '眠りの記録では、てんかん性放電が出やすくなります。一方で、頭蓋頂鋭波や K 複合のように、鋭くても正常な波がたくさん出るので、読みすぎに気をつけます。' }
@@ -2396,9 +2416,9 @@ body.eegfs #panel.qz-on .mihon-box,body.eegfs #panel.rp-on .mihon-box{display:no
         [6.5, 'cap', 'L:検査技師:口を少し開けて、楽にしてください', '声をかけて、力を抜いてもらう。']] },
       spec: { seed: 15, preset: 'normal', mont: 'bip', ev: [['emg', 2.0, { dur: 3.8, amp: 14 }], ['blink', 0.8], ['blink', 7.2]] }, hl: { t0: 1.8, t1: 6, el: ['F7', 'T3', 'F8', 'T4'] },
       qs: [
-        { q: '2〜6秒に、側頭部のチャンネルに重なった細かく速い波はどれか。', a: ['筋電図（くいしばり）', 'β 波（薬の影響）', '交流障害（ハム）', '紡錘波', '棘波'],
+        { mk: { type: 'emg', txt: '筋電図' }, q: '2〜6秒に、側頭部のチャンネルに重なった細かく速い波はどれか。', a: ['筋電図（くいしばり）', 'β 波（薬の影響）', '交流障害（ハム）', '紡錘波', '棘波'],
           why: '側頭筋の上（F7・F8・T3・T4）に、β 波よりさらに速く、不規則な波が重なっています。歯をくいしばったときの筋電図です。' },
-        { q: 'Fp1−F3 と Fp2−F4 に出た、左右そろった下向きの大きな波はどれか。', a: ['まばたき', '前頭部の徐波', '前頭部の棘波', '左右を見た眼球運動', '電極のポップ'],
+        { mk: { type: 'blink', t0: 0, t1: 10, el: ['Fp1', 'Fp2'], txt: 'まばたき' }, q: 'Fp1−F3 と Fp2−F4 に出た、左右そろった下向きの大きな波はどれか。', a: ['まばたき', '前頭部の徐波', '前頭部の棘波', '左右を見た眼球運動', '電極のポップ'],
           why: 'まぶたを閉じると眼球が上を向き（ベル現象）、プラスの角膜が Fp に近づくので、Fp で下向きの大きな波になります。後ろの電極には広がりません。' },
         { q: '正しいのはどれか。2つ選べ。', n: 2, a: ['筋電図は、口を少し開けてもらうと減る', '高域遮断フィルタを下げすぎると、筋電図が棘波のように見えることがある', '筋電図が多いのは薬の影響である', 'まばたきの波はてんかん性である', '筋電図は後頭部に強く出る'],
           why: '口を軽く開けると、くいしばりの筋電図は減ります。高域遮断を 15Hz などに下げると筋電図は丸くなりますが、かえって速波や棘波に化けて見えることがあります。' }
@@ -2417,7 +2437,7 @@ body.eegfs #panel.qz-on .mihon-box,body.eegfs #panel.rp-on .mihon-box{display:no
       qs: [
         { q: 'F4−C4 と C4−P4 で向かい合った大きな波の原因として、最も考えられるのはどれか。', a: ['C4 の電極の接触不良（ポップ）', 'C4 の棘波', '頭蓋頂鋭波', 'まばたき', '筋電図'],
           why: '向かい合っているので位相逆転に見えますが、C4 のとなりの電極には少しも広がっていません。急に立ち上がってゆっくり戻る形も、電極のアーチファクトの特徴です。' },
-        { q: '脳の波ではないと考える根拠はどれか。', a: ['となりの電極に少しも広がっていない', '向かい合っている', '振幅が大きい', '右側にある', '形が鋭い'],
+        { mk: { type: 'pop', el: ['C4'], txt: 'となりの電極には出ない' }, q: '脳の波ではないと考える根拠はどれか。', a: ['となりの電極に少しも広がっていない', '向かい合っている', '振幅が大きい', '右側にある', '形が鋭い'],
           why: '脳の波なら、まわりの電極にも小さく広がります（電場）。1つの電極だけに限られていれば、まず電極を疑います。' },
         { q: '正しいのはどれか。2つ選べ。', n: 2, a: ['電極の接触（インピーダンス）を確かめ、つけ直す', '1つの電極だけの急な振れは、まずアーチファクトを疑う', 'C4 の焦点てんかんとして、抗てんかん薬を始める', 'AC フィルタを入れれば消える', '位相逆転があれば、必ず脳の波である'],
           why: '電極をつけ直して、同じ波が消えるかを確かめます。AC フィルタは電源の 50/60Hz を消すもので、ポップは消えません。' }
@@ -2478,13 +2498,13 @@ body.eegfs #panel.qz-on .mihon-box,body.eegfs #panel.rp-on .mihon-box{display:no
         [3.5, 'closed mask', '', '体のけいれんは、ほとんど見えない（筋弛緩薬のため）。'],
         [7, 'closed mask', 'R:技師:脳波で発作を確かめます', '発作が起きたか、どれだけ続いたかは脳波で確かめる。']] },
       spec: { seed: 43, preset: 'normal', mont: 'ref', sens: 30, auto: false, bg: { alpha: 0 }, tl: [[7.8, 'flat', 1]], ev: [['sw', -0.5, { f0: 3.2, f1: 2.4, dur: 8.3, amp: 300, spike: 1.2 }]], ann: [[0.05, '刺激後 約30秒']] },
-      hl: { t0: 6.8, t1: 10, el: ['Fp1', 'Fp2', 'F3', 'F4', 'Fz'] },
+      hl: { t0: 6.8, t1: 10, el: ['Fp1', 'Fp2', 'F3', 'F4', 'Fz'], txt: '発作後抑制' },
       qs: [
         { q: '8秒のあたりで起きたことはどれか。', a: ['発作が急に終わり、脳波が平坦に近くなった（発作後抑制）', '電極がはずれた', '眠りが深くなった', '発作が強くなった', '心臓が止まった'],
           why: '3Hz 前後の大きな棘徐波が続いたあと、急に終わり、ほとんど平らになっています。発作のあとに脳の活動が強く抑えられる、発作後抑制です。' },
-        { q: 'ECT で脳波を記録する理由として、最も適切なのはどれか。', a: ['筋弛緩薬で体のけいれんが見えないので、発作の有無と長さを確かめる', '麻酔の深さだけを測る', '脳の損傷を毎回調べる', 'うつ病の重さを測る', 'その日のうちに治療効果を判定する'],
+        { mk: { t0: 0.3, t1: 7.6, el: ['Fp1', 'Fp2', 'F3', 'F4', 'Fz'], region: true, txt: '体は動かないが、脳波では発作' }, q: 'ECT で脳波を記録する理由として、最も適切なのはどれか。', a: ['筋弛緩薬で体のけいれんが見えないので、発作の有無と長さを確かめる', '麻酔の深さだけを測る', '脳の損傷を毎回調べる', 'うつ病の重さを測る', 'その日のうちに治療効果を判定する'],
           why: '修正型 ECT では筋弛緩薬で体のけいれんを抑えるので、発作が起きたこと、その長さと終わり方を脳波で確かめます。' },
-        { q: '正しいのはどれか。2つ選べ。', n: 2, a: ['発作の終わりがはっきりし、発作後抑制が強いのは、質のよい発作の目安の一つ', '発作が長く続くとき（目安として3分超）は、麻酔薬やベンゾジアゼピンで止める', '発作後抑制は、脳が損傷したしるしである', '発作は長いほど効果が高いので、止めない', 'ECT の前には、ベンゾジアゼピンを増やしておくとよい'],
+        { mk: { t0: 6.6, t1: 9.8, el: ['Fp1', 'Fp2', 'F3', 'F4', 'Fz'], region: true, txt: 'はっきり終わって静かになる' }, q: '正しいのはどれか。2つ選べ。', n: 2, a: ['発作の終わりがはっきりし、発作後抑制が強いのは、質のよい発作の目安の一つ', '発作が長く続くとき（目安として3分超）は、麻酔薬やベンゾジアゼピンで止める', '発作後抑制は、脳が損傷したしるしである', '発作は長いほど効果が高いので、止めない', 'ECT の前には、ベンゾジアゼピンを増やしておくとよい'],
           why: 'はっきり始まり、はっきり終わり、そのあと強く抑えられる発作は、治療に役立つ発作の目安の一つです。長すぎる発作は止めます。ベンゾジアゼピンは発作を起こりにくくするので、ECT の前はできるだけ減らします。' }
       ],
       sensei: 'ECT 室では、脳波が「見えない発作」の目になる。はっきり始まって、はっきり終わって、そのあと静かになる。これがいい発作。長すぎたら止める。' },
@@ -2832,7 +2852,7 @@ body.eegfs #panel.qz-on .mihon-box,body.eegfs #panel.rp-on .mihon-box{display:no
       c.qs.forEach(function (q, qi) {
         if (qi > SQ.qi) return; var p = SQ.picks[qi];
         html += '<h3 class="qh" id="sqh' + qi + '" tabindex="-1"><span class="qn">問' + (qi + 1) + '</span><span>' + esc(q.q) + '</span></h3>' + stOpts(q, qi);
-        if (p !== null) html += '<div class="why"><p><b>' + (stRight(q, p) ? '正解。' : '正解は「' + (q.n > 1 ? q.a.slice(0, q.n).join('」と「') : q.a[0]) + '」。') + '</b>' + esc(q.why) + '</p>' + (qi === 0 ? '<p class="tip">黄色の帯が、見るところです。</p>' : '') + '</div>';
+        if (p !== null) html += '<div class="why"><p><b>' + (stRight(q, p) ? '正解。' : '正解は「' + (q.n > 1 ? q.a.slice(0, q.n).join('」と「') : q.a[0]) + '」。') + '</b>' + esc(q.why) + '</p>' + markTip(qMark(c, q, qi), 'data-smk="' + qi + '"') + '</div>';
       });
       if (SQ.qi >= c.qs.length) {
         var r = SQ.picks.filter(function (p, i) { return stRight(c.qs[i], p); }).length;
@@ -2863,7 +2883,7 @@ body.eegfs #panel.qz-on .mihon-box,body.eegfs #panel.rp-on .mihon-box{display:no
   }
   function stAnswer(p) {
     var c = stCase(), q = c.qs[SQ.qi]; SQ.picks[SQ.qi] = p; SQ.sel = [];
-    if (SQ.qi === 0) { V.hl = c.hl; draw(); updateHead(); }
+    V.hl = qMark(c, q, SQ.qi); draw(); updateHead();
     var qi = SQ.qi; SQ.qi++;
     if (SQ.qi >= c.qs.length) {
       var r = SQ.picks.filter(function (pp, i) { return stRight(c.qs[i], pp); }).length, sv = stLoad();
@@ -2877,6 +2897,8 @@ body.eegfs #panel.qz-on .mihon-box,body.eegfs #panel.rp-on .mihon-box{display:no
     if (V.mode !== 'story') return;
     var b = e.target.closest('button'); if (!b) return;
     var ch = b.getAttribute('data-sch'); if (ch) { SQ.ch = +ch; SQ.ci = 0; stGo('chin'); return; }
+    var smk = b.getAttribute('data-smk');
+    if (smk != null) { var cq = stCase(); V.hl = qMark(cq, cq.qs[+smk], +smk); draw(); updateHead(); var dk = document.querySelector('.desk'); if (dk && !isFs()) dk.scrollIntoView({ block: 'start', behavior: 'smooth' }); return; }
     var sa = b.getAttribute('data-sa');
     if (sa != null) {
       var q = stCase().qs[SQ.qi], ai = +sa; if (!q || SQ.picks[SQ.qi] !== null) return;
