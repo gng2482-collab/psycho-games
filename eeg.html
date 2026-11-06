@@ -498,7 +498,11 @@ body.eegfs #panel.qz-on .mihon-box,body.eegfs #panel.rp-on .mihon-box{display:no
 .rp .ok{color:var(--ok);font-weight:700}.rp .ng{color:var(--hot);font-weight:700}
 @media (orientation:landscape){ body.eegfs #head{max-width:130px} }
 /* 異常脳波の見本 */
-.mihon{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:6px}
+.mihon{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:6px}
+.mihon .mh-g{grid-column:1/-1;margin:6px 0 0;font-weight:700;font-size:var(--fs-s);color:var(--accent);border-bottom:1px solid var(--line)}
+.mihon span{font-size:var(--fs-xs);line-height:1.45}
+.mihon .mh-dis{color:var(--muted)} .mihon .mh-dis::before{content:'代表：'}
+.mihon .mh-pic{cursor:default;opacity:.92} .mihon .mh-no{color:var(--muted);font-size:10px}
 .mihon button{font:inherit;font-size:var(--fs-xs);text-align:left;cursor:pointer;color:var(--ink);background:var(--paper);border:1px solid var(--line);border-radius:var(--r);padding:4px;display:grid;gap:2px}
 .mihon button[aria-pressed="true"]{border-color:var(--accent);box-shadow:inset 0 0 0 1px var(--accent)}
 .mihon canvas{width:100%;display:block;border-radius:3px}
@@ -617,7 +621,7 @@ body.eegfs #panel.qz-on .mihon-box,body.eegfs #panel.rp-on .mihon-box{display:no
     </aside>
   </section>
 
-  <section class="mihon-wrap" id="mihonSec" hidden aria-labelledby="mhh"><h2 id="mhh">異常脳波の見本<small>押すと、上の脳波計でその状態の脳波が流れます。最初の1枚は比べる基準の正常です</small></h2><div class="mihon" id="mihon"></div></section>
+  <section class="mihon-wrap" id="mihonSec" hidden aria-labelledby="mhh"><h2 id="mhh">異常脳波の見本<small>押すと、上の脳波計でその状態の脳波が流れます。教科書の形を1本の線で。最初の1枚は比べる基準の正常です</small></h2><div class="mihon" id="mihon"></div></section>
   <button type="button" class="ghost fsonly" id="fsPanelBtn" aria-pressed="true">問題を隠す</button>
   <div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
   <p class="foot">波形はこのページの中で合成したもので、実在の患者さんの記録ではありません。形や数値は学習用に単純化しています。「実践」レベルの波も本物に近づけたものですが、実際の記録そのものではありません。図鑑の集まり具合は、このブラウザの中にだけ保存されます。電極名は日本で広く使われる T3・T4・T5・T6（新しい呼び方では T7・T8・P7・P8）です。実際の判読は、記録の条件や臨床経過と合わせて、専門の医師が行ってください。</p>
@@ -1016,7 +1020,7 @@ body.eegfs #panel.qz-on .mihon-box,body.eegfs #panel.rp-on .mihon-box{display:no
     for (var k = 0; k < NS; k++) data.push(new Float32Array(N));
     for (var i = 0; i < N; i++) { sim.sample(i / FS, out); for (var c = 0; c < NS; c++) data[c][i] = out[c]; }
     var hasPh = (spec.tl || []).some(function (x) { return x[1] === 'photic'; }) || !!(spec.init && spec.init.photic);
-    return { N: N, dur: dur, data: data, ann: spec.ann || [], photic: hasPh, get: function (k, i) { return data[k][i]; } };
+    return { N: N, dur: dur, data: data, ann: spec.ann || [], photic: hasPh, events: sim.events.slice(), get: function (k, i) { return data[k][i]; } };
   }
 
   /* ====================== 3. 導出 ====================== */
@@ -1112,6 +1116,7 @@ body.eegfs #panel.qz-on .mihon-box,body.eegfs #panel.rp-on .mihon-box{display:no
         if (h.el.indexOf(c.a) !== -1 || h.el.indexOf(c.b) !== -1) { ctx.fillRect(a0, rows[i] - sp / 2 + 1, a1 - a0, sp - 2); first = i; }
       });
       ctx.globalAlpha = 1;
+      if (first != null && h.red) { var rr = rowRun(chans, rows, h.el); if (rr) redMark(a0, a1, rows[rr[0]] - sp / 2, rows[rr[1]] + sp / 2, h.txt, h.redT || (h.redT = performance.now()), W0, H); }
       if (first != null && h.txt) {
         ctx.font = '700 11px "BIZ UDPGothic", sans-serif'; ctx.textAlign = 'left';
         var tw3 = ctx.measureText(h.txt).width, lx3 = Math.min(a0 + 3, W0 - tw3 - 8), ly3 = rows[first] + sp / 2 - 3;
@@ -1212,12 +1217,12 @@ body.eegfs #panel.qz-on .mihon-box,body.eegfs #panel.rp-on .mihon-box{display:no
     ctx.beginPath(); ctx.moveTo(cx0 - pxPerSec, cyB); ctx.lineTo(cx0, cyB); ctx.stroke();
     ctx.fillStyle = TOK['--muted']; ctx.font = '10px "BIZ UDPGothic", sans-serif'; ctx.textAlign = 'right';
     ctx.fillText('50µV ┃  1秒 ━  感度 ' + V.sens + 'µV/mm', cx0 - pxPerSec - 6, cyB);
-    // 周波数の帯ごとの見本：大きさはそろえて（50µV）、1秒の中の波の数の違いだけを見せる
+    // 周波数の帯ごとの、おおよその大きさ（いまの感度で1秒分を描く）
     var calW = ctx.measureText('50µV ┃  1秒 ━  感度 ' + V.sens + 'µV/mm').width + pxPerSec + 20;
-    var BANDS = [['δ', 2, 50, '〜4Hz'], ['θ', 6, 50, '4〜8Hz'], ['α', 10, 50, '8〜13Hz'], ['β', 20, 50, '14Hz〜']];
-    // 波（1秒分）を上に、名前と周波数をその下の行（50µV の目盛りと同じ行）に書く
+    var BANDS = [['δ', 2, 100, '〜4Hz'], ['θ', 6, 50, '4〜8Hz'], ['α', 10, 50, '8〜13Hz'], ['β', 20, 15, '14Hz〜']];
+    // 波（1秒分）を上に、名前と大きさをその下の行（50µV の目盛りと同じ行）に書く
     ctx.font = '10px "BIZ UDPGothic", sans-serif'; ctx.textAlign = 'left';
-    var lbl = function (bd) { return bd[0] + ' ' + bd[3]; };
+    var lbl = function (bd) { return bd[0] + ' ' + bd[3] + ' ' + bd[2] + 'µV'; };
     var segW = Math.max(pxPerSec, ctx.measureText(lbl(BANDS[2])).width + 4), gapB = 8, bx = LW, by = H - 34, room = W0 - RP - calW - LW;
     if (room >= (segW + gapB) * 2) {
       BANDS.forEach(function (bd) {
@@ -1232,6 +1237,11 @@ body.eegfs #panel.qz-on .mihon-box,body.eegfs #panel.rp-on .mihon-box{display:no
       });
     }
 
+    // 答えのあと：指導医の赤ペンで、見るところに丸をつける
+    if (V.hl && !V.live) {
+      if (V.hl !== markHl) { markHl = V.hl; markT0 = performance.now(); }
+      staticMarks(src, chans, rows, sp, tw0, win, xOf, W0, H).forEach(function (m) { redMark(m[0], m[1], m[2], m[3], m[4], markT0, W0, H); });
+    }
     // 巻き戻して見ているとき：右上に表示
     if (V.live && V.lback > 0) {
       var lt = '◀ ' + (V.lback / FS).toFixed(1) + '秒前を表示中（再生で今に戻る）';
@@ -1250,6 +1260,66 @@ body.eegfs #panel.qz-on .mihon-box,body.eegfs #panel.rp-on .mihon-box{display:no
     cv.setAttribute('aria-label', MONT[V.mont].name + '、' + chans.length + 'チャンネル、' + win + '秒分の脳波');
   }
 
+  /* 赤ペンの丸（指導医が黒板に丸をつけるように） */
+  var markHl = null, markT0 = 0, markRaf = 0;
+  var MK_NAME = { spike: '棘波', sw: '棘徐波', polysw: '多棘徐波', pop: '電極ポップ', blink: 'まばたき', emg: '筋電図', vertex: '頭蓋頂鋭波', spindle: '紡錘波', kc: 'K複合', tri: '三相波', wicket: 'ウィケット棘波', move: '体動', brush: 'delta brush', look: '眼球運動', psd: 'PSD', lpd: 'LPDs' };
+  var MK_ART = { blink: 1, emg: 1, move: 1, look: 1, pop: 1 };
+  function rowRun(chans, rows, el) {
+    var best = null, cur = null;
+    chans.forEach(function (c, i) {
+      var hit = !c.kind && (el.indexOf(c.a) !== -1 || el.indexOf(c.b) !== -1);
+      if (hit) { if (cur && cur[1] === i - 1) cur[1] = i; else cur = [i, i]; if (!best || cur[1] - cur[0] > best[1] - best[0]) best = cur.slice(); }
+    });
+    return best;
+  }
+  function staticMarks(src, chans, rows, sp, tw0, win, xOf, W0, H) {
+    var hl = V.hl, out = [], spec = V.spec || {}, main = {};
+    (spec.ev || []).forEach(function (x) { main[x[0]] = 1; });
+    var hasMain = Object.keys(main).length > 0;
+    var evs = (src.events || []).filter(function (e) {
+      if (!MK_NAME[e.type]) return false;
+      if (hasMain ? !main[e.type] : MK_ART[e.type]) return false;
+      var c = e.t0 + Math.min(e.dur || 0.5, 3) / 2;
+      return c >= Math.max(hl.t0, tw0) && c <= Math.min(hl.t1, tw0 + win);
+    }).sort(function (a, b) { return a.t0 - b.t0; });
+    var picked = [];
+    evs.forEach(function (e) { if (picked.length < 2 && (!picked.length || e.t0 - picked[picked.length - 1].t0 > 2)) picked.push(e); });
+    picked.forEach(function (e) {
+      var el = e.e && hl.el.indexOf(e.e) !== -1 ? [e.e] : hl.el, rr = rowRun(chans, rows, el); if (!rr) return;
+      var t0 = Math.max(e.t0 - 0.08, tw0), t1 = Math.min(e.t0 + Math.max(e.dur || 0.5, 0.3) + 0.05, tw0 + win);
+      out.push([xOf(t0), xOf(t1), rows[rr[0]] - sp / 2, rows[rr[1]] + sp / 2, out.length ? '' : (hl.txt || MK_NAME[e.type])]);
+    });
+    if (!out.length) {
+      var rr2 = rowRun(chans, rows, hl.el); if (!rr2) return out;
+      var a = Math.max(hl.t0, tw0), b = Math.min(hl.t1, tw0 + win); if (b <= a) return out;
+      if (b - a > 3.5) { a = a + Math.min(1, (b - a) / 4); b = a + 2.5; }
+      var pc = PRESET_CARD[spec.preset], cd = pc && spec.preset !== 'normal' ? CARDS.filter(function (x) { return x.id === pc; })[0] : null;
+      out.push([xOf(a), xOf(b), rows[rr2[0]] - sp / 2, rows[rr2[1]] + sp / 2, hl.txt || (cd ? cd.name : '')]);
+    }
+    return out;
+  }
+  function redMark(x0, x1, y0, y1, label, t0, W0, H) {
+    var prog = Math.min(1, (performance.now() - t0) / 650);
+    if (prog < 1 && !markRaf) markRaf = requestAnimationFrame(function () { markRaf = 0; draw(); });
+    var cx = (x0 + x1) / 2, cy = (y0 + y1) / 2, rx = (x1 - x0) / 2 + 12, ry = (y1 - y0) / 2 + 9;
+    var a0 = -2.2, span = (Math.PI * 2 + 0.45) * prog;
+    ctx.save(); ctx.strokeStyle = '#e0352b'; ctx.lineWidth = 3; ctx.lineCap = 'round'; ctx.lineJoin = 'round'; ctx.globalAlpha = 0.92;
+    ctx.beginPath();
+    for (var k = 0; k <= 60; k++) {
+      var a = a0 + span * k / 60, j = 1 + 0.045 * Math.sin(3 * a + 1.3) + 0.03 * Math.sin(5 * a + 0.4) + 0.02 * (a - a0);
+      var x = cx + Math.cos(a) * rx * j, y = cy + Math.sin(a) * ry * j;
+      k ? ctx.lineTo(x, y) : ctx.moveTo(x, y);
+    }
+    ctx.stroke();
+    if (prog >= 1) {
+      ctx.font = '700 15px "Hiragino Maru Gothic ProN", "BIZ UDPGothic", sans-serif'; ctx.textAlign = 'left';
+      var tx = label ? 'ここ！ ' + label : 'ここ！', tw = ctx.measureText(tx).width, lx = Math.max(6, Math.min(cx + rx * 0.35, W0 - tw - 8)), ly = cy - ry - 8;
+      if (ly < 18) ly = cy + ry + 20; if (ly > H - 4) ly = H - 6;
+      ctx.lineWidth = 4; ctx.strokeStyle = TOK['--sheet']; ctx.globalAlpha = 1; ctx.strokeText(tx, lx, ly);
+      ctx.fillStyle = '#e0352b'; ctx.fillText(tx, lx, ly);
+    }
+    ctx.restore();
+  }
   // フィルタ：時定数（1次の高域通過）と高域遮断（1次の低域通過を2回）
   function applyFilters(x) {
     var dt = 1 / FS, n2 = x.length;
@@ -1434,7 +1504,7 @@ body.eegfs #panel.qz-on .mihon-box,body.eegfs #panel.rp-on .mihon-box{display:no
   function frame(ts) {
     rafId = 0;
     if (V.mode !== 'lab' || !V.playing || document.hidden) { lastTs = 0; return; }
-    if (lastTs) { var dt = Math.min(0.2, (ts - lastTs) / 1000); var nS = Math.round(dt * FS); if (nS > 0) { advance(nS); quizMissCheck(); draw(); } }
+    if (lastTs) { var dt = Math.min(0.2, (ts - lastTs) / 1000); var nS = Math.round(dt * FS); if (nS > 0) { advance(nS); quizMissCheck(); autoOff(); draw(); } }
     lastTs = ts;
     rafId = requestAnimationFrame(frame);
   }
@@ -1483,7 +1553,7 @@ body.eegfs #panel.qz-on .mihon-box,body.eegfs #panel.rp-on .mihon-box{display:no
     var pr = function (on) { return on ? 'true' : 'false'; };
     return '<div class="ph"><h2 id="panelH" tabindex="-1">触ってみる</h2><span class="prog">流れる脳波に、操作がすぐに出ます。線をタップすると頭の図に電極が出ます。</span></div>' +
       '<div class="lab-grid"><div class="ctl">' +
-      '<div class="ctl-row"><label class="lb" for="preset">脳の状態</label><select id="preset">' + opts + '</select></div>' +
+      '<div class="ctl-row"><label class="lb" for="preset">脳の状態</label><select id="preset">' + opts + '</select><button type="button" class="act" id="labReset">最初の状態に戻す</button></div>' +
       '<div class="ctl-row"><span class="lb">目と体</span>' +
         '<button type="button" class="act" data-act="eyes" aria-pressed="' + pr(st.eo) + '">目を開ける</button>' +
         '<button type="button" class="act" data-act="blink">まばたき</button>' +
@@ -1505,20 +1575,73 @@ body.eegfs #panel.qz-on .mihon-box,body.eegfs #panel.rp-on .mihon-box{display:no
         '<button type="button" class="act" id="tutBtn">はじめの1分</button></div>' +
       '</div><div class="explain" id="explain" aria-live="polite"></div></div>' +
       '<div class="mihon-box"><p class="mihon-c-h">異常脳波の見本（押すと脳の状態が切りかわります）</p><div class="mihon-c">' +
-      MIHON.map(function (m) { var c = CARDS.filter(function (x) { return x.id === m[0]; })[0]; return c ? '<button type="button" data-mihon="' + m[1] + '" aria-pressed="' + pr(pre === m[1]) + '">' + esc(m[3] || c.name) + '</button>' : ''; }).join('') + '</div></div>';
+      MIHON.filter(function (m, i) { return m.pre && MIHON.findIndex(function (x) { return x.pre === m.pre; }) === i; }).map(function (m) { return '<button type="button" data-mihon="' + m.pre + '" aria-pressed="' + pr(pre === m.pre) + '">' + esc(m.short || m.name) + '</button>'; }).join('') + '</div></div>';
   }
-  // 押すと、その状態の脳波が流れ始める見本（カードの id, 脳の状態, ひとこと）
-  var MIHON = [['alpha', 'normal', '比べる基準', '正常（基準）'], ['spike', 'tle', '側頭葉てんかん', '棘波'], ['sw3', 'absence', '欠神（過呼吸で出る）', '3Hz棘徐波'], ['diffuse_slow', 'delirium', 'せん妄', 'びまん性徐波'], ['triphasic', 'hepatic', '肝性脳症', '三相波'],
-    ['psd', 'cjd', 'クロイツフェルト・ヤコブ病', 'PSD'], ['lpd', 'hsv', 'ヘルペス脳炎', 'LPDs'], ['brush', 'nmdar', '抗NMDA受容体脳炎', 'delta brush'], ['beta_benzo', 'benzo', 'ベンゾジアゼピン', '薬の速波']];
+  // 異常脳波の見本：教科書の図のように、1本の線で形だけを描く。押すと、触ってみるでその状態の脳波が流れる（pre がないものは絵だけ）
+  var MIHON = [
+    { g: '正常', id: 'alpha', name: 'α波（比べる基準）', short: '正常（基準）', feat: '後頭部優位の 8〜13Hz。開眼で抑制される', dis: '健康な成人の安静・閉眼・覚醒時', pre: 'normal', sec: 2 },
+    { g: 'てんかん：局所性', id: 'spike', name: '棘波', feat: '持続 20〜70ms の鋭い波。徐波を伴うことがある', dis: '焦点発作（側頭葉てんかんなど）', pre: 'tle', sec: 2 },
+    { g: 'てんかん：局所性', id: 'sharp', name: '鋭波', feat: '持続 70〜200ms。棘波よりやや幅が広い', dis: '焦点発作', pre: 'tle', short: '鋭波', sec: 2 },
+    { g: 'てんかん：全般性', id: 'polysw', name: '多棘波（多棘徐波）', short: '多棘徐波', feat: '棘波が数個続く。光刺激で誘発されやすい', dis: 'ミオクロニー発作（若年ミオクロニーてんかん）', pre: 'jme', sec: 2 },
+    { g: 'てんかん：全般性', id: 'sw3', name: '3Hz 棘徐波複合', short: '3Hz棘徐波', feat: '3Hz で棘徐波が連続する。過呼吸で誘発されやすい', dis: '定型欠神発作（小児欠神てんかん）', pre: 'absence', sec: 2 },
+    { g: 'てんかん：全般性', id: 'ssw', name: '1.5〜2.5Hz 鋭徐波複合（遅棘徐波）', feat: '1.5〜2.5Hz で鋭徐波が連続する', dis: 'Lennox-Gastaut 症候群', sec: 2 },
+    { g: 'てんかん：全般性', id: 'hyps', name: 'ヒプスアリスミア', feat: '高振幅で不規則な徐波に、棘波・鋭波が混じる', dis: '乳児てんかん性スパズム症候群（West 症候群）', sec: 2 },
+    { g: 'てんかん：全般性', id: 'ncse', name: '持続する棘徐波', short: 'NCSE', feat: '律動的な棘徐波が途切れずに続く', dis: '非けいれん性てんかん重積', pre: 'ncse', sec: 2 },
+    { g: '意識障害', id: 'lpd', name: '片側性周期性放電（LPDs、旧 PLEDs）', short: 'LPDs', feat: '棘波や鋭波が、片側に周期的にくり返す', dis: '単純ヘルペス脳炎・脳血管障害', pre: 'hsv', sec: 3 },
+    { g: '意識障害', id: 'psd', name: '周期性同期性放電（PSD、GPDs）', short: 'PSD', feat: '高振幅の鋭波が約1秒ごとに、両側同期して出る', dis: 'クロイツフェルト・ヤコブ病', pre: 'cjd', sec: 3 },
+    { g: '意識障害', id: 'sspe', name: '周期性同期性高振幅徐波結合', feat: '平坦な期間と、高振幅の徐波の群れが交互に出る', dis: '亜急性硬化性全脳炎（SSPE）', sec: 10 },
+    { g: '意識障害', id: 'tri', name: '三相波', feat: '陰性−高振幅の陽性−陰性の3相。両側前頭部優位に周期的', dis: '肝性脳症などの代謝性脳障害・尿毒症', pre: 'hepatic', sec: 2 },
+    { g: '意識障害', id: 'slow', name: 'びまん性徐波', short: 'びまん性徐波', feat: 'α波が遅く小さくなり、θ・δ波が全体に増える', dis: 'せん妄・意識障害', pre: 'delirium', sec: 2 },
+    { g: '精神科でよく見る', id: 'brush', name: 'extreme delta brush', short: 'delta brush', feat: '律動的なδ波に速波が重なる', dis: '抗NMDA受容体脳炎', pre: 'nmdar', sec: 2 },
+    { g: '精神科でよく見る', id: 'beta', name: '速波（薬剤性）', short: '薬の速波', feat: '前頭〜中心部の 14〜30Hz の速い波が増える', dis: 'ベンゾジアゼピン・バルビツール酸', pre: 'benzo', sec: 2 }
+  ];
+  // 形の式（t は秒。上向き＝陰性）
+  function mg(t, c, w) { var d = (t - c) / w; return Math.exp(-d * d); }
+  function mn(t) { return 0.05 * Math.sin(TAU * 9 * t) + 0.035 * Math.sin(TAU * 13.5 * t + 1); }
+  var MIHON_F = {
+    alpha: function (t) { return 0.55 * Math.sin(TAU * 10 * t) * (0.65 + 0.35 * Math.sin(TAU * 0.5 * t)); },
+    spike: function (t) { return mn(t) + 1.0 * mg(t, 0.9, 0.012) + 0.38 * mg(t, 1.03, 0.065); },
+    sharp: function (t) { return mn(t) + 0.95 * mg(t, 0.9, 0.04) + 0.38 * mg(t, 1.1, 0.075); },
+    polysw: function (t) { var v = mn(t); for (var k = 0; k < 6; k++) v += (0.55 + 0.45 * Math.abs(Math.sin(k * 1.7))) * (mg(t, 0.8 + k * 0.035, 0.007) - 0.5 * mg(t, 0.817 + k * 0.035, 0.007)); return v + 0.38 * mg(t, 1.12, 0.07); },
+    sw3: function (t) { var v = 0; for (var k = 0; k < 7; k++) { var c = 0.1 + k / 3; v += 0.95 * mg(t, c, 0.012) + 0.72 * mg(t, c + 0.15, 0.065); } return v; },
+    ssw: function (t) { var v = 0; for (var k = 0; k < 5; k++) { var c = 0.12 + k * 0.47; v += 0.85 * mg(t, c, 0.035) + 0.85 * mg(t, c + 0.22, 0.095); } return v; },
+    hyps: function (t) { return 0.6 * Math.sin(TAU * 1.3 * t) + 0.45 * Math.sin(TAU * 2.2 * t + 1) + 0.28 * Math.sin(TAU * 3.7 * t + 2) + 0.75 * mg(t, 0.38, 0.012) - 0.6 * mg(t, 1.12, 0.015) + 0.7 * mg(t, 1.63, 0.03); },
+    ncse: function (t) { var v = 0; for (var k = 0; k < 6; k++) { var c = 0.08 + k * 0.4; v += 0.8 * mg(t, c, 0.014) + 0.6 * mg(t, c + 0.15, 0.07); } return v; },
+    lpd: function (t) { var v = 0.7 * mn(t); for (var k = 0; k < 3; k++) { var c = 0.4 + k * 1.05; v += 1.0 * mg(t, c, 0.025) - 0.35 * mg(t, c + 0.08, 0.04); } return v; },
+    psd: function (t) { var v = 0.25 * mn(t); for (var k = 0; k < 3; k++) { var c = 0.45 + k; v += 1.0 * mg(t, c, 0.035) - 0.5 * mg(t, c + 0.11, 0.05); } return v; },
+    sspe: function (t) { var v = 0.15 * mn(t); [1.6, 6.6].forEach(function (c) { v += 0.75 * mg(t, c, 0.18) + 0.85 * mg(t, c + 0.5, 0.2) + 0.95 * mg(t, c + 1.05, 0.22); }); return v; },
+    tri: function (t) { var v = 0.4 * mn(t); for (var k = 0; k < 4; k++) { var c = 0.25 + k * 0.5; v += 0.3 * mg(t, c, 0.03) - 1.0 * mg(t, c + 0.09, 0.04) + 0.42 * mg(t, c + 0.22, 0.07); } return v; },
+    slow: function (t) { return 0.55 * Math.sin(TAU * 2.5 * t) + 0.35 * Math.sin(TAU * 5.5 * t + 1) + 0.25 * Math.sin(TAU * 1.3 * t + 2); },
+    brush: function (t) { var d = Math.sin(TAU * 1.5 * t); return 0.75 * d + 0.16 * Math.sin(TAU * 24 * t) * (d > 0 ? 1 : 0.35); },
+    beta: function (t) { return 0.22 * Math.sin(TAU * 20 * t) + 0.12 * Math.sin(TAU * 24 * t + 1); }
+  };
   function renderMihonSec() {
-    var sec = document.getElementById('mihonSec'), pre = LIVE ? LIVE.sim.preset : '';
+    var sec = document.getElementById('mihonSec'), pre = LIVE ? LIVE.sim.preset : '', g0 = '';
     sec.hidden = V.mode !== 'lab'; if (sec.hidden) return;
-    document.getElementById('mihon').innerHTML = MIHON.map(function (m) { var c = CARDS.filter(function (x) { return x.id === m[0]; })[0]; return c ? '<button type="button" data-mihon="' + m[1] + '" aria-pressed="' + (pre === m[1]) + '"><canvas data-mc="' + c.id + '" aria-hidden="true"></canvas><b>' + esc(m[3]) + '</b><span class="muted">' + esc(m[2]) + '</span></button>' : ''; }).join('');
+    document.getElementById('mihon').innerHTML = MIHON.map(function (m) {
+      var h = m.g !== g0 ? '<p class="mh-g">' + esc(m.g) + '</p>' : ''; g0 = m.g;
+      return h + '<button type="button"' + (m.pre ? ' data-mihon="' + m.pre + '" aria-pressed="' + (pre === m.pre) + '"' : ' class="mh-pic" aria-disabled="true"') + '><canvas data-mf="' + m.id + '" data-sec="' + m.sec + '" aria-hidden="true"></canvas><b>' + esc(m.name) + '</b><span>' + esc(m.feat) + '</span><span class="mh-dis">' + esc(m.dis) + '</span>' + (m.pre ? '' : '<span class="mh-no">絵のみ（触ってみるには未対応）</span>') + '</button>';
+    }).join('');
     requestAnimationFrame(drawMihon);
+  }
+  function drawMihon() {
+    document.querySelectorAll('#mihon canvas[data-mf]').forEach(function (cv2) {
+      var f = MIHON_F[cv2.getAttribute('data-mf')], sec = +cv2.getAttribute('data-sec') || 2; if (!f) return;
+      var W0 = cv2.clientWidth || 160, H0 = 46, dpr = Math.min(window.devicePixelRatio || 1, 2);
+      cv2.width = Math.round(W0 * dpr); cv2.height = Math.round(H0 * dpr); cv2.style.height = H0 + 'px';
+      var c2 = cv2.getContext('2d'); c2.setTransform(dpr, 0, 0, dpr, 0, 0);
+      c2.fillStyle = TOK['--sheet']; c2.fillRect(0, 0, W0, H0);
+      var N = Math.max(200, W0 * 2), vals = [], mx = 0.4;
+      for (var i = 0; i <= N; i++) { var v = f(i / N * sec); vals.push(v); if (Math.abs(v) > mx) mx = Math.abs(v); }
+      var mid = H0 * 0.55, k = (H0 * 0.42) / mx;
+      c2.strokeStyle = TOK['--accent']; c2.lineWidth = 1.5; c2.lineJoin = 'round'; c2.beginPath();
+      vals.forEach(function (v, i) { var x = 4 + i / N * (W0 - 8), y = mid - v * k; i ? c2.lineTo(x, y) : c2.moveTo(x, y); });
+      c2.stroke();
+      c2.fillStyle = TOK['--muted']; c2.font = '9px sans-serif'; c2.textAlign = 'right'; c2.fillText(sec + '秒', W0 - 4, H0 - 3);
+    });
   }
   function mihonGo(v) { var sel0 = document.getElementById('preset'); sel0.value = v; sel0.dispatchEvent(new Event('change', { bubbles: true })); if (v === 'absence') setTimeout(function () { if (LIVE && !LIVE.st.hv) labAct('hv'); }, 400); }
   document.getElementById('mihonSec').addEventListener('click', function (e) { var b = e.target.closest('[data-mihon]'); if (b) { mihonGo(b.getAttribute('data-mihon')); var d = document.querySelector('.desk'); if (d) d.scrollIntoView({ block: 'start', behavior: 'smooth' }); } });
-  function drawMihon() { document.querySelectorAll('#mihon canvas[data-mc]').forEach(function (cv2) { var c = CARDS.filter(function (x) { return x.id === cv2.getAttribute('data-mc'); })[0]; if (c) { try { drawMini(cv2, { spec: c.spec, ch: c.ch.slice(0, 2), sens: c.sens }, false); } catch (e) {} } }); }
   var ACT_CARD = { eo1: 'alpha_block', blink: 'blink', lookL: 'look', lookR: 'look', clench: 'emg', hv1: 'hv_buildup', ph: 'photic_drive', s1: 'vertex', s2: 'spindle_kc', pop: 'pop', hum1: 'hum', ecg1: 'ecg' };
   var PRESET_CARD = { normal: 'alpha', benzo: 'beta_benzo', delirium: 'diffuse_slow', tle: 'spike', hepatic: 'triphasic', cjd: 'psd', hsv: 'lpd', ncse: 'ncse', clozapine: 'cloz', nmdar: 'brush', wicket: 'wicket' };
   function explain(key, isPreset) {
@@ -1541,7 +1664,14 @@ body.eegfs #panel.qz-on .mihon-box,body.eegfs #panel.rp-on .mihon-box{display:no
     var HLMAP = { eyes: [['O1','O2','P3','P4','T5','T6'], 3, function () { return st.eo ? 'α波が減る' : 'α波が戻る'; }], blink: [['Fp1','Fp2'], 1, 'まばたき'], lookL: [['F7','F8'], 1.8, '眼球運動'], lookR: [['F7','F8'], 1.8, '眼球運動'],
       clench: [['F7','F8','T3','T4','T5','T6'], 3, '筋電図'], hv: [SC, 10, function () { return st.hv ? '徐波が増える' : ''; }], photic: [['O1','O2'], 8, function () { return st.photic ? '光駆動' : ''; }],
       sleep: [['Cz','C3','C4','Fz','Pz'], 8, function () { return ['', '頭蓋頂鋭波', '紡錘波・K複合'][st.sleep]; }], pop: [['C4'], 2, '電極ポップ'], hum: [['O2'], 10, function () { return L.flags.hum ? 'ハム（50Hz）' : ''; }], ecg: [['T3','T5','O1'], 10, function () { return L.flags.ecg ? '心電図の混入' : ''; }] };
-    setTimeout(function () { var m = HLMAP[act]; if (!m) return; var tx = typeof m[2] === 'function' ? m[2]() : m[2]; if (!tx) return; L.hls.push({ t0: t, t1: t + m[1], el: m[0], txt: tx }); if (L.hls.length > 30) L.hls.shift(); }, 0);
+    setTimeout(function () {
+      var m = HLMAP[act]; if (!m) return; var tx = typeof m[2] === 'function' ? m[2]() : m[2]; if (!tx) return;
+      var band = { t0: t, t1: t + m[1], el: m[0], txt: tx };
+      // 入れたままのボタン（目を開ける・過呼吸・光・眠り・ハム・心電図）は、この帯が記録紙から消えたら自動でオフにする
+      var on = { eyes: st.eo, hv: st.hv, photic: st.photic, sleep: st.sleep, hum: L.flags.hum, ecg: L.flags.ecg }[act];
+      if (on) { L.hls.forEach(function (h) { if (h.auto === act) h.auto = null; }); band.auto = act; }
+      L.hls.push(band); if (L.hls.length > 30) L.hls.shift();
+    }, 0);
     switch (act) {
       case 'eyes': st.eo = st.eo ? 0 : 1; sim.set(t, 'eo', st.eo); if (st.eo) { sim.events.push(mkEv('blink', t, {})); if (st.sleep) { st.sleep = 0; sim.set(t, 'sleep', 0); } } ann(st.eo ? '開眼' : '閉眼'); explain(st.eo ? 'eo1' : 'eo0'); break;
       case 'blink': sim.events.push(mkEv('blink', t, {})); ann('まばたき'); explain('blink'); break;
@@ -1558,6 +1688,16 @@ body.eegfs #panel.qz-on .mihon-box,body.eegfs #panel.rp-on .mihon-box{display:no
     renderLabButtons(); faceSync(act, val);
     if (!V.playing) { advance(Math.round(1.5 * FS)); draw(); }
     tutAfter(act, val);
+  }
+  var AUTO_NAME = { eyes: '目を開ける', hv: '過呼吸', photic: '光刺激', sleep: '眠り', hum: 'O2 にハム', ecg: '耳に心電図' };
+  function autoOff() {
+    if (!LIVE) return; var L = LIVE, st = L.st, tl = L.w / FS - V.win;
+    L.hls.slice().forEach(function (h) {
+      if (!h.auto || h.t1 >= tl) return; var a = h.auto; h.auto = null;
+      var still = { eyes: st.eo, hv: st.hv, photic: st.photic, sleep: st.sleep, hum: L.flags.hum, ecg: L.flags.ecg }[a]; if (!still) return;
+      if (a === 'photic' || a === 'sleep') labAct(a, 0); else labAct(a);
+      toast('<b>「' + AUTO_NAME[a] + '」を自動でオフにしました</b><br>反応が記録紙から流れ去ったので、元に戻しました');
+    });
   }
   function renderLabButtons() {
     var st = LIVE.st, f = LIVE.flags;
@@ -1615,6 +1755,7 @@ body.eegfs #panel.qz-on .mihon-box,body.eegfs #panel.rp-on .mihon-box{display:no
     var mh = e.target.closest('[data-mihon]');
     if (mh) { mihonGo(mh.getAttribute('data-mihon')); return; }
     if (e.target.closest('#tutSkip')) { tutEnd(); return; }
+    if (e.target.closest('#labReset')) { TUT.step = -1; QZ.cur = null; var m0 = V.mont; newLive(LIVE.sim.preset); V.mont = m0; V.playing = true; enterLab(); toast('<b>最初の状態に戻しました</b><br>操作をすべて取り消して、記録をとり直しています'); return; }
     if (e.target.closest('#tutBtn')) { tutStart(); return; }
     if (e.target.closest('#qzBtn')) { TUT.step = -1; tutMark(); quizStart(); return; }
     if (e.target.closest('#rpBtn')) { TUT.step = -1; tutMark(); reportOpen(); return; }
@@ -1744,7 +1885,8 @@ body.eegfs #panel.qz-on .mihon-box,body.eegfs #panel.rp-on .mihon-box{display:no
   function quizReveal(msg) {
     var q = QZ.cur; QZ.cur = null; if (!q) return;
     var h = LIVE.hls.filter(function (x) { return x.t0 === q.t0; })[0];
-    if (h) h.txt = q.name; else LIVE.hls.push({ t0: q.t0, t1: q.t1, el: q.el, txt: q.name });
+    if (!h) { h = { t0: q.t0, t1: q.t1, el: q.el }; LIVE.hls.push(h); }
+    h.txt = q.name; h.red = true; h.redT = 0;
     exEl().innerHTML = '<h3>答え：' + esc(q.name) + '</h3><p>' + msg + '</p><p>一時停止して、黄色の帯で示しています。成績 ' + QZ.ok + ' / ' + QZ.n + '</p><div class="rp"><div class="rs"><button type="button" id="qzBtn" class="qz-next">次の問題（自動で再生）</button></div></div>';
     quizFocus(q);
   }
@@ -2426,7 +2568,7 @@ body.eegfs #panel.qz-on .mihon-box,body.eegfs #panel.rp-on .mihon-box{display:no
         [6, 'thrash shut', 'L:検査技師:目を開けてみてください', 'まぶたを開けようとすると、ぎゅっと閉じて抵抗する。'],
         [9.5, '', 'R:本人:…終わりました', '終わるとすぐに話せる。（実際は10分以上続く）']] },
       spec: { seed: 41, preset: 'normal', mont: 'bip', auto: false, ev: [['move', 0.4, { dur: 2.6, amp: 70 }], ['emg', 0.3, { dur: 2.9, amp: 24 }], ['move', 5.2, { dur: 3.4, amp: 80 }], ['emg', 5.0, { dur: 3.8, amp: 26 }]], ann: [[0.05, '発作中（ビデオで確認）']] },
-      hl: { t0: 3.0, t1: 5.1, el: ['O1', 'O2', 'P3', 'P4'] },
+      hl: { t0: 3.0, t1: 5.1, el: ['O1', 'O2', 'P3', 'P4'], txt: 'α波が残っている' },
       qs: [
         { q: '発作中の脳波所見として正しいのはどれか。', a: ['体動と筋電図のアーチファクトで、その合間に後頭部のα波が保たれている', '全般性の律動的な棘徐波が続いている', '発作後の全般性の抑制', '前頭部優位の三相波', '左側頭部の律動的なθ波'],
           why: '大きな揺れと速い波は、体の動きと筋肉によるアーチファクトです。その合間（3〜5秒）に、後頭部のα波がそのまま見えています。全身を動かす発作中に、目を閉じた安静時と同じα波があることは、脳の電気の発作ではないことを示します。' },
