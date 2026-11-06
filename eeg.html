@@ -122,6 +122,9 @@ h1{font-family:var(--f-display); font-weight:400; margin:0; font-size:clamp(2.1r
 .mode[aria-current="page"]{border-color:var(--accent); box-shadow:inset 0 0 0 1px var(--accent); background:var(--accent-soft)}
 .mode .mt{font-family:var(--f-display); font-size:var(--fs-l); letter-spacing:.04em}
 .mode .ms{font-size:var(--fs-xs); color:var(--muted)}
+.mode .mg{font-size:10px;font-weight:700;color:var(--muted);letter-spacing:.08em}
+.mode-story{border:2px solid var(--accent);background:color-mix(in srgb,var(--accent) 7%,var(--panel))}
+.mode-story .mg{color:var(--accent)}
 @media (max-width:820px){ .modes{grid-template-columns:repeat(2, minmax(0,1fr))} }
 .level{margin-top:10px; display:flex; flex-wrap:wrap; gap:6px 12px; align-items:center}
 .level .lb{font-size:var(--fs-xs); color:var(--muted); letter-spacing:.08em}
@@ -386,6 +389,30 @@ body.eegfs .mihon-wrap{display:none}
 .pt.dyst .p-armR{transform:translate(4px,-26px) rotate(-18deg);transform-origin:116px 116px}
 .pt.dyst .p-armR .p-hand{transform:scale(.8,1.25);transform-box:fill-box;transform-origin:center}
 .pt.confused .p-q{display:inline} .pt.confused .p-pupil{transform:translate(-2px,1px)}
+
+.pt .p-night,.pt .p-bedb,.pt .p-iv,.pt .p-blanket,.pt .p-pillbox{display:none}
+.pt.props-bed .p-bedb,.pt.props-bed .p-iv,.pt.props-bed .p-blanket,.pt.props-pills .p-pillbox{display:inline}
+.pt.night .p-night{display:inline} .pt .p-night rect{fill:#1d2733} .pt .p-night circle{fill:#f3e7b0}
+.pt .p-bedb rect{fill:#e6e1d6;stroke:#a89e8a;stroke-width:1.2}
+.pt .p-iv path{fill:none;stroke:#8a96a0;stroke-width:2} .pt .p-iv rect{fill:#dfeef6;stroke:#7d99a8;stroke-width:1.2} .pt .p-iv .p-tube{stroke:#9fc0d0;stroke-width:1.5}
+.pt .p-blanket rect{fill:#f2f2ee;stroke:#b8b8ac;stroke-width:1.2}
+.pt .p-pillbox rect{fill:#c9a97e;stroke:#8a6a44;stroke-width:1} .pt .p-pillbox .p-box{fill:#fff;stroke:#c05050} .pt .p-pillbox circle{fill:#fff;stroke:#999;stroke-width:.8}
+.pt .p-lid{fill:#f6d7bd;display:none}
+.pt.drowsy .p-lid{display:inline}
+.pt.jaundice .p-skin,.pt.jaundice .p-hand{fill:#ecd27e} .pt.jaundice .p-lid{fill:#ecd27e} .pt.jaundice .p-white{fill:#f4e7a6}
+.pt.look .p-pupil{animation:pLook 1.4s ease-in-out infinite}
+@keyframes pLook{0%,100%{transform:translateX(-3px)}50%{transform:translateX(3px)}}
+.pt.pick .p-armR{animation:pPick 1.3s ease-in-out infinite}
+@keyframes pPick{0%,100%{transform:translate(0,0)}50%{transform:translate(50px,-32px)}}
+.pt.asterix .p-armR{transform:translate(4px,-22px)} .pt.asterix .p-armL{transform:translate(-4px,-22px)} .pt.asterix .p-hand{r:9px}
+.pt.asterix .p-hand{animation:pFlap 2.2s linear infinite;transform-box:fill-box;transform-origin:center top}
+.pt.asterix .p-armL .p-hand{animation-delay:.7s}
+@keyframes pFlap{0%,30%,38%,62%,70%,100%{transform:translateY(0)}33%{transform:translateY(7px)}66%{transform:translateY(6px)}}
+.pt.tremor .p-armR .p-hand,.pt.tremor .p-armL .p-hand{animation:pTrem .2s linear infinite;transform-box:fill-box}
+@keyframes pTrem{0%,100%{transform:translate(-2px,0)}50%{transform:translate(2px,1px)}}
+.pt.sway .p-body{animation:pSway 2s ease-in-out infinite;transform-box:view-box;transform-origin:150px 186px}
+@keyframes pSway{0%,100%{transform:rotate(-3deg)}50%{transform:rotate(3deg)}}
+.pt.forget .p-q{display:inline} .pt.forget .p-pupil{transform:translate(1px,-1.5px)}
 @media (prefers-reduced-motion:reduce){.pt *{animation-duration:1.5s!important}}
 
 .side-info p{margin:0}
@@ -498,12 +525,12 @@ body.eegfs #panel.qz-on .mihon-box,body.eegfs #panel.rp-on .mihon-box{display:no
   </section>
 
   <nav class="modes" aria-label="モード">
-    <a class="mode" href="#lab" data-mode="lab"><span class="mt">触ってみる</span><span class="ms">目を開ける・眠る・光をあてる</span></a>
-    <a class="mode" href="#story" data-mode="story"><span class="mt">ストーリー</span><span class="ms">新人医師の1年（試作）</span></a>
-    <a class="mode" href="#dojo" data-mode="dojo"><span class="mt">波形道場</span><span class="ms">波の名前を当てる 12問</span></a>
-    <a class="mode" href="#hunter" data-mode="hunter"><span class="mt">位相逆転ハンター</span><span class="ms">焦点の電極を探す 10回</span></a>
-    <a class="mode" href="#conf" data-mode="conf"><span class="mt">脳波カンファ</span><span class="ms">精神科の症例 13人・39問</span></a>
-    <a class="mode" href="#zukan" data-mode="zukan"><span class="mt">脳波図鑑</span><span class="ms" id="zkTab">集めたカード</span></a>
+    <a class="mode mode-story" href="#story" data-mode="story"><span class="mg">本編</span><span class="mt">ストーリー</span><span class="ms">新人医師の1年。章を順に進める</span></a>
+    <a class="mode" href="#lab" data-mode="lab"><span class="mg">練習</span><span class="mt">触ってみる</span><span class="ms">目を開ける・眠る・光をあてる</span></a>
+    <a class="mode" href="#dojo" data-mode="dojo"><span class="mg">練習</span><span class="mt">波形道場</span><span class="ms">波の名前を当てる 12問</span></a>
+    <a class="mode" href="#hunter" data-mode="hunter"><span class="mg">練習</span><span class="mt">位相逆転ハンター</span><span class="ms">焦点の電極を探す 10回</span></a>
+    <a class="mode" href="#conf" data-mode="conf"><span class="mg">練習</span><span class="mt">脳波カンファ</span><span class="ms">精神科の症例 13人・39問</span></a>
+    <a class="mode" href="#zukan" data-mode="zukan"><span class="mg">集めたもの</span><span class="mt">脳波図鑑</span><span class="ms" id="zkTab">集めたカード</span></a>
   </nav>
   <div class="level" role="group" aria-labelledby="lvh">
     <span id="lvh" class="lb">波のレベル</span>
@@ -2141,11 +2168,100 @@ body.eegfs #panel.qz-on .mihon-box,body.eegfs #panel.rp-on .mihon-box{display:no
     { n: 2, t: '外来', d: '欠神発作・若年ミオクロニーてんかん・側頭葉てんかん', cases: ['absence', 'jme', 'tle'],
       intro: '外来へようこそ。今日は「ぼんやりする」「物を落とす」「記憶が飛ぶ」の3人。どれも発作かもしれないし、そうでないかもしれない。発作の様子と脳波をセットで覚えよう。',
       outro: '3人とも、発作の「見た目」と脳波がちゃんと対応していたね。ぼんやり・ピクッ・もぐもぐ。精神科の外来にも、てんかんの人は普通に来る。見逃さないのが大事。' },
-    { n: 3, t: '病棟とリエゾン', d: 'せん妄・肝性脳症・リチウム中毒・ベンゾジアゼピン', cases: [] },
+    { n: 3, t: '病棟とリエゾン', d: 'せん妄・肝性脳症・リチウム中毒・ベンゾジアゼピン', cases: ['delir', 'hepatic', 'lithium', 'benzo'],
+      intro: '今月は病棟とリエゾン（ほかの科からの相談）。「急におかしくなった」と呼ばれたら、まず体と薬を疑う。脳波はそのとき強い味方になる。',
+      outro: 'ゆっくりになった脳波は「意識が下がっている」サイン。三相波は代謝の脳症、速い波は薬。脳波を見たら、体と薬を探しに行く。これがリエゾンの基本だよ。' },
     { n: 4, t: '当直と救急', d: '非けいれん性てんかん重積・ヘルペス脳炎・抗NMDA受容体脳炎・PNES', cases: [] },
     { n: 5, t: '専門外来', d: 'クロイツフェルト・ヤコブ病・クロザピン・ECT', cases: [] }
   ];
   var ST_CASES = {
+    delir: {
+      title: '夜に「ここは駅だ」', card: ['diffuse_slow'],
+      vig: [['患者', '78歳の男性'], ['依頼', '整形外科病棟から「夜に興奮して、点滴を抜こうとする」と相談があった。'],
+        ['現病歴', '3日前、転倒による大腿骨頸部骨折で人工骨頭置換術を受けた。術後2日目の夜から「ここは駅だ」「電車が来る」と言い、点滴を何度も抜こうとする。日中はうとうとして、呼びかけてもすぐ眠ってしまう。症状は1日のなかで強くなったり弱くなったりする。'],
+        ['既往歴', '高血圧、前立腺肥大症。もの忘れを指摘されたことはない。'], ['内服薬', '術後から、不眠時にトリアゾラムが使われている。'],
+        ['身体所見', '体温 37.9℃。注意が続かず、日付と場所を間違える。'], ['検査所見', '白血球 12,800/μL、CRP 8.2 mg/dL。尿は混濁している。']],
+      eegNote: '脳波検査を行った。日中、目を閉じた状態の記録を示す。',
+      anim: { props: 'bed', loop: 12, steps: [
+        [0, 'night drowsy', '', '夜の病棟。うとうとしている。'],
+        [2, 'night look', 'R:本人:ここは駅だ。電車が来る', '急に目を覚まし、落ち着きなくあたりを見回す。場所を取り違えている。'],
+        [6, 'night look pick', 'L:看護師:点滴、触らないでくださいね', '点滴の管を何度も引っぱろうとする。'],
+        [9.5, 'drowsy', '', '日中はうとうと。呼びかけてもすぐ眠ってしまう。（1日のなかで波がある）']] },
+      spec: { seed: 31, preset: 'delirium', mont: 'ref' }, hl: { t0: 0, t1: 10, el: ['O1', 'O2', 'C3', 'C4', 'F3', 'F4'] },
+      qs: [
+        { q: '脳波所見として正しいのはどれか。', a: ['α波の徐波化と、θ波・δ波の全般性の増加（びまん性徐波）', '後頭部優位の正常なα律動', '左側頭部の棘波', '前頭〜中心部優位の速波（β波）の増加', '周期性同期性放電（PSD）'],
+          why: '基礎律動が7Hzほどに遅く小さくなり、θ・δの徐波が左右差なく全体に増えています。脳全体の働きが落ちていることを示します。' },
+        { q: '最も考えられる診断はどれか。', a: ['せん妄', '統合失調症', 'アルツハイマー型認知症', '非けいれん性てんかん重積', 'うつ病'],
+          why: '急に始まり、1日のなかで変動する注意と意識の障害、夜の幻覚と興奮。せん妄です。脳波のびまん性徐波は、意識の障害であることの裏づけになります。てんかん性の放電は見られません。' },
+        { q: '対応として適切なのはどれか。2つ選べ。', n: 2, a: ['尿路感染症などの体の原因を調べて治療する', 'トリアゾラム（ベンゾジアゼピン）をやめる', 'ベンゾジアゼピンを増やして眠らせる', '抗てんかん薬を始める', 'まず身体拘束を行う'],
+          why: 'せん妄の治療の中心は、原因（ここでは尿路感染症と発熱、ベンゾジアゼピン）を取り除くことです。ベンゾジアゼピンはせん妄を悪くします。身体拘束は最後の手段です。' }
+      ],
+      sensei: 'せん妄は「意識の病気」。脳波がゆっくりになっているのがその証拠。治すのは原因で、ここでは尿路感染と睡眠薬。夜だけを見て「認知症」と決めないこと。' },
+    hepatic: {
+      title: '羽ばたくような手', card: ['triphasic'],
+      vig: [['患者', '58歳の男性'], ['依頼', '消化器内科病棟から「意識がおかしい」と相談があった。'],
+        ['現病歴', 'アルコール性肝硬変で通院中。1週間前から便秘が続き、2日前から昼夜が逆転した。昨日から日付や場所がわからず、つじつまの合わないことを言う。'],
+        ['既往歴', 'アルコール使用症。2年前から断酒している。'],
+        ['身体所見', '皮膚と眼球結膜に黄染がある。腹部は膨隆している（腹水）。両腕を前に伸ばして手首を反らすと、手が羽ばたくように落ちる。'],
+        ['検査所見', '総ビリルビン 4.2 mg/dL、アルブミン 2.6 g/dL、血中アンモニア 182 μg/dL（基準 80 以下）。']],
+      eegNote: '脳波検査を行った。目を閉じた状態の記録を示す。',
+      anim: { props: 'exam', loop: 11, steps: [
+        [0, 'jaundice drowsy', 'L:医師:両手を前に伸ばして、手首を反らしてください', '診察。皮膚と白目が黄色い（黄疸）。'],
+        [3, 'jaundice drowsy asterix', '', '手首を反らしたまま保てず、ときどきパタッと落ちる（羽ばたき振戦）。'],
+        [8, 'jaundice drowsy', 'R:本人:今日は…何日だっけ…', '日付がわからず、ぼんやりしている。']] },
+      spec: { seed: 33, preset: 'hepatic', mont: 'ref' }, hl: { t0: 0, t1: 10, el: ['Fp1', 'Fp2', 'F3', 'F4', 'Fz'] },
+      qs: [
+        { q: '脳波所見として正しいのはどれか。', a: ['前頭部優位の三相波', '全般性 3Hz 棘徐波複合', '周期性同期性放電（PSD）', '後頭部優位の正常なα律動', '左側頭部の周期性放電（LPDs）'],
+          why: '小さく上向き、大きく下向き、また上向きの3つの相をもつ波が、1秒に2回ほど、前頭部で大きく出ています。前の電極から後ろの電極へ、山が少しずつ遅れて出るのも特徴です。' },
+        { q: '最も考えられる診断はどれか。', a: ['肝性脳症', 'クロイツフェルト・ヤコブ病', 'アルコール離脱せん妄', 'ウェルニッケ脳症', '非けいれん性てんかん重積'],
+          why: '肝硬変、便秘（アンモニアが増える誘因）、高アンモニア血症、羽ばたき振戦、三相波。肝性脳症です。断酒して2年なので、離脱せん妄は考えにくくなります。' },
+        { q: '正しいのはどれか。2つ選べ。', n: 2, a: ['便秘を治し（ラクツロースなど）、アンモニアを下げる', '三相波は腎不全やリチウム中毒など、ほかの代謝性脳症でも出る', '三相波は肝性脳症だけに出る', '羽ばたき振戦はてんかん発作なので、抗てんかん薬を使う', 'ベンゾジアゼピンで鎮静する'],
+          why: '便秘や消化管出血、感染などの誘因を除き、アンモニアを下げます。三相波は代謝性脳症の所見で、肝臓に限りません。ベンゾジアゼピンは肝性脳症を悪くします。' }
+      ],
+      sensei: '三相波、羽ばたき振戦、黄疸、ときたら肝性脳症。ただし三相波は「代謝の脳症」のしるしで、肝臓専用じゃない。腎臓やリチウムでも出る。次の人がまさにそれ。' },
+    lithium: {
+      title: 'ふるえて呂律が回らない', card: ['diffuse_slow'],
+      vig: [['患者', '64歳の女性'], ['依頼', '内科から「意識がおかしい」と紹介された。'],
+        ['現病歴', '双極症で15年前から炭酸リチウム 800 mg/日を飲み、安定していた。2週間前から暑さのなか下痢が続いた。1週間前、腰痛のため整形外科でロキソプロフェン（NSAIDs）が始まった。数日前から手のふるえが粗くなり、ふらついて呂律が回らない。今日はぼんやりして、話がかみ合わない。'],
+        ['既往歴', '高血圧で ACE 阻害薬を飲んでいる。'],
+        ['身体所見', '粗い手のふるえ（粗大振戦）、体幹の失調、構音障害がある。'],
+        ['検査所見', '血清クレアチニン 1.6 mg/dL（半年前は 0.8 mg/dL）。血中リチウム濃度は結果待ち。']],
+      eegNote: '脳波検査を行った。目を閉じた状態の記録を示す。',
+      anim: { props: 'exam', loop: 10, steps: [
+        [0, 'tremor drowsy', '', '手が粗く、大きくふるえる（粗大振戦）。'],
+        [3, 'tremor sway drowsy', 'R:本人:ろれつが…まわら…ない', '座っていても体がゆれる（失調）。言葉がもつれる（構音障害）。'],
+        [7, 'tremor drowsy', 'L:娘:話がかみ合わないんです', '意識がぼんやりして、話がかみ合わない。']] },
+      spec: { seed: 39, preset: 'hepatic', mont: 'ref', bg: { alpha: 12, alphaF: 6.5, theta: 18, delta: 22 } }, hl: { t0: 0, t1: 10, el: ['Fp1', 'Fp2', 'F3', 'F4', 'Fz', 'C3', 'C4', 'O1', 'O2'] },
+      qs: [
+        { q: '脳波所見として正しいのはどれか。', a: ['全般性の徐波化と、前頭部優位の三相波に似た波', '後頭部優位の正常なα律動', '左側頭部の棘波', '前頭〜中心部優位の速波（β波）の増加', '全般性 3Hz 棘徐波複合'],
+          why: '背景が6〜7Hzに遅くなり、θ・δ波が全体に増えています。前頭部では三相波に似た波もくり返しています。' },
+        { q: '最も考えられる診断はどれか。', a: ['炭酸リチウム中毒', '双極症の躁病エピソード', '悪性症候群', 'セロトニン症候群', 'アルツハイマー型認知症'],
+          why: '粗大振戦、失調、構音障害、意識障害はリチウム中毒の症状です。腎機能も悪くなっています。' },
+        { q: '正しいのはどれか。2つ選べ。', n: 2, a: ['脱水、NSAIDs、ACE 阻害薬は、どれもリチウムの血中濃度を上げる', 'リチウムをやめて補液を行い、重い場合は血液透析を考える', '血中濃度が治療域なら、中毒は否定できる', '躁状態の再燃なので、リチウムを増やす', '振戦には抗コリン薬を使う'],
+          why: '脱水（下痢）、NSAIDs、ACE 阻害薬（ほかに ARB や利尿薬）は、どれもリチウムの排泄を減らします。まずリチウムを止め、補液をし、重ければ血液透析を考えます。高齢者などでは、治療域の濃度でも神経毒性が出ることがあります。' }
+      ],
+      sensei: 'リチウムは、脱水・NSAIDs・ACE 阻害薬で濃度が上がる。夏の下痢と痛み止めは、要注意の組み合わせ。濃度の結果が出る前でも、脳波の徐波化が手がかりになるよ。' },
+    benzo: {
+      title: '物忘れが心配', card: ['beta_benzo'],
+      vig: [['患者', '45歳の女性'], ['主訴', '「物忘れがひどい」'],
+        ['現病歴', '12年前にパニック症と診断され、近くの診療所でアルプラゾラム 1.2 mg/日と、寝る前のフルニトラゼパム 2 mg を飲み続けている。半年前から、約束を忘れる、同じことを何度も聞く、と家族に言われる。認知症を心配して来院した。'],
+        ['既往歴', '特記すべきことはない。'], ['家族歴', '母がアルツハイマー型認知症（80歳で発症）。'],
+        ['身体所見', '神経学的所見に異常はない。'], ['検査所見', '改訂長谷川式簡易知能評価スケール 27点。頭部 MRI に、年齢を超える萎縮はない。']],
+      eegNote: '脳波検査を行った。目を閉じた状態の記録を示す。',
+      anim: { props: 'pills', loop: 9, steps: [
+        [0, '', '', '自宅。テーブルに薬の箱がある。'],
+        [2, 'forget', 'R:本人:あれ、何を取りに来たんだっけ', 'ついさっきのことを忘れる。'],
+        [6, 'drowsy', '', '昼間もぼんやりして、眠気が残る。']] },
+      spec: { seed: 35, preset: 'benzo', mont: 'ref' }, hl: { t0: 0, t1: 10, el: ['Fp1', 'Fp2', 'F3', 'F4', 'Fz', 'C3', 'C4', 'Cz'] },
+      qs: [
+        { q: '脳波所見として正しいのはどれか。', a: ['前頭〜中心部優位の速波（β波）の増加', '全般性の徐波化', '後頭部の光駆動', '側頭部の筋電図だけ', '周期性同期性放電（PSD）'],
+          why: '形のそろった 20Hz 前後の速い波が、前頭から中心に広く、左右対称に出ています。筋電図はさらに速く不規則で、筋肉の上の電極（F7・F8・T3・T4）に強く出ます。' },
+        { q: '物忘れの原因として最も考えられるのはどれか。', a: ['ベンゾジアゼピンの長期服用', 'アルツハイマー型認知症', 'クロイツフェルト・ヤコブ病', '側頭葉てんかん', '甲状腺機能亢進症'],
+          why: 'ベンゾジアゼピンは速波を増やす代表的な薬で、長く飲むと記憶や注意に影響します。認知機能検査と MRI はほぼ年齢相応です。' },
+        { q: '対応として適切なのはどれか。2つ選べ。', n: 2, a: ['急にやめると離脱症状（不安・不眠・けいれん）が出るので、少しずつ減らす', 'パニック症には、SSRI と認知行動療法への切り替えを考える', '今日から全部やめる', '速波は認知症が進んでいるしるしである', '脳波に異常があるので、抗てんかん薬を始める'],
+          why: '長く飲んだベンゾジアゼピンは、数か月かけて少しずつ減らします。急にやめると、離脱けいれんやせん妄が起きることがあります。パニック症の治療の中心は SSRI と認知行動療法です。' }
+      ],
+      sensei: '脳波に速い波がいっぱいなら、まず「どんな薬を飲んでいますか？」。物忘れの相談では、睡眠薬や抗不安薬の確認は必ず。やめるときは、ゆっくり。急にやめると、けいれんも起こり得るからね。' },
     absence: {
       title: '授業中にぼんやりする', card: ['sw3'],
       vig: [['患者', '8歳の女児'], ['主訴', '授業中にぼんやりする'],
@@ -2223,30 +2339,36 @@ body.eegfs #panel.qz-on .mihon-box,body.eegfs #panel.rp-on .mihon-box{display:no
 
   // 症状の様子：人の絵（SVG）。場面ごとに class を付け替え、吹き出しと説明文を出す
   var ANIM_SVG = '<svg class="pt" viewBox="0 0 300 200" role="img" aria-label="症状の様子のイラスト">' +
+    '<g class="p-night"><rect x="0" y="0" width="300" height="200"/><circle cx="40" cy="30" r="10"/></g>' +
+    '<g class="p-bedb"><rect x="96" y="26" width="108" height="110" rx="8"/></g>' +
+    '<g class="p-iv"><path d="M262 18 V190 M250 190 H274"/><rect x="252" y="18" width="20" height="26" rx="4"/><path class="p-tube" d="M262 44 C262 110 240 150 196 150"/></g>' +
     '<g class="p-sofa"><rect x="40" y="96" width="220" height="70" rx="16"/><rect x="28" y="120" width="30" height="58" rx="10"/><rect x="242" y="120" width="30" height="58" rx="10"/></g>' +
     '<g class="p-body"><path class="p-shirt" d="M112 112 Q150 98 188 112 L198 186 L102 186 Z"/>' +
     '<g class="p-armR"><path class="p-sleeve" d="M116 116 L96 150 L124 166"/><circle class="p-hand" cx="126" cy="166" r="7"/><g class="p-pencil"><path d="M128 160 L140 146"/></g></g>' +
     '<g class="p-armL"><path class="p-sleeve" d="M184 116 L204 150 L176 166"/><circle class="p-hand" cx="174" cy="166" r="7"/></g>' +
     '<g class="p-head"><rect class="p-skin" x="140" y="94" width="20" height="12"/><ellipse class="p-skin" cx="150" cy="68" rx="28" ry="31"/>' +
     '<path class="p-hair" d="M122 66 C120 40 138 34 152 35 C168 36 180 46 178 66 C172 54 164 50 150 50 C138 50 128 54 122 66 Z"/>' +
-    '<g class="p-eye" transform="translate(139 70)"><ellipse class="p-white" rx="6" ry="4.2"/><circle class="p-pupil" r="2.4"/><path class="p-shut" d="M-6 0 Q0 3.5 6 0"/></g>' +
-    '<g class="p-eye" transform="translate(161 70)"><ellipse class="p-white" rx="6" ry="4.2"/><circle class="p-pupil" r="2.4"/><path class="p-shut" d="M-6 0 Q0 3.5 6 0"/></g>' +
+    '<g class="p-eye" transform="translate(139 70)"><ellipse class="p-white" rx="6" ry="4.2"/><circle class="p-pupil" r="2.4"/><path class="p-shut" d="M-6 0 Q0 3.5 6 0"/><rect class="p-lid" x="-7" y="-5" width="14" height="5"/></g>' +
+    '<g class="p-eye" transform="translate(161 70)"><ellipse class="p-white" rx="6" ry="4.2"/><circle class="p-pupil" r="2.4"/><path class="p-shut" d="M-6 0 Q0 3.5 6 0"/><rect class="p-lid" x="-7" y="-5" width="14" height="5"/></g>' +
     '<path class="p-mouth" d="M143 86 Q150 89 157 86"/><text class="p-q" x="186" y="44">?</text></g></g>' +
     '<g class="p-desk"><rect x="60" y="164" width="180" height="10" rx="2"/><rect x="104" y="156" width="56" height="9" class="p-note"/></g>' +
     '<g class="p-table"><rect x="60" y="168" width="180" height="10" rx="2"/><g class="p-cup"><rect x="186" y="146" width="16" height="20" rx="3"/></g></g>' +
-    '<g class="p-bub p-bubL"><rect x="4" y="6" width="124" height="54" rx="10"/><text x="12" y="20" class="p-who"></text><text x="12" y="36" class="p-say"><tspan x="12"></tspan><tspan x="12" dy="15"></tspan></text></g>' +
-    '<g class="p-bub p-bubR"><rect x="168" y="2" width="128" height="54" rx="10"/><text x="176" y="16" class="p-who"></text><text x="176" y="32" class="p-say"><tspan x="176"></tspan><tspan x="176" dy="15"></tspan></text></g>' +
+    '<g class="p-blanket"><rect x="70" y="150" width="170" height="50" rx="10"/></g>' +
+    '<g class="p-pillbox"><rect x="60" y="168" width="180" height="10" rx="2"/><rect x="196" y="152" width="30" height="16" rx="2" class="p-box"/><circle cx="184" cy="165" r="2.5"/><circle cx="178" cy="166" r="2.5"/></g>' +
+    '<g class="p-bub p-bubL"><rect x="4" y="6" width="150" height="54" rx="10"/><text x="12" y="20" class="p-who"></text><text x="12" y="36" class="p-say"><tspan x="12"></tspan><tspan x="12" dy="15"></tspan></text></g>' +
+    '<g class="p-bub p-bubR"><rect x="146" y="2" width="152" height="54" rx="10"/><text x="154" y="16" class="p-who"></text><text x="154" y="32" class="p-say"><tspan x="154"></tspan><tspan x="154" dy="15"></tspan></text></g>' +
     '</svg>';
   var stT = [], stOn = false;
   function storyAnimStop() { stT.forEach(clearTimeout); stT = []; stOn = false; }
-  function wrapSay(s) { var k = s.indexOf('、'); if (k > 0 && k < 10) return [s.slice(0, k + 1), s.slice(k + 1)]; return s.length > 9 ? [s.slice(0, 9), s.slice(9)] : [s, '']; }
+  function wrapSay(s) { var M = 12; if (s.length <= M) return [s, '']; var k = s.lastIndexOf('、', M - 1); if (k < 3) k = s.lastIndexOf('。', M - 1); var c = k >= 3 ? k + 1 : M; return [s.slice(0, c), s.slice(c, c + M)]; }
   function storyAnimRun(c) {
     storyAnimStop(); var box = document.getElementById('stAnim'); if (!box) return;
     var svg = box.querySelector('svg'), cap = document.getElementById('stCap'), A = c.anim; stOn = true;
-    svg.setAttribute('class', 'pt props-' + A.props);
+    var pc = 'pt ' + A.props.split(' ').map(function (x) { return 'props-' + x; }).join(' ');
+    svg.setAttribute('class', pc);
     function step(s) {
       if (!document.getElementById('stAnim')) { storyAnimStop(); return; }
-      svg.setAttribute('class', 'pt props-' + A.props + (s[1] ? ' ' + s[1] : '') + (s[2] ? ' bub-' + s[2][0] : ''));
+      svg.setAttribute('class', pc + (s[1] ? ' ' + s[1] : '') + (s[2] ? ' bub-' + s[2][0] : ''));
       if (s[2]) { var p = s[2].split(':'), g = svg.querySelector(p[0] === 'L' ? '.p-bubL' : '.p-bubR'); g.querySelector('.p-who').textContent = p[1]; var ln = wrapSay(p.slice(2).join(':')), ts = g.querySelectorAll('tspan'); ts[0].textContent = ln[0]; ts[1].textContent = ln[1]; }
       cap.textContent = s[3];
     }
@@ -2273,7 +2395,7 @@ body.eegfs #panel.qz-on .mihon-box,body.eegfs #panel.rp-on .mihon-box{display:no
     var html = '', ch = ST_CH[SQ.ch - 1], c;
     if (SQ.ph === 'menu') {
       var sv = stLoad();
-      html = '<div class="ph"><h2 id="panelH" tabindex="-1">ストーリー　新人医師の1年</h2><span class="prog">試作版：第2章だけ遊べます</span></div>' +
+      html = '<div class="ph"><h2 id="panelH" tabindex="-1">ストーリー　新人医師の1年</h2><span class="prog">試作版：第2・3章が遊べます</span></div>' +
         '<p class="story">あなたは精神科に入った1年目の医師。指導医と一緒に、外来・病棟・当直で出会う人たちの脳波を読んでいきます。症例は医師国家試験の臨床問題の形で出ます。全部の章を終えると、図鑑の脳波をひととおり経験できます。</p>' +
         '<ol class="st-ch">' + ST_CH.map(function (x) { var ok = x.cases.length > 0, dn = ok && x.cases.every(function (k) { return sv[k] != null; });
           return '<li><button type="button" class="st-chb" data-sch="' + x.n + '"' + (ok ? '' : ' disabled') + '><span class="st-chn">第' + x.n + '章</span><b>' + esc(x.t) + '</b><span class="muted">' + esc(x.d) + '</span><span class="st-chs">' + (ok ? (dn ? 'クリア' : x.cases.length + '症例') : '準備中') + '</span></button></li>'; }).join('') + '</ol>';
@@ -2300,7 +2422,7 @@ body.eegfs #panel.qz-on .mihon-box,body.eegfs #panel.rp-on .mihon-box{display:no
       var sv2 = stLoad(), tot = 0, rr = 0;
       var rows = ch.cases.map(function (k) { var x = ST_CASES[k], s = sv2[k] || 0; rr += s; tot += x.qs.length; return '<li>' + esc(x.title) + '：' + s + ' / ' + x.qs.length + '</li>'; }).join('');
       html = stHead('第' + ch.n + '章　クリア') + senseiHTML(ch.outro) + '<ol class="log">' + rows + '</ol><p class="st-score">合計 ' + rr + ' / ' + tot + ' 問正解</p>' +
-        '<p class="zk-sum">' + zkSummary() + '　<a href="#zukan">図鑑を見る</a></p><p class="muted">第3章（病棟とリエゾン）は準備中です。</p>' +
+        '<p class="zk-sum">' + zkSummary() + '　<a href="#zukan">図鑑を見る</a></p>' + (function () { var nx = ST_CH[ch.n]; return nx ? '<p class="muted">次は第' + nx.n + '章「' + esc(nx.t) + '」' + (nx.cases.length ? '。章の一覧から進めます。' : '（準備中）です。') + '</p>' : ''; })() +
         '<div class="row"><button type="button" class="btn" data-sgo="menu">章の一覧へ</button><button type="button" class="ghost" data-sgo="again">この章をもう一度</button></div>';
     }
     panel.innerHTML = html;
