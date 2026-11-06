@@ -324,6 +324,9 @@ body.eegfs .mihon-wrap{display:none}
 .side-info{width:100%;font-size:var(--fs-xs);display:grid;gap:3px;align-content:start;line-height:1.4}
 .side-info:empty,.side-info[hidden]{display:none}
 /* ストーリー */
+.st-reset{display:flex;flex-wrap:wrap;gap:8px;align-items:center;border-top:1px dashed var(--line);padding-top:10px;font-size:var(--fs-s)}
+.st-reset p{flex-basis:100%;margin:0}
+.st-reset .armed{border-color:var(--hot);color:var(--hot);font-weight:700}
 .st-ch{list-style:none;margin:0;padding:0;display:grid;gap:6px}
 .st-chb{font:inherit;width:100%;text-align:left;cursor:pointer;color:var(--ink);background:var(--paper);border:1px solid var(--line);border-radius:var(--r);padding:8px 12px;display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:2px 12px;align-items:baseline}
 .st-chb .muted{grid-column:2;font-size:var(--fs-xs)}
@@ -347,82 +350,92 @@ body.eegfs .mihon-wrap{display:none}
 .sensei{display:grid;grid-template-columns:auto minmax(0,1fr);gap:10px;align-items:start;background:color-mix(in srgb,var(--accent) 8%,var(--panel));border-radius:var(--r);padding:10px 12px;max-width:48em}
 .sensei p{margin:0;font-size:var(--fs-s);line-height:1.7}
 .sensei-n{font-size:var(--fs-xs);font-weight:700;color:var(--accent-ink);background:var(--accent);border-radius:999px;padding:2px 10px}
-.pt{width:100%;height:auto;display:block;background:var(--paper);border:1px solid var(--line);border-radius:var(--r)}
-.pt .p-skin{fill:#f6d7bd;stroke:#7a5a44;stroke-width:1.2}
-.pt .p-hair{fill:#3b3330}
-.pt .p-shirt{fill:#9fc3d1;stroke:#5d7f8c;stroke-width:1.2}
-.pt .p-sleeve{fill:none;stroke:#9fc3d1;stroke-width:13;stroke-linecap:round;stroke-linejoin:round}
-.pt .p-hand{fill:#f6d7bd;stroke:#7a5a44;stroke-width:1.2}
-.pt .p-pencil path{stroke:#c98a2a;stroke-width:3.5;stroke-linecap:round}
-.pt .p-white{fill:#fff;stroke:#7a5a44;stroke-width:.9}
-.pt .p-pupil{fill:#2b2420;transition:transform .3s}
-.pt .p-shut{fill:none;stroke:#4a3a30;stroke-width:1.6;stroke-linecap:round;display:none}
-.pt .p-mouth{fill:none;stroke:#8a4a3a;stroke-width:1.8;stroke-linecap:round;transform-box:fill-box;transform-origin:center}
+.pt{width:100%;height:auto;display:block;background:#f7f4ec;border:1px solid var(--line);border-radius:var(--r)}
+.pt *{transform-box:view-box}
+.pt .p-skin,.pt .p-hand{fill:#fde3cc;stroke:#e0ad8c;stroke-width:1.4}
+.pt .p-hair,.pt .p-hairF{fill:#6b4f3a} .pt .p-hairF{display:none} .pt.fem .p-hairF{display:inline}
+.pt.old .p-hair,.pt.old .p-hairF{fill:#c9c3bb}
+.pt .p-shirt{fill:#a9d3e8;stroke:#86b8d1;stroke-width:1.4} .pt.fem .p-shirt{fill:#f3bfcf;stroke:#dc9db1} .pt.fem .p-sleeve{fill:#f3bfcf;stroke:#dc9db1}
+.pt .p-sleeve{fill:#a9d3e8;stroke:#86b8d1;stroke-width:1.4}
+.pt .p-pencil{stroke:#d29a3a;stroke-width:3.5;stroke-linecap:round;display:none} .pt.props-desk .p-pencil{display:inline}
+.pt .p-blush{fill:#f6a7a7;opacity:.55}
+.pt .p-dot{fill:#3d302a}
+.pt .p-shut,.pt .p-flat,.pt .p-tight{fill:none;stroke:#3d302a;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;display:none}
+.pt .p-brow{stroke:#5a4636;stroke-width:1.8;stroke-linecap:round;display:none}
+.pt .p-mouth{display:none} .pt .p-m0{display:inline;fill:none;stroke:#b5615a;stroke-width:1.8;stroke-linecap:round}
+.pt .p-m1 rect{fill:#fff;stroke:#b5615a;stroke-width:1.2} .pt .p-m1 path{stroke:#d9c9c0;stroke-width:.8}
+.pt .p-m2{fill:#b5615a} .pt .p-mw{fill:none;stroke:#b5615a;stroke-width:1.6;stroke-linecap:round}
+.pt .p-drool{fill:#bfe3f2;display:none} .pt .p-mask{display:none} .pt .p-mask ellipse{fill:#e8f4f8;stroke:#8fb6c6;stroke-width:1.2} .pt .p-mask path{stroke:#8fb6c6;stroke-width:1.2}
 .pt .p-q{font:700 26px sans-serif;fill:var(--accent);display:none}
-.pt .p-desk rect,.pt .p-table rect{fill:#c9a97e;stroke:#8a6a44;stroke-width:1}
-.pt .p-desk .p-note{fill:#fff;stroke:#aaa}
-.pt .p-table .p-cup rect{fill:#e8f1f4;stroke:#5d7f8c;stroke-width:1.2}
-.pt .p-sofa rect{fill:#c8b6d6;stroke:#8c7aa0;stroke-width:1}
-.pt .p-bub{display:none} .pt .p-bub rect{fill:var(--panel);stroke:var(--accent);stroke-width:1.5}
-.pt .p-who{font:700 10px sans-serif;fill:var(--accent)} .pt .p-say{font:11.5px sans-serif;fill:var(--ink)}
+.pt .p-cap{display:none} .pt .p-cap circle{fill:#e6b84a;stroke:#b98a22;stroke-width:.8} .pt.cap .p-cap{display:inline}
+.pt .p-zzz{display:none} .pt .p-zzz text{font:700 12px sans-serif;fill:#6f8fb0}
+.pt .p-desk rect,.pt .p-table rect,.pt .p-pillbox rect{fill:#d7b98c;stroke:#a88456;stroke-width:1}
+.pt .p-desk .p-note{fill:#fff;stroke:#bbb}
+.pt .p-table .p-cup rect{fill:#fff;stroke:#86b8d1;stroke-width:1.4}
+.pt .p-sofa rect{fill:#cfc2e0;stroke:#a796c0;stroke-width:1}
+.pt .p-pillbox .p-box{fill:#fff;stroke:#d36a6a} .pt .p-pillbox circle{fill:#fff;stroke:#aaa;stroke-width:.8}
+.pt .p-night,.pt .p-bedb,.pt .p-iv,.pt .p-blanket,.pt .p-pillbox,.pt .p-desk,.pt .p-table,.pt .p-sofa,.pt .p-zoom{display:none}
+.pt.props-bed .p-bedb,.pt.props-bed .p-iv,.pt.props-bed .p-blanket,.pt.props-pills .p-pillbox,.pt.props-desk .p-desk,.pt.props-table .p-table,.pt.props-sofa .p-sofa{display:inline}
+.pt.night .p-night{display:inline} .pt .p-night rect{fill:#26344a} .pt .p-night circle{fill:#f6ecc0}
+.pt .p-bedb rect{fill:#efe9dc;stroke:#c6b9a0;stroke-width:1.2}
+.pt .p-iv path{fill:none;stroke:#9aa6ae;stroke-width:2} .pt .p-iv rect{fill:#e3f1f8;stroke:#8fb0c0;stroke-width:1.2} .pt .p-iv .p-tube{stroke:#a9cbdb;stroke-width:1.5}
+.pt .p-blanket rect{fill:#fbfaf6;stroke:#cfcabb;stroke-width:1.2}
+.pt .p-zoom circle{fill:#fff;stroke:var(--accent);stroke-width:1.5} .pt .p-zoom .p-zarm{fill:#a9d3e8;stroke:#86b8d1} .pt .p-zhand rect{fill:#fde3cc;stroke:#e0ad8c;stroke-width:1.4}
+.pt .p-zoom text{font:10px sans-serif;fill:var(--muted);text-anchor:middle}
+.pt .p-bub{display:none} .pt .p-bub rect{fill:#fff;stroke:var(--accent);stroke-width:1.5}
+.pt .p-who{font:700 10px sans-serif;fill:var(--accent)} .pt .p-say{font:11.5px sans-serif;fill:#333}
 .pt.bub-L .p-bubL,.pt.bub-R .p-bubR{display:inline}
-.pt .p-desk,.pt .p-table,.pt .p-sofa{display:none}
-.pt.props-desk .p-desk,.pt.props-table .p-table,.pt.props-sofa .p-sofa{display:inline}
-.pt:not(.props-desk) .p-pencil{display:none}
-.pt .p-armR,.pt .p-armL,.pt .p-head,.pt .p-cup{transform-box:view-box}
-.pt.write .p-armR{animation:pWrite .5s ease-in-out infinite}
-@keyframes pWrite{0%,100%{transform:translate(0,0)}50%{transform:translate(4px,1px)}}
-.pt.stare .p-pupil{transform:translate(0,-.6px)}
-.pt.flutter .p-white,.pt.flutter .p-pupil{animation:pFlutterO .33s steps(1) infinite} .pt.flutter .p-shut{display:inline;animation:pFlutterS .33s steps(1) infinite}
-@keyframes pFlutterO{0%{opacity:1}50%{opacity:0}} @keyframes pFlutterS{0%{opacity:0}50%{opacity:1}}
-.pt.props-table .p-armR{transform:translate(0,0)} .pt.props-table .p-armL{transform:translate(18px,-6px)}
-.pt.jerk .p-armR,.pt.jerk .p-armL{animation:pJerk .25s ease-out 1}
-@keyframes pJerk{0%{translate:0 0}35%{translate:0 -14px}100%{translate:0 0}}
-.pt.jerk .p-head{animation:pJerkH .25s ease-out 1} @keyframes pJerkH{35%{translate:0 -4px}}
-.pt .p-cup{transition:transform .5s cubic-bezier(.5,0,1,1),opacity .5s}
-.pt.drop .p-cup{transform:translate(14px,40px) rotate(70deg);transform-origin:194px 156px;opacity:.85}
-.pt.aura .p-mouth{d:path("M144 87 Q150 85 156 87")} .pt.aura .p-pupil{transform:translate(0,-1.5px)}
-.pt.chew .p-mouth{animation:pChew .45s ease-in-out infinite}
-@keyframes pChew{0%,100%{transform:scale(1,1)}50%{transform:scale(.7,2.6)}}
-.pt.fumble .p-armL{animation:pFumble 1.1s ease-in-out infinite}
-@keyframes pFumble{0%,100%{transform:translate(0,0)}25%{transform:translate(-14px,-24px)}50%{transform:translate(-8px,-30px)}75%{transform:translate(-16px,-20px)}}
-.pt.dyst .p-armR{transform:translate(4px,-26px) rotate(-18deg);transform-origin:116px 116px}
-.pt.dyst .p-armR .p-hand{transform:scale(.8,1.25);transform-box:fill-box;transform-origin:center}
-.pt.confused .p-q{display:inline} .pt.confused .p-pupil{transform:translate(-2px,1px)}
-
-.pt .p-night,.pt .p-bedb,.pt .p-iv,.pt .p-blanket,.pt .p-pillbox{display:none}
-.pt.props-bed .p-bedb,.pt.props-bed .p-iv,.pt.props-bed .p-blanket,.pt.props-pills .p-pillbox{display:inline}
-.pt.night .p-night{display:inline} .pt .p-night rect{fill:#1d2733} .pt .p-night circle{fill:#f3e7b0}
-.pt .p-bedb rect{fill:#e6e1d6;stroke:#a89e8a;stroke-width:1.2}
-.pt .p-iv path{fill:none;stroke:#8a96a0;stroke-width:2} .pt .p-iv rect{fill:#dfeef6;stroke:#7d99a8;stroke-width:1.2} .pt .p-iv .p-tube{stroke:#9fc0d0;stroke-width:1.5}
-.pt .p-blanket rect{fill:#f2f2ee;stroke:#b8b8ac;stroke-width:1.2}
-.pt .p-pillbox rect{fill:#c9a97e;stroke:#8a6a44;stroke-width:1} .pt .p-pillbox .p-box{fill:#fff;stroke:#c05050} .pt .p-pillbox circle{fill:#fff;stroke:#999;stroke-width:.8}
-.pt .p-lid{fill:#f6d7bd;display:none}
-.pt.drowsy .p-lid{display:inline}
-.pt.jaundice .p-skin,.pt.jaundice .p-hand{fill:#ecd27e} .pt.jaundice .p-lid{fill:#ecd27e} .pt.jaundice .p-white{fill:#f4e7a6}
-.pt.look .p-pupil{animation:pLook 1.4s ease-in-out infinite}
-@keyframes pLook{0%,100%{transform:translateX(-3px)}50%{transform:translateX(3px)}}
-.pt.pick .p-armR{animation:pPick 1.3s ease-in-out infinite}
-@keyframes pPick{0%,100%{transform:translate(0,0)}50%{transform:translate(50px,-32px)}}
-.pt.asterix .p-armR{transform:translate(4px,-22px)} .pt.asterix .p-armL{transform:translate(-4px,-22px)} .pt.asterix .p-hand{r:9px}
-.pt.asterix .p-hand{animation:pFlap 2.2s linear infinite;transform-box:fill-box;transform-origin:center top}
-.pt.asterix .p-armL .p-hand{animation-delay:.7s}
-@keyframes pFlap{0%,30%,38%,62%,70%,100%{transform:translateY(0)}33%{transform:translateY(7px)}66%{transform:translateY(6px)}}
-.pt.tremor .p-armR .p-hand,.pt.tremor .p-armL .p-hand{animation:pTrem .2s linear infinite;transform-box:fill-box}
-@keyframes pTrem{0%,100%{transform:translate(-2px,0)}50%{transform:translate(2px,1px)}}
-.pt.sway .p-body{animation:pSway 2s ease-in-out infinite;transform-box:view-box;transform-origin:150px 186px}
-@keyframes pSway{0%,100%{transform:rotate(-3deg)}50%{transform:rotate(3deg)}}
-.pt.forget .p-q{display:inline} .pt.forget .p-pupil{transform:translate(1px,-1.5px)}
-
-.pt.jerkR .p-armR{animation:pTw .45s ease-in-out infinite}
-@keyframes pTw{0%,100%{transform:translate(0,0)}30%{transform:translate(-3px,-7px)}}
-.pt.grimace .p-brow{display:inline}
-.pt.shut .p-white,.pt.shut .p-pupil{display:none} .pt.shut .p-shut{display:inline} .pt.shut .p-brow{display:inline}
-.pt.thrash .p-armR{animation:pThR .7s ease-in-out infinite} .pt.thrash .p-armL{animation:pThL .9s ease-in-out infinite}
-.pt.thrash .p-head{animation:pHd 1.1s ease-in-out infinite;transform-origin:150px 100px}
-@keyframes pThR{0%,100%{transform:translate(0,0)}50%{transform:translate(-20px,-34px)}}
-@keyframes pThL{0%,100%{transform:translate(0,-26px)}50%{transform:translate(18px,4px)}}
-@keyframes pHd{0%,100%{transform:rotate(-9deg)}50%{transform:rotate(9deg)}}
+/* 姿勢：腕は肩を軸に回す（肩が外れないように） */
+.pt .p-armR{transform-origin:122px 106px;transform:rotate(-22deg);transition:transform .3s}
+.pt .p-armL{transform-origin:178px 106px;transform:rotate(22deg);transition:transform .3s}
+.pt .p-head{transform-origin:150px 98px;transition:transform .5s}
+.pt .p-person{transform-origin:150px 194px}
+.pt.child .p-person{transform:scale(.9)}
+.pt .p-cup{transform-origin:186px 150px;transition:transform .5s cubic-bezier(.5,0,1,1),opacity .5s}
+.pt .p-eyeIn{transition:transform .3s}
+/* 目 */
+.pt.closed .p-eyeIn,.pt.drowsy .p-eyeIn,.pt.shut .p-eyeIn{display:none}
+.pt.closed .p-shut{display:inline} .pt.drowsy:not(.closed) .p-flat{display:inline} .pt.shut .p-tight,.pt.shut .p-brow{display:inline}
+.pt.stare .p-eyeIn{transform:scale(1.15)}
+.pt.blink .p-eyeIn{animation:pBlinkO .9s steps(1) infinite} .pt.blink .p-shut{display:inline;animation:pBlinkS .9s steps(1) infinite}
+@keyframes pBlinkO{0%{opacity:1}80%{opacity:0}} @keyframes pBlinkS{0%{opacity:0}80%{opacity:1}}
+.pt.flutter .p-eyeIn{animation:pFlO .33s steps(1) infinite} .pt.flutter .p-shut{display:inline;animation:pFlS .33s steps(1) infinite}
+@keyframes pFlO{0%{opacity:1}50%{opacity:0}} @keyframes pFlS{0%{opacity:0}50%{opacity:1}}
+.pt.look .p-eyeIn{animation:pLook 1.4s ease-in-out infinite} @keyframes pLook{0%,100%{transform:translateX(-2.5px)}50%{transform:translateX(2.5px)}}
+.pt.confused .p-q,.pt.forget .p-q{display:inline} .pt.confused .p-eyeIn,.pt.forget .p-eyeIn{transform:translate(1px,-1.5px)}
+/* 口と顔 */
+.pt.clench .p-mouth,.pt.grimace .p-mouth,.pt.chew .p-mouth{display:none}
+.pt.clench .p-m1,.pt.clench .p-brow,.pt.grimace .p-brow{display:inline} .pt.grimace:not(.chew) .p-mw{display:inline}
+.pt.chew .p-m2{display:inline;transform-origin:150px 80px;animation:pChew .45s ease-in-out infinite}
+@keyframes pChew{0%,100%{transform:scale(1,.5)}50%{transform:scale(.8,1.2)}}
+.pt.drool .p-drool{display:inline}
+.pt.mask .p-mask{display:inline} .pt.mask .p-mouth{display:none}
+.pt.jaundice .p-skin,.pt.jaundice .p-hand,.pt.jaundice .p-zhand rect{fill:#f2dc8c}
+.pt.aura .p-brow{display:inline}
+/* 腕の動き */
+.pt.write .p-armR{animation:pWrite .5s ease-in-out infinite} @keyframes pWrite{0%,100%{rotate:0deg}50%{rotate:6deg}}
+.pt.hold .p-armL{transform:rotate(-6deg)}
+.pt.jerk .p-armR{animation:pJkR .3s ease-out 1} .pt.jerk .p-armL{animation:pJkL .3s ease-out 1} .pt.jerk .p-head{animation:pJkH .3s ease-out 1}
+@keyframes pJkR{40%{rotate:28deg}} @keyframes pJkL{40%{rotate:-28deg}} @keyframes pJkH{40%{translate:0 -4px}}
+.pt.jerkAll .p-armR{animation:pJkR .3s ease-out infinite;animation-duration:1.1s} .pt.jerkAll .p-armL{animation:pJkL 1.1s ease-out infinite} .pt.jerkAll .p-head{animation:pJkH 1.1s ease-out infinite}
+.pt.drop .p-cup{transform:translate(12px,46px) rotate(80deg);opacity:.85}
+.pt.aura .p-armL{transform:rotate(52deg)}
+.pt.fumble .p-armL{transform:rotate(40deg);animation:pFum 1.1s ease-in-out infinite} @keyframes pFum{0%,100%{rotate:0deg}30%{rotate:14deg}60%{rotate:-6deg}}
+.pt.dyst .p-armR{transform:rotate(-72deg)} .pt.dyst .p-armR .p-hand{transform:scale(.85,1.15);transform-origin:122px 150px}
+.pt.ivpick .p-armR{transform:rotate(-58deg);animation:pPick 1.3s ease-in-out infinite} @keyframes pPick{0%,100%{rotate:0deg}50%{rotate:-12deg}}
+.pt.jerkR .p-armR{animation:pTw .45s ease-in-out infinite} @keyframes pTw{30%{rotate:12deg}}
+.pt.asterix .p-armR{transform:rotate(70deg)} .pt.asterix .p-armL{transform:rotate(-70deg)} .pt.asterix .p-zoom{display:inline}
+.pt.asterix .p-zhand{transform-origin:256px 150px;animation:pFlap 2.4s linear infinite}
+@keyframes pFlap{0%,28%,40%,62%,74%,100%{transform:rotate(-30deg)}33%{transform:rotate(22deg)}67%{transform:rotate(18deg)}}
+.pt.tremor .p-armR,.pt.tremor .p-armL{animation:pTrem .18s linear infinite} @keyframes pTrem{0%,100%{rotate:-3deg}50%{rotate:3deg}}
+.pt.sway .p-person{animation:pSway 2s ease-in-out infinite} @keyframes pSway{0%,100%{rotate:-3deg}50%{rotate:3deg}}
+.pt.thrash .p-armR{animation:pThR .7s ease-in-out infinite} .pt.thrash .p-armL{animation:pThL .9s ease-in-out infinite} .pt.thrash .p-head{animation:pHd 1.1s ease-in-out infinite}
+@keyframes pThR{0%,100%{rotate:0deg}50%{rotate:70deg}} @keyframes pThL{0%,100%{rotate:-10deg}50%{rotate:-80deg}} @keyframes pHd{0%,100%{rotate:-9deg}50%{rotate:9deg}}
+.pt.scratch .p-armR{transform:rotate(150deg);animation:pScr .4s ease-in-out infinite} @keyframes pScr{50%{rotate:8deg}}
+.pt.nod .p-head{animation:pNod 3s ease-in-out infinite} @keyframes pNod{0%,100%{rotate:0deg}55%{rotate:-4deg}70%{rotate:-12deg}82%{rotate:0deg}}
+.pt.tilt .p-head{transform:rotate(-13deg)}
+.pt.zzz .p-zzz{display:inline} .pt.zzz .p-zzz text{animation:pZ 2.4s ease-in-out infinite} .pt.zzz .p-zzz text:nth-child(2){animation-delay:.4s} .pt.zzz .p-zzz text:nth-child(3){animation-delay:.8s}
+@keyframes pZ{0%{opacity:0}40%{opacity:1}100%{opacity:0}}
 @media (prefers-reduced-motion:reduce){.pt *{animation-duration:1.5s!important}}
 
 .side-info p{margin:0}
@@ -2174,7 +2187,9 @@ body.eegfs #panel.qz-on .mihon-box,body.eegfs #panel.rp-on .mihon-box{display:no
   /* ====================== 9c. ストーリー（新人医師の1年） ====================== */
   // 国試の臨床問題の形：症例の提示 → 症状の様子（動くイラスト） → 脳波 → 設問（5択・2つ選べ） → 指導医のひとこと
   var ST_CH = [
-    { n: 1, t: '4月　検査室で基本を習う', d: '正常のα波・開眼・睡眠の波・アーチファクト', cases: [] },
+    { n: 1, t: '4月　検査室で基本を習う', d: '正常のα波・開眼・睡眠の波・アーチファクト', cases: ['self', 'sleep', 'artifact', 'electrode'],
+      intro: '4月、精神科に入ったあなた。まずは検査室で、脳波の「ふつう」を覚えよう。異常を読むには、正常とアーチファクトを知っているのが第一歩。最初は、あなた自身の脳波から。',
+      outro: '正常のα波、眠りの波、目と筋肉と電極のアーチファクト。ここまで来れば、異常を読む準備はできた。次は外来へ行こう。' },
     { n: 2, t: '外来', d: '欠神発作・若年ミオクロニーてんかん・側頭葉てんかん', cases: ['absence', 'jme', 'tle'],
       intro: '外来へようこそ。今日は「ぼんやりする」「物を落とす」「記憶が飛ぶ」の3人。どれも発作かもしれないし、そうでないかもしれない。発作の様子と脳波をセットで覚えよう。',
       outro: '3人とも、発作の「見た目」と脳波がちゃんと対応していたね。ぼんやり・ピクッ・もぐもぐ。精神科の外来にも、てんかんの人は普通に来る。見逃さないのが大事。' },
@@ -2184,9 +2199,154 @@ body.eegfs #panel.qz-on .mihon-box,body.eegfs #panel.rp-on .mihon-box{display:no
     { n: 4, t: '当直と救急', d: '非けいれん性てんかん重積・ヘルペス脳炎・抗NMDA受容体脳炎・PNES', cases: ['ncse', 'hsv', 'nmdar', 'pnes'],
       intro: '当直と救急へ。夜中に呼ばれる「急な精神症状」「意識障害」「けいれん」。体の病気、とくに脳の病気を見落とさないのが当直医の仕事。そして、けいれんに見えて、実はてんかんではない人もいる。',
       outro: '見えない発作（NCSE）、脳の炎症（ヘルペス、抗NMDA受容体）、そして脳の電気の異常ではない発作（PNES）。どれも脳波がなければ迷う病気。当直で「精神科の病気だろう」と思ったときほど、一度立ち止まろう。' },
-    { n: 5, t: '専門外来', d: 'クロイツフェルト・ヤコブ病・クロザピン・ECT', cases: [] }
+    { n: 5, t: '専門外来', d: 'クロイツフェルト・ヤコブ病・クロザピン・ECT', cases: ['cjd', 'cloz', 'ect'],
+      intro: '最後の章は、もの忘れ外来、クロザピン外来、そして ECT 室。脳波で「見えないもの」を見る場面だよ。',
+      outro: 'これで1年が終わり。正常を知り、アーチファクトを見分け、てんかんと脳症を読み分け、薬と治療の影響に気づく。脳波は、精神科医にとって「脳を見る窓」。おつかれさま。' }
   ];
   var ST_CASES = {
+    self: {
+      title: 'まず自分の脳波', card: ['alpha', 'alpha_block'],
+      vig: [['登場人物', 'あなた（25歳、精神科1年目）'], ['場面', '検査技師に頼まれて、練習のために自分の脳波をとることになった。頭に電極をつけて、ベッドに座る。'],
+        ['指示', '「目を閉じて、力を抜いてください。5秒たったら目を開けてくださいね」と言われた。']],
+      eegNote: 'あなたの脳波。5秒のところで目を開けた。',
+      anim: { props: 'exam', loop: 9, steps: [
+        [0, 'cap closed', 'L:検査技師:目を閉じて、楽にしてください', '目を閉じて、力を抜いている。'],
+        [3.5, 'cap', 'L:検査技師:はい、目を開けてください', '目を開ける。'],
+        [6.5, 'cap closed', '', 'また目を閉じる。']] },
+      spec: { seed: 12, preset: 'normal', mont: 'ref', tl: [[5, 'eo', 1]], ev: [['blink', 5.0], ['blink', 7.6]] }, hl: { t0: 0, t1: 10, el: ['O1', 'O2'] },
+      qs: [
+        { q: '目を閉じているとき（0〜5秒）、いちばん目立つ波はどれか。', a: ['後頭部で大きい α 波（約10Hz）', '前頭部で大きい β 波', '全体に広がる θ 波', '左側頭部の棘波', 'Fp の眼球運動'],
+          why: 'O1・O2 でいちばん大きく、前へ行くほど小さくなる、1秒に10個ほどの波です。大きくなったり小さくなったりします（漸増・漸減）。' },
+        { q: '5秒で目を開けたあとの変化として正しいのはどれか。', a: ['後頭部の α 波が小さくなった（α減衰）', 'α 波が大きくなった', '全体に徐波が増えた', '左右差が出た', '変化はない'],
+          why: '目を開けると α 波は小さくなります。同じ時刻に Fp1・Fp2 にまばたきの波も出ています。' },
+        { q: '正常な後頭部の α 律動について正しいのはどれか。2つ選べ。', n: 2, a: ['後頭部で大きく、前に行くほど小さい', '目を開けると小さくなる', '左右で大きさが2倍以上違うのがふつうである', '眠くなると大きくなる', '成人では 8Hz 未満がふつうである'],
+          why: '後頭部優位で、開眼で小さくなるのが正常な α 律動です。左右差は少しならあってよいですが、大きければ異常を考えます。眠くなると α 波は消えていきます。成人の α 波は 8〜13Hz です。' }
+      ],
+      sensei: 'これがあなたの「ふつう」。後ろで大きく、目を開けると小さくなる。異常を探す前に、まずこれを確かめる。読む順番の1番目だったね。' },
+    sleep: {
+      title: '眠ってしまった人', card: ['spindle_kc'],
+      vig: [['患者', '30歳の女性'], ['依頼', 'てんかんの疑いで、眠りを含む脳波検査。前の晩は少なめの睡眠で来てもらった。'],
+        ['経過', '検査の途中で、うとうとして眠ってしまった。']],
+      eegNote: '眠ったあとの記録を示す。',
+      anim: { who: 'fem', props: 'sofa', loop: 10, steps: [
+        [0, 'cap closed', '', '検査の始め。目を閉じて安静にしている。'],
+        [2.5, 'cap closed nod', '', 'うとうとして、首がこっくり（N1）。'],
+        [6, 'cap closed tilt zzz', '', 'ぐっすり眠った（N2）。']] },
+      spec: { seed: 20, preset: 'normal', mont: 'ref', auto: false, init: { sleep: 2 }, ev: [['spindle', 1.3, { dur: 1.1, amp: 44 }], ['kc', 4.3, { amp: 170 }], ['spindle', 4.9, { dur: 0.9, amp: 40 }], ['spindle', 8.0, { dur: 1.2, amp: 44 }]] },
+      hl: { t0: 0, t1: 10, el: ['C3', 'C4', 'Cz', 'Fz'] },
+      qs: [
+        { q: '中心部に出ている、12〜14Hz の短い波の束はどれか。', a: ['紡錘波', '棘波', 'α 波', '筋電図', '三相波'],
+          why: '中心部（C3・C4・Cz）に、12〜14Hz の波が 0.5〜1秒ほどの束で出ています。睡眠紡錘波です。' },
+        { q: 'この記録の睡眠段階はどれか。', a: ['N2', '覚醒（閉眼）', 'N1', 'N3', 'レム睡眠'],
+          why: '紡錘波と、大きな二相性の K 複合が出ているので N2 です。N1 では α 波が消えて頭蓋頂鋭波が出ます。N3 では大きなδ波が多くなります。' },
+        { q: '正しいのはどれか。2つ選べ。', n: 2, a: ['眠ると出やすくなるてんかん性放電があるので、眠りの記録は役に立つ', 'K 複合と頭蓋頂鋭波は、正常な眠りの波である', 'K 複合はてんかん性の波である', '紡錘波が出たら異常である', '眠ってしまった記録は役に立たない'],
+          why: '眠りの記録では、てんかん性放電が出やすくなります。一方で、頭蓋頂鋭波や K 複合のように、鋭くても正常な波がたくさん出るので、読みすぎに気をつけます。' }
+      ],
+      sensei: '眠ると、正常なのに鋭い波がたくさん出てくる。頭蓋頂鋭波、K 複合、紡錘波。これを棘波と読まないのが大事。逆に、眠らないと出てこないてんかんの波もあるよ。' },
+    artifact: {
+      title: '緊張している人', card: ['emg', 'blink'],
+      vig: [['患者', '40歳の男性'], ['依頼', '頭痛の精査で脳波検査。'],
+        ['様子', '初めての検査で緊張していて、歯をくいしばり、まばたきが多い。']],
+      eegNote: '記録の一部を示す。',
+      anim: { props: 'exam', loop: 9, steps: [
+        [0, 'cap clench', '', '緊張して、歯をくいしばっている。'],
+        [3.5, 'cap blink', '', 'まばたきが多い。'],
+        [6.5, 'cap', 'L:検査技師:口を少し開けて、楽にしてください', '声をかけて、力を抜いてもらう。']] },
+      spec: { seed: 15, preset: 'normal', mont: 'bip', ev: [['emg', 2.0, { dur: 3.8, amp: 14 }], ['blink', 0.8], ['blink', 7.2]] }, hl: { t0: 1.8, t1: 6, el: ['F7', 'T3', 'F8', 'T4'] },
+      qs: [
+        { q: '2〜6秒に、側頭部のチャンネルに重なった細かく速い波はどれか。', a: ['筋電図（くいしばり）', 'β 波（薬の影響）', '交流障害（ハム）', '紡錘波', '棘波'],
+          why: '側頭筋の上（F7・F8・T3・T4）に、β 波よりさらに速く、不規則な波が重なっています。歯をくいしばったときの筋電図です。' },
+        { q: 'Fp1−F3 と Fp2−F4 に出た、左右そろった下向きの大きな波はどれか。', a: ['まばたき', '前頭部の徐波', '前頭部の棘波', '左右を見た眼球運動', '電極のポップ'],
+          why: 'まぶたを閉じると眼球が上を向き（ベル現象）、プラスの角膜が Fp に近づくので、Fp で下向きの大きな波になります。後ろの電極には広がりません。' },
+        { q: '正しいのはどれか。2つ選べ。', n: 2, a: ['筋電図は、口を少し開けてもらうと減る', '高域遮断フィルタを下げすぎると、筋電図が棘波のように見えることがある', '筋電図が多いのは薬の影響である', 'まばたきの波はてんかん性である', '筋電図は後頭部に強く出る'],
+          why: '口を軽く開けると、くいしばりの筋電図は減ります。高域遮断を 15Hz などに下げると筋電図は丸くなりますが、かえって速波や棘波に化けて見えることがあります。' }
+      ],
+      sensei: '脳波に写るのは脳だけじゃない。目、筋肉、心臓、電極。アーチファクトを知っておくと、読みすぎが減る。そして「声かけ」で消せるアーチファクトも多いんだ。' },
+    electrode: {
+      title: '1か所だけ大きく振れる', card: ['pop', 'phase_rev'],
+      vig: [['患者', '52歳の女性'], ['依頼', '物忘れの精査で脳波検査。'],
+        ['経過', '検査中に汗をかいて、頭をかいていた。記録の途中で、1か所だけ急に大きく振れる波が出た。']],
+      eegNote: '記録の一部を示す。',
+      anim: { who: 'fem', props: 'exam', loop: 9, steps: [
+        [0, 'cap', '', '検査中。'],
+        [2.5, 'cap scratch', '', '頭をかいて、電極がずれた。'],
+        [6, 'cap', 'L:検査技師:C4 の電極、つけ直しますね', '電極をつけ直す。']] },
+      spec: { seed: 17, preset: 'normal', mont: 'bip', ev: [['pop', 3.1, { e: 'C4', amp: -160 }], ['pop', 7.0, { e: 'C4', amp: -130 }]] }, hl: { t0: 2.9, t1: 8.6, el: ['C4'] },
+      qs: [
+        { q: 'F4−C4 と C4−P4 で向かい合った大きな波の原因として、最も考えられるのはどれか。', a: ['C4 の電極の接触不良（ポップ）', 'C4 の棘波', '頭蓋頂鋭波', 'まばたき', '筋電図'],
+          why: '向かい合っているので位相逆転に見えますが、C4 のとなりの電極には少しも広がっていません。急に立ち上がってゆっくり戻る形も、電極のアーチファクトの特徴です。' },
+        { q: '脳の波ではないと考える根拠はどれか。', a: ['となりの電極に少しも広がっていない', '向かい合っている', '振幅が大きい', '右側にある', '形が鋭い'],
+          why: '脳の波なら、まわりの電極にも小さく広がります（電場）。1つの電極だけに限られていれば、まず電極を疑います。' },
+        { q: '正しいのはどれか。2つ選べ。', n: 2, a: ['電極の接触（インピーダンス）を確かめ、つけ直す', '1つの電極だけの急な振れは、まずアーチファクトを疑う', 'C4 の焦点てんかんとして、抗てんかん薬を始める', 'AC フィルタを入れれば消える', '位相逆転があれば、必ず脳の波である'],
+          why: '電極をつけ直して、同じ波が消えるかを確かめます。AC フィルタは電源の 50/60Hz を消すもので、ポップは消えません。' }
+      ],
+      sensei: '位相逆転は焦点のしるし。でも、たった1つの電極だけなら、まず電極を疑う。脳の波なら、まわりにも少し広がる。検査技師さんと仲良くね。' },
+    cjd: {
+      title: '2か月で進んだ認知症', card: ['psd'],
+      vig: [['患者', '66歳の女性'], ['主訴', '物忘れが急に進む（家族が連れて来院した）'],
+        ['現病歴', '2か月前から物忘れが急に進み、道に迷うようになった。1か月前から言葉が減り、ふらつき、「目が見えにくい」と言う。最近は手足がぴくっと動く。今はほとんど話さない。'],
+        ['既往歴', '特記すべきことはない。'],
+        ['身体所見', '無言に近い。手足のミオクローヌスがあり、音や体に触れたことでも起きる。歩くとふらつく。'],
+        ['検査所見', '血液検査（甲状腺機能、ビタミン B12、電解質）に異常はない。']],
+      eegNote: '脳波検査を行った。記録の一部を示す。',
+      anim: { who: 'fem old', props: 'exam', loop: 10, steps: [
+        [0, 'stare', 'L:家族:2か月前は普通に話していたんです', 'ほとんど話さず、表情が乏しい。'],
+        [3.5, 'stare jerkAll', '', '手足と体が、ぴくっ、ぴくっと動く（ミオクローヌス）。'],
+        [7, 'stare jerkAll', 'L:医師:（手をパンとたたく）', '音や刺激でも、ぴくっと動く。']] },
+      spec: { seed: 36, preset: 'cjd', mont: 'ref' }, hl: { t0: 0, t1: 10, el: ['F3', 'F4', 'C3', 'C4', 'P3', 'P4', 'Fz', 'Cz', 'Pz'] },
+      qs: [
+        { q: '脳波所見として正しいのはどれか。', a: ['約1秒ごとにくり返す全般性の鋭い波（周期性同期性放電、PSD）', '心電図の混入', '前頭部優位の三相波', '左側頭部の LPDs', '後頭部優位の正常な α 律動'],
+          why: '背景は小さく平坦に近く、約1秒ごとに鋭い波が全体にそろって出ます。いちばん下の心電図と時刻が合わないので、心電図のアーチファクトではありません。' },
+        { q: '最も考えられる診断はどれか。', a: ['孤発性クロイツフェルト・ヤコブ病', 'アルツハイマー型認知症', 'レビー小体型認知症', 'うつ病による仮性認知症', '橋本脳症'],
+          why: '数か月で急に進む認知症、ミオクローヌス、視覚の症状、PSD。孤発性クロイツフェルト・ヤコブ病を強く疑います。治療できる橋本脳症（抗甲状腺抗体）や非けいれん性てんかん重積は、必ず除外します。' },
+        { q: '正しいのはどれか。2つ選べ。', n: 2, a: ['頭部 MRI の拡散強調画像で、大脳皮質や線条体の高信号を確かめる', '髄液検査（RT-QuIC など）を行う', '3か月後にもう一度脳波をとってから考える', 'PSD は心電図の混入なので問題ない', '器具の消毒は、ふつうの患者と同じでよい'],
+          why: 'MRI 拡散強調画像と髄液の RT-QuIC などで診断を固めます。髄液や組織、器具の扱いは、感染予防の決まりに従います。' }
+      ],
+      sensei: '急に進む認知症、ミオクローヌス、そして1秒ごとの周期性の波。PSD は、一度見たら忘れない。治療できる病気（橋本脳症や NCSE）を見落としていないかも、あわせて確かめよう。' },
+    cloz: {
+      title: 'クロザピンを増量中', card: ['cloz'],
+      vig: [['患者', '29歳の男性'], ['場面', 'クロザピン外来の定期の診察。'],
+        ['現病歴', '20歳で統合失調症と診断された。2種類以上の抗精神病薬で十分に良くならず（治療抵抗性）、3か月前からクロザピンを始め、少しずつ増やして今は 400 mg/日。幻聴は減ってきた。最近、朝に手がぴくっとすることがある。よだれが増えた。'],
+        ['生活歴', '1日20本たばこを吸っていたが、2週間前に禁煙した。'],
+        ['検査所見', '白血球数、好中球数は基準の範囲にある。']],
+      eegNote: '脳波検査を行った。記録の一部を示す。',
+      anim: { props: 'table', loop: 9, steps: [
+        [0, 'hold drool', '', 'よだれが増えている（流涎）。'],
+        [2.5, 'hold jerk drool', 'R:本人:また手がピクッと…', '朝、手がぴくっとする（ミオクローヌス）。'],
+        [6, 'hold drool', 'L:医師:けいれんはありましたか？', 'けいれんは、まだ起きていない。']] },
+      spec: { seed: 34, preset: 'clozapine', mont: 'bip', auto: false, ev: [['sw', 2.2, { f0: 4.6, f1: 3.9, dur: 1.4, amp: 230, spike: 0.9 }], ['sw', 6.6, { f0: 4.4, f1: 3.8, dur: 1.7, amp: 250, spike: 0.9 }]] },
+      hl: { t0: 2, t1: 8.5, el: ['F3', 'F4', 'Fz', 'C3', 'C4', 'Cz'] },
+      qs: [
+        { q: '脳波所見として正しいのはどれか。', a: ['背景がやや遅く、全般性の突発波（棘徐波）がときどき出る', '後頭部優位の正常な α 律動だけ', '側頭部の筋電図', '前頭部優位の三相波', '周期性同期性放電（PSD）'],
+          why: 'θ波が混じって背景がやや遅く、左右同時に始まる棘徐波が、1〜2秒ほどの短い塊で出ています。' },
+        { q: '正しいのはどれか。', a: ['クロザピンは用量（血中濃度）に応じて、脳波異常とけいれんを起こしやすくする', '統合失調症そのものの所見である', '脳波に異常が出たら、すぐに中止しなければならない', '抗精神病薬で脳波が変わることはない', 'ミオクローヌスはクロザピンと関係ない'],
+          why: 'クロザピンは、ほかの抗精神病薬よりけいれんを起こしやすく、用量や血中濃度が高いほど起こりやすくなります。ミオクローヌスは発作の前ぶれのことがあります。脳波異常だけで、すぐに中止が必要になるわけではありません。' },
+        { q: '対応として適切なのはどれか。2つ選べ。', n: 2, a: ['増量の速さと用量を見直す', '禁煙で血中濃度が上がることがあるので、血中濃度を測る', '予定どおり増量を続ける', 'すぐに中止し、二度と使わない', '白血球数が正常なら、脳波は気にしなくてよい'],
+          why: 'たばこの煙はクロザピンを分解する酵素（CYP1A2）を増やすので、禁煙すると血中濃度が上がります。ミオクローヌスや突発波が出たら、増量をゆっくりにし、発作が出たら減量や抗てんかん薬の併用を考えます。' }
+      ],
+      sensei: 'クロザピンは「最後の切り札」だけど、けいれんには気をつける薬。ミオクローヌスや脳波の突発波は「ゆっくり行こう」のサイン。たばこをやめると濃度が上がるのも、覚えておこう。' },
+    ect: {
+      title: '筋弛緩薬で見えない発作', card: ['postictal'],
+      vig: [['患者', '70歳の女性'], ['場面', 'ECT 室で、治療中の脳波を読むよう頼まれた。'],
+        ['現病歴', '重いうつ病。2種類の抗うつ薬で良くならず、食事がとれず、「私は生きている価値がない」と言う。修正型電気けいれん療法（ECT）を週2回行っていて、今日が4回目。'],
+        ['麻酔', '静脈麻酔薬と筋弛緩薬を使う。']],
+      eegNote: '刺激から約30秒後、発作の終わりのころの記録を示す。',
+      anim: { who: 'fem old', props: 'bed', loop: 10, steps: [
+        [0, 'closed mask', 'L:医師:麻酔が効きました。刺激します', '麻酔と筋弛緩薬で眠っている。'],
+        [3.5, 'closed mask', '', '体のけいれんは、ほとんど見えない（筋弛緩薬のため）。'],
+        [7, 'closed mask', 'R:技師:脳波で発作を確かめます', '発作が起きたか、どれだけ続いたかは脳波で確かめる。']] },
+      spec: { seed: 43, preset: 'normal', mont: 'ref', sens: 30, auto: false, bg: { alpha: 0 }, tl: [[7.8, 'flat', 1]], ev: [['sw', -0.5, { f0: 3.2, f1: 2.4, dur: 8.3, amp: 300, spike: 1.2 }]], ann: [[0.05, '刺激後 約30秒']] },
+      hl: { t0: 6.8, t1: 10, el: ['Fp1', 'Fp2', 'F3', 'F4', 'Fz'] },
+      qs: [
+        { q: '8秒のあたりで起きたことはどれか。', a: ['発作が急に終わり、脳波が平坦に近くなった（発作後抑制）', '電極がはずれた', '眠りが深くなった', '発作が強くなった', '心臓が止まった'],
+          why: '3Hz 前後の大きな棘徐波が続いたあと、急に終わり、ほとんど平らになっています。発作のあとに脳の活動が強く抑えられる、発作後抑制です。' },
+        { q: 'ECT で脳波を記録する理由として、最も適切なのはどれか。', a: ['筋弛緩薬で体のけいれんが見えないので、発作の有無と長さを確かめる', '麻酔の深さだけを測る', '脳の損傷を毎回調べる', 'うつ病の重さを測る', 'その日のうちに治療効果を判定する'],
+          why: '修正型 ECT では筋弛緩薬で体のけいれんを抑えるので、発作が起きたこと、その長さと終わり方を脳波で確かめます。' },
+        { q: '正しいのはどれか。2つ選べ。', n: 2, a: ['発作の終わりがはっきりし、発作後抑制が強いのは、質のよい発作の目安の一つ', '発作が長く続くとき（目安として3分超）は、麻酔薬やベンゾジアゼピンで止める', '発作後抑制は、脳が損傷したしるしである', '発作は長いほど効果が高いので、止めない', 'ECT の前には、ベンゾジアゼピンを増やしておくとよい'],
+          why: 'はっきり始まり、はっきり終わり、そのあと強く抑えられる発作は、治療に役立つ発作の目安の一つです。長すぎる発作は止めます。ベンゾジアゼピンは発作を起こりにくくするので、ECT の前はできるだけ減らします。' }
+      ],
+      sensei: 'ECT 室では、脳波が「見えない発作」の目になる。はっきり始まって、はっきり終わって、そのあと静かになる。これがいい発作。長すぎたら止める。' },
+
     ncse: {
       title: '「せん妄」で紹介された女性', card: ['ncse'],
       vig: [['患者', '72歳の女性'], ['依頼', '救急外来から「せん妄なので精神科で診てほしい」と紹介された。'],
@@ -2195,7 +2355,7 @@ body.eegfs #panel.qz-on .mihon-box,body.eegfs #panel.rp-on .mihon-box{display:no
         ['身体所見', '体温 36.8℃。目は開いているが、呼びかけへの反応が乏しい。まぶたと口元に、小さなぴくつきがときどきある。項部硬直はない。'],
         ['検査所見', '血糖、電解質、アンモニアに異常はない。頭部 CT では古い梗塞のほかに新しい病変はない。']],
       eegNote: '脳波検査を行った。記録の一部を示す。',
-      anim: { props: 'exam', loop: 10, steps: [
+      anim: { who: 'fem old', props: 'exam', loop: 10, steps: [
         [0, 'stare', 'L:医師:お名前を言えますか？', '目は開いているが、呼びかけても反応が鈍い。'],
         [3.5, 'stare flutter', '', 'よく見ると、まぶたや口元が小さくピクピク動いている。'],
         [7, 'stare', '', 'けいれんはなく、ただぼんやりしているように見える。']] },
@@ -2239,7 +2399,7 @@ body.eegfs #panel.qz-on .mihon-box,body.eegfs #panel.rp-on .mihon-box{display:no
         ['身体所見', '体温 37.8℃、脈拍 128/分。血圧が大きく変わる。汗が多い。呼びかけへの反応が乏しい。口と顔に、勝手に動く運動（口部ジスキネジア）がある。'],
         ['検査所見', 'CK 1,850 U/L。']],
       eegNote: '脳波検査を行った。記録の一部を示す。',
-      anim: { props: 'bed', loop: 12, steps: [
+      anim: { who: 'fem', props: 'bed', loop: 12, steps: [
         [0, 'look', 'R:本人:誰かに見張られてる…', '（2週間前）不安で落ち着かず、被害的なことを言う。'],
         [3.5, 'stare chew grimace', '', '（いま）反応が鈍く、口をもぐもぐさせ、顔をしかめる動きが続く（口部ジスキネジア）。'],
         [8, 'stare chew grimace', 'L:看護師:熱と脈が上がっています', '発熱、頻脈、血圧の変動（自律神経の症状）。']] },
@@ -2260,7 +2420,7 @@ body.eegfs #panel.qz-on .mihon-box,body.eegfs #panel.rp-on .mihon-box{display:no
         ['生活歴', '職場の人間関係で悩んでいる。'],
         ['身体所見', '発作のないときの神経学的所見に異常はない。'], ['検査所見', '頭部 MRI に異常はない。']],
       eegNote: 'ビデオ脳波で、ふだんと同じ発作をとらえた。発作中の記録を示す。',
-      anim: { props: 'bed', loop: 12, steps: [
+      anim: { who: 'fem', props: 'bed', loop: 12, steps: [
         [0, '', 'L:検査技師:発作が来たら、ボタンを押してくださいね', 'ビデオ脳波の検査中。'],
         [2.5, 'thrash shut', '', '目を固く閉じ、手足を左右ばらばらに振る。頭を左右に振る。'],
         [6, 'thrash shut', 'L:検査技師:目を開けてみてください', 'まぶたを開けようとすると、ぎゅっと閉じて抵抗する。'],
@@ -2284,10 +2444,10 @@ body.eegfs #panel.qz-on .mihon-box,body.eegfs #panel.rp-on .mihon-box{display:no
         ['既往歴', '高血圧、前立腺肥大症。もの忘れを指摘されたことはない。'], ['内服薬', '術後から、不眠時にトリアゾラムが使われている。'],
         ['身体所見', '体温 37.9℃。注意が続かず、日付と場所を間違える。'], ['検査所見', '白血球 12,800/μL、CRP 8.2 mg/dL。尿は混濁している。']],
       eegNote: '脳波検査を行った。日中、目を閉じた状態の記録を示す。',
-      anim: { props: 'bed', loop: 12, steps: [
+      anim: { who: 'old', props: 'bed', loop: 12, steps: [
         [0, 'night drowsy', '', '夜の病棟。うとうとしている。'],
         [2, 'night look', 'R:本人:ここは駅だ。電車が来る', '急に目を覚まし、落ち着きなくあたりを見回す。場所を取り違えている。'],
-        [6, 'night look pick', 'L:看護師:点滴、触らないでくださいね', '点滴の管を何度も引っぱろうとする。'],
+        [6, 'night look ivpick', 'L:看護師:点滴、さわらないでね', '点滴の管を何度も引っぱろうとする。'],
         [9.5, 'drowsy', '', '日中はうとうと。呼びかけてもすぐ眠ってしまう。（1日のなかで波がある）']] },
       spec: { seed: 31, preset: 'delirium', mont: 'ref' }, hl: { t0: 0, t1: 10, el: ['O1', 'O2', 'C3', 'C4', 'F3', 'F4'] },
       qs: [
@@ -2329,7 +2489,7 @@ body.eegfs #panel.qz-on .mihon-box,body.eegfs #panel.rp-on .mihon-box{display:no
         ['身体所見', '粗い手のふるえ（粗大振戦）、体幹の失調、構音障害がある。'],
         ['検査所見', '血清クレアチニン 1.6 mg/dL（半年前は 0.8 mg/dL）。血中リチウム濃度は結果待ち。']],
       eegNote: '脳波検査を行った。目を閉じた状態の記録を示す。',
-      anim: { props: 'exam', loop: 10, steps: [
+      anim: { who: 'fem', props: 'exam', loop: 10, steps: [
         [0, 'tremor drowsy', '', '手が粗く、大きくふるえる（粗大振戦）。'],
         [3, 'tremor sway drowsy', 'R:本人:ろれつが…まわら…ない', '座っていても体がゆれる（失調）。言葉がもつれる（構音障害）。'],
         [7, 'tremor drowsy', 'L:娘:話がかみ合わないんです', '意識がぼんやりして、話がかみ合わない。']] },
@@ -2350,7 +2510,7 @@ body.eegfs #panel.qz-on .mihon-box,body.eegfs #panel.rp-on .mihon-box{display:no
         ['既往歴', '特記すべきことはない。'], ['家族歴', '母がアルツハイマー型認知症（80歳で発症）。'],
         ['身体所見', '神経学的所見に異常はない。'], ['検査所見', '改訂長谷川式簡易知能評価スケール 27点。頭部 MRI に、年齢を超える萎縮はない。']],
       eegNote: '脳波検査を行った。目を閉じた状態の記録を示す。',
-      anim: { props: 'pills', loop: 9, steps: [
+      anim: { who: 'fem', props: 'pills', loop: 9, steps: [
         [0, '', '', '自宅。テーブルに薬の箱がある。'],
         [2, 'forget', 'R:本人:あれ、何を取りに来たんだっけ', 'ついさっきのことを忘れる。'],
         [6, 'drowsy', '', '昼間もぼんやりして、眠気が残る。']] },
@@ -2371,7 +2531,7 @@ body.eegfs #panel.qz-on .mihon-box,body.eegfs #panel.rp-on .mihon-box{display:no
         ['既往歴', '特記すべきことはない。発達の遅れはない。'], ['家族歴', '特記すべきことはない。'],
         ['身体所見', '意識は清明。神経学的所見に異常はない。'], ['検査所見', '血液検査に異常はない。']],
       eegNote: '脳波検査を行った。過呼吸を始めて約1分後の記録を示す。',
-      anim: { props: 'desk', loop: 11, steps: [
+      anim: { who: 'fem child', props: 'desk', loop: 11, steps: [
         [0, 'write', '', '授業中。ノートに字を書いている。'],
         [2.5, 'stare flutter', '', '急に手が止まり、一点を見つめる。まぶたが細かくピクピク動く（1秒に約3回）。'],
         [3.6, 'stare flutter', 'L:先生:〇〇さん？', '呼びかけに返事をしない。倒れたりはしない。'],
@@ -2394,11 +2554,11 @@ body.eegfs #panel.qz-on .mihon-box,body.eegfs #panel.rp-on .mihon-box{display:no
         ['既往歴', '特記すべきことはない。'], ['家族歴', '母方のおばにてんかん。'],
         ['身体所見', '意識は清明。神経学的所見に異常はない。'], ['検査所見', '頭部 MRI に異常はない。']],
       eegNote: '脳波検査を行った。光刺激（16Hz）の記録を示す。',
-      anim: { props: 'table', loop: 8, steps: [
+      anim: { who: 'fem', props: 'table', loop: 8, steps: [
         [0, 'hold', '', '朝食中。起きて30分ほど。コップを持っている。'],
         [2.4, 'hold jerk', '', '両腕がビクッと一瞬動く（ミオクロニー発作）。'],
-        [2.7, 'drop', '', '持っていたコップを落とす。'],
-        [3.4, 'drop', 'R:本人:あっ、また…', '意識ははっきりしていて、本人も気づいている。']] },
+        [2.7, 'hold drop', '', '持っていたコップを落とす。'],
+        [3.4, 'hold drop', 'R:本人:あっ、また…', '意識ははっきりしていて、本人も気づいている。']] },
       spec: { seed: 38, preset: 'normal', mont: 'ref', auto: false, tl: [[1, 'photic', 16]], ev: [['polysw', 2.8, { dur: 1.6, amp: 230 }], ['polysw', 6.2, { dur: 2.1, amp: 250 }]], ann: [[1, '光 16Hz']] },
       hl: { t0: 2.7, t1: 8.4, el: ['F3', 'F4', 'Fz', 'C3', 'C4', 'Cz', 'Fp1', 'Fp2'] },
       qs: [
@@ -2442,23 +2602,38 @@ body.eegfs #panel.qz-on .mihon-box,body.eegfs #panel.rp-on .mihon-box{display:no
   // 症状の様子：人の絵（SVG）。場面ごとに class を付け替え、吹き出しと説明文を出す
   var ANIM_SVG = '<svg class="pt" viewBox="0 0 300 200" role="img" aria-label="症状の様子のイラスト">' +
     '<g class="p-night"><rect x="0" y="0" width="300" height="200"/><circle cx="40" cy="30" r="10"/></g>' +
-    '<g class="p-bedb"><rect x="96" y="26" width="108" height="110" rx="8"/></g>' +
-    '<g class="p-iv"><path d="M262 18 V190 M250 190 H274"/><rect x="252" y="18" width="20" height="26" rx="4"/><path class="p-tube" d="M262 44 C262 110 240 150 196 150"/></g>' +
-    '<g class="p-sofa"><rect x="40" y="96" width="220" height="70" rx="16"/><rect x="28" y="120" width="30" height="58" rx="10"/><rect x="242" y="120" width="30" height="58" rx="10"/></g>' +
-    '<g class="p-body"><path class="p-shirt" d="M112 112 Q150 98 188 112 L198 186 L102 186 Z"/>' +
-    '<g class="p-armR"><path class="p-sleeve" d="M116 116 L96 150 L124 166"/><circle class="p-hand" cx="126" cy="166" r="7"/><g class="p-pencil"><path d="M128 160 L140 146"/></g></g>' +
-    '<g class="p-armL"><path class="p-sleeve" d="M184 116 L204 150 L176 166"/><circle class="p-hand" cx="174" cy="166" r="7"/></g>' +
-    '<g class="p-head"><rect class="p-skin" x="140" y="94" width="20" height="12"/><ellipse class="p-skin" cx="150" cy="68" rx="28" ry="31"/>' +
-    '<path class="p-hair" d="M122 66 C120 40 138 34 152 35 C168 36 180 46 178 66 C172 54 164 50 150 50 C138 50 128 54 122 66 Z"/>' +
-    '<g class="p-eye" transform="translate(139 70)"><ellipse class="p-white" rx="6" ry="4.2"/><circle class="p-pupil" r="2.4"/><path class="p-shut" d="M-6 0 Q0 3.5 6 0"/><rect class="p-lid" x="-7" y="-5" width="14" height="5"/></g>' +
-    '<g class="p-eye" transform="translate(161 70)"><ellipse class="p-white" rx="6" ry="4.2"/><circle class="p-pupil" r="2.4"/><path class="p-shut" d="M-6 0 Q0 3.5 6 0"/><rect class="p-lid" x="-7" y="-5" width="14" height="5"/></g>' +
-    '<path class="p-mouth" d="M143 86 Q150 89 157 86"/><text class="p-q" x="186" y="44">?</text></g></g>' +
-    '<g class="p-desk"><rect x="60" y="164" width="180" height="10" rx="2"/><rect x="104" y="156" width="56" height="9" class="p-note"/></g>' +
-    '<g class="p-table"><rect x="60" y="168" width="180" height="10" rx="2"/><g class="p-cup"><rect x="186" y="146" width="16" height="20" rx="3"/></g></g>' +
-    '<g class="p-blanket"><rect x="70" y="150" width="170" height="50" rx="10"/></g>' +
-    '<g class="p-pillbox"><rect x="60" y="168" width="180" height="10" rx="2"/><rect x="196" y="152" width="30" height="16" rx="2" class="p-box"/><circle cx="184" cy="165" r="2.5"/><circle cx="178" cy="166" r="2.5"/></g>' +
-    '<g class="p-bub p-bubL"><rect x="4" y="6" width="150" height="54" rx="10"/><text x="12" y="20" class="p-who"></text><text x="12" y="36" class="p-say"><tspan x="12"></tspan><tspan x="12" dy="15"></tspan></text></g>' +
-    '<g class="p-bub p-bubR"><rect x="146" y="2" width="152" height="54" rx="10"/><text x="154" y="16" class="p-who"></text><text x="154" y="32" class="p-say"><tspan x="154"></tspan><tspan x="154" dy="15"></tspan></text></g>' +
+    '<g class="p-bedb"><rect x="92" y="22" width="116" height="116" rx="12"/></g>' +
+    '<g class="p-iv"><path d="M262 18 V190 M250 190 H274"/><rect x="252" y="18" width="20" height="26" rx="4"/><path class="p-tube" d="M262 44 C262 110 230 140 190 140"/></g>' +
+    '<g class="p-sofa"><rect x="40" y="92" width="220" height="74" rx="18"/><rect x="26" y="118" width="32" height="60" rx="12"/><rect x="242" y="118" width="32" height="60" rx="12"/></g>' +
+    '<g class="p-person">' +
+    '<path class="p-shirt" d="M112 128 Q112 100 140 98 L160 98 Q188 100 188 128 L192 194 L108 194 Z"/>' +
+    '<g class="p-armR"><rect class="p-sleeve" x="114" y="102" width="16" height="44" rx="8"/><circle class="p-hand" cx="122" cy="150" r="8"/><path class="p-pencil" d="M124 148 L132 134"/></g>' +
+    '<g class="p-armL"><rect class="p-sleeve" x="170" y="102" width="16" height="44" rx="8"/><circle class="p-hand" cx="178" cy="150" r="8"/></g>' +
+    '<g class="p-head">' +
+    '<path class="p-hairF" d="M117 60 Q110 86 118 100 L128 96 Q120 80 123 62 Z M183 60 Q190 86 182 100 L172 96 Q180 80 177 62 Z"/>' +
+    '<circle class="p-skin" cx="150" cy="62" r="34"/>' +
+    '<path class="p-hair" d="M116 60 A34 34 0 0 1 184 60 Q176 44 158 42 Q150 52 132 50 Q120 52 116 60 Z"/>' +
+    '<g class="p-cap"><circle cx="134" cy="36" r="2.6"/><circle cx="150" cy="30" r="2.6"/><circle cx="166" cy="36" r="2.6"/><circle cx="122" cy="48" r="2.6"/><circle cx="178" cy="48" r="2.6"/><circle cx="150" cy="42" r="2.6"/></g>' +
+    '<ellipse class="p-blush" cx="128" cy="75" rx="5.5" ry="3.2"/><ellipse class="p-blush" cx="172" cy="75" rx="5.5" ry="3.2"/>' +
+    '<g class="p-eye" transform="translate(137 64)"><g class="p-eyeIn"><ellipse class="p-dot" rx="3.4" ry="4.3"/></g><path class="p-shut" d="M-5 0 Q0 4 5 0"/><path class="p-flat" d="M-5 1 H5"/><path class="p-tight" d="M-4 -3 L3 0 L-4 3"/></g>' +
+    '<g class="p-eye" transform="translate(163 64)"><g class="p-eyeIn"><ellipse class="p-dot" rx="3.4" ry="4.3"/></g><path class="p-shut" d="M-5 0 Q0 4 5 0"/><path class="p-flat" d="M-5 1 H5"/><path class="p-tight" d="M4 -3 L-3 0 L4 3"/></g>' +
+    '<path class="p-brow" d="M128 52 L141 55 M172 52 L159 55"/>' +
+    '<path class="p-mouth p-m0" d="M145 79 Q150 83 155 79"/>' +
+    '<g class="p-mouth p-m1"><rect x="142" y="77" width="16" height="6" rx="2"/><path d="M146 77 V83 M150 77 V83 M154 77 V83"/></g>' +
+    '<ellipse class="p-mouth p-m2" cx="150" cy="80" rx="3.6" ry="4"/>' +
+    '<path class="p-mouth p-mw" d="M142 80 q2 -2 4 0 t4 0 t4 0 t4 0"/>' +
+    '<path class="p-drool" d="M156 82 q2 5 0 8 q-2 -3 0 -8 Z"/>' +
+    '<g class="p-mask"><ellipse cx="150" cy="80" rx="12" ry="9"/><path d="M138 78 L118 70 M162 78 L182 70"/></g>' +
+    '<text class="p-q" x="186" y="34">?</text></g>' +
+    '<g class="p-zzz"><text x="190" y="50">z</text><text x="200" y="38">z</text><text x="211" y="26">Z</text></g>' +
+    '</g>' +
+    '<g class="p-desk"><rect x="60" y="160" width="180" height="10" rx="3"/><rect x="104" y="152" width="56" height="9" rx="1" class="p-note"/></g>' +
+    '<g class="p-table"><rect x="60" y="164" width="180" height="10" rx="3"/><g class="p-cup"><rect x="178" y="138" width="16" height="22" rx="4"/></g></g>' +
+    '<g class="p-blanket"><rect x="68" y="146" width="174" height="54" rx="14"/></g>' +
+    '<g class="p-pillbox"><rect x="60" y="164" width="180" height="10" rx="3"/><rect x="198" y="148" width="30" height="16" rx="3" class="p-box"/><circle cx="186" cy="161" r="2.5"/><circle cx="180" cy="162" r="2.5"/></g>' +
+    '<g class="p-zoom"><circle cx="258" cy="150" r="36"/><rect class="p-zarm" x="222" y="144" width="36" height="12" rx="6"/><g class="p-zhand"><rect x="254" y="142" width="26" height="16" rx="8"/></g><text x="258" y="182">手のアップ</text></g>' +
+    '<g class="p-bub p-bubL"><rect x="4" y="6" width="150" height="54" rx="12"/><text x="14" y="21" class="p-who"></text><text x="14" y="37" class="p-say"><tspan x="14"></tspan><tspan x="14" dy="15"></tspan></text></g>' +
+    '<g class="p-bub p-bubR"><rect x="146" y="2" width="152" height="54" rx="12"/><text x="156" y="17" class="p-who"></text><text x="156" y="33" class="p-say"><tspan x="156"></tspan><tspan x="156" dy="15"></tspan></text></g>' +
     '</svg>';
   var stT = [], stOn = false;
   function storyAnimStop() { stT.forEach(clearTimeout); stT = []; stOn = false; }
@@ -2466,7 +2641,7 @@ body.eegfs #panel.qz-on .mihon-box,body.eegfs #panel.rp-on .mihon-box{display:no
   function storyAnimRun(c) {
     storyAnimStop(); var box = document.getElementById('stAnim'); if (!box) return;
     var svg = box.querySelector('svg'), cap = document.getElementById('stCap'), A = c.anim; stOn = true;
-    var pc = 'pt ' + A.props.split(' ').map(function (x) { return 'props-' + x; }).join(' ');
+    var pc = 'pt ' + A.props.split(' ').map(function (x) { return 'props-' + x; }).join(' ') + (A.who ? ' ' + A.who : '');
     svg.setAttribute('class', pc);
     function step(s) {
       if (!document.getElementById('stAnim')) { storyAnimStop(); return; }
@@ -2497,10 +2672,11 @@ body.eegfs #panel.qz-on .mihon-box,body.eegfs #panel.rp-on .mihon-box{display:no
     var html = '', ch = ST_CH[SQ.ch - 1], c;
     if (SQ.ph === 'menu') {
       var sv = stLoad();
-      html = '<div class="ph"><h2 id="panelH" tabindex="-1">ストーリー　新人医師の1年</h2><span class="prog">試作版：第2〜4章が遊べます</span></div>' +
+      html = '<div class="ph"><h2 id="panelH" tabindex="-1">ストーリー　新人医師の1年</h2><span class="prog">全5章・18症例</span></div>' +
         '<p class="story">あなたは精神科に入った1年目の医師。指導医と一緒に、外来・病棟・当直で出会う人たちの脳波を読んでいきます。症例は医師国家試験の臨床問題の形で出ます。全部の章を終えると、図鑑の脳波をひととおり経験できます。</p>' +
         '<ol class="st-ch">' + ST_CH.map(function (x) { var ok = x.cases.length > 0, dn = ok && x.cases.every(function (k) { return sv[k] != null; });
-          return '<li><button type="button" class="st-chb" data-sch="' + x.n + '"' + (ok ? '' : ' disabled') + '><span class="st-chn">第' + x.n + '章</span><b>' + esc(x.t) + '</b><span class="muted">' + esc(x.d) + '</span><span class="st-chs">' + (ok ? (dn ? 'クリア' : x.cases.length + '症例') : '準備中') + '</span></button></li>'; }).join('') + '</ol>';
+          return '<li><button type="button" class="st-chb" data-sch="' + x.n + '"' + (ok ? '' : ' disabled') + '><span class="st-chn">第' + x.n + '章</span><b>' + esc(x.t) + '</b><span class="muted">' + esc(x.d) + '</span><span class="st-chs">' + (ok ? (dn ? 'クリア' : x.cases.filter(function (k) { return sv[k] != null; }).length + ' / ' + x.cases.length + '症例') : '準備中') + '</span></button></li>'; }).join('') + '</ol>' +
+        '<div class="st-reset"><span class="muted">成績のリセット</span><button type="button" class="ghost" data-sgo="reset1">ストーリーの成績だけ</button><button type="button" class="ghost" data-sgo="resetAll">すべて（図鑑・自己ベストも）</button><p class="muted" id="stResetMsg" aria-live="polite"></p></div>';
     } else if (SQ.ph === 'chin') {
       html = stHead('第' + ch.n + '章　' + esc(ch.t)) + senseiHTML(ch.intro) + '<button type="button" class="btn" data-sgo="start">最初の症例へ</button>';
     } else if (SQ.ph === 'case') {
@@ -2567,6 +2743,14 @@ body.eegfs #panel.qz-on .mihon-box,body.eegfs #panel.rp-on .mihon-box{display:no
       return;
     }
     var go = b.getAttribute('data-sgo');
+    if (go === 'reset1' || go === 'resetAll') {
+      // 押しまちがいを防ぐため、2回押しで実行する
+      if (b.getAttribute('data-armed') !== '1') { panel.querySelectorAll('[data-armed]').forEach(function (x) { x.removeAttribute('data-armed'); x.classList.remove('armed'); }); b.setAttribute('data-armed', '1'); b.classList.add('armed'); document.getElementById('stResetMsg').textContent = 'もう一度押すとリセットします（元には戻せません）。'; return; }
+      lsSet(STORY_KEY, '{}');
+      if (go === 'resetAll') { ZK = {}; lsSet(ZKEY, '{}'); Object.keys(BEST).forEach(function (k) { lsSet(BEST[k], '0'); }); QZ.n = 0; QZ.ok = 0; syncZkTab(); }
+      renderStory(); document.getElementById('stResetMsg').textContent = go === 'resetAll' ? 'すべての成績をリセットしました。' : 'ストーリーの成績をリセットしました。';
+      return;
+    }
     if (go === 'multi') stAnswer(SQ.sel.slice());
     else if (go === 'start') { SQ.ci = 0; stStartCase(); }
     else if (go === 'eeg') {
@@ -2795,6 +2979,23 @@ body.eegfs #panel.qz-on .mihon-box,body.eegfs #panel.rp-on .mihon-box{display:no
     ev.preventDefault(); ev.stopPropagation(); openPick(sel);
   }, true);
   function fsChange() { var nat = !!(document.fullscreenElement || document.webkitFullscreenElement); document.body.classList.toggle('natfs', nat); if (!nat && isFs()) { document.body.classList.remove('eegfs'); } closePick(); syncFs(); }
+  // 全画面中、スクロールの端で指を引っぱると iPad が全画面を解除するので、端ではページに伝えない
+  var tgY = 0;
+  document.addEventListener('touchstart', function (e) { if (e.touches.length === 1) tgY = e.touches[0].clientY; }, { passive: true });
+  document.addEventListener('touchmove', function (e) {
+    if (!isFs() || e.touches.length !== 1) return;
+    var y = e.touches[0].clientY, dy = y - tgY, el = e.target; tgY = y;
+    while (el && el !== document.body && el.nodeType === 1) {
+      var oy = getComputedStyle(el).overflowY;
+      if ((oy === 'auto' || oy === 'scroll') && el.scrollHeight > el.clientHeight + 1) {
+        var atTop = el.scrollTop <= 0, atEnd = el.scrollTop + el.clientHeight >= el.scrollHeight - 1;
+        if (!((dy > 0 && atTop) || (dy < 0 && atEnd))) return;
+        break;
+      }
+      el = el.parentElement;
+    }
+    if (e.cancelable) e.preventDefault();
+  }, { passive: false });
   document.addEventListener('fullscreenchange', fsChange); document.addEventListener('webkitfullscreenchange', fsChange);
   new MutationObserver(function () { if (isFs() && !document.body.classList.contains('panelhide')) document.documentElement.style.setProperty('--ph', panel.offsetHeight + 'px'); }).observe(panel, { childList: true, subtree: true });
   // 記録紙を指で左右にはらうと、前後のページへ（ものさしを使っていないとき）
