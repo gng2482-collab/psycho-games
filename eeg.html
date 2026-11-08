@@ -113,10 +113,13 @@ h1{font-family:var(--f-display); font-weight:400; margin:0; font-size:clamp(2.1r
 .rule-anim .ra-draw{stroke-dasharray:420;stroke-dashoffset:420;animation:raDraw 3.6s ease-in-out infinite}
 @keyframes raDraw{0%{stroke-dashoffset:420}60%,100%{stroke-dashoffset:0}}
 .rule-anim .ra-pulse{animation:raPulse 1.6s ease-in-out infinite} @keyframes raPulse{0%,100%{opacity:.25}50%{opacity:1}}
+.rule-anim .ra-box{fill:color-mix(in srgb,var(--hot) 10%,transparent);stroke:var(--hot);stroke-width:1.6}
+.rule-anim .ra-step{opacity:0;animation:raStep 7.5s steps(1) infinite} .rule-anim .ra-step.s2{animation-delay:2.5s} .rule-anim .ra-step.s3{animation-delay:5s}
+@keyframes raStep{0%{opacity:1}33.3%{opacity:0}100%{opacity:0}}
 .rule-anim .ra-chip rect{fill:var(--panel);stroke:var(--line)} .rule-anim .ra-chip text{font-family:var(--f-body);font-size:11px;fill:var(--ink)}
 .rule-anim .ra-chip{animation:raChip 6s steps(1) infinite} .rule-anim .ra-chip.c2{animation-delay:2s} .rule-anim .ra-chip.c3{animation-delay:4s}
 @keyframes raChip{0%{opacity:1}33.3%{opacity:.35}100%{opacity:.35}}
-@media (prefers-reduced-motion:reduce){.rule-anim *{animation:none!important;stroke-dashoffset:0!important;opacity:1!important}}
+@media (prefers-reduced-motion:reduce){.rule-anim *{animation:none!important;stroke-dashoffset:0!important;opacity:1!important}.rule-anim .ra-step.s2,.rule-anim .ra-step.s3{opacity:0!important}}
 .primer-grid{display:grid;grid-template-columns:minmax(0,1fr) clamp(220px,22vw,280px);gap:14px;align-items:start}
 .primer-l{display:grid;gap:12px;min-width:0}
 @media (max-width:900px){.primer-grid{grid-template-columns:minmax(0,1fr)}}
@@ -134,7 +137,7 @@ body.eegfs .bandbox{display:none}
 @media (max-width:520px){ .rules{grid-template-columns:minmax(0,1fr)} .bands{grid-template-columns:repeat(2, minmax(0,1fr))} }
 
 /* モード */
-.modes{margin-top:26px; display:grid; grid-template-columns:repeat(6, minmax(0,1fr)); gap:8px}
+.modes{margin-top:26px; display:grid; grid-template-columns:repeat(7, minmax(0,1fr)); gap:8px}
 .mode{
   font:inherit; text-align:left; cursor:pointer; color:var(--ink); background:var(--panel);
   border:1px solid var(--line); border-radius:var(--r); padding:8px 12px; display:grid; gap:0; min-height:48px; text-decoration:none;
@@ -153,6 +156,7 @@ body.eegfs .bandbox{display:none}
 .mode .mg{font-size:10px;font-weight:700;color:var(--muted);letter-spacing:.08em}
 .mode-story{border:2px solid var(--accent);background:color-mix(in srgb,var(--accent) 7%,var(--panel))}
 .mode-story .mg{color:var(--accent)}
+.mode-sen{border-color:#b98a2a} .mode-sen .mg{color:#a06d12}
 @media (max-width:820px){ .modes{grid-template-columns:repeat(2, minmax(0,1fr))} }
 .level{margin-top:10px; display:flex; flex-wrap:wrap; gap:6px 12px; align-items:center}
 .level .lb{font-size:var(--fs-xs); color:var(--muted); letter-spacing:.08em}
@@ -651,7 +655,7 @@ body.eegfs #panel.qz-on .mihon-box,body.eegfs #panel.rp-on .mihon-box{display:no
       <li><b><span class="n">約束1</span> 1本の線は「差」</b>脳波の1本は、2つの電極の電位の差です。<code>F3−C3</code> は「F3 から C3 を引いた値」。線をタップすると、どの2つかを頭の図に出します。<svg class="rule-anim" id="ra1" viewBox="0 0 240 88" role="img" aria-label="約束1の図"></svg></li>
       <li><b><span class="n">約束2</span> 上向きがマイナス</b>脳波はマイナス（陰性）を上に描きます。脳の表面の棘波はたいていマイナスなので、上向きに振れます。<svg class="rule-anim" id="ra2" viewBox="0 0 240 88" role="img" aria-label="約束2の図"></svg></li>
       <li><b><span class="n">約束3</span> 向かい合ったら焦点</b>双極導出で、となり合う2本が逆向きに振れて向かい合ったら（位相逆転）、2本が共有する電極が焦点です。<svg class="rule-anim" id="ra3" viewBox="0 0 240 88" role="img" aria-label="約束3の図"></svg></li>
-      <li><b><span class="n">約束4</span> 読む順番</b>①目を閉じた後頭部のα波 ②左右差 ③突発的な波。いきなり異常を探さず、背景から読みます。<svg class="rule-anim" id="ra4" viewBox="0 0 240 88" role="img" aria-label="約束4の図"></svg></li>
+      <li><b><span class="n">約束4</span> 読む順番</b>①目を閉じた後頭部のα波 ②左右差 ③突発的な波。いきなり異常を探さず、背景から読みます。<svg class="rule-anim" id="ra4" viewBox="0 0 240 100" role="img" aria-label="約束4の図"></svg></li>
     </ol>
     </div>
     <aside class="bandbox" aria-labelledby="bdh">
@@ -669,6 +673,7 @@ body.eegfs #panel.qz-on .mihon-box,body.eegfs #panel.rp-on .mihon-box{display:no
     <a class="mode" href="#dojo" data-mode="dojo"><span class="mg">練習</span><span class="mt">波形道場</span><span class="ms" data-oki="波の名前当ててみて 12問">波の名前を当てる 12問</span></a>
     <a class="mode" href="#hunter" data-mode="hunter"><span class="mg">練習</span><span class="mt">位相逆転ハンター</span><span class="ms" data-oki="焦点の電極さがすよー 10回">焦点の電極を探す 10回</span></a>
     <a class="mode" href="#conf" data-mode="conf"><span class="mg">練習</span><span class="mt">脳波カンファ</span><span class="ms" data-oki="精神科の症例 13人・39問さー">精神科の症例 13人・39問</span></a>
+    <a class="mode mode-sen" href="#sen" data-mode="sen"><span class="mg">練習・上級</span><span class="mt">専門医道場</span><span class="ms" data-oki="てんかん専門医レベル 11題・33問さー">てんかん専門医レベル 11題・33問</span></a>
     <a class="mode" href="#zukan" data-mode="zukan"><span class="mg">集めたもの</span><span class="mt">脳波図鑑</span><span class="ms" id="zkTab">集めたカード</span></a>
   </nav>
   <div class="level" role="group" aria-labelledby="lvh">
@@ -2261,8 +2266,8 @@ body.eegfs #panel.qz-on .mihon-box,body.eegfs #panel.rp-on .mihon-box{display:no
       ] }
   ];
 
-  var Q = { dojo: null, conf: null, hunter: null };
-  var BEST = { dojo: 'eeg-dojo-best', conf: 'eeg-conf-best', hunter: 'eeg-hunter-best' };
+  var Q = { dojo: null, conf: null, hunter: null, sen: null };
+  var BEST = { dojo: 'eeg-dojo-best', conf: 'eeg-conf-best', hunter: 'eeg-hunter-best', sen: 'eeg-sen-best' };
   function rankOf(p) { return p >= 90 ? 'S' : p >= 75 ? 'A' : p >= 60 ? 'B' : p >= 40 ? 'C' : 'D'; }
 
   // 解説の下に、次の問題文を出す（次があることに気づけるように）。押すとその問題へ動く
@@ -2355,6 +2360,156 @@ body.eegfs #panel.qz-on .mihon-box,body.eegfs #panel.rp-on .mihon-box{display:no
     if (k === 0 && ai === 0) unlock(CONF_CARD[CONF[S.i].title], V.real ? 3 : 2);
     renderConf(); var q = document.getElementById('qh' + k); if (q) q.focus({ preventScroll: true });
   }
+
+
+  /* ====================== 9d. 専門医道場（てんかん専門医試験レベル） ====================== */
+  var SENMON = [
+    { time: '判読の技術', title: '鎖の端で向かい合わない', story: '28歳の女性。焦点意識減損発作がある。双極導出（縦）で、くり返す鋭い波が見られた。',
+      spec: { seed: 71, preset: 'normal', mont: 'bip', auto: false, ev: [['spike', 1.8, { e: 'Fp1', amp: 150 }], ['spike', 5.1, { e: 'Fp1', amp: 140 }], ['spike', 8.0, { e: 'Fp1', amp: 155 }]] }, hl: { t0: 1.5, t1: 8.6, el: ['Fp1'] },
+      qs: [
+        { q: 'この棘波の焦点として最も考えられる電極はどれか。', a: ['Fp1', 'F3', 'F7', 'C3', 'Fz'],
+          why: 'Fp1−F3 と Fp1−F7 の両方で、同じ向きにいちばん大きく振れています。Fp1 は双極導出の鎖の端なので、向かい合う相手の線がなく、位相逆転は見えません。' },
+        { q: '焦点を確かめるために次に行うこととして最も適切なのはどれか。', a: ['基準導出（または平均基準）に切り替えて、振幅が最大の電極を確かめる', '感度を下げる', '高域遮断を 15Hz に下げる', '横の双極導出だけで判断する', '記録を中止する'],
+          why: '鎖の端の焦点は、基準導出や平均基準導出で「いちばん大きく振れる電極」として確かめます。上の「導出」を切り替えて見てください。' },
+        { q: '前頭極（Fp1・Fp2）の波を読むときに、まず除外すべきものはどれか。', a: ['眼球運動・まばたきのアーチファクト', '心電図の混入', '交流障害', '紡錘波', '光駆動'],
+          why: 'Fp は目にいちばん近く、眼球運動やまばたきが大きく入ります。棘波と判断する前に、形・広がり・同時の眼球運動を確かめます。' }
+      ] },
+    { time: 'てんかん外来', title: '内側側頭葉てんかんの頭皮上脳波', story: '32歳の男性。上腹部の上昇感に続く焦点意識減損発作がある。眠りかけの記録を示す。',
+      spec: { seed: 72, preset: 'normal', mont: 'bip', auto: false, init: { sleep: 1 }, ev: [['spike', 2.2, { e: 'F7', amp: 140 }], ['spike', 5.6, { e: 'F7', amp: 130 }], ['spike', 8.1, { e: 'F7', amp: 150 }]] }, hl: { t0: 1.9, t1: 8.6, el: ['F7'] },
+      qs: [
+        { q: '棘波の焦点はどこか。', a: ['F7（左前側頭部）', 'T3（左中側頭部）', 'C3', 'O1', 'Fz'],
+          why: 'Fp1−F7 と F7−T3 が向かい合っており、共有する F7 が焦点です。' },
+        { q: '内側側頭葉てんかんの発作間欠期の棘波が、頭皮上で最も出やすい部位はどれか。', a: ['前側頭部（F7・F8、T1・T2）', '後頭部', '頭頂部', '中心部', '前頭極'],
+          why: '内側側頭葉（海馬・扁桃体）の放電は、頭皮上では前側頭部で最も大きく記録されます。10-20法では F7・F8 付近で、T1・T2 電極を追加すると捉えやすくなります。' },
+        { q: '正しいのはどれか。', a: ['1回の発作間欠期脳波が正常でも、てんかんは否定できない', '発作間欠期に棘波がなければ、てんかんは否定できる', '睡眠記録では、てんかん性放電は出にくくなる', '棘波の数で発作の頻度がわかる', '抗てんかん薬を始めたら、棘波は必ず消える'],
+          why: '1回の記録での検出率は高くありません。睡眠を含めた記録や、くり返しの記録で検出率が上がります。' }
+      ] },
+    { time: '思春期外来', title: '思春期に始まった欠神', story: '13歳の女子。1日に数回、数秒〜十数秒ぼんやりする。半年前に全身のけいれんが1回あった。過呼吸中の記録を示す。',
+      spec: { seed: 73, preset: 'normal', mont: 'bip', auto: false, init: { hv: 1 }, ev: [['sw', 2.0, { f0: 3.9, f1: 3.3, dur: 5.5, amp: 320, spike: 1.3 }]], ann: [[0.05, '過呼吸中']] }, hl: { t0: 1.9, t1: 7.6, el: ['Fp1', 'Fp2', 'F3', 'F4', 'Fz', 'C3', 'C4', 'Cz'] },
+      qs: [
+        { q: '最も考えられる診断はどれか。', a: ['若年欠神てんかん', '小児欠神てんかん', '若年ミオクロニーてんかん', 'Lennox-Gastaut 症候群', '側頭葉てんかん'],
+          why: '10歳前後以降の発症で、欠神の回数が小児欠神てんかんより少なく、全身のけいれん（強直間代発作）を伴う。若年欠神てんかんです。棘徐波は 3〜4Hz とやや速く、多棘波が混じることがあります。' },
+        { q: '治療薬の選び方として正しいのはどれか。', a: ['エトスクシミド単剤は、強直間代発作を抑えないので適さない', 'カルバマゼピンが第一選択である', 'フェニトインが第一選択である', '欠神発作は治療の必要がない', 'ベンゾジアゼピンの単剤で長期に治療する'],
+          why: '強直間代発作を伴うので、バルプロ酸・ラモトリギン・レベチラセタムなどを選びます（妊娠の可能性がある年代ではバルプロ酸をできるだけ避けます）。カルバマゼピン・フェニトインは欠神を悪くすることがあります。' },
+        { q: '小児欠神てんかんと比べた若年欠神てんかんの特徴として正しいのはどれか。', a: ['寛解しにくく、治療が長く続くことが多い', '欠神の回数が1日に数十〜数百回と多い', '発症が4〜8歳に多い', '強直間代発作を伴うことはまれ', '脳波は正常であることが多い'],
+          why: '若年欠神てんかんは、小児欠神てんかんより寛解しにくく、強直間代発作を伴うことが多い症候群です。' }
+      ] },
+    { time: '集中治療室', title: '用語の決まり（ACNS）', story: '68歳の男性。肝硬変で、意識障害のため集中治療室に入院している。持続脳波の一部を示す。',
+      spec: { seed: 74, preset: 'hepatic', mont: 'ref' }, hl: { t0: 0, t1: 10, el: ['Fp1', 'Fp2', 'F3', 'F4', 'Fz'] },
+      qs: [
+        { q: 'アメリカ臨床神経生理学会（ACNS）の用語（2021年版）で、この所見を表すのに最も適切なのはどれか。', a: ['GPDs（三相性の形態を伴う）', 'LPDs', 'LRDA', 'BIPDs', 'SIRPIDs'],
+          why: '全般性（G）の周期性放電（PDs）で、形が三相性です。ACNS 2021 では「triphasic morphology（三相性の形態）」を GPDs などに付ける修飾語として扱います。' },
+        { q: 'ACNS の用語で「LPDs」の「L」が表すのはどれか。', a: ['片側性（lateralized）', '長い（long）', '低振幅（low）', '律動的（rhythmic）', '局所の（local）'],
+          why: 'L は lateralized（片側性）です。以前の PLEDs にあたります。G は generalized（全般性）、BI は bilateral independent（両側独立性）、RDA は rhythmic delta activity（律動的デルタ活動）です。' },
+        { q: 'この所見について正しいのはどれか。', a: ['代謝性脳症でも、非けいれん性てんかん重積でも出ることがあり、臨床経過と合わせて判断する', '三相性なら、てんかん性ではないと断定できる', '肝性脳症に特有である', '抗てんかん薬で消えなければ、てんかん性である', '予後とは関係しない'],
+          why: '三相性の GPDs は代謝性脳症に多いものの、非けいれん性てんかん重積と見分けにくいことがあります。ベンゾジアゼピン静注の反応は、脳波と臨床の両方の改善で判断します。' }
+      ] },
+    { time: '救急外来', title: 'NCSE の診断基準', story: '70歳の女性。原因のわからない意識障害で搬送された。けいれんはない。てんかん性脳症の既往はない。',
+      spec: { seed: 75, preset: 'ncse', mont: 'bip' }, hl: { t0: 0, t1: 10, el: ['F3', 'F4', 'Fz', 'C3', 'C4', 'Cz', 'Fp1', 'Fp2'] },
+      qs: [
+        { q: 'Salzburg 基準で、それだけで NCSE と判断できる所見はどれか。', a: ['2.5Hz を超える頻度のてんかん性放電が続く', '1Hz の三相波', '前頭部の間欠性律動的デルタ活動', 'びまん性徐波', '単発の棘波'],
+          why: 'てんかん性脳症のない人では、2.5Hz を超えるてんかん性放電、典型的な時間・空間の変化（evolution）、わずかな発作症状を伴う所見、のいずれかで NCSE と判断します。' },
+        { q: '放電が 2.5Hz 以下のとき、NCSE と判断するために加えて必要なのはどれか。', a: ['抗てんかん薬の静注で、脳波と臨床症状がともに改善する', '脳波だけが改善する', '意識障害が 24 時間続く', 'CT で病変がある', '血中アンモニアが高い'],
+          why: '2.5Hz 以下の放電（または律動的な徐波）では、静注の抗てんかん薬で脳波と臨床症状がともによくなるか、わずかな発作症状か、典型的な変化があるときに NCSE と判断します。' },
+        { q: '対応として最も適切なのはどれか。', a: ['ベンゾジアゼピンを静注し、続けて静注の抗てんかん薬を使う', 'けいれんがないので経過を見る', '抗精神病薬で鎮静する', '翌日に脳波をとり直してから判断する', 'まず電気けいれん療法を行う'],
+          why: 'NCSE は放置すると脳を傷めるので、けいれん重積に準じて治療します。' }
+      ] },
+    { time: 'リエゾン', title: 'けいれんを起こしやすい向精神薬', story: '29歳の男性。治療抵抗性統合失調症でクロザピンを増量中。朝に手がぴくっとすることがある。',
+      spec: { seed: 76, preset: 'clozapine', mont: 'bip', auto: false, ev: [['sw', 2.2, { f0: 4.6, f1: 3.9, dur: 1.4, amp: 230, spike: 0.9 }], ['sw', 6.6, { f0: 4.4, f1: 3.8, dur: 1.7, amp: 250, spike: 0.9 }]] }, hl: { t0: 2, t1: 8.5, el: ['F3', 'F4', 'Fz', 'C3', 'C4', 'Cz'] },
+      qs: [
+        { q: '抗精神病薬のうち、けいれんを最も起こしやすいのはどれか。', a: ['クロザピン', 'アリピプラゾール', 'リスペリドン', 'ハロペリドール', 'ブロナンセリン'],
+          why: 'クロザピンは用量（血中濃度）に応じてけいれんを起こしやすく、ほかの抗精神病薬より頻度が高い薬です。' },
+        { q: '抗うつ薬のうち、けいれんのリスクに特に注意が必要なのはどれか。', a: ['マプロチリン', 'セルトラリン', 'エスシタロプラム', 'ミルタザピン', 'ボルチオキセチン'],
+          why: '四環系のマプロチリンや、三環系（特にクロミプラミン）は、けいれんのリスクが高い抗うつ薬です。SSRI はリスクが低いとされます。' },
+        { q: 'この患者への対応として正しいのはどれか。', a: ['禁煙や併用薬の変化で血中濃度が上がっていないか確かめ、増量をゆっくりにする', '脳波異常があるので、すぐに中止して二度と使わない', '予定どおり増量を続ける', 'ミオクローヌスは副作用ではない', 'けいれんが出ても併用薬は使えない'],
+          why: 'ミオクローヌスや突発波は、けいれんの前ぶれのことがあります。禁煙（CYP1A2 の誘導がなくなる）やフルボキサミンの併用で濃度が上がります。発作が出たら、減量や抗てんかん薬の併用を考えます。' }
+      ] },
+    { time: '女性のてんかん外来', title: '妊娠を考えている', story: '26歳の女性。若年ミオクロニーてんかんでバルプロ酸を内服している。結婚して、妊娠を考えている。光刺激の記録を示す。',
+      spec: { seed: 77, preset: 'normal', mont: 'ref', auto: false, tl: [[1, 'photic', 16]], ev: [['polysw', 2.8, { dur: 1.6, amp: 230 }], ['polysw', 6.2, { dur: 2.1, amp: 250 }]], ann: [[1, '光 16Hz']] }, hl: { t0: 2.7, t1: 8.4, el: ['F3', 'F4', 'Fz', 'C3', 'C4', 'Cz', 'Fp1', 'Fp2'] },
+      qs: [
+        { q: '妊娠を考える女性で、胎児への影響（奇形と発達）が最も大きい抗てんかん薬はどれか。', a: ['バルプロ酸', 'ラモトリギン', 'レベチラセタム', 'ラコサミド', 'クロバザム'],
+          why: 'バルプロ酸は、奇形や発達への影響が用量に応じて大きくなります。ラモトリギンやレベチラセタムは、比較的リスクが低い薬です。' },
+        { q: '妊娠前からの準備として正しいのはどれか。', a: ['妊娠の前から葉酸を補う', '妊娠がわかったら、すぐに自己判断で薬をやめる', '妊娠中は脳波検査ができない', '授乳はすべての抗てんかん薬で禁止である', '妊娠中は発作が必ず減る'],
+          why: '妊娠前からの葉酸の補充がすすめられます。自己判断で急にやめると、発作で母子ともに危険になります。薬の変更は妊娠前に計画的に行います。' },
+        { q: '妊娠中に血中濃度が下がりやすく、量の調整に注意が必要な薬はどれか。', a: ['ラモトリギン', 'バルプロ酸', 'フェノバルビタール', 'カルバマゼピン', 'エトスクシミド'],
+          why: 'ラモトリギンは妊娠中に代謝（グルクロン酸抱合）が速くなり、血中濃度が大きく下がることがあります。濃度を測りながら量を調整し、出産後は戻します。' }
+      ] },
+    { time: 'てんかん外科の相談', title: '薬が効かない側頭葉てんかん', story: '35歳の男性。左内側側頭葉てんかん。これまで適切な量の抗てんかん薬を2種類、十分に試したが、月に3〜4回の発作が続いている。MRI で左海馬硬化がある。',
+      spec: { seed: 78, preset: 'tle', mont: 'bip', auto: false, ev: [['spike', 2.1, { e: 'T3', amp: 150 }], ['spike', 5.6, { e: 'T3', amp: 135 }], ['spike', 8.3, { e: 'T3', amp: 160 }]] }, hl: { t0: 1.6, t1: 9, el: ['F7', 'T3', 'T5'] },
+      qs: [
+        { q: 'ILAE の定義で、この患者の状態として正しいのはどれか。', a: ['薬剤抵抗性てんかん', '難治性ではない（3剤目を試してから判断する）', '心因性非てんかん性発作', '自然終息性てんかん', '反射てんかん'],
+          why: 'ILAE（2010）は、適切に選ばれ、十分に使われた2種類の抗てんかん薬で発作が止まらない状態を、薬剤抵抗性てんかんと定義しています。' },
+        { q: '次に行うこととして最も適切なのはどれか。', a: ['てんかん外科の専門施設で、ビデオ脳波などの術前評価を受ける', '3剤目、4剤目を順に試し続ける', '発作が週1回を超えるまで様子を見る', '迷走神経刺激療法を最初に行う', '抗精神病薬を追加する'],
+          why: '海馬硬化を伴う内側側頭葉てんかんは、外科治療の効果が高い代表です。薬剤抵抗性とわかった時点で、早めに専門施設に紹介します。' },
+        { q: '内側側頭葉てんかんの手術について正しいのはどれか。', a: ['薬を続けるより、発作が止まる人の割合が明らかに高い', '手術で記憶への影響は起こらない', '手術後は、すぐに全員が薬をやめられる', '両側に焦点がある人ほど手術がよい', '手術は高齢者にしか行わない'],
+          why: '比較試験で、手術群の発作消失は内科治療群より明らかに多いことが示されています。言語優位側では、言語性記憶への影響を術前に評価します。' }
+      ] },
+    { time: '外来', title: '運転してもよいですか', story: '40歳の男性。右側頭葉てんかんで治療中。最後の発作は1年前。普通免許で通勤している。',
+      spec: { seed: 79, preset: 'normal', mont: 'bip', auto: false, ev: [['spike', 2.4, { e: 'T4', amp: 120 }], ['spike', 7.0, { e: 'T4', amp: 110 }]] }, hl: { t0: 2, t1: 7.6, el: ['F8', 'T4', 'T6'] },
+      qs: [
+        { q: '脳波所見として正しいのはどれか。', a: ['右側頭部（T4）の棘波', '左側頭部（T3）の棘波', '全般性 3Hz 棘徐波複合', '頭蓋頂鋭波', '正常'],
+          why: 'F8−T4 と T4−T6 が向かい合っています。共有する T4、右の中側頭部が焦点です。' },
+        { q: '日本で普通免許の運転が認められる目安として、正しいのはどれか。', a: ['発作が過去2年以内になく、医師が今後一定期間発作のおそれがないと判断した場合', '発作が過去3か月以内になければよい', '脳波が正常なら、発作があっても運転できる', 'てんかんと診断されたら、一生運転できない', '本人の申告は必要ない'],
+          why: '一般的な目安は「2年間発作がない」ことです。睡眠中だけの発作や、意識と運動が保たれる発作だけの場合などには、別の目安があります。免許の取得・更新では病状の申告が必要です。' },
+        { q: '医師の対応として正しいのはどれか。', a: ['今は運転を控えるよう説明し、診療録に記録する', '本人の自由なので説明は要らない', '脳波に棘波があるので、運転してよいと説明する', '職場に無断で病名を伝える', '抗てんかん薬をやめれば運転してよいと説明する'],
+          why: '基準を満たさない間は運転を控えるよう説明し、その内容を記録します。届出は、一定の条件のもとで医師が任意で行える制度です。' }
+      ] },
+    { time: '小児科から紹介', title: '夜に口から始まる発作', story: '8歳の男児。寝入りばなに、口の片側がぴくぴくして、よだれが出て、話せなくなる発作が月に1回ある。意識は保たれている。発達は正常。睡眠時の記録を示す。',
+      spec: { seed: 80, preset: 'normal', mont: 'bip', auto: false, init: { sleep: 1 }, ev: [['spike', 1.4, { e: 'C3', amp: 165 }], ['spike', 2.9, { e: 'C3', amp: 150 }], ['spike', 4.6, { e: 'C3', amp: 170 }], ['spike', 6.1, { e: 'C3', amp: 155 }], ['spike', 7.9, { e: 'C3', amp: 165 }]] }, hl: { t0: 1, t1: 8.6, el: ['C3', 'T3'] },
+      qs: [
+        { q: '最も考えられる診断はどれか。', a: ['中心側頭部棘波を示す自然終息性てんかん', '側頭葉てんかん', '若年ミオクロニーてんかん', 'Lennox-Gastaut 症候群', '心因性非てんかん性発作'],
+          why: '学童期の発症、寝入りばなの片側の顔・口の発作、よだれ、発語停止、意識は保たれる。睡眠で増える中心側頭部の棘波。以前は「ローランドてんかん」「BECTS」と呼ばれていました。' },
+        { q: 'この症候群の脳波の特徴として正しいのはどれか。', a: ['睡眠で棘波が著しく増える', '覚醒時のほうが棘波が多い', '光刺激で誘発される', '後頭部に限局する', '背景活動が全般に遅い'],
+          why: '中心側頭部の棘波は、眠ると著しく増えます。背景活動は正常です。' },
+        { q: '予後と治療について正しいのはどれか。', a: ['思春期までに発作は自然に終わることが多く、発作が少なければ治療しないこともある', '一生、抗てんかん薬が必要である', '知的障害が進む', '外科治療が第一選択である', '必ずバルプロ酸を使う'],
+          why: '自然終息性で、思春期までに発作も棘波も消えることがほとんどです。発作の頻度や家族の希望で、治療するかを決めます。' }
+      ] },
+    { time: '重症心身障害の外来', title: '遅い棘徐波', story: '15歳の男子。3歳から発作があり、知的障害がある。眠っているときに体がこわばる発作、急に力が抜けて倒れる発作、ぼんやりする発作がある。覚醒時の記録を示す。',
+      spec: { seed: 81, preset: 'normal', mont: 'bip', auto: false, bg: { alpha: 6, theta: 16, delta: 12 }, ev: [['sw', 0.6, { f0: 2.2, f1: 2.0, dur: 8.8, amp: 300, spike: 0.6 }]] }, hl: { t0: 0.6, t1: 9.4, el: ['Fp1', 'Fp2', 'F3', 'F4', 'Fz', 'C3', 'C4', 'Cz'], txt: '遅棘徐波' },
+      qs: [
+        { q: '脳波所見として正しいのはどれか。', a: ['1.5〜2.5Hz の全般性遅棘徐波（鋭徐波複合）', '3Hz 棘徐波複合', 'ヒプスアリスミア', '三相波', '周期性同期性放電'],
+          why: '背景が遅く、1秒に約2回の鋭い波と徐波の組み合わせが全般性に続いています。遅棘徐波です。' },
+        { q: '最も考えられる診断はどれか。', a: ['Lennox-Gastaut 症候群', '小児欠神てんかん', '若年ミオクロニーてんかん', '中心側頭部棘波を示す自然終息性てんかん', 'West 症候群（乳児てんかん性スパズム症候群）'],
+          why: '複数の発作型（強直発作・脱力発作・非定型欠神）、知的障害、遅棘徐波。Lennox-Gastaut 症候群です。' },
+        { q: 'この症候群の睡眠時脳波で特徴的なのはどれか。', a: ['全般性の速波律動（10〜20Hz）が出て、強直発作を伴うことがある', '紡錘波が消えない', '後頭部の光駆動', '中心側頭部の棘波だけが出る', '睡眠で異常が消える'],
+          why: '睡眠中に、全般性の速い律動（generalized paroxysmal fast activity）が出て、強直発作を伴うのが特徴です。' }
+      ] }
+  ];
+
+  // ---- 専門医道場（脳波カンファと同じしくみ）
+  function newSen() { return { i: 0, picks: SENMON.map(function (c) { return c.qs.map(function () { return null; }); }), opt: SENMON.map(function (c) { return c.qs.map(function (q) { return shuffled(q.a.length); }); }) }; }
+  function renderSen(focus) {
+    var S = Q.sen;
+    if (S.i >= SENMON.length) {
+      var right = 0, total = 0, log = '';
+      SENMON.forEach(function (c, i) { var r = S.picks[i].filter(function (p) { return p === 0; }).length; right += r; total += c.qs.length;
+        log += '<li>' + esc(c.title) + '：' + r + ' / ' + c.qs.length + c.qs.map(function (q, qi) { return S.picks[i][qi] === 0 ? '' : '<br><span class="x">✗ ' + esc(q.q) + ' → ' + esc(q.a[0]) + '</span>'; }).join('') + '</li>'; });
+      panel.innerHTML = resultHTML('sen', right, total, log, '専門医道場の結果');
+      if (focus) document.getElementById('panelH').focus();
+      return;
+    }
+    var c = SENMON[S.i], picks = S.picks[S.i], k = picks.indexOf(null);
+    if (focus === 'new') setPage(c.spec);
+    var html = '<div class="ph"><h2 id="panelH" tabindex="-1">' + esc(c.title) + '</h2><span class="prog">' + esc(c.time) + ' ・ 専門医道場 ' + (S.i + 1) + ' / ' + SENMON.length + '題</span></div>' +
+      '<p class="story">' + esc(c.story) + '</p>';
+    c.qs.forEach(function (q, qi) {
+      var p = picks[qi];
+      if (p === null && qi !== k) return;
+      html += '<h3 class="qh" id="qh' + qi + '" tabindex="-1"><span class="qn">問' + (qi + 1) + '</span><span>' + esc(q.q) + '</span></h3>' + optsHTML(q.a, S.opt[S.i][qi], p);
+      if (p !== null) html += '<div class="why"><p><b>' + (p === 0 ? T('正解。', '上等！') : T('正解は「', 'あいえなー、正解は「') + esc(q.a[0]) + T('」。', '」さー。')) + '</b>' + esc(q.why) + '</p>' + markTip(qMark(c, q, qi), 'data-cmk="' + qi + '"') + nextHint(c.qs[qi + 1], qi + 1, 'qh') + '</div>';
+    });
+    if (k === -1) html += '<button type="button" class="btn" data-go="next">' + (S.i === SENMON.length - 1 ? '結果を見る' : '次の問題へ') + '</button>';
+    panel.innerHTML = html;
+    if (focus === 'new' || focus === true) document.getElementById('panelH').focus({ preventScroll: true });
+  }
+  function answerSen(ai) {
+    var S = Q.sen, picks = S.picks[S.i], k = picks.indexOf(null); if (k === -1) return;
+    picks[k] = ai;
+    V.hl = qMark(SENMON[S.i], SENMON[S.i].qs[k], k); draw(); updateHead(); stamp(ai === 0);
+    renderSen(); var q = document.getElementById('qh' + k); if (q) q.focus({ preventScroll: true });
+  }
+
+
 
   // ---- 位相逆転ハンター
   var INNER = ['F3', 'C3', 'P3', 'F4', 'C4', 'P4', 'F7', 'T3', 'T5', 'F8', 'T4', 'T6', 'Cz'];
@@ -2453,14 +2608,15 @@ body.eegfs #panel.qz-on .mihon-box,body.eegfs #panel.rp-on .mihon-box{display:no
       var ai = +b.getAttribute('data-a');
       if (V.mode === 'dojo') answerDojo(ai);
       else if (V.mode === 'conf') answerConf(ai);
+      else if (V.mode === 'sen') answerSen(ai);
       else if (V.mode === 'hunter') { var rd = Q.hunter.rounds[Q.hunter.i]; if (rd.pickK === null) { rd.pickK = b.getAttribute('data-k'); if (rd.pickK === rd.kind) unlock(rd.kind, V.real ? 3 : 2); renderHunter(); } }
     } else if (b.getAttribute('data-go') === 'next') {
       var S = Q[V.mode]; S.i++; V.hl = null;
-      ({ dojo: renderDojo, conf: renderConf, hunter: renderHunter })[V.mode]('new');
+      ({ dojo: renderDojo, conf: renderConf, hunter: renderHunter, sen: renderSen })[V.mode]('new');
       document.getElementById('panel').scrollIntoView({ block: 'start', behavior: 'auto' });
     } else if (b.getAttribute('data-go') === 'again') {
-      Q[V.mode] = ({ dojo: newDojo, conf: newConf, hunter: newHunter })[V.mode]();
-      ({ dojo: renderDojo, conf: renderConf, hunter: renderHunter })[V.mode]('new');
+      Q[V.mode] = ({ dojo: newDojo, conf: newConf, hunter: newHunter, sen: newSen })[V.mode]();
+      ({ dojo: renderDojo, conf: renderConf, hunter: renderHunter, sen: renderSen })[V.mode]('new');
     }
   });
   document.addEventListener('keydown', function (e) {
@@ -3402,7 +3558,7 @@ body.eegfs #panel.qz-on .mihon-box,body.eegfs #panel.rp-on .mihon-box{display:no
   syncLevel(); syncZkTab();
 
   /* ====================== 10. モードの切り替え ====================== */
-  var MODES = ['lab', 'story', 'dojo', 'hunter', 'conf', 'zukan'];
+  var MODES = ['lab', 'story', 'dojo', 'hunter', 'conf', 'sen', 'zukan'];
   function setMode(m, focus) {
     if (MODES.indexOf(m) === -1) m = 'lab';
     V.mode = m;
@@ -3415,10 +3571,11 @@ body.eegfs #panel.qz-on .mihon-box,body.eegfs #panel.rp-on .mihon-box{display:no
     else if (m === 'story') { storyEnter(); }
     else if (m === 'zukan') { V.live = false; setPage(ZK_DEFAULT_SPEC); renderZukan(); }
     else {
-      if (!Q[m]) Q[m] = ({ dojo: newDojo, conf: newConf, hunter: newHunter })[m]();
-      ({ dojo: renderDojo, conf: renderConf, hunter: renderHunter })[m]('new');
+      if (!Q[m]) Q[m] = ({ dojo: newDojo, conf: newConf, hunter: newHunter, sen: newSen })[m]();
+      ({ dojo: renderDojo, conf: renderConf, hunter: renderHunter, sen: renderSen })[m]('new');
       // 答えたあとの問題に戻ってきたときは、見るところを出し直す
       if (m === 'dojo' && Q.dojo.i < Q.dojo.ord.length && Q.dojo.picks[Q.dojo.i] !== null) { V.hl = DOJO[Q.dojo.ord[Q.dojo.i]].hl; draw(); updateHead(); }
+      if (m === 'sen' && Q.sen.i < SENMON.length && Q.sen.picks[Q.sen.i][0] !== null) { V.hl = SENMON[Q.sen.i].hl; draw(); updateHead(); }
       if (m === 'conf' && Q.conf.i < CONF.length && Q.conf.picks[Q.conf.i][0] !== null) { V.hl = CONF[Q.conf.i].hl; draw(); updateHead(); }
       if (m === 'hunter' && Q.hunter.i < Q.hunter.rounds.length && Q.hunter.rounds[Q.hunter.i].pickE !== null) { var rd = Q.hunter.rounds[Q.hunter.i]; V.hl = { t0: 0, t1: 10, el: [rd.e] }; headSvg.classList.remove('picking'); headSvg.querySelectorAll('.el').forEach(function (g2) { var x = g2.getAttribute('data-e'); g2.classList.toggle('ok', x === rd.e); g2.classList.toggle('ng', x === rd.pickE && rd.pickE !== rd.e); }); draw(); updateHead(); }
     }
@@ -3450,9 +3607,15 @@ body.eegfs #panel.qz-on .mihon-box,body.eegfs #panel.rp-on .mihon-box{display:no
       '<text x="2" y="59">C3−P3</text><path class="ra-t" d="' + wp(fac(1), 40, 236, 56) + '"/>' +
       '<g class="ra-pulse"><path d="M140 30 L140 40 M136 36 L140 41 L144 36" stroke="var(--hot)" fill="none" stroke-width="1.5"/><path d="M140 47 L140 42" stroke="var(--hot)" stroke-width="1.5"/><text x="150" y="36" class="ra-lab">向かい合う</text><text x="150" y="48" class="ra-lab">＝C3 が焦点</text></g>' +
       '<text x="40" y="84">F3 ─ <tspan fill="var(--hot)" font-weight="700">C3</tspan> ─ P3：C3 を共有する2本</text>';
-    document.getElementById('ra4').innerHTML = ['① 目を閉じた後頭部のα波', '② 左右差', '③ 突発的な波'].map(function (t, i) {
-      return '<g class="ra-chip c' + (i + 1) + '"><rect x="8" y="' + (6 + i * 27) + '" width="224" height="22" rx="11"/><text x="20" y="' + (21 + i * 27) + '">' + t + '</text></g>';
-    }).join('');
+    // 約束4：脳波全体の模式図。①後頭部のα波（開眼で消える）②左右差 ③突発的な波 の場所を順に囲む
+    var rowsY = [12, 24, 36, 52, 64, 76], rowsN = ['F 左', 'C 左', 'O 左', 'F 右', 'C 右', 'O 右'], EO = 150;
+    var tr = function (i) { return function (x) { var o = i === 2 || i === 5, n = 1.2 * Math.sin(x / 2.7 + i) + 0.8 * Math.sin(x / 1.6 + 2 * i); if (o) n = (x < EO ? 4.2 : 1.2) * Math.sin(x / 1.55); if (i === 1) { var d = (x - 206) / 2.2; n += 11 * Math.exp(-d * d); } return n; }; };
+    var g = rowsY.map(function (y, i) { return '<text x="2" y="' + (y + 3) + '" style="font-size:8px">' + rowsN[i] + '</text><path class="ra-t" d="' + wp(tr(i), 26, 236, y) + '"/>'; }).join('');
+    g += '<line x1="' + EO + '" y1="2" x2="' + EO + '" y2="84" stroke="var(--muted)" stroke-dasharray="2 2"/><text x="' + (EO + 2) + '" y="8" style="font-size:8px">開眼</text>';
+    g += '<g class="ra-step s1"><rect x="26" y="29" width="210" height="14" rx="4" class="ra-box"/><rect x="26" y="69" width="210" height="14" rx="4" class="ra-box"/><text x="26" y="96" class="ra-lab" style="font-size:9.5px">① 後頭部のα波：目を開けると消える？</text></g>';
+    g += '<g class="ra-step s2"><rect x="24" y="4" width="214" height="38" rx="5" class="ra-box"/><rect x="24" y="44" width="214" height="38" rx="5" class="ra-box"/><text x="26" y="96" class="ra-lab" style="font-size:9.5px">② 左と右で、大きさや形はそろっている？</text></g>';
+    g += '<g class="ra-step s3"><ellipse cx="206" cy="22" rx="12" ry="11" class="ra-box"/><text x="26" y="96" class="ra-lab" style="font-size:9.5px">③ 背景から飛び出す、突発的な波は？</text></g>';
+    document.getElementById('ra4').innerHTML = g;
   })();
   // 周波数の4つの波：記録紙と同じ縮尺（いまの感度と、1秒の幅）で描く
   var BAND_OKI = ['深く眠ってる時さー。起きてる大人で多かったら異常（意識障害とか）', '浅い眠り・子ども。起きてる大人で多かったら異常よー', '安静・目つぶって・起きてる時に後頭部に出るさー。目開けたら消える', '頭使ってる時・目開けてる時。ベンゾジアゼピンとかの薬で増えるよー'];
