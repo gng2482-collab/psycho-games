@@ -356,6 +356,8 @@ body.stvig #panel .st-again{display:none}
 .fs-tip p{margin:0;flex:1 1 20em}
 .fs-tip .btn{min-height:44px}
 .fs-tip .fs-x{font:inherit;font-size:var(--fs-xs);background:none;border:0;color:var(--muted);text-decoration:underline;cursor:pointer;min-height:44px}
+.next-q{font:inherit;text-align:left;cursor:pointer;display:grid;gap:2px;margin-top:6px;padding:8px 12px;border:2px solid var(--accent);border-radius:var(--r);background:var(--accent-soft);color:var(--ink);font-size:var(--fs-s);width:100%}
+.next-q .nq-h{font-size:var(--fs-xs);font-weight:700;color:var(--accent)}
 .mk-btn{min-height:30px;padding:2px 10px;margin-left:8px;font-size:var(--fs-xs)}
 .st-reset{display:flex;flex-wrap:wrap;gap:8px;align-items:center;border-top:1px dashed var(--line);padding-top:10px;font-size:var(--fs-s)}
 .st-reset p{flex-basis:100%;margin:0}
@@ -598,7 +600,7 @@ body.eegfs #panel.qz-on .mihon-box,body.eegfs #panel.rp-on .mihon-box{display:no
     <p class="note">実践では、波が1つずつ不規則になり、問題と関係のないまばたき・筋電図・汗・電極のはずれも混じります。実践で正解すると、図鑑のカードが金色になります。</p>
   </div>
 
-  <div class="fs-tip" id="fsTip" hidden><p><b>iPad では全画面がおすすめです。</b>脳波・頭の図・問題が1画面に並び、指での操作もしやすくなります。</p><button type="button" class="btn" id="fsTipGo">⛶ 全画面にする</button><button type="button" class="fs-x" id="fsTipX">今後は表示しない</button></div>
+  <div class="fs-tip" id="fsTip" hidden><p><b>iPad では全画面がおすすめです。</b>脳波・頭の図・問題が1画面に並び、指での操作もしやすくなります。Safari の上のバーも消したいときは、共有ボタン →「ホーム画面に追加」で、アプリとして開いてください。</p><button type="button" class="btn" id="fsTipGo">⛶ 全画面にする</button><button type="button" class="fs-x" id="fsTipX">今後は表示しない</button></div>
   <section id="panel"></section>
 
   <section class="desk" aria-label="脳波計">
@@ -2177,6 +2179,15 @@ body.eegfs #panel.qz-on .mihon-box,body.eegfs #panel.rp-on .mihon-box{display:no
   var BEST = { dojo: 'eeg-dojo-best', conf: 'eeg-conf-best', hunter: 'eeg-hunter-best' };
   function rankOf(p) { return p >= 90 ? 'S' : p >= 75 ? 'A' : p >= 60 ? 'B' : p >= 40 ? 'C' : 'D'; }
 
+  // 解説の下に、次の問題文を出す（次があることに気づけるように）。押すとその問題へ動く
+  function nextHint(nq, ni, pre) {
+    return '<button type="button" class="next-q" data-goq="' + pre + ni + '">' + (nq ? '<span class="nq-h">次の問題 ▼</span><span><b>問' + (ni + 1) + '</b>　' + esc(nq.q) + '</span>' : '<span class="nq-h">この症例のまとめ ▼</span><span>下に続きます</span>') + '</button>';
+  }
+  document.getElementById('panel').addEventListener('click', function (e) {
+    var b = e.target.closest('[data-goq]'); if (!b) return;
+    var t = document.getElementById(b.getAttribute('data-goq')) || panel.querySelector('.sensei') || panel.querySelector('[data-go="next"]');
+    if (t) t.scrollIntoView({ block: 'start', behavior: 'smooth' });
+  });
   function markTip(m, attr) {
     if (!m) return '';
     if (m.nomark) return '<p class="tip">この問いは脳波の場所の問題ではないので、赤丸は消しています（黄色の帯は残します）。</p>';
@@ -2249,7 +2260,7 @@ body.eegfs #panel.qz-on .mihon-box,body.eegfs #panel.rp-on .mihon-box{display:no
       var p = picks[qi];
       if (p === null && qi !== k) return;
       html += '<h3 class="qh" id="qh' + qi + '" tabindex="-1"><span class="qn">問' + (qi + 1) + '</span><span>' + esc(q.q) + '</span></h3>' + optsHTML(q.a, S.opt[S.i][qi], p);
-      if (p !== null) html += '<div class="why"><p><b>' + (p === 0 ? '正解。' : '正解は「' + esc(q.a[0]) + '」。') + '</b>' + esc(q.why) + '</p>' + markTip(qMark(c, q, qi), 'data-cmk="' + qi + '"') + '</div>';
+      if (p !== null) html += '<div class="why"><p><b>' + (p === 0 ? '正解。' : '正解は「' + esc(q.a[0]) + '」。') + '</b>' + esc(q.why) + '</p>' + markTip(qMark(c, q, qi), 'data-cmk="' + qi + '"') + nextHint(c.qs[qi + 1], qi + 1, 'qh') + '</div>';
     });
     if (k === -1) html += '<button type="button" class="btn" data-go="next">' + (S.i === CONF.length - 1 ? '結果を見る' : '次の症例へ') + '</button>';
     panel.innerHTML = html;
@@ -2893,7 +2904,7 @@ body.eegfs #panel.qz-on .mihon-box,body.eegfs #panel.rp-on .mihon-box{display:no
       c.qs.forEach(function (q, qi) {
         if (qi > SQ.qi) return; var p = SQ.picks[qi];
         html += '<h3 class="qh" id="sqh' + qi + '" tabindex="-1"><span class="qn">問' + (qi + 1) + '</span><span>' + esc(q.q) + '</span></h3>' + stOpts(q, qi);
-        if (p !== null) html += '<div class="why"><p><b>' + (stRight(q, p) ? '正解。' : '正解は「' + (q.n > 1 ? q.a.slice(0, q.n).join('」と「') : q.a[0]) + '」。') + '</b>' + esc(q.why) + '</p>' + markTip(qMark(c, q, qi), 'data-smk="' + qi + '"') + '</div>';
+        if (p !== null) html += '<div class="why"><p><b>' + (stRight(q, p) ? '正解。' : '正解は「' + (q.n > 1 ? q.a.slice(0, q.n).join('」と「') : q.a[0]) + '」。') + '</b>' + esc(q.why) + '</p>' + markTip(qMark(c, q, qi), 'data-smk="' + qi + '"') + nextHint(c.qs[qi + 1], qi + 1, 'sqh') + '</div>';
       });
       if (SQ.qi >= c.qs.length) {
         var r = SQ.picks.filter(function (p, i) { return stRight(c.qs[i], p); }).length;
@@ -3184,7 +3195,8 @@ body.eegfs #panel.qz-on .mihon-box,body.eegfs #panel.rp-on .mihon-box{display:no
     document.body.classList.toggle('eegfs', on);
     var de = document.documentElement, natv = document.fullscreenElement || document.webkitFullscreenElement;
     var standalone = (window.matchMedia && matchMedia('(display-mode: standalone)').matches) || navigator.standalone;
-    if (on && !natv && !standalone) { var rq = de.requestFullscreen || de.webkitRequestFullscreen; if (rq) { try { var pr = rq.call(de); if (pr && pr.catch) pr.catch(function () {}); } catch (e) {} } }
+    // iPad などの指で操作する端末では、ブラウザの全画面（上下にはじくと解除される）を使わず、ページの中だけで全画面にする
+    if (on && !natv && !standalone && !coarse) { var rq = de.requestFullscreen || de.webkitRequestFullscreen; if (rq) { try { var pr = rq.call(de); if (pr && pr.catch) pr.catch(function () {}); } catch (e) {} } }
     if (!on && natv) { var ex = document.exitFullscreen || document.webkitExitFullscreen; try { var px2 = ex.call(document); if (px2 && px2.catch) px2.catch(function () {}); } catch (e) {} }
     syncFs();
   }
@@ -3225,17 +3237,18 @@ body.eegfs #panel.qz-on .mihon-box,body.eegfs #panel.rp-on .mihon-box{display:no
   document.addEventListener('touchstart', function (e) {
     if (tg.raf) { cancelAnimationFrame(tg.raf); tg.raf = 0; }
     if (e.touches.length !== 1) return;
-    tg.y = e.touches[0].clientY; tg.v = 0; tg.t = performance.now(); tg.el = isFs() ? scrollHost(e.target) : null;
+    tg.y = e.touches[0].clientY; tg.v = 0; tg.t = performance.now(); tg.el = natOn() ? scrollHost(e.target) : null;
   }, { passive: true });
+  function natOn() { return document.body.classList.contains('natfs'); }
   document.addEventListener('touchmove', function (e) {
-    if (!isFs()) return;
+    if (!natOn()) return;
     if (e.cancelable) e.preventDefault();
     if (e.touches.length !== 1 || !tg.el) return;
     var y = e.touches[0].clientY, dy = y - tg.y, now = performance.now(), dt = Math.max(1, now - tg.t);
     tg.el.scrollTop -= dy; tg.v = 0.8 * (dy / dt) + 0.2 * tg.v; tg.y = y; tg.t = now;
   }, { passive: false });
   document.addEventListener('touchend', function () {
-    if (!isFs() || !tg.el || Math.abs(tg.v) < 0.15 || performance.now() - tg.t > 80) return;
+    if (!natOn() || !tg.el || Math.abs(tg.v) < 0.15 || performance.now() - tg.t > 80) return;
     var el = tg.el, v = tg.v * 16, last = performance.now();
     (function step(ts) {
       var k = Math.min(3, (ts - last) / 16 || 1); last = ts;
