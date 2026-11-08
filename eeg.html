@@ -656,6 +656,7 @@ body.eegfs .mihon-box{border-top:1px dashed var(--line);padding-top:6px;display:
 body.eegfs #panel.qz-on .mihon-box,body.eegfs #panel.rp-on .mihon-box{display:none}
 .rp .qz-next{background:var(--accent);color:var(--accent-ink);border-color:var(--accent);font-weight:700;min-height:40px;padding:4px 16px}
 .rp{display:grid;gap:6px}
+.rp-go{margin-top:6px} .rp .rp-go .btn{font:inherit;font-weight:700;min-height:44px;padding:8px 22px;border:0;border-radius:var(--r);background:var(--accent);color:var(--accent-ink);font-size:var(--fs-s)}
 .rp .rs{display:flex;flex-wrap:wrap;gap:4px;align-items:center}
 .rp .rs b{min-width:5em;font-size:var(--fs-xs)}
 .rp button{font:inherit;font-size:var(--fs-xs);min-height:32px;padding:2px 8px;border:1px solid var(--line);border-radius:999px;background:var(--paper);color:var(--ink);cursor:pointer}
@@ -1866,7 +1867,7 @@ body.eegfs #panel.qz-on .mihon-box,body.eegfs #panel.rp-on .mihon-box{display:no
     var SC = ['Fp1','Fp2','F7','F3','Fz','F4','F8','T3','C3','Cz','C4','T4','T5','P3','Pz','P4','T6','O1','O2'];
     var HLMAP = { eyes: [['O1','O2','P3','P4','T5','T6'], 3, function () { return st.eo ? 'α波が減る' : 'α波が戻る'; }], blink: [['Fp1','Fp2'], 1, 'まばたき'], lookL: [['F7','F8'], 1.8, '眼球運動'], lookR: [['F7','F8'], 1.8, '眼球運動'],
       clench: [['F7','F8','T3','T4','T5','T6'], 3, '筋電図'], hv: [SC, 10, function () { return st.hv ? '徐波が増える' : ''; }], photic: [['O1','O2'], 8, function () { return st.photic ? '光駆動' : ''; }],
-      sleep: [['Cz','C3','C4','Fz','Pz'], 8, function () { return ['', '頭蓋頂鋭波', '紡錘波・K複合'][st.sleep]; }], pop: [['C4'], 2, '電極ポップ'], hum: [['O2'], 10, function () { return L.flags.hum ? 'ハム（50Hz）' : ''; }], ecg: [['T3','T5','O1'], 10, function () { return L.flags.ecg ? '心電図の混入' : ''; }] };
+      sleep: [['Cz','C3','C4','Fz','Pz'], 8, function () { return ['', '頭蓋頂鋭波', '紡錘波・K複合'][st.sleep]; }], pop: [['C4'], 2, '電極ポップ'], hum: [['O2'], 10, function () { return L.flags.hum ? 'ハム（50Hz）' : ''; }], ecg: [['A1'], 10, function () { return L.flags.ecg ? '心電図の混入' : ''; }] };
     setTimeout(function () {
       var m = HLMAP[act]; if (!m) return; var tx = typeof m[2] === 'function' ? m[2]() : m[2]; if (!tx) return;
       var band = { t0: t, t1: t + m[1], el: m[0], txt: tx };
@@ -1886,7 +1887,10 @@ body.eegfs #panel.qz-on .mihon-box,body.eegfs #panel.rp-on .mihon-box{display:no
       case 'sleep': st.sleep = val; sim.set(t, 'sleep', val); if (val) { st.eo = 0; sim.set(t, 'eo', 0); } ann(['覚醒', 'N1', 'N2'][val]); explain('s' + val); break;
       case 'pop': sim.events.push(mkEv('pop', t, { e: 'C4', amp: -170 })); ann('C4 浮く'); explain('pop'); break;
       case 'hum': L.flags.hum = !L.flags.hum; sim.bg.hum = L.flags.hum ? { e: 'O2', amp: 22, f: 50 } : null; explain(L.flags.hum ? 'hum1' : 'hum0'); break;
-      case 'ecg': L.flags.ecg = !L.flags.ecg; sim.bg.ecgArt = L.flags.ecg ? 16 : 0; explain(L.flags.ecg ? 'ecg1' : 'ecg0'); break;
+      case 'ecg': L.flags.ecg = !L.flags.ecg; sim.bg.ecgArt = L.flags.ecg ? 34 : 0; explain(L.flags.ecg ? 'ecg1' : 'ecg0');
+        // A1 を使わない双極導出では見えないので、見える基準導出に切り替える
+        if (L.flags.ecg && V.mont !== 'ref') { V.mont = 'ref'; V.sel = -1; syncToolbar(); updateHead(); toast('<b>' + T('基準導出（耳朶）に切り替えました', '基準導出に切り替えたよー') + '</b><br>' + T('左の耳朶 A1 に入った心電図は、双極導出ではほとんど見えません。上の「導出」で比べてみてください', 'A1 に入った心電図は、双極だとほとんど見えんさー。「導出」で比べてみてね')); }
+        break;
     }
     renderLabButtons(); faceSync(act, val);
     if (!V.playing) { advance(Math.round(1.5 * FS)); draw(); }
@@ -2119,7 +2123,7 @@ body.eegfs #panel.qz-on .mihon-box,body.eegfs #panel.rp-on .mihon-box{display:no
     RP = {}; panel.classList.add('rp-on');
     exEl().innerHTML = '<h3>判読レポート</h3><p>いま流れている脳波を、区分ごとに選んでください。</p><div class="rp">' +
       RP_SEC.map(function (sc) { return '<div class="rs"><b>' + sc.t + '</b>' + sc.o.map(function (o) { return '<button type="button" data-rp="' + sc.k + '" data-v="' + esc(o) + '" aria-pressed="false">' + esc(o) + '</button>'; }).join('') + '</div>'; }).join('') +
-      '<div class="rs"><button type="button" id="rpCheck">答え合わせ</button></div><p id="rpOut"></p></div>';
+      '<div class="rp-go"><button type="button" class="btn" id="rpCheck">答え合わせ</button></div><p id="rpOut"></p></div>';
   }
   function reportPick(k, v) { RP[k] = v; exEl().querySelectorAll('[data-rp="' + k + '"]').forEach(function (b) { b.setAttribute('aria-pressed', String(b.getAttribute('data-v') === v)); }); }
   function reportCheck() {
