@@ -137,8 +137,8 @@ body.eegfs .bandbox{display:none}
 @media (max-width:520px){ .rules{grid-template-columns:minmax(0,1fr)} .bands{grid-template-columns:repeat(2, minmax(0,1fr))} }
 
 /* モード */
-.modes{margin-top:26px; display:grid; grid-template-columns:repeat(20, minmax(0,1fr)); gap:8px}
-.modes .mode{grid-column:span 4} .modes .mode-hon,.modes .mode-zk{grid-column:span 5}
+.modes{margin-top:26px; display:grid; grid-template-columns:repeat(24, minmax(0,1fr)); gap:8px}
+.modes .mode{grid-column:span 4} .modes .mode-hon,.modes .mode-zk{grid-column:span 6}
 .mode{
   font:inherit; text-align:left; cursor:pointer; color:var(--ink); background:var(--panel);
   border:1px solid var(--line); border-radius:var(--r); padding:8px 12px; display:grid; gap:0; min-height:48px; text-decoration:none;
@@ -467,6 +467,12 @@ body.eegfs .el-grid{grid-template-columns:minmax(0,1fr)}
 @media (max-width:760px){.hq-grid{grid-template-columns:minmax(0,1fr)}}
 .hq-fig{margin:0;display:grid;gap:4px} .hq-fig .st-capt{font-size:var(--fs-s);min-height:3em}
 .hq-side{display:grid;gap:10px}
+.prog-note{font-size:var(--fs-xs);color:var(--muted);margin-left:auto}
+.reveal-box{display:flex;flex-wrap:wrap;gap:8px 12px;align-items:center;padding:10px 12px;border:2px dashed var(--accent);border-radius:var(--r);background:var(--accent-soft)}
+.reveal-box .muted{font-size:var(--fs-xs)}
+.rv-list{list-style:none;margin:0;padding:0;display:grid;gap:6px}
+.rv-item{font:inherit;width:100%;text-align:left;cursor:pointer;display:grid;gap:2px;padding:8px 12px;border:1px solid var(--line);border-radius:var(--r);background:var(--paper);color:var(--ink);font-size:var(--fs-s)}
+.rv-item:hover{border-color:var(--accent)} .rv-src{font-size:var(--fs-xs);color:var(--accent);font-weight:700}
 .mk-btn{min-height:30px;padding:2px 10px;margin-left:8px;font-size:var(--fs-xs)}
 .st-reset{display:flex;flex-wrap:wrap;gap:8px;align-items:center;border-top:1px dashed var(--line);padding-top:10px;font-size:var(--fs-s)}
 .st-reset p{flex-basis:100%;margin:0}
@@ -723,16 +729,18 @@ body.eegfs #panel.qz-on .mihon-box,body.eegfs #panel.rp-on .mihon-box{display:no
     <a class="mode mode-hon" href="#story" data-mode="story"><span class="mg">本編</span><span class="mt">研修スタート</span><span class="ms" data-oki="新人ドクターの1年。章を順番に進めるよー">新人医師の1年。章を順に進める</span></a>
     <a class="mode mode-hon" href="#conf" data-mode="conf"><span class="mg">本編</span><span class="mt">脳波カンファ</span><span class="ms" data-oki="精神科の症例 13人・39問さー">精神科の症例 13人・39問</span></a>
     <a class="mode mode-hon mode-sen" href="#sen" data-mode="sen"><span class="mg">本編・上級</span><span class="mt">専門医道場</span><span class="ms" data-oki="てんかん専門医レベル 11題・33問さー">てんかん専門医レベル 11題・33問</span></a>
-    <a class="mode mode-zk" href="#zukan" data-mode="zukan"><span class="mg">集めたもの</span><span class="mt">脳波図鑑</span><span class="ms" id="zkTab">集めたカード</span></a>
+    <a class="mode mode-zk" href="#zukan" data-mode="zukan"><span class="mg">集めたもの</span><span class="mt">脳波・発作図鑑</span><span class="ms" id="zkTab">集めたカード</span></a>
     <a class="mode" href="#lab" data-mode="lab"><span class="mg">練習</span><span class="mt">触ってみる</span><span class="ms" data-oki="目開けたり、眠ったり、光あててみて">目を開ける・眠る・光をあてる</span></a>
     <a class="mode" href="#elec" data-mode="elec"><span class="mg">練習</span><span class="mt">電極つけ練習</span><span class="ms" data-oki="検査技師になって電極つけるよー">検査技師になって 10-20法</span></a>
     <a class="mode" href="#dojo" data-mode="dojo"><span class="mg">練習</span><span class="mt">波形道場</span><span class="ms" data-oki="波の名前当ててみて 12問">波の名前を当てる 12問</span></a>
     <a class="mode" href="#hossa" data-mode="hossa"><span class="mg">練習</span><span class="mt">発作当てクイズ</span><span class="ms" data-oki="動き見て発作の名前当てるよー">動きを見て名前を当てる</span></a>
+    <a class="mode" href="#review" data-mode="review"><span class="mg">練習</span><span class="mt">まちがい復習</span><span class="ms" id="revTab">まちがえた問題を解き直す</span></a>
     <a class="mode" href="#hunter" data-mode="hunter"><span class="mg">練習</span><span class="mt">位相逆転ハンター</span><span class="ms" data-oki="焦点の電極さがすよー 10回">焦点の電極を探す 10回</span></a>
   </nav>
   <div class="level" role="group" aria-labelledby="lvh">
     <span id="lvh" class="lb">波のレベル</span>
     <span class="seg" id="lvSeg"><button type="button" data-lv="0">入門：きれいな波</button><button type="button" data-lv="1">実践：本物に近い波</button></span>
+    <span class="lb">選択肢</span><span class="seg" id="hoSeg"><button type="button" data-ho="0">最初から出す</button><button type="button" data-ho="1">考えてから出す（上級）</button></span>
     <p class="note">実践では、波が1つずつ不規則になり、問題と関係のないまばたき・筋電図・汗・電極のはずれも混じります。実践で正解すると、図鑑のカードが金色になります。</p>
   </div>
 
@@ -1106,14 +1114,17 @@ body.eegfs #panel.qz-on .mihon-box,body.eegfs #panel.rp-on .mihon-box{display:no
         // 汗による揺れ（1つの電極だけ）
         out[rx.sway] += 16 * Math.sin(TAU * 0.21 * t + rx.swayPh) * (0.6 + 0.4 * Math.sin(TAU * 0.05 * t));
       } else {
+      // 入門：背景の揺れは頭全体でゆるやかにつながる（電極ごとにばらばらだと、双極導出でかえってギザギザが目立つため）
+      var n0 = nz[0], vc = 0, p0 = ph[0];
+      for (var k0 = 0; k0 < 18; k0 += 3) vc += n0[k0 + 2] * Math.sin(TAU * n0[k0] * t + n0[k0 + 1]);
       for (var e = 0; e < NE; e++) {
-        var n = nz[e], v = 0, p = ph[e];
+        var n = nz[e], v = 0, p = ph[e], gx = POS[E[e]][0], gy = POS[E[e]][1], gp = 1.1 * gy + 0.7 * gx;
         for (var k = 0; k < 18; k += 3) v += n[k + 2] * Math.sin(TAU * n[k] * t + n[k + 1]);
-        v *= b.noise;
+        v = (0.85 * vc + 0.25 * v) * b.noise;
         v += aAmp * W.alpha[e] * Math.sin(aPh + p.a);
-        v += bAmp * Wb[e] * (Math.sin(TAU * b.betaF * t + p.b) + 0.6 * Math.sin(TAU * b.betaF * 1.31 * t + p.c));
-        if (thA > 0) v += thA * 0.55 * (Math.sin(TAU * 4.7 * t + p.t0) + 0.8 * Math.sin(TAU * 5.9 * t + p.t1) + 0.6 * Math.sin(TAU * 6.8 * t + p.t2));
-        if (dA > 0) v += dA * 0.55 * (Math.sin(TAU * 1.2 * t + p.d0) + 0.8 * Math.sin(TAU * 1.9 * t + p.d1) + 0.6 * Math.sin(TAU * 2.8 * t + p.d2));
+        v += bAmp * Wb[e] * (Math.sin(TAU * b.betaF * t + p0.b + gp + 0.4 * p.a) + 0.6 * Math.sin(TAU * b.betaF * 1.31 * t + p0.c + gp));
+        if (thA > 0) v += thA * 0.55 * (1 + 0.25 * gy) * (Math.sin(TAU * 4.7 * t + p0.t0 + gp) + 0.8 * Math.sin(TAU * 5.9 * t + p0.t1 + 1.3 * gp) + 0.6 * Math.sin(TAU * 6.8 * t + p0.t2 + 0.8 * gp + p.a));
+        if (dA > 0) v += dA * 0.55 * (1 - 0.2 * gy) * (Math.sin(TAU * 1.2 * t + p0.d0 + 0.9 * gp) + 0.8 * Math.sin(TAU * 1.9 * t + p0.d1 + 1.2 * gp) + 0.6 * Math.sin(TAU * 2.8 * t + p0.d2 + gp + p.a));
         if (fw) v += fv * fw[e];
         out[e] = v * b.suppress * (1 - 0.93 * s.flat) * W.bg[e];
       }
@@ -2363,10 +2374,9 @@ body.eegfs #panel.qz-on .mihon-box,body.eegfs #panel.rp-on .mihon-box{display:no
     }
     var it = DOJO[S.ord[S.i]], pick = S.picks[S.i];
     if (focus === 'new') { setPage(it.spec); }
-    var html = '<div class="ph"><h2 id="panelH" tabindex="-1">' + esc(it.title) + '</h2><span class="prog">波形道場 ' + (S.i + 1) + ' / ' + S.ord.length + '問 ・ ' + S.picks.filter(function (p) { return p === 0; }).length + '問正解</span></div>' +
+    var html = '<div class="ph"><h2 id="panelH" tabindex="-1">' + esc(it.title) + '</h2><span class="prog">波形道場 ' + (S.i + 1) + ' / ' + S.ord.length + '問 ・ ' + S.picks.filter(function (p) { return p === 0; }).length + '問正解</span><span class="prog-note">導出や感度は切り替えてOK</span></div>' +
       '<h3 class="qh" id="qh" tabindex="-1"><span class="qn">問</span><span>' + esc(it.q) + '</span></h3>' +
-      '<p class="muted" style="font-size:var(--fs-s)">脳波を見て答えてください。導出・感度を切り替えてもかまいません。</p>' +
-      optsHTML(it.a, S.opt[S.i], pick);
+      gate('dojo' + S.i, pick, optsHTML(it.a, S.opt[S.i], pick));
     if (pick !== null) {
       html += '<div class="why"><p><b>' + (pick === 0 ? T('正解。', '上等！') : T('正解は「', 'あいえなー、正解は「') + esc(it.a[0]) + T('」。', '」さー。')) + '</b>' + esc(it.why) + '</p><p class="tip"><b>見るコツ</b>　' + esc(it.tip) + '</p></div>' +
         '<button type="button" class="btn" data-go="next">' + (S.i === S.ord.length - 1 ? '結果を見る' : '次の問題へ') + '</button>';
@@ -2376,7 +2386,7 @@ body.eegfs #panel.qz-on .mihon-box,body.eegfs #panel.rp-on .mihon-box{display:no
   }
   function answerDojo(ai) {
     var S = Q.dojo; if (S.picks[S.i] !== null) return;
-    S.picks[S.i] = ai; V.hl = DOJO[S.ord[S.i]].hl; draw(); updateHead(); stamp(ai === 0);
+    S.picks[S.i] = ai; V.hl = DOJO[S.ord[S.i]].hl; draw(); updateHead(); stamp(ai === 0); revMark('dojo', S.ord[S.i], 0, ai === 0);
     if (ai === 0) unlock(DOJO_CARD[DOJO[S.ord[S.i]].title], V.real ? 3 : 2);
     renderDojo(); var q = document.getElementById('qh'); if (q) q.focus({ preventScroll: true });
   }
@@ -2400,7 +2410,7 @@ body.eegfs #panel.qz-on .mihon-box,body.eegfs #panel.rp-on .mihon-box{display:no
     c.qs.forEach(function (q, qi) {
       var p = picks[qi];
       if (p === null && qi !== k) return;
-      html += '<h3 class="qh" id="qh' + qi + '" tabindex="-1"><span class="qn">問' + (qi + 1) + '</span><span>' + esc(q.q) + '</span></h3>' + optsHTML(q.a, S.opt[S.i][qi], p);
+      html += '<h3 class="qh" id="qh' + qi + '" tabindex="-1"><span class="qn">問' + (qi + 1) + '</span><span>' + esc(q.q) + '</span></h3>' + gate(V.mode + S.i + '-' + qi, p, optsHTML(q.a, S.opt[S.i][qi], p));
       if (p !== null) html += '<div class="why"><p><b>' + (p === 0 ? T('正解。', '上等！') : T('正解は「', 'あいえなー、正解は「') + esc(q.a[0]) + T('」。', '」さー。')) + '</b>' + esc(q.why) + '</p>' + markTip(qMark(c, q, qi), 'data-cmk="' + qi + '"') + nextHint(c.qs[qi + 1], qi + 1, 'qh') + '</div>';
     });
     if (k === -1) html += '<button type="button" class="btn" data-go="next">' + (S.i === CONF.length - 1 ? '結果を見る' : '次の症例へ') + '</button>';
@@ -2411,7 +2421,7 @@ body.eegfs #panel.qz-on .mihon-box,body.eegfs #panel.rp-on .mihon-box{display:no
   function answerConf(ai) {
     var S = Q.conf, picks = S.picks[S.i], k = picks.indexOf(null); if (k === -1) return;
     picks[k] = ai;
-    V.hl = qMark(CONF[S.i], CONF[S.i].qs[k], k); draw(); updateHead(); stamp(ai === 0);
+    V.hl = qMark(CONF[S.i], CONF[S.i].qs[k], k); draw(); updateHead(); stamp(ai === 0); revMark('conf', S.i, k, ai === 0);
     if (k === 0 && ai === 0) unlock(CONF_CARD[CONF[S.i].title], V.real ? 3 : 2);
     renderConf(); var q = document.getElementById('qh' + k); if (q) q.focus({ preventScroll: true });
   }
@@ -2550,7 +2560,7 @@ body.eegfs #panel.qz-on .mihon-box,body.eegfs #panel.rp-on .mihon-box{display:no
     c.qs.forEach(function (q, qi) {
       var p = picks[qi];
       if (p === null && qi !== k) return;
-      html += '<h3 class="qh" id="qh' + qi + '" tabindex="-1"><span class="qn">問' + (qi + 1) + '</span><span>' + esc(q.q) + '</span></h3>' + optsHTML(q.a, S.opt[S.i][qi], p);
+      html += '<h3 class="qh" id="qh' + qi + '" tabindex="-1"><span class="qn">問' + (qi + 1) + '</span><span>' + esc(q.q) + '</span></h3>' + gate(V.mode + S.i + '-' + qi, p, optsHTML(q.a, S.opt[S.i][qi], p));
       if (p !== null) html += '<div class="why"><p><b>' + (p === 0 ? T('正解。', '上等！') : T('正解は「', 'あいえなー、正解は「') + esc(q.a[0]) + T('」。', '」さー。')) + '</b>' + esc(q.why) + '</p>' + markTip(qMark(c, q, qi), 'data-cmk="' + qi + '"') + nextHint(c.qs[qi + 1], qi + 1, 'qh') + '</div>';
     });
     if (k === -1) html += '<button type="button" class="btn" data-go="next">' + (S.i === SENMON.length - 1 ? '結果を見る' : '次の問題へ') + '</button>';
@@ -2561,7 +2571,7 @@ body.eegfs #panel.qz-on .mihon-box,body.eegfs #panel.rp-on .mihon-box{display:no
   function answerSen(ai) {
     var S = Q.sen, picks = S.picks[S.i], k = picks.indexOf(null); if (k === -1) return;
     picks[k] = ai;
-    V.hl = qMark(SENMON[S.i], SENMON[S.i].qs[k], k); draw(); updateHead(); stamp(ai === 0);
+    V.hl = qMark(SENMON[S.i], SENMON[S.i].qs[k], k); draw(); updateHead(); stamp(ai === 0); revMark('sen', S.i, k, ai === 0);
     renderSen(); var q = document.getElementById('qh' + k); if (q) q.focus({ preventScroll: true });
   }
 
@@ -2791,7 +2801,7 @@ body.eegfs #panel.qz-on .mihon-box,body.eegfs #panel.rp-on .mihon-box{display:no
 
   // ---- 問題欄のクリック
   panel.addEventListener('click', function (e) {
-    if (V.mode === 'lab' || V.mode === 'story' || V.mode === 'elec' || V.mode === 'hossa') return;
+    if (V.mode === 'lab' || V.mode === 'story' || V.mode === 'elec' || V.mode === 'hossa' || V.mode === 'review') return;
     var b = e.target.closest('button'); if (!b) return;
     if (V.mode === 'zukan') { if (b.closest('.hs-card')) return; var cid = b.getAttribute('data-card'); if (cid) showCard(cid); return; }
     var cmk = b.getAttribute('data-cmk');
@@ -3505,7 +3515,7 @@ body.eegfs #panel.qz-on .mihon-box,body.eegfs #panel.rp-on .mihon-box{display:no
         '<p class="st-eegnote">' + esc(c.eegNote) + '</p>';
       c.qs.forEach(function (q, qi) {
         if (qi > SQ.qi || (SQ.daily && qi > 0)) return; var p = SQ.picks[qi];
-        html += '<h3 class="qh" id="sqh' + qi + '" tabindex="-1"><span class="qn">問' + (qi + 1) + '</span><span>' + esc(q.q) + '</span></h3>' + stOpts(q, qi);
+        html += '<h3 class="qh" id="sqh' + qi + '" tabindex="-1"><span class="qn">問' + (qi + 1) + '</span><span>' + esc(q.q) + '</span></h3>' + gate('st' + stKey() + '-' + qi, SQ.picks[qi], stOpts(q, qi));
         if (p !== null) html += '<div class="why"><p><b>' + (stRight(q, p) ? T('正解。', '上等！') : T('正解は「', 'あいえなー、正解は「') + (q.n > 1 ? q.a.slice(0, q.n).join('」と「') : q.a[0]) + T('」。', '」さー。')) + '</b>' + esc(q.why) + '</p>' + markTip(qMark(c, q, qi), 'data-smk="' + qi + '"') + (SQ.daily ? '' : nextHint(c.qs[qi + 1], qi + 1, 'sqh')) + '</div>';
       });
       if (SQ.daily && SQ.picks[0] !== null) {
@@ -3566,7 +3576,7 @@ body.eegfs #panel.qz-on .mihon-box,body.eegfs #panel.rp-on .mihon-box{display:no
   function stAnswer(p) {
     var c = stCase(), q = c.qs[SQ.qi]; SQ.picks[SQ.qi] = p; SQ.sel = [];
     V.hl = qMark(c, q, SQ.qi); draw(); updateHead(); stVigAuto(); stamp(stRight(q, p));
-    var qi = SQ.qi; SQ.qi++;
+    var qi = SQ.qi; SQ.qi++; revMark('story', stKey(), qi, stRight(q, p));
     if (SQ.daily) { dailyDone(stRight(q, p)); SQ.qi = c.qs.length; }
     else if (SQ.qi >= c.qs.length) {
       var r = SQ.picks.filter(function (pp, i) { return stRight(c.qs[i], pp); }).length, sv = stLoad();
@@ -3722,7 +3732,7 @@ body.eegfs #panel.qz-on .mihon-box,body.eegfs #panel.rp-on .mihon-box{display:no
   }
   function renderZukan() {
     var pts = zkPts(), tt = titleOf(pts), nx = nextTitle(pts), max = CARDS.length * 3;
-    var html = '<div class="ph"><h2 id="panelH" tabindex="-1">脳波図鑑</h2><span class="prog">' + zkCount() + ' / ' + CARDS.length + ' 枚</span></div>' +
+    var html = '<div class="ph"><h2 id="panelH" tabindex="-1">脳波・発作図鑑</h2><span class="prog">' + zkCount() + ' / ' + CARDS.length + ' 枚</span></div>' +
       '<div class="zk-top"><p class="zk-title">称号　<b>' + esc(tt[1]) + '</b></p>' +
       '<div class="meter" role="img" aria-label="' + pts + ' / ' + max + ' 点"><span style="width:' + Math.round(pts / max * 100) + '%"></span></div>' +
       '<p class="muted" style="font-size:var(--fs-s)">' + pts + ' / ' + max + ' 点' + (nx ? '　次の称号「' + esc(nx[1]) + '」まで あと ' + (nx[0] - pts) + ' 点' : '　すべて集めました') + '</p>' +
@@ -3760,7 +3770,7 @@ body.eegfs #panel.qz-on .mihon-box,body.eegfs #panel.rp-on .mihon-box{display:no
   syncLevel(); syncZkTab();
 
   /* ====================== 10. モードの切り替え ====================== */
-  var MODES = ['lab', 'story', 'dojo', 'hunter', 'conf', 'sen', 'elec', 'hossa', 'zukan'];
+  var MODES = ['lab', 'story', 'dojo', 'hunter', 'conf', 'sen', 'elec', 'hossa', 'review', 'zukan'];
   function setMode(m, focus) {
     if (MODES.indexOf(m) === -1) m = 'lab';
     V.mode = m;
@@ -3771,6 +3781,7 @@ body.eegfs #panel.qz-on .mihon-box,body.eegfs #panel.rp-on .mihon-box{display:no
     storyAnimStop(); hsStop(); document.body.classList.toggle('elecmode', m === 'elec' || m === 'hossa'); document.body.classList.remove('stvig'); document.getElementById('stVigBox').removeAttribute('data-k'); document.getElementById('stAnimMini').removeAttribute('data-k');
     if (m === 'lab') { enterLab(); }
     else if (m === 'story') { storyEnter(); }
+    else if (m === 'review') { V.live = false; RV.cur = null; V.hl = null; renderReview(); }
     else if (m === 'hossa') { if (isFs()) setFs(false); V.live = false; setPage(ZK_DEFAULT_SPEC); if (!HQ) HQ = newHossaQ(); renderHossaQ(); }
     else if (m === 'elec') { if (isFs()) setFs(false); V.live = false; setPage(ZK_DEFAULT_SPEC); if (!EQ) EQ = newElec(); renderElec(); }
     else if (m === 'zukan') { V.live = false; setPage(ZK_DEFAULT_SPEC); renderZukan(); }
@@ -3876,9 +3887,84 @@ body.eegfs #panel.qz-on .mihon-box,body.eegfs #panel.rp-on .mihon-box{display:no
 
   document.getElementById('prToggle').addEventListener('click', function () { var pr = document.querySelector('.primer'), o = pr.classList.toggle('open'); this.setAttribute('aria-expanded', String(o)); this.textContent = o ? 'とじる ▲' : 'ひらく ▼'; if (o) bandKey = ''; draw(); });
 
+
+  /* ====================== 上級：選択肢を、考えてから出す ====================== */
+  var HIDE_OPT = lsGet('eeg-hideopt') === '1', REVEAL = {};
+  function gate(key, pick, html) {
+    if (!HIDE_OPT || (pick !== null && pick !== undefined) || REVEAL[key]) return html;
+    return '<div class="reveal-box"><button type="button" class="btn reveal-opts" data-reveal="' + key + '">' + T('考えたら、選択肢を出す', '考えたら、選択肢出してね') + '</button><span class="muted">' + T('上級：まず脳波を見て、自分の答えを決めてから', '上級さー：まず脳波見て、自分の答え決めてからね') + '</span></div>';
+  }
+  function syncHo() { document.querySelectorAll('#hoSeg button').forEach(function (b) { b.setAttribute('aria-pressed', String((b.getAttribute('data-ho') === '1') === HIDE_OPT)); }); }
+  document.getElementById('hoSeg').addEventListener('click', function (e) { var b = e.target.closest('button'); if (!b) return; HIDE_OPT = b.getAttribute('data-ho') === '1'; lsSet('eeg-hideopt', HIDE_OPT ? '1' : '0'); syncHo(); rerender(); });
+  function rerender() { var f = { story: renderStory, conf: renderConf, sen: renderSen, dojo: renderDojo, review: renderReview }[V.mode]; if (f) f(); }
+  panel.addEventListener('click', function (e) {
+    var b = e.target.closest('[data-reveal]'); if (!b) return;
+    e.stopPropagation(); REVEAL[b.getAttribute('data-reveal')] = 1; var y = b.getBoundingClientRect().top; rerender();
+  }, true);
+
+  /* ====================== まちがい復習：まちがえた問題を集めて、解き直す ====================== */
+  var RVKEY = 'eeg-review-v1';
+  function rvLoad() { try { return JSON.parse(lsGet(RVKEY) || '[]') || []; } catch (e) { return []; } }
+  function rvSave(a) { lsSet(RVKEY, JSON.stringify(a)); rvSync(); }
+  function rvId(it) { return it.m + ':' + it.k + ':' + it.qi; }
+  function revMark(m, k, qi, ok) {
+    var a = rvLoad(), id = m + ':' + k + ':' + qi, i = a.map(rvId).indexOf(id);
+    if (ok) { if (i !== -1) { a.splice(i, 1); rvSave(a); } }
+    else if (i === -1) { a.push({ m: m, k: k, qi: qi }); rvSave(a); }
+  }
+  function rvSync() { var el = document.getElementById('revTab'), n = rvLoad().length; if (el) el.textContent = n ? T('まちがえた問題 ' + n + ' 問', 'まちがえた問題 ' + n + ' 問あるよー') : T('まちがえた問題を解き直す', 'まちがえた問題を解き直すよー'); }
+  var RV_SRC = { story: '研修スタート', conf: '脳波カンファ', sen: '専門医道場', dojo: '波形道場' };
+  function rvGet(it) {
+    var c, q;
+    if (it.m === 'story') { c = ST_CASES[it.k]; if (!c) return null; q = c.qs[it.qi]; return { title: c.title, text: vigHTML(c), spec: c.spec, q: q, hl: qMark(c, q, it.qi) }; }
+    if (it.m === 'conf' || it.m === 'sen') { c = (it.m === 'conf' ? CONF : SENMON)[it.k]; if (!c) return null; q = c.qs[it.qi]; return { title: c.title, text: '<p class="story">' + esc(c.story) + '</p>', spec: c.spec, q: q, hl: qMark(c, q, it.qi) }; }
+    if (it.m === 'dojo') { c = DOJO[it.k]; if (!c) return null; return { title: c.title, text: '', spec: c.spec, q: { q: c.q, a: c.a, why: c.why }, hl: c.hl }; }
+    return null;
+  }
+  var RV = { cur: null, opt: null, pick: null, sel: [] };
+  function rvRight(q, p) { return q.n > 1 ? p.length === q.n && p.every(function (x) { return x < q.n; }) : p === 0; }
+  function renderReview() {
+    var a = rvLoad(), html;
+    if (!RV.cur) {
+      html = '<div class="ph"><h2 id="panelH" tabindex="-1">' + T('まちがい復習', 'まちがい復習さー') + '</h2><span class="prog">' + a.length + ' 問</span></div>';
+      if (!a.length) html += '<p>' + T('まちがえた問題はありません。研修スタート・脳波カンファ・専門医道場・波形道場でまちがえると、ここに集まります。', 'まちがえた問題はないよー。研修スタートとかでまちがえたら、ここに集まるさー。') + '</p>';
+      else html += '<p class="muted">' + T('解き直して正解すると、リストから外れます。', '解き直して正解したら、リストから消えるよー。') + '</p><ol class="rv-list">' + a.map(function (it) { var g = rvGet(it); if (!g) return ''; return '<li><button type="button" class="rv-item" data-rv="' + rvId(it) + '"><span class="rv-src">' + RV_SRC[it.m] + '・' + esc(g.title) + '</span><span>' + esc(g.q.q) + '</span></button></li>'; }).join('') + '</ol>';
+      panel.innerHTML = html; setPage(ZK_DEFAULT_SPEC); return;
+    }
+    var g = rvGet(RV.cur), q = g.q, multi = q.n > 1, done = RV.pick !== null;
+    html = '<div class="ph"><h2 id="panelH" tabindex="-1">' + esc(g.title) + '</h2><span class="prog">' + T('まちがい復習', 'まちがい復習') + ' ・ ' + RV_SRC[RV.cur.m] + '</span></div>' + g.text +
+      '<h3 class="qh" id="rvq" tabindex="-1"><span class="qn">問</span><span>' + esc(q.q) + '</span></h3>';
+    var opts = '<ol class="opts st-opts">' + RV.opt.map(function (ai, pos) {
+      var isR = multi ? ai < q.n : ai === 0, chosen = done ? (multi ? RV.pick.indexOf(ai) !== -1 : RV.pick === ai) : RV.sel.indexOf(ai) !== -1, cls = '', tag = '';
+      if (done) { if (isR) { cls = ' right'; tag = '正解'; } else if (chosen) { cls = ' wrong'; tag = 'あなたの答え'; } else cls = ' dim'; } else if (chosen) cls = ' chosen';
+      return '<li><button type="button" class="opt' + cls + '" data-ra="' + ai + '"' + (done ? ' disabled' : '') + '><span class="k">' + 'abcde'[pos] + '</span><span>' + esc(q.a[ai]) + '</span><span class="v">' + tag + '</span></button></li>';
+    }).join('') + '</ol>' + (multi && !done ? '<button type="button" class="btn" data-rgo="multi"' + (RV.sel.length === q.n ? '' : ' disabled') + '>この ' + q.n + ' つで答える</button>' : '');
+    html += gate('rv' + rvId(RV.cur), done ? 1 : null, opts);
+    if (done) { var ok = rvRight(q, RV.pick); html += '<div class="why"><p><b>' + (ok ? T('正解。リストから外しました。', '上等！リストから消したよー。') : T('正解は「', 'あいえなー、正解は「') + (multi ? q.a.slice(0, q.n).join('」と「') : q.a[0]) + T('」。', '」さー。')) + '</b>' + esc(q.why) + '</p></div>'; }
+    html += '<div class="row"><button type="button" class="ghost" data-rgo="list">' + T('リストへ戻る', 'リストに戻るよー') + '</button></div>';
+    panel.innerHTML = html;
+  }
+  function rvAnswer(p) {
+    var g = rvGet(RV.cur), ok = rvRight(g.q, p); RV.pick = p; stamp(ok);
+    V.hl = g.hl; draw(); updateHead();
+    if (ok) { var a = rvLoad(), i = a.map(rvId).indexOf(rvId(RV.cur)); if (i !== -1) { a.splice(i, 1); rvSave(a); } }
+    renderReview();
+  }
+  panel.addEventListener('click', function (e) {
+    if (V.mode !== 'review') return;
+    var b = e.target.closest('button'); if (!b) return;
+    var id = b.getAttribute('data-rv');
+    if (id) { var it = rvLoad().filter(function (x) { return rvId(x) === id; })[0]; if (!it) return; RV.cur = it; RV.pick = null; RV.sel = []; var g = rvGet(it); RV.opt = shuffled(g.q.a.length); V.hl = null; setPage(g.spec); renderReview(); return; }
+    var ra = b.getAttribute('data-ra');
+    if (ra != null && RV.pick === null) { var q = rvGet(RV.cur).q, ai = +ra; if (q.n > 1) { var k = RV.sel.indexOf(ai); if (k !== -1) RV.sel.splice(k, 1); else if (RV.sel.length < q.n) RV.sel.push(ai); renderReview(); } else rvAnswer(ai); return; }
+    var go = b.getAttribute('data-rgo');
+    if (go === 'multi') rvAnswer(RV.sel.slice());
+    else if (go === 'list') { RV.cur = null; V.hl = null; renderReview(); }
+  });
+
   /* ====================== 12. はじめる ====================== */
   buildHead();
-  applyOki();
+  applyOki(); syncHo(); rvSync();
   if (narrow()) V.win = 5;
   /* ====================== 全画面（脳波計の前に座る） ====================== */
   var fsBtn = document.getElementById('fsBtn'), fsPanelBtn = document.getElementById('fsPanelBtn');
