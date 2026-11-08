@@ -324,6 +324,16 @@ body.eegfs .mihon-wrap{display:none}
 .side-info{width:100%;font-size:var(--fs-xs);display:grid;gap:3px;align-content:start;line-height:1.4}
 .side-info:empty,.side-info[hidden]{display:none}
 /* ストーリー */
+.st-vigbox{display:none}
+/* ストーリー：症例の提示を、頭の図の右隣（全画面の横向き）か下に出し続ける。脳波には重ねない */
+body.stvig .st-vigbox{display:grid;align-content:start;gap:6px;width:100%;max-height:46vh;overflow:auto;font-size:var(--fs-xs);border-top:1px dashed var(--line);padding-top:6px}
+body.stvig .st-vigbox .vig{grid-template-columns:minmax(0,1fr);gap:0 6px;padding:6px 8px;font-size:var(--fs-xs)}
+body.stvig .st-vigbox .vig dt{margin-top:3px} body.stvig .st-vigbox .vig dd{line-height:1.55}
+.st-vh{margin:0;font-weight:700;color:var(--accent)}
+@media (orientation:landscape){ body.eegfs.stvig .st-vigbox{max-height:44vh;border-top:0;padding-top:0} body.eegfs.stvig .desk-side{align-items:start} }
+body.stvig .st-vigbox .st-eegnote{font-size:var(--fs-xs)}
+body.stvig #panel .st-again>.vig{display:none}
+body.stvig #panel .st-again summary::after{content:'（症例の文は頭の図の横に出ています）';color:var(--muted);font-size:var(--fs-xs)}
 .mk-btn{min-height:30px;padding:2px 10px;margin-left:8px;font-size:var(--fs-xs)}
 .st-reset{display:flex;flex-wrap:wrap;gap:8px;align-items:center;border-top:1px dashed var(--line);padding-top:10px;font-size:var(--fs-s)}
 .st-reset p{flex-basis:100%;margin:0}
@@ -593,6 +603,7 @@ body.eegfs #panel.qz-on .mihon-box,body.eegfs #panel.rp-on .mihon-box{display:no
     </div>
     <aside class="desk-side" aria-label="頭の図（10-20法）">
       <svg id="head" viewBox="-1.3 -1.24 2.6 2.48" role="group" aria-label="電極の配置"></svg>
+      <aside class="st-vigbox" id="stVigBox" aria-label="症例の提示"></aside>
       <div class="side-info" id="sideInfo" aria-live="polite" hidden>
         <div class="si-top">
           <svg id="face" viewBox="0 0 100 100" aria-hidden="true">
@@ -1241,7 +1252,8 @@ body.eegfs #panel.qz-on .mihon-box,body.eegfs #panel.rp-on .mihon-box{display:no
     // 答えのあと：指導医の赤ペンで、見るところに丸をつける
     if (V.hl && !V.live && !V.hl.nomark) {
       if (V.hl !== markHl) { markHl = V.hl; markT0 = performance.now(); }
-      staticMarks(src, chans, rows, sp, tw0, win, xOf, W0, H).forEach(function (m) { redMark(m[0], m[1], m[2], m[3], m[4], markT0, W0, H); });
+      markFrac = 0;
+      staticMarks(src, chans, rows, sp, tw0, win, xOf, W0, H).forEach(function (m) { markFrac = Math.max(markFrac, (m[1] + 12 - LW) / plotW); redMark(m[0], m[1], m[2], m[3], m[4], markT0, W0, H); });
     }
     // 巻き戻して見ているとき：右上に表示
     if (V.live && V.lback > 0) {
@@ -1262,7 +1274,7 @@ body.eegfs #panel.qz-on .mihon-box,body.eegfs #panel.rp-on .mihon-box{display:no
   }
 
   /* 赤ペンの丸（指導医が黒板に丸をつけるように） */
-  var markHl = null, markT0 = 0, markRaf = 0;
+  var markHl = null, markT0 = 0, markRaf = 0, markFrac = 0;
   var MK_NAME = { spike: '棘波', sw: '棘徐波', polysw: '多棘徐波', pop: '電極ポップ', blink: 'まばたき', emg: '筋電図', vertex: '頭蓋頂鋭波', spindle: '紡錘波', kc: 'K複合', tri: '三相波', wicket: 'ウィケット棘波', move: '体動', brush: 'delta brush', look: '眼球運動', psd: 'PSD', lpd: 'LPDs' };
   var MK_ART = { blink: 1, emg: 1, move: 1, look: 1, pop: 1 };
   function rowRun(chans, rows, el) {
@@ -1299,7 +1311,7 @@ body.eegfs #panel.qz-on .mihon-box,body.eegfs #panel.rp-on .mihon-box{display:no
     picked.forEach(function (e) {
       var el = e.e && hl.el.indexOf(e.e) !== -1 ? [e.e] : hl.el, rr = rowRun(chans, rows, el); if (!rr) return;
       var t0 = Math.max(e.t0 - 0.08, tw0), t1 = Math.min(e.t0 + Math.max(e.dur || 0.5, 0.3) + 0.05, tw0 + win);
-      out.push([xOf(t0), xOf(t1), rows[rr[0]] - sp / 2, rows[rr[1]] + sp / 2, out.length ? '' : (hl.txt || MK_NAME[e.type]) + (hl.pre ? '　' + hl.pre : '')]);
+      out.push([xOf(t0), xOf(t1), rows[rr[0]] - sp / 2, rows[rr[1]] + sp / 2, out.length ? null : (hl.txt || MK_NAME[e.type]) + (hl.pre ? '　' + hl.pre : '')]);
     });
     if (!out.length) {
       var rr2 = rowRun(chans, rows, hl.el); if (!rr2) return out;
@@ -1323,7 +1335,7 @@ body.eegfs #panel.qz-on .mihon-box,body.eegfs #panel.rp-on .mihon-box{display:no
       k ? ctx.lineTo(x, y) : ctx.moveTo(x, y);
     }
     ctx.stroke();
-    if (prog >= 1) {
+    if (prog >= 1 && label !== null) {
       ctx.font = '700 15px "Hiragino Maru Gothic ProN", "BIZ UDPGothic", sans-serif'; ctx.textAlign = 'left';
       var tx = label ? 'ここ！ ' + label : 'ここ！', tw = ctx.measureText(tx).width, lx = Math.max(6, Math.min(cx + rx * 0.35, W0 - tw - 8)), ly = cy - ry - 8;
       if (ly < 18) ly = cy + ry + 20; if (ly > H - 4) ly = H - 6;
@@ -2847,7 +2859,7 @@ body.eegfs #panel.qz-on .mihon-box,body.eegfs #panel.rp-on .mihon-box{display:no
         '<p class="st-eegnote">' + esc(c.eegNote) + '</p><button type="button" class="btn" data-sgo="eeg">脳波を見る</button>';
     } else if (SQ.ph === 'eeg') {
       c = stCase();
-      html = stHead(esc(c.title)) + '<details class="st-again"><summary>症例と症状をもう一度見る</summary>' + vigHTML(c) + animHTML() + '</details>' +
+      html = stHead(esc(c.title)) + '<details class="st-again"><summary>症状の動画をもう一度見る</summary>' + vigHTML(c) + animHTML() + '</details>' +
         '<p class="st-eegnote">' + esc(c.eegNote) + '</p>';
       c.qs.forEach(function (q, qi) {
         if (qi > SQ.qi) return; var p = SQ.picks[qi];
@@ -2866,10 +2878,22 @@ body.eegfs #panel.qz-on .mihon-box,body.eegfs #panel.rp-on .mihon-box{display:no
         '<div class="row"><button type="button" class="btn" data-sgo="menu">章の一覧へ</button><button type="button" class="ghost" data-sgo="again">この章をもう一度</button></div>';
     }
     panel.innerHTML = html;
+    stVigSync();
     if (SQ.ph === 'case' || (SQ.ph === 'eeg' && document.getElementById('stAnim'))) storyAnimRun(stCase()); else storyAnimStop();
     if (focus) { var h = document.getElementById('panelH'); if (h) h.focus({ preventScroll: true }); }
     draw();
   }
+  // 脳波を読んでいるあいだ、症例の提示を脳波の右（問題欄の左となり）に出し続ける。脳波は幅を縮めて10秒分を全部見せる
+  function stVigSync() {
+    var on = V.mode === 'story' && SQ.ph === 'eeg', box = document.getElementById('stVigBox'), was = document.body.classList.contains('stvig');
+    if (on) {
+      var c = stCase(), key = SQ.ch + '-' + SQ.ci;
+      if (box.getAttribute('data-k') !== key) { box.setAttribute('data-k', key); box.innerHTML = '<p class="st-vh">症例　' + esc(c.title) + '</p>' + vigHTML(c) + '<p class="st-eegnote">' + esc(c.eegNote) + '</p>'; box.scrollTop = 0; }
+    } else box.removeAttribute('data-k');
+    document.body.classList.toggle('stvig', on);
+    if (on !== was) requestAnimationFrame(function () { sideHSync(); draw(); });
+  }
+  function stVigAuto() {}
   function storyEnter() {
     V.live = false;
     if (SQ.ph === 'eeg') { setPage(stCase().spec); if (SQ.picks[0] !== null) { V.hl = stCase().hl; draw(); updateHead(); } }
@@ -2883,7 +2907,7 @@ body.eegfs #panel.qz-on .mihon-box,body.eegfs #panel.rp-on .mihon-box{display:no
   }
   function stAnswer(p) {
     var c = stCase(), q = c.qs[SQ.qi]; SQ.picks[SQ.qi] = p; SQ.sel = [];
-    V.hl = qMark(c, q, SQ.qi); draw(); updateHead();
+    V.hl = qMark(c, q, SQ.qi); draw(); updateHead(); stVigAuto();
     var qi = SQ.qi; SQ.qi++;
     if (SQ.qi >= c.qs.length) {
       var r = SQ.picks.filter(function (pp, i) { return stRight(c.qs[i], pp); }).length, sv = stLoad();
@@ -2898,7 +2922,7 @@ body.eegfs #panel.qz-on .mihon-box,body.eegfs #panel.rp-on .mihon-box{display:no
     var b = e.target.closest('button'); if (!b) return;
     var ch = b.getAttribute('data-sch'); if (ch) { SQ.ch = +ch; SQ.ci = 0; stGo('chin'); return; }
     var smk = b.getAttribute('data-smk');
-    if (smk != null) { var cq = stCase(); V.hl = qMark(cq, cq.qs[+smk], +smk); draw(); updateHead(); var dk = document.querySelector('.desk'); if (dk && !isFs()) dk.scrollIntoView({ block: 'start', behavior: 'smooth' }); return; }
+    if (smk != null) { var cq = stCase(); V.hl = qMark(cq, cq.qs[+smk], +smk); draw(); updateHead(); stVigAuto(); var dk = document.querySelector('.desk'); if (dk && !isFs()) dk.scrollIntoView({ block: 'start', behavior: 'smooth' }); return; }
     var sa = b.getAttribute('data-sa');
     if (sa != null) {
       var q = stCase().qs[SQ.qi], ai = +sa; if (!q || SQ.picks[SQ.qi] !== null) return;
@@ -3071,7 +3095,7 @@ body.eegfs #panel.qz-on .mihon-box,body.eegfs #panel.rp-on .mihon-box{display:no
     headSvg.classList.remove('picking');
     headSvg.querySelectorAll('.el').forEach(function (g2) { g2.classList.remove('ok', 'ng'); g2.removeAttribute('tabindex'); g2.removeAttribute('role'); });
     var ms0 = document.getElementById('mihonSec'); if (ms0 && m !== 'lab') ms0.hidden = true;
-    storyAnimStop();
+    storyAnimStop(); document.body.classList.remove('stvig');
     if (m === 'lab') { enterLab(); }
     else if (m === 'story') { storyEnter(); }
     else if (m === 'zukan') { V.live = false; setPage(ZK_DEFAULT_SPEC); renderZukan(); }
@@ -3109,9 +3133,10 @@ body.eegfs #panel.qz-on .mihon-box,body.eegfs #panel.rp-on .mihon-box{display:no
     var hide = document.body.classList.contains('panelhide');
     fsPanelBtn.textContent = hide ? '問題を出す' : '問題を隠す'; fsPanelBtn.setAttribute('aria-pressed', hide ? 'false' : 'true');
     if (on && !hide) document.documentElement.style.setProperty('--ph', panel.offsetHeight + 'px');
-    var side = document.querySelector('.desk-side'); if (on && side) requestAnimationFrame(function () { document.documentElement.style.setProperty('--sideH', Math.round(side.getBoundingClientRect().bottom + 8) + 'px'); });
+    if (on) requestAnimationFrame(sideHSync);
     requestAnimationFrame(function () { draw(); });
   }
+  function sideHSync() { var side = document.querySelector('.desk-side'); if (isFs() && side) document.documentElement.style.setProperty('--sideH', Math.round(side.getBoundingClientRect().bottom + 8) + 'px'); }
   function setFs(on) {
     document.body.classList.toggle('eegfs', on);
     var de = document.documentElement, natv = document.fullscreenElement || document.webkitFullscreenElement;
@@ -3143,23 +3168,38 @@ body.eegfs #panel.qz-on .mihon-box,body.eegfs #panel.rp-on .mihon-box{display:no
     ev.preventDefault(); ev.stopPropagation(); openPick(sel);
   }, true);
   function fsChange() { var nat = !!(document.fullscreenElement || document.webkitFullscreenElement); document.body.classList.toggle('natfs', nat); if (!nat && isFs()) { document.body.classList.remove('eegfs'); } closePick(); syncFs(); }
-  // 全画面中、スクロールの端で指を引っぱると iPad が全画面を解除するので、端ではページに伝えない
-  var tgY = 0;
-  document.addEventListener('touchstart', function (e) { if (e.touches.length === 1) tgY = e.touches[0].clientY; }, { passive: true });
-  document.addEventListener('touchmove', function (e) {
-    if (!isFs() || e.touches.length !== 1) return;
-    var y = e.touches[0].clientY, dy = y - tgY, el = e.target; tgY = y;
+  // 全画面中は、iPad の標準のスクロールを使わない（上下にはじくと全画面が解除されるため）。
+  // 指の動きを自分で読んで、問題欄などの中身だけを動かす（はなしたあとは少し惰性で流れる）
+  var tg = { y: 0, el: null, v: 0, t: 0, raf: 0 };
+  function scrollHost(el) {
     while (el && el !== document.body && el.nodeType === 1) {
       var oy = getComputedStyle(el).overflowY;
-      if ((oy === 'auto' || oy === 'scroll') && el.scrollHeight > el.clientHeight + 1) {
-        var atTop = el.scrollTop <= 0, atEnd = el.scrollTop + el.clientHeight >= el.scrollHeight - 1;
-        if (!((dy > 0 && atTop) || (dy < 0 && atEnd))) return;
-        break;
-      }
+      if ((oy === 'auto' || oy === 'scroll') && el.scrollHeight > el.clientHeight + 1) return el;
       el = el.parentElement;
     }
+    return null;
+  }
+  document.addEventListener('touchstart', function (e) {
+    if (tg.raf) { cancelAnimationFrame(tg.raf); tg.raf = 0; }
+    if (e.touches.length !== 1) return;
+    tg.y = e.touches[0].clientY; tg.v = 0; tg.t = performance.now(); tg.el = isFs() ? scrollHost(e.target) : null;
+  }, { passive: true });
+  document.addEventListener('touchmove', function (e) {
+    if (!isFs()) return;
     if (e.cancelable) e.preventDefault();
+    if (e.touches.length !== 1 || !tg.el) return;
+    var y = e.touches[0].clientY, dy = y - tg.y, now = performance.now(), dt = Math.max(1, now - tg.t);
+    tg.el.scrollTop -= dy; tg.v = 0.8 * (dy / dt) + 0.2 * tg.v; tg.y = y; tg.t = now;
   }, { passive: false });
+  document.addEventListener('touchend', function () {
+    if (!isFs() || !tg.el || Math.abs(tg.v) < 0.15 || performance.now() - tg.t > 80) return;
+    var el = tg.el, v = tg.v * 16, last = performance.now();
+    (function step(ts) {
+      var k = Math.min(3, (ts - last) / 16 || 1); last = ts;
+      el.scrollTop -= v * k; v *= Math.pow(0.94, k);
+      tg.raf = Math.abs(v) > 0.3 ? requestAnimationFrame(step) : 0;
+    })(performance.now());
+  }, { passive: true });
   document.addEventListener('fullscreenchange', fsChange); document.addEventListener('webkitfullscreenchange', fsChange);
   new MutationObserver(function () { if (isFs() && !document.body.classList.contains('panelhide')) document.documentElement.style.setProperty('--ph', panel.offsetHeight + 'px'); }).observe(panel, { childList: true, subtree: true });
   // 記録紙を指で左右にはらうと、前後のページへ（ものさしを使っていないとき）
