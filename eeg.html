@@ -392,8 +392,8 @@ body.stvig #panel .st-again{display:none}
 :root.oki{--accent:#0a8c9c;--hot:#e0457b;--mark:#ffc93c;--ann:#b5541a}
 :root.oki h1{text-shadow:3px 3px 0 #ffc93c}
 :root.oki .oki-btn{border-color:var(--accent);background:var(--accent-soft);color:var(--accent)}
-.shisa{position:absolute;z-index:4;width:100px;pointer-events:none;transform-origin:50% 100%}
-.shisa svg{width:100px;height:auto;display:block;filter:drop-shadow(0 2px 2px rgba(0,0,0,.25))}
+.shisa{position:absolute;z-index:4;width:104px;pointer-events:none;transform-origin:50% 100%}
+.shisa svg{width:104px;height:auto;display:block;filter:drop-shadow(0 2px 2px rgba(0,0,0,.25))}
 .shisa.flip svg{transform:scaleX(-1)}
 .shisa-say{position:absolute;left:-6px;top:-22px;background:#fff;border:2px solid #e0457b;color:#c02f63;font-weight:700;font-size:14px;border-radius:12px;padding:1px 8px;white-space:nowrap}
 .shisa.flip .shisa-say{left:auto;right:-6px}
@@ -405,6 +405,27 @@ body.stvig #panel .st-again{display:none}
 .stamp.go{animation:stamp 1.1s ease-out 1 forwards}
 @keyframes stamp{0%{opacity:0;transform:translate(-50%,-50%) rotate(-8deg) scale(2.2)}18%{opacity:1;transform:translate(-50%,-50%) rotate(-8deg) scale(.95)}28%{transform:translate(-50%,-50%) rotate(-8deg) scale(1.05)}75%{opacity:1}100%{opacity:0;transform:translate(-50%,-50%) rotate(-8deg) scale(1)}}
 @media (prefers-reduced-motion:reduce){.stamp.go{animation-duration:.01s}.shisa.pop{animation:none}}
+.boss-tag{display:inline-block;margin-right:10px;padding:1px 10px;border-radius:999px;background:var(--hot);color:#fff;font-family:var(--f-body);font-size:var(--fs-s);font-weight:700;vertical-align:middle}
+.st-daily{font:inherit;text-align:left;cursor:pointer;display:grid;gap:2px;padding:10px 14px;border:2px dashed var(--accent);border-radius:var(--r);background:var(--accent-soft);color:var(--ink)}
+.st-daily .st-dh{font-size:var(--fs-xs);font-weight:700;color:var(--accent)} .st-daily .muted{font-size:var(--fs-xs)}
+.cele{position:fixed;inset:0;z-index:60;display:grid;place-items:center;pointer-events:none;background:color-mix(in srgb,var(--paper) 30%,transparent)}
+.cele-in{display:grid;justify-items:center;gap:4px;background:var(--panel);border:3px solid var(--mark);border-radius:18px;padding:16px 28px;box-shadow:0 10px 40px rgba(0,0,0,.25)}
+.cele-art svg{width:150px;height:auto;display:block}
+.cele.go .cele-in{animation:celeIn .5s cubic-bezier(.2,1.6,.4,1) 1}
+.cele.go .cele-art svg{animation:celeDance .5s ease-in-out 6 alternate}
+@keyframes celeIn{0%{transform:scale(.3)}100%{transform:scale(1)}}
+@keyframes celeDance{0%{transform:rotate(-8deg) translateY(0)}100%{transform:rotate(8deg) translateY(-10px)}}
+.cele-t{margin:0;font-family:var(--f-display);font-size:clamp(26px,4vw,40px);color:var(--hot)}
+.cele-s{margin:0;font-size:var(--fs-s)}
+.confetti{position:absolute;inset:0;overflow:hidden}
+.confetti span{position:absolute;top:-12px;width:9px;height:14px;border-radius:2px;animation:conf 2s linear 1 forwards}
+@keyframes conf{0%{transform:translateY(0) rotate(0)}100%{transform:translateY(105vh) rotate(540deg)}}
+@media (prefers-reduced-motion:reduce){.cele.go .cele-in,.cele.go .cele-art svg,.confetti span{animation:none}}
+.hiden{margin-top:12px;display:grid;gap:6px} .hiden h3{margin:0;font-size:var(--fs-m)} .hiden h3 small{font-size:var(--fs-xs);color:var(--muted);font-weight:400;margin-left:6px}
+.hiden-g{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:6px}
+.hiden-c{display:grid;gap:2px;padding:8px 10px;border:1px dashed var(--line);border-radius:var(--r);background:var(--paper);font-size:var(--fs-xs);color:var(--muted)}
+.hiden-c b{font-size:var(--fs-s);color:var(--muted)}
+.hiden-c.got{border:2px solid #c98a12;background:linear-gradient(135deg,#fff6d6,#ffe39a);color:#5a4200} .hiden-c.got b{color:#7a5500}
 .mk-btn{min-height:30px;padding:2px 10px;margin-left:8px;font-size:var(--fs-xs)}
 .st-reset{display:flex;flex-wrap:wrap;gap:8px;align-items:center;border-top:1px dashed var(--line);padding-top:10px;font-size:var(--fs-s)}
 .st-reset p{flex-basis:100%;margin:0}
@@ -660,6 +681,7 @@ body.eegfs #panel.qz-on .mihon-box,body.eegfs #panel.rp-on .mihon-box{display:no
   <section id="panel"></section>
 
   <div class="stamp" id="stamp" hidden aria-live="polite"></div>
+  <div class="cele" id="cele" hidden role="status"><div class="confetti"></div><div class="cele-in"><div class="cele-art"></div><p class="cele-t"></p><p class="cele-s"></p></div></div>
   <section class="desk" aria-label="脳波計">
     <div class="desk-main">
       <div class="toolbar">
@@ -680,7 +702,7 @@ body.eegfs #panel.qz-on .mihon-box,body.eegfs #panel.rp-on .mihon-box{display:no
         <span class="tb-item fsonly"><span class="lb">波</span><span class="seg" id="lvSeg2"><button type="button" data-lv="0">入門</button><button type="button" data-lv="1">実践</button></span></span>
         <button type="button" class="act" id="fsBtn" aria-pressed="false">全画面</button>
       </div>
-      <div class="trace-wrap"><canvas id="trace" role="img" aria-label="脳波の記録"></canvas><div class="shisa" id="shisa" hidden aria-hidden="true"><span class="shisa-say">ココ！</span><svg viewBox="0 0 120 104"><g fill="#c9612a"><circle cx="101.0" cy="46.0" r="8"/><circle cx="95.1" cy="63.0" r="8"/><circle cx="79.6" cy="73.6" r="8"/><circle cx="60.4" cy="73.6" r="8"/><circle cx="44.9" cy="63.0" r="8"/><circle cx="39.0" cy="46.0" r="8"/><circle cx="44.9" cy="29.0" r="8"/><circle cx="60.4" cy="18.4" r="8"/><circle cx="79.6" cy="18.4" r="8"/><circle cx="95.1" cy="29.0" r="8"/></g><path d="M100 74 q16 -6 10 -20 q-6 -8 -12 0 q8 2 2 10 Z" fill="#c9612a"/><ellipse cx="74" cy="82" rx="27" ry="19" fill="#ef9142" stroke="#a3521c" stroke-width="2"/><path d="M52 78 Q34 72 16 68" stroke="#ef9142" stroke-width="11" stroke-linecap="round" fill="none"/><path d="M52 78 Q34 72 16 68" stroke="#a3521c" stroke-width="1.5" fill="none" opacity=".4"/><circle cx="13" cy="67" r="7" fill="#f6b061" stroke="#a3521c" stroke-width="1.6"/><ellipse cx="4" cy="64" rx="5" ry="2.6" fill="#f6b061" stroke="#a3521c" stroke-width="1.4" transform="rotate(-15 4 64)"/><circle cx="70" cy="46" r="25" fill="#f39b47" stroke="#a3521c" stroke-width="2"/><path d="M52 33 q8 -6 14 0 M74 33 q8 -6 14 0" stroke="#7a3a14" stroke-width="3.2" fill="none" stroke-linecap="round"/><circle cx="60" cy="43" r="7.5" fill="#fff" stroke="#7a3a14" stroke-width="1.5"/><circle cx="80" cy="43" r="7.5" fill="#fff" stroke="#7a3a14" stroke-width="1.5"/><circle cx="57" cy="44" r="3.8" fill="#2a1a10"/><circle cx="77" cy="44" r="3.8" fill="#2a1a10"/><ellipse cx="70" cy="53" rx="6.5" ry="4.2" fill="#7a3a14"/><path d="M56 58 Q70 74 84 58 Z" fill="#b8352e" stroke="#7a3a14" stroke-width="1.5"/><path d="M60 59 h20" stroke="#fff" stroke-width="3"/><circle cx="50" cy="55" r="3.5" fill="#f37a6b" opacity=".6"/><circle cx="90" cy="55" r="3.5" fill="#f37a6b" opacity=".6"/></svg></div></div>
+      <div class="trace-wrap"><canvas id="trace" role="img" aria-label="脳波の記録"></canvas><div class="shisa" id="shisa" hidden aria-hidden="true"><span class="shisa-say">ココ！</span><svg viewBox="0 0 140 136"><defs><radialGradient id="shB" cx="45%" cy="35%" r="70%"><stop offset="0" stop-color="#f6b46e"/><stop offset="1" stop-color="#c8662c"/></radialGradient><radialGradient id="shM" cx="40%" cy="35%" r="70%"><stop offset="0" stop-color="#d9773a"/><stop offset="1" stop-color="#9c4418"/></radialGradient><radialGradient id="shF" cx="50%" cy="40%" r="65%"><stop offset="0" stop-color="#ffd7a3"/><stop offset="1" stop-color="#eda15c"/></radialGradient></defs><path d="M108 98 C130 92 132 70 120 64 C112 60 106 70 114 74 C120 77 118 86 106 88 Z" fill="url(#shM)" stroke="#7d3313" stroke-width="1.4"/><circle cx="121.0" cy="66.0" r="7.0" fill="url(#shM)" stroke="#7d3313" stroke-width="1.2"/><path d="M122.0 66.0 a3.5 3.5 0 1 1 -4.2 0.1 a2.0 2.0 0 1 1 2.2 0.0" fill="none" stroke="#7d3313" stroke-width="1.3" stroke-linecap="round"/><path d="M50 96 C48 78 62 70 80 70 C100 70 112 82 110 102 C108 122 96 128 80 128 C62 128 52 116 50 96 Z" fill="url(#shB)" stroke="#7d3313" stroke-width="1.6"/><path d="M66 92 q14 10 28 0" fill="none" stroke="#a24b1d" stroke-width="2" opacity=".6"/><path d="M88 108 L90 128" stroke="url(#shB)" stroke-width="13" stroke-linecap="round"/><ellipse cx="91" cy="129" rx="9" ry="5" fill="#f3b26c" stroke="#7d3313" stroke-width="1.3"/><path d="M86 129 v-3 M91 130 v-3 M96 129 v-3" stroke="#7d3313" stroke-width="1"/><path d="M62 96 C48 92 34 88 22 84" stroke="#7d3313" stroke-width="15" stroke-linecap="round" fill="none"/><path d="M62 96 C48 92 34 88 22 84" stroke="#e98e48" stroke-width="12" stroke-linecap="round" fill="none"/><circle cx="18" cy="83" r="9" fill="#f6bd7a" stroke="#7d3313" stroke-width="1.4"/><ellipse cx="7" cy="80" rx="6.5" ry="3.2" fill="#f6bd7a" stroke="#7d3313" stroke-width="1.3" transform="rotate(-12 7 80)"/><circle cx="20" cy="86" r="2.6" fill="#e0866f"/><circle cx="70.0" cy="17.0" r="10.5" fill="url(#shM)" stroke="#7d3313" stroke-width="1.2"/><path d="M71.6 17.0 a5.2 5.2 0 1 1 -6.3 0.1 a2.9 2.9 0 1 1 3.4 0.0" fill="none" stroke="#7d3313" stroke-width="1.3" stroke-linecap="round"/><circle cx="87.5" cy="21.4" r="10.5" fill="url(#shM)" stroke="#7d3313" stroke-width="1.2"/><path d="M89.1 21.4 a5.2 5.2 0 1 1 -6.3 0.1 a2.9 2.9 0 1 1 3.4 0.0" fill="none" stroke="#7d3313" stroke-width="1.3" stroke-linecap="round"/><circle cx="100.3" cy="33.5" r="10.5" fill="url(#shM)" stroke="#7d3313" stroke-width="1.2"/><path d="M101.9 33.5 a5.2 5.2 0 1 1 -6.3 0.1 a2.9 2.9 0 1 1 3.4 0.0" fill="none" stroke="#7d3313" stroke-width="1.3" stroke-linecap="round"/><circle cx="105.0" cy="50.0" r="10.5" fill="url(#shM)" stroke="#7d3313" stroke-width="1.2"/><path d="M106.6 50.0 a5.2 5.2 0 1 1 -6.3 0.1 a2.9 2.9 0 1 1 3.4 0.0" fill="none" stroke="#7d3313" stroke-width="1.3" stroke-linecap="round"/><circle cx="100.3" cy="66.5" r="10.5" fill="url(#shM)" stroke="#7d3313" stroke-width="1.2"/><path d="M101.9 66.5 a5.2 5.2 0 1 1 -6.3 0.1 a2.9 2.9 0 1 1 3.4 0.0" fill="none" stroke="#7d3313" stroke-width="1.3" stroke-linecap="round"/><circle cx="87.5" cy="78.6" r="10.5" fill="url(#shM)" stroke="#7d3313" stroke-width="1.2"/><path d="M89.1 78.6 a5.2 5.2 0 1 1 -6.3 0.1 a2.9 2.9 0 1 1 3.4 0.0" fill="none" stroke="#7d3313" stroke-width="1.3" stroke-linecap="round"/><circle cx="70.0" cy="83.0" r="10.5" fill="url(#shM)" stroke="#7d3313" stroke-width="1.2"/><path d="M71.6 83.0 a5.2 5.2 0 1 1 -6.3 0.1 a2.9 2.9 0 1 1 3.4 0.0" fill="none" stroke="#7d3313" stroke-width="1.3" stroke-linecap="round"/><circle cx="52.5" cy="78.6" r="10.5" fill="url(#shM)" stroke="#7d3313" stroke-width="1.2"/><path d="M54.1 78.6 a5.2 5.2 0 1 1 -6.3 0.1 a2.9 2.9 0 1 1 3.4 0.0" fill="none" stroke="#7d3313" stroke-width="1.3" stroke-linecap="round"/><circle cx="39.7" cy="66.5" r="10.5" fill="url(#shM)" stroke="#7d3313" stroke-width="1.2"/><path d="M41.3 66.5 a5.2 5.2 0 1 1 -6.3 0.1 a2.9 2.9 0 1 1 3.4 0.0" fill="none" stroke="#7d3313" stroke-width="1.3" stroke-linecap="round"/><circle cx="35.0" cy="50.0" r="10.5" fill="url(#shM)" stroke="#7d3313" stroke-width="1.2"/><path d="M36.6 50.0 a5.2 5.2 0 1 1 -6.3 0.1 a2.9 2.9 0 1 1 3.4 0.0" fill="none" stroke="#7d3313" stroke-width="1.3" stroke-linecap="round"/><circle cx="39.7" cy="33.5" r="10.5" fill="url(#shM)" stroke="#7d3313" stroke-width="1.2"/><path d="M41.3 33.5 a5.2 5.2 0 1 1 -6.3 0.1 a2.9 2.9 0 1 1 3.4 0.0" fill="none" stroke="#7d3313" stroke-width="1.3" stroke-linecap="round"/><circle cx="52.5" cy="21.4" r="10.5" fill="url(#shM)" stroke="#7d3313" stroke-width="1.2"/><path d="M54.1 21.4 a5.2 5.2 0 1 1 -6.3 0.1 a2.9 2.9 0 1 1 3.4 0.0" fill="none" stroke="#7d3313" stroke-width="1.3" stroke-linecap="round"/><path d="M44 30 q-6 -14 8 -12 q4 6 0 14 Z M96 30 q6 -14 -8 -12 q-4 6 0 14 Z" fill="#c8662c" stroke="#7d3313" stroke-width="1.3"/><ellipse cx="70" cy="52" rx="27" ry="25" fill="url(#shF)" stroke="#7d3313" stroke-width="1.6"/><path d="M52 37 q4 -7 12 -3 q-5 1 -4 5" fill="none" stroke="#7d3313" stroke-width="2.6" stroke-linecap="round"/><path d="M88 37 q-4 -7 -12 -3 q5 1 4 5" fill="none" stroke="#7d3313" stroke-width="2.6" stroke-linecap="round"/><ellipse cx="60" cy="47" rx="8" ry="9" fill="#fff" stroke="#7d3313" stroke-width="1.3"/><ellipse cx="80" cy="47" rx="8" ry="9" fill="#fff" stroke="#7d3313" stroke-width="1.3"/><circle cx="57.5" cy="48.5" r="5.6" fill="#3a2111"/><circle cx="77.5" cy="48.5" r="5.6" fill="#3a2111"/><circle cx="55.6" cy="46" r="2.2" fill="#fff"/><circle cx="75.6" cy="46" r="2.2" fill="#fff"/><circle cx="59.5" cy="51" r="1" fill="#fff"/><circle cx="79.5" cy="51" r="1" fill="#fff"/><ellipse cx="70" cy="62" rx="15" ry="9" fill="#ffe2bd" opacity=".9"/><path d="M62 57 q8 -5 16 0 q-2 6 -8 6 q-6 0 -8 -6 Z" fill="#4a2412"/><ellipse cx="67" cy="57.5" rx="2.4" ry="1.3" fill="#fff" opacity=".6"/><path d="M56 64 Q70 82 84 64 Q70 70 56 64 Z" fill="#8a2420" stroke="#5a1a10" stroke-width="1.2"/><ellipse cx="70" cy="72" rx="6.5" ry="3.6" fill="#f17a86"/><path d="M59 65 l3 4 l2 -3 Z M81 65 l-3 4 l-2 -3 Z" fill="#fff"/><ellipse cx="49" cy="60" rx="4.5" ry="3" fill="#f48a7a" opacity=".55"/><ellipse cx="91" cy="60" rx="4.5" ry="3" fill="#f48a7a" opacity=".55"/></svg></div></div>
       <p class="chan-note" id="chanNote">線をタップすると、どの2つの電極の差かを頭の図に出します。</p>
     </div>
     <aside class="desk-side" aria-label="頭の図（10-20法）">
@@ -2456,23 +2478,122 @@ body.eegfs #panel.qz-on .mihon-box,body.eegfs #panel.rp-on .mihon-box{display:no
   /* ====================== 9c. ストーリー（新人医師の1年） ====================== */
   // 国試の臨床問題の形：症例の提示 → 症状の様子（動くイラスト） → 脳波 → 設問（5択・2つ選べ） → 指導医のひとこと
   var ST_CH = [
-    { n: 1, t: '4月　検査室で基本を習う', d: '正常のα波・開眼・睡眠の波・アーチファクト', cases: ['self', 'sleep', 'artifact', 'electrode'],
+    { n: 1, t: '4月　検査室で基本を習う', d: '正常のα波・開眼・睡眠の波・アーチファクト', cases: ['self', 'sleep', 'artifact', 'electrode', 'artboss'],
       intro: '4月、精神科に入ったあなた。まずは検査室で、脳波の「ふつう」を覚えよう。異常を読むには、正常とアーチファクトを知っているのが第一歩。最初は、あなた自身の脳波から。',
       outro: '正常のα波、眠りの波、目と筋肉と電極のアーチファクト。ここまで来れば、異常を読む準備はできた。次は外来へ行こう。' },
-    { n: 2, t: '外来', d: '欠神発作・若年ミオクロニーてんかん・側頭葉てんかん', cases: ['absence', 'jme', 'tle'],
+    { n: 2, t: '外来', d: '欠神発作・若年ミオクロニーてんかん・側頭葉てんかん', cases: ['absence', 'jme', 'tle', 'wickboss'],
       intro: '外来へようこそ。今日は「ぼんやりする」「物を落とす」「記憶が飛ぶ」の3人。どれも発作かもしれないし、そうでないかもしれない。発作の様子と脳波をセットで覚えよう。',
       outro: '3人とも、発作の「見た目」と脳波がちゃんと対応していたね。ぼんやり・ピクッ・もぐもぐ。精神科の外来にも、てんかんの人は普通に来る。見逃さないのが大事。' },
-    { n: 3, t: '病棟とリエゾン', d: 'せん妄・肝性脳症・リチウム中毒・ベンゾジアゼピン', cases: ['delir', 'hepatic', 'lithium', 'benzo'],
+    { n: 3, t: '病棟とリエゾン', d: 'せん妄・肝性脳症・リチウム中毒・ベンゾジアゼピン', cases: ['delir', 'hepatic', 'lithium', 'benzo', 'mixboss'],
       intro: '今月は病棟とリエゾン（ほかの科からの相談）。「急におかしくなった」と呼ばれたら、まず体と薬を疑う。脳波はそのとき強い味方になる。',
       outro: 'ゆっくりになった脳波は「意識が下がっている」サイン。三相波は代謝の脳症、速い波は薬。脳波を見たら、体と薬を探しに行く。これがリエゾンの基本だよ。' },
-    { n: 4, t: '当直と救急', d: '非けいれん性てんかん重積・ヘルペス脳炎・抗NMDA受容体脳炎・PNES', cases: ['ncse', 'hsv', 'nmdar', 'pnes'],
+    { n: 4, t: '当直と救急', d: '非けいれん性てんかん重積・ヘルペス脳炎・抗NMDA受容体脳炎・PNES', cases: ['ncse', 'hsv', 'nmdar', 'pnes', 'lpdboss'],
       intro: '当直と救急へ。夜中に呼ばれる「急な精神症状」「意識障害」「けいれん」。体の病気、とくに脳の病気を見落とさないのが当直医の仕事。そして、けいれんに見えて、実はてんかんではない人もいる。',
       outro: '見えない発作（NCSE）、脳の炎症（ヘルペス、抗NMDA受容体）、そして脳の電気の異常ではない発作（PNES）。どれも脳波がなければ迷う病気。当直で「精神科の病気だろう」と思ったときほど、一度立ち止まろう。' },
-    { n: 5, t: '専門外来', d: 'クロイツフェルト・ヤコブ病・クロザピン・ECT', cases: ['cjd', 'cloz', 'ect'],
+    { n: 5, t: '専門外来', d: 'クロイツフェルト・ヤコブ病・クロザピン・ECT', cases: ['cjd', 'cloz', 'ect', 'triboss'],
       intro: '最後の章は、もの忘れ外来、クロザピン外来、そして ECT 室。脳波で「見えないもの」を見る場面だよ。',
       outro: 'これで1年が終わり。正常を知り、アーチファクトを見分け、てんかんと脳症を読み分け、薬と治療の影響に気づく。脳波は、精神科医にとって「脳を見る窓」。おつかれさま。' }
   ];
   var ST_CASES = {
+    artboss: {
+      boss: true, title: 'アーチファクトだらけの記録', card: [],
+      vig: [['患者', '35歳の女性'], ['依頼', '不眠の相談で、脳波検査を行った。'],
+        ['様子', '初めての検査で落ち着かず、まばたきが多く、歯をくいしばっている。汗をかいて、ときどき頭をさわる。心電図のコードが左の耳の近くを通っている。']],
+      eegNote: '記録の一部を示す。',
+      anim: { who: 'fem', props: 'exam', loop: 9, steps: [
+        [0, 'cap blink', '', 'まばたきが多い。'],
+        [3, 'cap clench', '', '歯をくいしばっている。'],
+        [6, 'cap scratch', '', '汗をかいて、頭をさわる。']] },
+      spec: { seed: 61, preset: 'normal', mont: 'ref', bg: { ecgArt: 14 }, ev: [['blink', 1.0], ['emg', 3.0, { dur: 2.2, amp: 14 }], ['pop', 6.4, { e: 'C4', amp: -150 }], ['blink', 8.6]] },
+      hl: { t0: 0, t1: 10, el: ['Fp1', 'Fp2', 'F7', 'F8', 'T3', 'T4', 'C4'] },
+      qs: [
+        { q: 'この記録に含まれるアーチファクトはどれか。4つ選べ。', n: 4, a: ['まばたき', '筋電図（くいしばり）', 'C4 の電極ポップ', '心電図の混入', '左側頭部の棘波'],
+          why: 'Fp のまばたき、側頭部の筋電図、C4 だけの急な振れ（ポップ）、左の耳朶 A1 を基準にしたチャンネルの小さな規則正しい波（心電図）。4つとも脳ではない波です。' },
+        { mk: { t0: 0.2, t1: 2.8, el: ['O1', 'O2'], region: true, txt: '背景のα波は正常' }, q: '脳そのものの所見として正しいのはどれか。', a: ['異常はない（背景は正常な後頭部α律動）', 'C4 の焦点性てんかん', '全般性の徐波化', '左側頭部のてんかん性放電', '周期性同期性放電（PSD）'],
+          why: 'アーチファクトを1つずつ除くと、残る背景は後頭部優位の正常なα律動です。脳の異常は見当たりません。' },
+        { mk: false, q: '検査技師への依頼として適切なのはどれか。2つ選べ。', n: 2, a: ['C4 の電極をつけ直してもらう', '口を少し開けて力を抜くよう、声をかけてもらう', '記録をすぐに中止する', '高域遮断を 15Hz まで下げて記録する', '心電図の電極をはずす'],
+          why: '電極のつけ直しと声かけで、多くのアーチファクトは減らせます。高域遮断を下げすぎると、筋電図が棘波に化けることがあります。心電図は、混入を見分けるために必要です。' }
+      ],
+      sensei: 'アーチファクトを1つずつ消していくと、残った脳の波は正常だった。異常を探す前に「脳じゃない波」を見分ける。これが検査室の総仕上げ。' },
+    wickboss: {
+      boss: true, title: '「てんかんの波がある」と言われた', card: [],
+      vig: [['患者', '52歳の女性'], ['主訴', 'セカンドオピニオン（抗てんかん薬をやめたい）'],
+        ['現病歴', '5年前、疲れていたときに、立ちくらみのあと1回倒れ、数秒で意識が戻った。そのときの脳波で「てんかんの波がある」と言われ、抗てんかん薬を飲み続けている。その後、発作のような出来事はない。日中の眠気とふらつきがつらい。'],
+        ['既往歴', '特記すべきことはない。'], ['身体所見', '神経学的所見に異常はない。'], ['検査所見', '頭部 MRI に異常はない。']],
+      eegNote: '今回の脳波で、うとうとしたときの記録を示す。',
+      anim: { who: 'fem', props: 'sofa', loop: 9, steps: [
+        [0, 'drowsy nod', 'R:本人:薬で一日中眠いんです', '抗てんかん薬の眠気がつらい。'],
+        [4.5, '', 'L:医師:倒れたときの様子は？', '倒れたのは1回だけ。立ちくらみのあと、数秒で戻った。']] },
+      spec: { seed: 42, preset: 'normal', mont: 'bip', auto: false, init: { sleep: 0.7 }, ev: [['wicket', 1.3, { e: 'T3', dur: 1.0, amp: 62 }], ['wicket', 4.4, { e: 'T4', dur: 0.8, amp: 58 }], ['wicket', 7.2, { e: 'T3', dur: 1.1, amp: 66 }]] },
+      hl: { t0: 1.2, t1: 8.4, el: ['F7', 'T3', 'T5', 'F8', 'T4', 'T6'] },
+      qs: [
+        { q: '脳波所見として最も適切なのはどれか。', a: ['眠気のときに側頭部に出る、アーチ形の鋭い波の連なり（ウィケット棘波）', '左側頭部の棘徐波（てんかん性放電）', '全般性 3Hz 棘徐波複合', '一側性周期性放電（LPDs）', '頭蓋頂鋭波'],
+          why: '眠気のある記録で、側頭部にアーチ形の鋭い波が 1 秒ほど連なって出ています。後ろに徐波が続かず、背景も乱れません。左右どちらにも出ます。ウィケット棘波です。' },
+        { q: 'この所見の意味として正しいのはどれか。', a: ['正常亜型で、てんかんの根拠にはならない', 'てんかん性放電で、抗てんかん薬を続ける根拠になる', '脳腫瘍を示す', '睡眠時無呼吸を示す', '薬の副作用を示す'],
+          why: 'ウィケット棘波は中年以降に多い正常亜型です。「てんかんの波」と読みすぎることは、てんかんの誤診の大きな原因の一つです。' },
+        { mk: false, q: '対応として適切なのはどれか。2つ選べ。', n: 2, a: ['倒れたときの経過（目撃情報や前ぶれ）を詳しく聞き直す', '専門医と、抗てんかん薬を減らしてやめることを検討する', '鋭い波なので、抗てんかん薬を増やす', 'MRI に異常がなくても棘波があるので、てんかんと確定する', '両側に出るので、全般てんかんと診断する'],
+          why: '立ちくらみのあと数秒で戻る失神は、てんかんではないことが多い出来事です。てんかんの診断は、発作の経過が中心です。読みすぎた脳波が根拠なら、薬を見直す価値があります。' }
+      ],
+      sensei: '鋭い波＝てんかん、ではない。正常亜型を知らないと、5年も薬を飲ませることになる。診断の中心は、いつも発作の経過。脳波はそれを支える道具。' },
+    mixboss: {
+      boss: true, title: '夜に家に帰ろうとする', card: [],
+      vig: [['患者', '82歳の女性'], ['依頼', '施設の嘱託医から「夜に落ち着かない。認知症が進んだのか」と相談があった。'],
+        ['現病歴', 'アルツハイマー型認知症で施設に入所している。1か月前、不眠に対してゾルピデムが始まり、2週間前にブロチゾラムが追加された。その後から、日中はぼんやりしてうとうとし、夜になると「お母さんが迎えに来る」と言って外に出ようとする。2回転倒した。'],
+        ['身体所見', '体温 36.5℃。注意が続かない。'], ['検査所見', '血液検査（電解質、血糖、腎機能、肝機能）に異常はない。尿検査に異常はない。']],
+      eegNote: '脳波検査を行った。日中、目を閉じた状態の記録を示す。',
+      anim: { who: 'fem old', props: 'bed', loop: 10, steps: [
+        [0, 'night look', 'R:本人:お母さんが迎えに来るから…', '夜になると落ち着かず、家に帰ろうとする。'],
+        [5, 'drowsy', '', '日中はぼんやりして、うとうとしている。']] },
+      spec: { seed: 63, preset: 'delirium', mont: 'ref', bg: { beta: 16 } }, hl: { t0: 0, t1: 10, el: ['F3', 'F4', 'C3', 'C4', 'Fz', 'Cz'] },
+      qs: [
+        { mk: { t0: 1, t1: 4, el: ['F3', 'F4', 'C3', 'C4'], region: true, txt: '徐波に速い波が重なる' }, q: '脳波所見として正しいのはどれか。2つ選べ。', n: 2, a: ['背景の徐波化（θ・δ波の増加）', '前頭〜中心部の速波（β波）の増加', '左側頭部の棘波', '前頭部優位の三相波', '正常な後頭部α律動'],
+          why: '基礎律動が遅く、θ・δ波が全体に増えています。その上に、前頭〜中心部で速い波が重なっています。' },
+        { q: '最も考えられる病態はどれか。', a: ['睡眠薬（ベンゾジアゼピン受容体作動薬）によるせん妄', 'アルツハイマー型認知症の自然な進行', '非けいれん性てんかん重積', '肝性脳症', 'うつ病'],
+          why: '睡眠薬を足したあとから始まった、日内変動のある注意と意識の障害。徐波化（意識の低下）と速波（薬の影響）の組み合わせ。睡眠薬によるせん妄を考えます。' },
+        { mk: false, q: '対応として適切なのはどれか。2つ選べ。', n: 2, a: ['睡眠薬を少しずつ減らし、中止を目指す', '日中の活動や照明など、昼夜のリズムを整える', '睡眠薬をさらに追加する', '抗てんかん薬を始める', '転倒を防ぐため、夜は身体拘束をする'],
+          why: '原因の薬を減らし、昼夜のリズムを整えるのが基本です。高齢者の睡眠薬は、せん妄と転倒の原因の常連です。' }
+      ],
+      sensei: '徐波と速波が一緒に出ていたら、「意識が下がっている」と「薬が効いている」の合わせ技。高齢者の睡眠薬は、せん妄と転倒の常連。足すより引く、が基本。' },
+    lpdboss: {
+      boss: true, title: '脳梗塞のあとに右手がぴくぴく', card: [],
+      vig: [['患者', '74歳の男性'], ['依頼', '脳神経内科の病棟から「意識が悪く、ぼんやりしている。せん妄ではないか」と相談があった。'],
+        ['現病歴', '1週間前に左中大脳動脈の脳梗塞で入院した（右半身の麻痺と失語）。2日前から、右手がときどきぴくぴく動き、呼びかけへの反応が鈍くなった。'],
+        ['身体所見', '体温 36.6℃。項部硬直はない。'], ['検査所見', '血液検査に新たな異常はない。頭部 CT では、左前頭〜側頭部の梗塞のほかに新しい病変はない。']],
+      eegNote: '脳波検査を行った。記録の一部を示す。',
+      anim: { who: 'old', props: 'bed', loop: 9, steps: [
+        [0, 'drowsy', 'L:家族:昨日から反応が鈍くて', '意識がぼんやりしている。'],
+        [4, 'stare jerkR', '', '右手がぴくぴく動く。']] },
+      spec: { seed: 64, preset: 'hsv', mont: 'bip' }, hl: { t0: 0, t1: 10, el: ['F7', 'T3', 'T5'] },
+      qs: [
+        { q: '脳波所見として正しいのはどれか。', a: ['左側頭部の一側性周期性放電（LPDs）', '全般性の周期性同期性放電（PSD）', '前頭部優位の三相波', '全般性 3Hz 棘徐波複合', 'びまん性徐波だけ'],
+          why: '左の側頭部で、鋭い波が 1〜2 秒ごとにくり返しています。片側だけの周期性放電、LPDs です。' },
+        { q: 'この LPDs の原因として最も考えられるのはどれか。', a: ['急性期の脳梗塞（脳血管障害）', '単純ヘルペス脳炎', 'クロイツフェルト・ヤコブ病', '肝性脳症', '心因性非てんかん性発作'],
+          why: 'LPDs はヘルペス脳炎で有名ですが、脳血管障害や脳腫瘍でもよく出ます。熱や髄膜刺激症状がなく、梗塞と同じ側に出ていれば、まず脳梗塞によるものを考えます。' },
+        { mk: false, q: '対応として適切なのはどれか。2つ選べ。', n: 2, a: ['焦点発作（右手のぴくつき）があるので、抗てんかん薬を検討する', '熱や髄液の異常があれば、ヘルペス脳炎も否定せずに調べる', 'LPDs はヘルペス脳炎に特有なので、すぐに診断を確定する', '脳梗塞の後遺症なので、経過を見るだけでよい', 'せん妄として抗精神病薬で鎮静する'],
+          why: '右手のぴくつきは焦点発作で、LPDs はけいれんを起こしやすい状態を示します。抗てんかん薬を検討します。ヘルペス脳炎は見逃すと重いので、疑わしければ調べます。' }
+      ],
+      sensei: 'LPDs ＝ ヘルペス、と覚えていたら、ここで引っかかる。脳梗塞や脳腫瘍でも出る。熱がなければ脳血管障害をまず考える。でもヘルペスは見逃すと怖いから、否定しきれなければ調べる。' },
+    triboss: {
+      boss: true, title: 'ヤコブ病に見えた男性', card: [],
+      vig: [['患者', '76歳の男性'], ['主訴', '物忘れが急に進む（家族が連れて来院した）'],
+        ['現病歴', '慢性腎不全で、透析を勧められているが断っている。2週間前から急に物忘れが進み、日によってぼんやりしたり、はっきりしたりする。手足がぴくっと動く。'],
+        ['身体所見', '意識はぼんやりしている。手足にミオクローヌスがある。羽ばたき振戦がある。'],
+        ['検査所見', 'BUN 128 mg/dL、クレアチニン 9.8 mg/dL。頭部 MRI の拡散強調画像に異常はない。']],
+      eegNote: '脳波検査を行った。記録の一部を示す。',
+      anim: { who: 'old', props: 'exam', loop: 9, steps: [
+        [0, 'drowsy jerkAll', '', '手足がぴくっと動く（ミオクローヌス）。'],
+        [4.5, 'drowsy', 'L:家族:2週間で急にぼけてしまって', '日によって、意識のはっきりさが変わる。']] },
+      spec: { seed: 65, preset: 'hepatic', mont: 'ref' }, hl: { t0: 0, t1: 10, el: ['Fp1', 'Fp2', 'F3', 'F4', 'Fz'] },
+      qs: [
+        { q: '脳波所見として正しいのはどれか。', a: ['前頭部優位の三相波', '周期性同期性放電（PSD）', '左側頭部の LPDs', '全般性 3Hz 棘徐波複合', '前頭〜中心部の速波'],
+          why: '陰性−陽性−陰性の3相の波が、前頭部優位に1秒に2回ほどくり返しています。三相波です。前の電極から後ろの電極へ、山が少しずつ遅れて出ます。' },
+        { q: '最も考えられる診断はどれか。', a: ['尿毒症性脳症（代謝性脳症）', 'クロイツフェルト・ヤコブ病', 'アルツハイマー型認知症', '単純ヘルペス脳炎', '非けいれん性てんかん重積'],
+          why: '急に進む認知機能の低下とミオクローヌスは、ヤコブ病にも見えます。しかし、高度の腎不全、羽ばたき振戦、意識の変動、三相波、MRI 正常は、尿毒症性脳症を示します。' },
+        { mk: false, q: '正しいのはどれか。2つ選べ。', n: 2, a: ['透析などで腎不全を治療すると、症状も脳波もよくなりうる', '三相波は、腎不全・肝不全・リチウム中毒などの代謝性脳症で出る', 'ミオクローヌスがあるので、ヤコブ病と確定してよい', '三相波は肝性脳症だけに出る', '抗てんかん薬で三相波を消すことが治療である'],
+          why: '三相波は代謝性脳症の所見で、原因を治すと改善しうるのが大事なところです。ヤコブ病と決める前に、治る病気を探します。' }
+      ],
+      sensei: '急に進む認知症＋ミオクローヌス＋周期性の波。ヤコブ病に見えても、まず治る病気を探す。三相波なら代謝の脳症。腎臓・肝臓・電解質・薬。透析で戻る人もいる。' },
+
     self: {
       title: 'まず自分の脳波', card: ['alpha', 'alpha_block'],
       vig: [['登場人物', 'あなた（25歳、精神科1年目）'], ['場面', '検査技師に頼まれて、練習のために自分の脳波をとることになった。頭に電極をつけて、ベッドに座る。'],
@@ -2882,6 +3003,11 @@ body.eegfs #panel.qz-on .mihon-box,body.eegfs #panel.rp-on .mihon-box{display:no
     pnes: 'PNES の診断は、ビデオ脳波が決め手さー。目閉じたまま、左右ばらばら、長い、終わったらすぐ話せる。そして発作中なのにα波が見える。伝え方が治療の始まりだよー。「あんたの発作は本物。でも、てんかんとは別の仕組みさー」ってね。',
     cjd: '急に進む認知症、ミオクローヌス、そして1秒ごとの周期性の波。PSD は、一回見たら忘れんよー。治療できる病気（橋本脳症とか NCSE）見落としてないかも、一緒に確かめようね。',
     cloz: 'クロザピンは「最後の切り札」だけど、けいれんには気をつける薬さー。ミオクローヌスとか脳波の突発波は「ゆっくり行こうね」のサイン。タバコやめたら濃度上がるのも覚えといてね。',
+    artboss: 'アーチファクトを1個ずつ消していったら、残った脳の波は正常だったでしょ？ 異常探す前に「脳じゃない波」を見分ける。これが検査室の総仕上げさー。',
+    wickboss: '鋭い波＝てんかん、じゃないよー。正常亜型知らんかったら、5年も薬飲ませることになるわけよ。診断の中心は、いつも発作の経過さー。',
+    mixboss: 'ゆっくりの波と速い波が一緒なら、「意識下がってる」と「薬効いてる」の合わせ技さー。高齢者の睡眠薬は、せん妄と転倒の常連。足すより引く、が基本ね。',
+    lpdboss: 'LPDs＝ヘルペス、って覚えてたら、ここで引っかかるわけよ。脳梗塞とか脳腫瘍でも出るさー。熱なかったら脳血管障害をまず考えて、でもヘルペスは怖いから否定しきれんかったら調べてね。',
+    triboss: '急に進む認知症＋ミオクローヌス＋周期性の波。ヤコブ病に見えても、まず治る病気探してね。三相波なら代謝の脳症さー。透析で戻る人もいるよー。',
     ect: 'ECT 室では、脳波が「見えない発作」の目になるわけよ。はっきり始まって、はっきり終わって、そのあと静かになる。これがいい発作さー。長すぎたら止めるよー。'
   };
   var OKI_CH = {
@@ -2891,6 +3017,40 @@ body.eegfs #panel.qz-on .mihon-box,body.eegfs #panel.rp-on .mihon-box{display:no
     4: ['当直と救急だよー。夜中に呼ばれる「急な精神症状」「意識障害」「けいれん」。体の病気、特に脳の病気を見落とさんのが当直医の仕事さー。けいれんに見えて、実はてんかんじゃない人もいるからね。', '見えない発作（NCSE）、脳の炎症（ヘルペス、抗NMDA受容体）、脳の電気の異常じゃない発作（PNES）。どれも脳波がないと迷う病気さー。「精神科の病気だはず」って思った時ほど、一回立ち止まろうね。'],
     5: ['最後の章は、もの忘れ外来、クロザピン外来、ECT 室さー。脳波で「見えないもの」を見る場面だよー。', 'これで1年終わりさー、でーじお疲れ！ 正常を知って、アーチファクト見分けて、てんかんと脳症を読み分けて、薬と治療の影響に気づく。脳波は精神科医の「脳を見る窓」だからね。なんくるないさー、ちばりよー！']
   };
+  /* 今日の1問：日付で1症例を選び、その1問目だけを出す。続けた日数を数える */
+  var DAILY_KEY = 'eeg-daily-v1';
+  function ymd(d) { return d.getFullYear() + '-' + (d.getMonth() + 1) + '-' + d.getDate(); }
+  function dayLabel() { var d = new Date(); return (d.getMonth() + 1) + '月' + d.getDate() + '日'; }
+  function dailyKey() { var k = Object.keys(ST_CASES), t = ymd(new Date()), h = 7; for (var i = 0; i < t.length; i++) h = (h * 31 + t.charCodeAt(i)) % 100003; return k[h % k.length]; }
+  function dailyLoad() { try { return JSON.parse(lsGet(DAILY_KEY) || '{}') || {}; } catch (e) { return {}; } }
+  function dailyDone(ok) {
+    var d = dailyLoad(), t = ymd(new Date()), y = new Date(); y.setDate(y.getDate() - 1);
+    if (d.last !== t) { d.days = d.last === ymd(y) ? (d.days || 0) + 1 : 1; d.last = t; }
+    d.ok = ok; lsSet(DAILY_KEY, JSON.stringify(d));
+    if (d.days >= 3) setTimeout(function () { celebrate(T('連続 ' + d.days + ' 日！', d.days + '日連続さー！'), T('毎日つづけています', '毎日ちばってるねー')); }, 900);
+  }
+  function dailyCard() {
+    var d = dailyLoad(), done = d.last === ymd(new Date()), c = ST_CASES[dailyKey()];
+    return '<button type="button" class="st-daily" data-sgo="daily"><span class="st-dh">' + T('今日の1問', '今日の1問さー') + '　' + dayLabel() + '</span><b>' + esc(c.title) + '</b><span class="muted">' + (done ? T('今日はもう解きました（もう一度解けます）', '今日はもう解いたよー（もう一回もできるさー）') : T('1問だけ。毎日つづけると日数が増えます', '1問だけさー。毎日やったら日数が増えるよー')) + (d.days ? T('・連続 ', '・連続 ') + d.days + T(' 日', ' 日') : '') + '</span></button>';
+  }
+  /* 秘伝カード：各章のボス症例を、実践レベルで全問正解すると手に入る */
+  var HIDEN = [['検査室の主', 'アーチファクトだらけの記録から、正常を見つけ出した'], ['外来の目利き', '正常亜型を読みすぎず、5年の薬を見直した'], ['リエゾンの達人', '徐波と速波の合わせ技を見抜いた'], ['当直の守り神', 'LPDs をヘルペスと決めつけなかった'], ['脳波の窓をひらく者', 'ヤコブ病に見えた治る病気を見つけた']];
+  var HKEY = 'eeg-hiden-v1';
+  function hidenLoad() { try { return JSON.parse(lsGet(HKEY) || '{}') || {}; } catch (e) { return {}; } }
+  function hidenGet(n) { var h = hidenLoad(); var isNew = !h[n]; h[n] = 1; lsSet(HKEY, JSON.stringify(h)); return true; }
+  /* お祝いの演出（ボス撃破・称号アップ・連続日数）。沖縄版ではシーサーが踊る */
+  var celeT = 0;
+  function celebrate(title, sub) {
+    var el = document.getElementById('cele'); if (!el) return;
+    var art = el.querySelector('.cele-art');
+    art.innerHTML = OKI ? document.querySelector('#shisa svg').outerHTML : '<svg viewBox="0 0 100 100"><polygon points="50,4 61,36 96,36 68,57 79,92 50,71 21,92 32,57 4,36 39,36" fill="#ffc93c" stroke="#c98a12" stroke-width="3" stroke-linejoin="round"/></svg>';
+    el.querySelector('.cele-t').textContent = title; el.querySelector('.cele-s').textContent = sub || '';
+    var cf = el.querySelector('.confetti'), cols = ['#e0457b', '#0a8c9c', '#ffc93c', '#2a7a55', '#f39b47'], h = '';
+    for (var i = 0; i < 28; i++) h += '<span style="left:' + (Math.random() * 100).toFixed(1) + '%;background:' + cols[i % 5] + ';animation-delay:' + (Math.random() * 0.6).toFixed(2) + 's;animation-duration:' + (1.6 + Math.random()).toFixed(2) + 's"></span>';
+    cf.innerHTML = h;
+    el.hidden = false; el.classList.remove('go'); void el.offsetWidth; el.classList.add('go');
+    clearTimeout(celeT); celeT = setTimeout(function () { el.hidden = true; }, 3200);
+  }
   var STORY_KEY = 'eeg-story-v1';
   function stLoad() { try { return JSON.parse(lsGet(STORY_KEY) || '{}') || {}; } catch (e) { return {}; } }
   function stSave(o) { lsSet(STORY_KEY, JSON.stringify(o)); }
@@ -2956,8 +3116,13 @@ body.eegfs #panel.qz-on .mihon-box,body.eegfs #panel.rp-on .mihon-box{display:no
   }
   function vigHTML(c) { return '<dl class="vig">' + c.vig.map(function (r) { return '<dt>' + esc(r[0]) + '</dt><dd>' + esc(r[1]) + '</dd>'; }).join('') + '</dl>'; }
   function animHTML() { return '<figure class="st-anim" id="stAnim">' + ANIM_SVG + '<figcaption><span class="st-cap-h">症状の様子（再現イラスト）</span><span class="st-capt" id="stCap"></span></figcaption></figure>'; }
-  function stCase() { var ch = ST_CH[SQ.ch - 1]; return ST_CASES[ch.cases[SQ.ci]]; }
-  function stHead(sub) { var ch = ST_CH[SQ.ch - 1]; return '<div class="ph"><h2 id="panelH" tabindex="-1">' + sub + '</h2><span class="prog">ストーリー ・ 第' + ch.n + '章 ' + esc(ch.t) + (SQ.ph !== 'chin' && SQ.ph !== 'chout' ? ' ・ 症例 ' + (SQ.ci + 1) + ' / ' + ch.cases.length : '') + '</span></div>'; }
+  function stKey() { return SQ.daily ? SQ.dkey : ST_CH[SQ.ch - 1].cases[SQ.ci]; }
+  function stCase() { return ST_CASES[stKey()]; }
+  function stHead(sub) {
+    var ch = ST_CH[SQ.ch - 1], inCase = SQ.ph === 'case' || SQ.ph === 'eeg', boss = inCase && stCase().boss;
+    if (boss) sub = '<span class="boss-tag">★ ' + T('ボス症例', 'ボス症例さー') + '</span>' + sub;
+    if (SQ.daily) return '<div class="ph"><h2 id="panelH" tabindex="-1">' + sub + '</h2><span class="prog">' + T('今日の1問', '今日の1問さー') + ' ・ ' + dayLabel() + '</span></div>';
+    return '<div class="ph"><h2 id="panelH" tabindex="-1">' + sub + '</h2><span class="prog">ストーリー ・ 第' + ch.n + '章 ' + esc(ch.t) + (SQ.ph !== 'chin' && SQ.ph !== 'chout' ? ' ・ 症例 ' + (SQ.ci + 1) + ' / ' + ch.cases.length : '') + '</span></div>'; }
   function senseiHTML(t) { return '<div class="sensei"><span class="sensei-n">指導医</span><p>' + esc(t) + '</p></div>'; }
   function stOpts(q, qi) {
     var p = SQ.picks[qi], order = SQ.opt[qi], multi = q.n > 1, done = p !== null;
@@ -2974,8 +3139,9 @@ body.eegfs #panel.qz-on .mihon-box,body.eegfs #panel.rp-on .mihon-box{display:no
     var html = '', ch = ST_CH[SQ.ch - 1], c;
     if (SQ.ph === 'menu') {
       var sv = stLoad();
-      html = '<div class="ph"><h2 id="panelH" tabindex="-1">' + T('ストーリー　新人医師の1年', 'ストーリー　新人ドクターの1年') + '</h2><span class="prog">全5章・18症例</span></div>' +
+      html = '<div class="ph"><h2 id="panelH" tabindex="-1">' + T('ストーリー　新人医師の1年', 'ストーリー　新人ドクターの1年') + '</h2><span class="prog">全5章・23症例（ボス5）</span></div>' +
         '<p class="story">' + T('あなたは精神科に入った1年目の医師。指導医と一緒に、外来・病棟・当直で出会う人たちの脳波を読んでいきます。症例は医師国家試験の臨床問題の形で出ます。全部の章を終えると、図鑑の脳波をひととおり経験できます。', 'あんたは精神科に入ったばっかりの1年目。指導医と一緒に、外来・病棟・当直で会う人たちの脳波を読んでいくよー。症例は国試の臨床問題の形で出るさー。全部の章終わったら、図鑑の脳波をひととおり経験できるからね。ちばりよー！') + '</p>' +
+        dailyCard() +
         '<ol class="st-ch">' + ST_CH.map(function (x) { var ok = x.cases.length > 0, dn = ok && x.cases.every(function (k) { return sv[k] != null; });
           return '<li><button type="button" class="st-chb" data-sch="' + x.n + '"' + (ok ? '' : ' disabled') + '><span class="st-chn">第' + x.n + '章</span><b>' + esc(x.t) + '</b><span class="muted">' + esc(x.d) + '</span><span class="st-chs">' + (ok ? (dn ? 'クリア' : x.cases.filter(function (k) { return sv[k] != null; }).length + ' / ' + x.cases.length + '症例') : '準備中') + '</span></button></li>'; }).join('') + '</ol>' +
         '<div class="st-reset"><span class="muted">成績のリセット</span><button type="button" class="ghost" data-sgo="reset1">ストーリーの成績だけ</button><button type="button" class="ghost" data-sgo="resetAll">すべて（図鑑・自己ベストも）</button><p class="muted" id="stResetMsg" aria-live="polite"></p></div>';
@@ -2990,13 +3156,17 @@ body.eegfs #panel.qz-on .mihon-box,body.eegfs #panel.rp-on .mihon-box{display:no
       html = stHead(esc(c.title)) + '<details class="st-again"><summary>症状の動画をもう一度見る</summary>' + vigHTML(c) + animHTML() + '</details>' +
         '<p class="st-eegnote">' + esc(c.eegNote) + '</p>';
       c.qs.forEach(function (q, qi) {
-        if (qi > SQ.qi) return; var p = SQ.picks[qi];
+        if (qi > SQ.qi || (SQ.daily && qi > 0)) return; var p = SQ.picks[qi];
         html += '<h3 class="qh" id="sqh' + qi + '" tabindex="-1"><span class="qn">問' + (qi + 1) + '</span><span>' + esc(q.q) + '</span></h3>' + stOpts(q, qi);
-        if (p !== null) html += '<div class="why"><p><b>' + (stRight(q, p) ? T('正解。', '上等！') : T('正解は「', 'あいえなー、正解は「') + (q.n > 1 ? q.a.slice(0, q.n).join('」と「') : q.a[0]) + T('」。', '」さー。')) + '</b>' + esc(q.why) + '</p>' + markTip(qMark(c, q, qi), 'data-smk="' + qi + '"') + nextHint(c.qs[qi + 1], qi + 1, 'sqh') + '</div>';
+        if (p !== null) html += '<div class="why"><p><b>' + (stRight(q, p) ? T('正解。', '上等！') : T('正解は「', 'あいえなー、正解は「') + (q.n > 1 ? q.a.slice(0, q.n).join('」と「') : q.a[0]) + T('」。', '」さー。')) + '</b>' + esc(q.why) + '</p>' + markTip(qMark(c, q, qi), 'data-smk="' + qi + '"') + (SQ.daily ? '' : nextHint(c.qs[qi + 1], qi + 1, 'sqh')) + '</div>';
       });
-      if (SQ.qi >= c.qs.length) {
+      if (SQ.daily && SQ.picks[0] !== null) {
+        var dd = dailyLoad();
+        html += senseiHTML(T('今日の1問、おつかれさま。明日もまた1問。毎日ちょっとずつが、いちばん力になる。', '今日の1問、おつかれさまー。明日もまた1問ね。毎日ちょっとずつが一番力になるさー。')) +
+          '<p class="st-score">' + T('連続 ', '連続 ') + dd.days + T(' 日', ' 日目さー') + '</p><div class="row"><button type="button" class="btn" data-sgo="menu">' + T('ストーリーへ戻る', 'ストーリーに戻るよー') + '</button></div>';
+      } else if (SQ.qi >= c.qs.length) {
         var r = SQ.picks.filter(function (p, i) { return stRight(c.qs[i], p); }).length;
-        html += senseiHTML(T(c.sensei, OKI_SENSEI[ch.cases[SQ.ci]])) + '<p class="st-score">' + T('この症例：', 'この症例：') + r + ' / ' + c.qs.length + T(' 問正解', ' 問、上等さー') + '</p><button type="button" class="btn" data-sgo="next">' + (SQ.ci === ch.cases.length - 1 ? T('章のまとめへ', 'まとめ聞いてね') : T('次の症例へ', '次の人いくよー')) + '</button>';
+        html += senseiHTML(T(c.sensei, OKI_SENSEI[stKey()])) + '<p class="st-score">' + T('この症例：', 'この症例：') + r + ' / ' + c.qs.length + T(' 問正解', ' 問、上等さー') + '</p><button type="button" class="btn" data-sgo="next">' + (SQ.ci === ch.cases.length - 1 ? T('章のまとめへ', 'まとめ聞いてね') : T('次の症例へ', '次の人いくよー')) + '</button>';
       }
     } else if (SQ.ph === 'chout') {
       var sv2 = stLoad(), tot = 0, rr = 0;
@@ -3015,7 +3185,7 @@ body.eegfs #panel.qz-on .mihon-box,body.eegfs #panel.rp-on .mihon-box{display:no
   function stVigSync() {
     var on = V.mode === 'story' && SQ.ph === 'eeg', box = document.getElementById('stVigBox'), was = document.body.classList.contains('stvig');
     if (on) {
-      var c = stCase(), key = SQ.ch + '-' + SQ.ci;
+      var c = stCase(), key = SQ.daily ? 'd-' + SQ.dkey : SQ.ch + '-' + SQ.ci;
       if (box.getAttribute('data-k') !== key) { box.setAttribute('data-k', key); box.innerHTML = '<p class="st-vh">症例　' + esc(c.title) + '</p>' + vigHTML(c) + '<p class="st-eegnote">' + esc(c.eegNote) + '</p>'; box.scrollTop = 0; }
       var mini = document.getElementById('stAnimMini');
       if (mini.getAttribute('data-k') !== key) { mini.setAttribute('data-k', key); mini.innerHTML = ANIM_SVG + '<figcaption class="st-capt"></figcaption>'; }
@@ -3039,10 +3209,17 @@ body.eegfs #panel.qz-on .mihon-box,body.eegfs #panel.rp-on .mihon-box{display:no
     var c = stCase(), q = c.qs[SQ.qi]; SQ.picks[SQ.qi] = p; SQ.sel = [];
     V.hl = qMark(c, q, SQ.qi); draw(); updateHead(); stVigAuto(); stamp(stRight(q, p));
     var qi = SQ.qi; SQ.qi++;
-    if (SQ.qi >= c.qs.length) {
+    if (SQ.daily) { dailyDone(stRight(q, p)); SQ.qi = c.qs.length; }
+    else if (SQ.qi >= c.qs.length) {
       var r = SQ.picks.filter(function (pp, i) { return stRight(c.qs[i], pp); }).length, sv = stLoad();
-      sv[ST_CH[SQ.ch - 1].cases[SQ.ci]] = r; stSave(sv);
+      sv[stKey()] = r; stSave(sv);
       c.card.forEach(function (id, j) { setTimeout(function () { unlock(id, r >= 2 ? (V.real ? 3 : 2) : 1); }, 600 + j * 1600); });
+      if (c.boss) setTimeout(function () {
+        if (r === c.qs.length) {
+          var got = V.real && hidenGet(SQ.ch);
+          celebrate(T('ボス撃破！', 'ボス倒したさー！'), got ? T('秘伝カード「', '秘伝カード「') + HIDEN[SQ.ch - 1][0] + T('」を手に入れました', '」ゲットさー！') : T('実践レベルで全問正解すると、秘伝カードが手に入ります', '実践レベルで全問正解したら、秘伝カードもらえるよー'));
+        } else toast('<b>' + T('ボス、もう一歩！', 'ボス、あと一歩さー！') + '</b><br>' + T('全問正解で撃破です', '全問正解で倒せるよー'));
+      }, 900);
     }
     renderStory(); var h = document.getElementById('sqh' + qi); if (h) h.focus({ preventScroll: true });
     var w = panel.querySelectorAll('.why'); w = w[w.length - 1]; if (w && w.scrollIntoView) w.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
@@ -3050,7 +3227,8 @@ body.eegfs #panel.qz-on .mihon-box,body.eegfs #panel.rp-on .mihon-box{display:no
   panel.addEventListener('click', function (e) {
     if (V.mode !== 'story') return;
     var b = e.target.closest('button'); if (!b) return;
-    var ch = b.getAttribute('data-sch'); if (ch) { SQ.ch = +ch; SQ.ci = 0; stGo('chin'); return; }
+    var ch = b.getAttribute('data-sch'); if (ch) { SQ.daily = false; SQ.ch = +ch; SQ.ci = 0; stGo('chin'); return; }
+    if (b.getAttribute('data-sgo') === 'daily') { SQ.daily = true; SQ.dkey = dailyKey(); stStartCase(); return; }
     var smk = b.getAttribute('data-smk');
     if (smk != null) { var cq = stCase(); V.hl = qMark(cq, cq.qs[+smk], +smk); draw(); updateHead(); stVigAuto(); var dk = document.querySelector('.desk'); if (dk && !isFs()) dk.scrollIntoView({ block: 'start', behavior: 'smooth' }); return; }
     var sa = b.getAttribute('data-sa');
@@ -3078,7 +3256,7 @@ body.eegfs #panel.qz-on .mihon-box,body.eegfs #panel.rp-on .mihon-box{display:no
       else if (!isFs()) { var dk = document.querySelector('.desk'); if (dk) dk.scrollIntoView({ block: 'start', behavior: 'smooth' }); }
     }
     else if (go === 'next') { if (SQ.ci < ST_CH[SQ.ch - 1].cases.length - 1) { SQ.ci++; stStartCase(); } else { setPage(ZK_DEFAULT_SPEC); stGo('chout'); } }
-    else if (go === 'menu') { setPage(ZK_DEFAULT_SPEC); stGo('menu'); }
+    else if (go === 'menu') { SQ.daily = false; setPage(ZK_DEFAULT_SPEC); stGo('menu'); }
     else if (go === 'again') { SQ.ci = 0; stGo('chin'); }
   });
   panel.addEventListener('toggle', function (e) { if (V.mode === 'story' && e.target.matches && e.target.matches('details.st-again') && e.target.open) storyAnimRun(stCase()); }, true);
@@ -3137,6 +3315,7 @@ body.eegfs #panel.qz-on .mihon-box,body.eegfs #panel.rp-on .mihon-box{display:no
     var before = titleOf(zkPts())[1];
     ZK[id] = tier; lsSet(ZKEY, JSON.stringify(ZK));
     var after = titleOf(zkPts())[1];
+    if (after !== before) setTimeout(function () { celebrate(T('称号アップ！', '称号アップさー！'), '「' + after + '」'); }, 1200);
     toast('<b>' + (cur ? T('カードが ', 'カードが ') + TIER[tier] + T(' に上がりました', ' に上がったよー') : T('図鑑に加わりました', '図鑑に入ったよー')) + '</b><br>' + esc(c.name) + '（' + TIER[tier] + '）' + (after !== before ? '<br>称号が「' + esc(after) + '」になりました' : ''));
     syncZkTab();
     if (V.mode === 'zukan') renderZukan();
@@ -3178,6 +3357,11 @@ body.eegfs #panel.qz-on .mihon-box,body.eegfs #panel.rp-on .mihon-box{display:no
       x2.fillText(label, LW - 4, yc); x2.textBaseline = 'alphabetic';
     });
   }
+  function hidenHTML() {
+    var h = hidenLoad();
+    return '<div class="hiden"><h3>' + T('秘伝カード', '秘伝カードさー') + ' <small>' + Object.keys(h).length + ' / 5　' + T('各章のボス症例を、実践レベルで全問正解すると手に入ります', '各章のボス症例を、実践レベルで全問正解したらもらえるよー') + '</small></h3><div class="hiden-g">' +
+      HIDEN.map(function (x, i) { var got = h[i + 1]; return '<div class="hiden-c' + (got ? ' got' : '') + '"><b>' + (got ? esc(x[0]) + '' : '？？？') + '</b><span>' + (got ? esc(x[1]) : '第' + (i + 1) + '章のボスを倒すと…') + '</span></div>'; }).join('') + '</div></div>';
+  }
   function renderZukan() {
     var pts = zkPts(), tt = titleOf(pts), nx = nextTitle(pts), max = CARDS.length * 3;
     var html = '<div class="ph"><h2 id="panelH" tabindex="-1">脳波図鑑</h2><span class="prog">' + zkCount() + ' / ' + CARDS.length + ' 枚</span></div>' +
@@ -3192,6 +3376,7 @@ body.eegfs #panel.qz-on .mihon-box,body.eegfs #panel.rp-on .mihon-box{display:no
         return '<li><button type="button" class="zk-card t' + tier + '" data-card="' + c.id + '"><span class="zk-badge">' + TIER[tier] + '</span><canvas class="zk-mini" data-mini="' + c.id + '" aria-hidden="true"></canvas><span class="zk-name">' + esc(c.name) + '</span><span class="zk-feat">' + esc(c.feat) + '</span></button></li>';
       }).join('') + '</ul>';
     });
+    html += hidenHTML();
     panel.innerHTML = html;
     panel.querySelectorAll('canvas[data-mini]').forEach(function (cnv) { var id = cnv.getAttribute('data-mini'); drawMini(cnv, CARD_BY[id], ZK[id] === 3); });
   }
@@ -3315,7 +3500,7 @@ body.eegfs #panel.qz-on .mihon-box,body.eegfs #panel.rp-on .mihon-box{display:no
   function shisaSync(W0) {
     var el = document.getElementById('shisa');
     if (!OKI || !mkPos) { el.hidden = true; return; }
-    var w = 100, h = 88, left = mkPos.cx + mkPos.rx * 0.75, top = mkPos.cy - mkPos.ry - h + 10, flip = false;
+    var w = 104, h = 100, left = mkPos.cx + mkPos.rx * 0.75, top = mkPos.cy - mkPos.ry - h + 10, flip = false;
     if (left + w > W0 - 4) { left = mkPos.cx - mkPos.rx * 0.75 - w; flip = true; }
     if (top < 4) top = mkPos.cy + mkPos.ry - 10;
     el.style.left = Math.max(2, left) + 'px'; el.style.top = top + 'px'; el.classList.toggle('flip', flip);
