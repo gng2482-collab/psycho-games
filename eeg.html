@@ -334,6 +334,28 @@ body.stvig .st-vigbox .vig dt{margin-top:3px} body.stvig .st-vigbox .vig dd{line
 body.stvig .st-vigbox .st-eegnote{font-size:var(--fs-xs)}
 body.stvig #panel .st-again>.vig{display:none}
 body.stvig #panel .st-again summary::after{content:'（症例の文は頭の図の横に出ています）';color:var(--muted);font-size:var(--fs-xs)}
+.st-mini{display:none;margin:0}
+body.stvig .st-mini{display:grid;gap:2px;width:100%}
+body.stvig .st-mini .pt{border-radius:6px}
+body.stvig .st-mini .st-capt{font-size:10.5px;line-height:1.45;color:var(--ink);min-height:3em}
+body.stvig #panel .st-again{display:none}
+@media (orientation:landscape){
+  body.eegfs.stvig .desk-side #head{grid-column:1;grid-row:1}
+  body.eegfs.stvig .st-mini{grid-column:1;grid-row:2}
+  body.eegfs.stvig .st-vigbox{grid-column:2;grid-row:1 / span 2;max-height:52vh}
+}
+/* iPad：全画面ボタンを目立たせる */
+@media (pointer:coarse){
+  #fsBtn[aria-pressed="false"]{background:var(--accent);color:var(--accent-ink);border-color:var(--accent);font-weight:700;padding-inline:16px;animation:fsPulse 2s ease-in-out 3}
+}
+@keyframes fsPulse{0%,100%{box-shadow:0 0 0 0 color-mix(in srgb,var(--accent) 60%,transparent)}50%{box-shadow:0 0 0 8px color-mix(in srgb,var(--accent) 0%,transparent)}}
+.fs-tip{display:none}
+@media (pointer:coarse){
+  body:not(.eegfs) .fs-tip:not([hidden]){display:flex;flex-wrap:wrap;gap:8px 12px;align-items:center;margin-top:12px;padding:10px 14px;border:2px solid var(--accent);border-radius:var(--r);background:color-mix(in srgb,var(--accent) 8%,var(--panel));font-size:var(--fs-s)}
+}
+.fs-tip p{margin:0;flex:1 1 20em}
+.fs-tip .btn{min-height:44px}
+.fs-tip .fs-x{font:inherit;font-size:var(--fs-xs);background:none;border:0;color:var(--muted);text-decoration:underline;cursor:pointer;min-height:44px}
 .mk-btn{min-height:30px;padding:2px 10px;margin-left:8px;font-size:var(--fs-xs)}
 .st-reset{display:flex;flex-wrap:wrap;gap:8px;align-items:center;border-top:1px dashed var(--line);padding-top:10px;font-size:var(--fs-s)}
 .st-reset p{flex-basis:100%;margin:0}
@@ -576,6 +598,7 @@ body.eegfs #panel.qz-on .mihon-box,body.eegfs #panel.rp-on .mihon-box{display:no
     <p class="note">実践では、波が1つずつ不規則になり、問題と関係のないまばたき・筋電図・汗・電極のはずれも混じります。実践で正解すると、図鑑のカードが金色になります。</p>
   </div>
 
+  <div class="fs-tip" id="fsTip" hidden><p><b>iPad では全画面がおすすめです。</b>脳波・頭の図・問題が1画面に並び、指での操作もしやすくなります。</p><button type="button" class="btn" id="fsTipGo">⛶ 全画面にする</button><button type="button" class="fs-x" id="fsTipX">今後は表示しない</button></div>
   <section id="panel"></section>
 
   <section class="desk" aria-label="脳波計">
@@ -603,6 +626,7 @@ body.eegfs #panel.qz-on .mihon-box,body.eegfs #panel.rp-on .mihon-box{display:no
     </div>
     <aside class="desk-side" aria-label="頭の図（10-20法）">
       <svg id="head" viewBox="-1.3 -1.24 2.6 2.48" role="group" aria-label="電極の配置"></svg>
+      <figure class="st-mini" id="stAnimMini"></figure>
       <aside class="st-vigbox" id="stVigBox" aria-label="症例の提示"></aside>
       <div class="side-info" id="sideInfo" aria-live="polite" hidden>
         <div class="si-top">
@@ -2812,22 +2836,27 @@ body.eegfs #panel.qz-on .mihon-box,body.eegfs #panel.rp-on .mihon-box{display:no
   var stT = [], stOn = false;
   function storyAnimStop() { stT.forEach(clearTimeout); stT = []; stOn = false; }
   function wrapSay(s) { var M = 12; if (s.length <= M || (s.length === M + 1 && /[？。、…！]$/.test(s))) return [s, '']; var k = s.lastIndexOf('、', M - 1); if (k < 3) k = s.lastIndexOf('。', M - 1); var c = k >= 3 ? k + 1 : M; return [s.slice(0, c), s.slice(c, c + M)]; }
+  // 症状の動画：問題欄の大きい絵（#stAnim）と、頭の図の下の小さい絵（#stAnimMini）を同時に動かす
+  function animBoxes() { return ['stAnim', 'stAnimMini'].map(function (id) { return document.getElementById(id); }).filter(function (b) { return b && b.querySelector('svg') && (b.id !== 'stAnimMini' || document.body.classList.contains('stvig')); }); }
   function storyAnimRun(c) {
-    storyAnimStop(); var box = document.getElementById('stAnim'); if (!box) return;
-    var svg = box.querySelector('svg'), cap = document.getElementById('stCap'), A = c.anim; stOn = true;
+    storyAnimStop(); if (!animBoxes().length) return;
+    var A = c.anim; stOn = true;
     var pc = 'pt ' + A.props.split(' ').map(function (x) { return 'props-' + x; }).join(' ') + (A.who ? ' ' + A.who : '');
-    svg.setAttribute('class', pc);
+    animBoxes().forEach(function (b) { b.querySelector('svg').setAttribute('class', pc); });
     function step(s) {
-      if (!document.getElementById('stAnim')) { storyAnimStop(); return; }
-      svg.setAttribute('class', pc + (s[1] ? ' ' + s[1] : '') + (s[2] ? ' bub-' + s[2][0] : ''));
-      if (s[2]) { var p = s[2].split(':'), g = svg.querySelector(p[0] === 'L' ? '.p-bubL' : '.p-bubR'); g.querySelector('.p-who').textContent = p[1]; var ln = wrapSay(p.slice(2).join(':')), ts = g.querySelectorAll('tspan'); ts[0].textContent = ln[0]; ts[1].textContent = ln[1]; }
-      cap.textContent = s[3];
+      var bs = animBoxes(); if (!bs.length) { storyAnimStop(); return; }
+      bs.forEach(function (b) {
+        var svg = b.querySelector('svg'), cap = b.querySelector('.st-capt');
+        svg.setAttribute('class', pc + (s[1] ? ' ' + s[1] : '') + (s[2] ? ' bub-' + s[2][0] : ''));
+        if (s[2]) { var p = s[2].split(':'), g = svg.querySelector(p[0] === 'L' ? '.p-bubL' : '.p-bubR'); g.querySelector('.p-who').textContent = p[1]; var ln = wrapSay(p.slice(2).join(':')), ts = g.querySelectorAll('tspan'); ts[0].textContent = ln[0]; ts[1].textContent = ln[1]; }
+        if (cap) cap.textContent = s[3];
+      });
     }
     function cycle() { A.steps.forEach(function (s) { stT.push(setTimeout(function () { step(s); }, s[0] * 1000)); }); stT.push(setTimeout(cycle, A.loop * 1000)); }
     cycle();
   }
   function vigHTML(c) { return '<dl class="vig">' + c.vig.map(function (r) { return '<dt>' + esc(r[0]) + '</dt><dd>' + esc(r[1]) + '</dd>'; }).join('') + '</dl>'; }
-  function animHTML() { return '<figure class="st-anim" id="stAnim">' + ANIM_SVG + '<figcaption><span class="st-cap-h">症状の様子（再現イラスト）</span><span id="stCap"></span></figcaption></figure>'; }
+  function animHTML() { return '<figure class="st-anim" id="stAnim">' + ANIM_SVG + '<figcaption><span class="st-cap-h">症状の様子（再現イラスト）</span><span class="st-capt" id="stCap"></span></figcaption></figure>'; }
   function stCase() { var ch = ST_CH[SQ.ch - 1]; return ST_CASES[ch.cases[SQ.ci]]; }
   function stHead(sub) { var ch = ST_CH[SQ.ch - 1]; return '<div class="ph"><h2 id="panelH" tabindex="-1">' + sub + '</h2><span class="prog">ストーリー ・ 第' + ch.n + '章 ' + esc(ch.t) + (SQ.ph !== 'chin' && SQ.ph !== 'chout' ? ' ・ 症例 ' + (SQ.ci + 1) + ' / ' + ch.cases.length : '') + '</span></div>'; }
   function senseiHTML(t) { return '<div class="sensei"><span class="sensei-n">指導医</span><p>' + esc(t) + '</p></div>'; }
@@ -2879,7 +2908,7 @@ body.eegfs #panel.qz-on .mihon-box,body.eegfs #panel.rp-on .mihon-box{display:no
     }
     panel.innerHTML = html;
     stVigSync();
-    if (SQ.ph === 'case' || (SQ.ph === 'eeg' && document.getElementById('stAnim'))) storyAnimRun(stCase()); else storyAnimStop();
+    if (SQ.ph === 'case' || SQ.ph === 'eeg') storyAnimRun(stCase()); else storyAnimStop();
     if (focus) { var h = document.getElementById('panelH'); if (h) h.focus({ preventScroll: true }); }
     draw();
   }
@@ -2889,7 +2918,9 @@ body.eegfs #panel.qz-on .mihon-box,body.eegfs #panel.rp-on .mihon-box{display:no
     if (on) {
       var c = stCase(), key = SQ.ch + '-' + SQ.ci;
       if (box.getAttribute('data-k') !== key) { box.setAttribute('data-k', key); box.innerHTML = '<p class="st-vh">症例　' + esc(c.title) + '</p>' + vigHTML(c) + '<p class="st-eegnote">' + esc(c.eegNote) + '</p>'; box.scrollTop = 0; }
-    } else box.removeAttribute('data-k');
+      var mini = document.getElementById('stAnimMini');
+      if (mini.getAttribute('data-k') !== key) { mini.setAttribute('data-k', key); mini.innerHTML = ANIM_SVG + '<figcaption class="st-capt"></figcaption>'; }
+    } else { box.removeAttribute('data-k'); document.getElementById('stAnimMini').removeAttribute('data-k'); }
     document.body.classList.toggle('stvig', on);
     if (on !== was) requestAnimationFrame(function () { sideHSync(); draw(); });
   }
@@ -3129,13 +3160,25 @@ body.eegfs #panel.qz-on .mihon-box,body.eegfs #panel.rp-on .mihon-box{display:no
   function isFs() { return document.body.classList.contains('eegfs'); }
   function syncFs() {
     var on = isFs();
-    fsBtn.textContent = on ? '全画面を終了' : '全画面'; fsBtn.setAttribute('aria-pressed', on ? 'true' : 'false');
+    fsBtn.textContent = on ? '全画面を終了' : (coarse ? '⛶ 全画面にする' : '全画面'); fsBtn.setAttribute('aria-pressed', on ? 'true' : 'false');
     var hide = document.body.classList.contains('panelhide');
     fsPanelBtn.textContent = hide ? '問題を出す' : '問題を隠す'; fsPanelBtn.setAttribute('aria-pressed', hide ? 'false' : 'true');
     if (on && !hide) document.documentElement.style.setProperty('--ph', panel.offsetHeight + 'px');
     if (on) requestAnimationFrame(sideHSync);
     requestAnimationFrame(function () { draw(); });
   }
+  var coarse = !!(window.matchMedia && matchMedia('(pointer:coarse)').matches);
+  if (coarse) fsBtn.textContent = '⛶ 全画面にする';
+  // iPad で開いたら、全画面をすすめる案内を出す（閉じたら次からは出さない）
+  (function () {
+    var tip = document.getElementById('fsTip'); if (!tip) return;
+    if (!coarse || lsGet('eeg-fstip') === 'no') { tip.hidden = true; return; }
+    tip.hidden = false;
+    tip.addEventListener('click', function (e) {
+      if (e.target.closest('#fsTipGo')) { setFs(true); }
+      else if (e.target.closest('#fsTipX')) { tip.hidden = true; lsSet('eeg-fstip', 'no'); }
+    });
+  })();
   function sideHSync() { var side = document.querySelector('.desk-side'); if (isFs() && side) document.documentElement.style.setProperty('--sideH', Math.round(side.getBoundingClientRect().bottom + 8) + 'px'); }
   function setFs(on) {
     document.body.classList.toggle('eegfs', on);
