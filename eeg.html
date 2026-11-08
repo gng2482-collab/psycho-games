@@ -381,9 +381,10 @@ body.stvig #panel .st-again{display:none}
 }
 /* iPad：全画面ボタンを目立たせる */
 @media (pointer:coarse){
-  #fsBtn[aria-pressed="false"]{background:var(--accent);color:var(--accent-ink);border-color:var(--accent);font-weight:700;padding-inline:16px;animation:fsPulse 2s ease-in-out 3}
+
 }
 @keyframes fsPulse{0%,100%{box-shadow:0 0 0 0 color-mix(in srgb,var(--accent) 60%,transparent)}50%{box-shadow:0 0 0 8px color-mix(in srgb,var(--accent) 0%,transparent)}}
+#fsBtn[aria-pressed="false"]{background:var(--accent);color:var(--accent-ink);border-color:var(--accent);font-weight:700;padding-inline:16px;animation:fsPulse 2s ease-in-out 3}
 .fs-tip{display:none}
 @media (pointer:coarse){
   body:not(.eegfs) .fs-tip:not([hidden]){display:flex;flex-wrap:wrap;gap:8px 12px;align-items:center;margin-top:12px;padding:10px 14px;border:2px solid var(--accent);border-radius:var(--r);background:color-mix(in srgb,var(--accent) 8%,var(--panel));font-size:var(--fs-s)}
@@ -1886,7 +1887,7 @@ body.eegfs #panel.qz-on .mihon-box,body.eegfs #panel.rp-on .mihon-box{display:no
       case 'photic': st.photic = val; sim.set(t, 'photic', val); ann(val ? '光 ' + val + 'Hz' : '光 終了'); explain(val ? 'ph' : 'ph0'); break;
       case 'sleep': st.sleep = val; sim.set(t, 'sleep', val); if (val) { st.eo = 0; sim.set(t, 'eo', 0); } ann(['覚醒', 'N1', 'N2'][val]); explain('s' + val); break;
       case 'pop': sim.events.push(mkEv('pop', t, { e: 'C4', amp: -170 })); ann('C4 浮く'); explain('pop'); break;
-      case 'hum': L.flags.hum = !L.flags.hum; sim.bg.hum = L.flags.hum ? { e: 'O2', amp: 22, f: 50 } : null; explain(L.flags.hum ? 'hum1' : 'hum0'); break;
+      case 'hum': L.flags.hum = !L.flags.hum; sim.bg.hum = L.flags.hum ? { e: 'O2', amp: 48, f: 50 } : null; explain(L.flags.hum ? 'hum1' : 'hum0'); break;
       case 'ecg': L.flags.ecg = !L.flags.ecg; sim.bg.ecgArt = L.flags.ecg ? 34 : 0; explain(L.flags.ecg ? 'ecg1' : 'ecg0');
         // A1 を使わない双極導出では見えないので、見える基準導出に切り替える
         if (L.flags.ecg && V.mont !== 'ref') { V.mont = 'ref'; V.sel = -1; syncToolbar(); updateHead(); toast('<b>' + T('基準導出（耳朶）に切り替えました', '基準導出に切り替えたよー') + '</b><br>' + T('左の耳朶 A1 に入った心電図は、双極導出ではほとんど見えません。上の「導出」で比べてみてください', 'A1 に入った心電図は、双極だとほとんど見えんさー。「導出」で比べてみてね')); }
@@ -3896,7 +3897,7 @@ body.eegfs #panel.qz-on .mihon-box,body.eegfs #panel.rp-on .mihon-box{display:no
   var HIDE_OPT = lsGet('eeg-hideopt') === '1', REVEAL = {};
   function gate(key, pick, html) {
     if (!HIDE_OPT || (pick !== null && pick !== undefined) || REVEAL[key]) return html;
-    return '<div class="reveal-box"><button type="button" class="btn reveal-opts" data-reveal="' + key + '">' + T('考えたら、選択肢を出す', '考えたら、選択肢出してね') + '</button><span class="muted">' + T('上級：まず脳波を見て、自分の答えを決めてから', '上級さー：まず脳波見て、自分の答え決めてからね') + '</span></div>';
+    return '<div class="reveal-box"><button type="button" class="btn reveal-opts" data-reveal="' + key + '">' + T('考えたら、選択肢を出す', '考えたら、選択肢出してね') + '</button></div>';
   }
   function syncHo() { document.querySelectorAll('#hoSeg button').forEach(function (b) { b.setAttribute('aria-pressed', String((b.getAttribute('data-ho') === '1') === HIDE_OPT)); }); }
   document.getElementById('hoSeg').addEventListener('click', function (e) { var b = e.target.closest('button'); if (!b) return; HIDE_OPT = b.getAttribute('data-ho') === '1'; lsSet('eeg-hideopt', HIDE_OPT ? '1' : '0'); syncHo(); rerender(); });
@@ -3975,7 +3976,7 @@ body.eegfs #panel.qz-on .mihon-box,body.eegfs #panel.rp-on .mihon-box{display:no
   function isFs() { return document.body.classList.contains('eegfs'); }
   function syncFs() {
     var on = isFs();
-    fsBtn.textContent = on ? '全画面を終了' : (coarse ? '⛶ 全画面にする' : '全画面'); fsBtn.setAttribute('aria-pressed', on ? 'true' : 'false');
+    fsBtn.textContent = on ? '全画面を終了' : '⛶ 全画面にする'; fsBtn.setAttribute('aria-pressed', on ? 'true' : 'false');
     var hide = document.body.classList.contains('panelhide');
     fsPanelBtn.textContent = hide ? '問題を出す' : '問題を隠す'; fsPanelBtn.setAttribute('aria-pressed', hide ? 'false' : 'true');
     if (on && !hide) document.documentElement.style.setProperty('--ph', panel.offsetHeight + 'px');
@@ -3983,7 +3984,7 @@ body.eegfs #panel.qz-on .mihon-box,body.eegfs #panel.rp-on .mihon-box{display:no
     requestAnimationFrame(function () { draw(); });
   }
   var coarse = !!(window.matchMedia && matchMedia('(pointer:coarse)').matches);
-  if (coarse) fsBtn.textContent = '⛶ 全画面にする';
+  fsBtn.textContent = '⛶ 全画面にする';
   // iPad で開いたら、全画面をすすめる案内を出す（閉じたら次からは出さない）
   (function () {
     var tip = document.getElementById('fsTip'); if (!tip) return;
