@@ -117,16 +117,17 @@ h1{font-family:var(--f-display); font-weight:400; margin:0; font-size:clamp(2.1r
 .rule-anim .ra-chip{animation:raChip 6s steps(1) infinite} .rule-anim .ra-chip.c2{animation-delay:2s} .rule-anim .ra-chip.c3{animation-delay:4s}
 @keyframes raChip{0%{opacity:1}33.3%{opacity:.35}100%{opacity:.35}}
 @media (prefers-reduced-motion:reduce){.rule-anim *{animation:none!important;stroke-dashoffset:0!important;opacity:1!important}}
-.bandbox{margin-top:18px;display:grid;gap:6px;border:1px solid var(--line);border-radius:var(--r);background:var(--panel);padding:12px 14px}
-.bandbox h2{margin:0;font-family:var(--f-display);font-weight:400;font-size:var(--fs-l)}
-.bandbox h2 small{font-family:var(--f-body);font-size:var(--fs-xs);color:var(--muted);margin-left:8px}
-.band-scale{margin:0;font-size:var(--fs-xs);color:var(--muted)}
+.primer-grid{display:grid;grid-template-columns:minmax(0,1fr) clamp(200px,20vw,250px);gap:14px;align-items:start}
+.primer-l{display:grid;gap:12px;min-width:0}
+@media (max-width:900px){.primer-grid{grid-template-columns:minmax(0,1fr)}}
+.bandbox{display:grid;gap:4px;border:1px solid var(--line);border-radius:var(--r);background:var(--panel);padding:8px 10px}
+.bandbox h2{margin:0;font-family:var(--f-display);font-weight:400;font-size:var(--fs-m)}
+.bandbox h2 small{font-family:var(--f-body);font-size:var(--fs-xs);color:var(--muted);margin-left:6px}
+.band-scale{margin:0;font-size:10.5px;color:var(--muted);line-height:1.45}
 .bands{display:grid;gap:0}
-.band{display:grid;grid-template-columns:7.5em minmax(0,1fr) minmax(0,15em);gap:4px 12px;align-items:center;border-top:1px solid var(--line);padding:6px 0}
-.band .bn{font-family:var(--f-mono);font-weight:700;display:grid} .band .bn small{font-family:var(--f-body);font-weight:400;font-size:var(--fs-xs);color:var(--muted)}
+.band{display:grid;grid-template-columns:4.6em minmax(0,1fr);gap:0 6px;align-items:center;border-top:1px solid var(--line);padding:3px 0}
+.band .bn{font-family:var(--f-mono);font-weight:700;font-size:var(--fs-s);display:grid;line-height:1.2} .band .bn small{font-family:var(--f-body);font-weight:400;font-size:10px;color:var(--muted)}
 .band canvas{width:100%;display:block}
-.band .bf{font-size:var(--fs-xs);color:var(--ink);line-height:1.5}
-@media (max-width:700px){.band{grid-template-columns:6.5em minmax(0,1fr)} .band .bf{grid-column:1/-1}}
 body.eegfs .bandbox{display:none}
 @media (max-width:820px){ .rules{grid-template-columns:repeat(2, minmax(0,1fr))} }
 @media (max-width:520px){ .rules{grid-template-columns:minmax(0,1fr)} .bands{grid-template-columns:repeat(2, minmax(0,1fr))} }
@@ -138,6 +139,13 @@ body.eegfs .bandbox{display:none}
   border:1px solid var(--line); border-radius:var(--r); padding:8px 12px; display:grid; gap:0; min-height:48px; text-decoration:none;
 }
 .mode:hover{border-color:var(--accent)}
+.modes-cap{margin:18px 0 0;font-size:var(--fs-s);color:var(--ink)} .modes-cap b{color:var(--accent)}
+.modes{margin-top:8px!important}
+.mode{position:relative;padding-right:20px;box-shadow:0 2px 0 var(--line);transition:transform .12s,box-shadow .12s}
+.mode::after{content:'▶';position:absolute;right:7px;top:50%;transform:translateY(-50%);font-size:12px;color:var(--accent);opacity:.8}
+.mode:hover{transform:translateY(-1px);box-shadow:0 4px 0 var(--line)}
+.mode:active{transform:translateY(1px);box-shadow:0 0 0 var(--line)}
+.mode[aria-current="page"]::after{content:'●';font-size:10px}
 .mode[aria-current="page"]{border-color:var(--accent); box-shadow:inset 0 0 0 1px var(--accent); background:var(--accent-soft)}
 .mode .mt{font-family:var(--f-display); font-size:var(--fs-l); letter-spacing:.04em}
 .mode .ms{font-size:var(--fs-xs); color:var(--muted)}
@@ -292,7 +300,7 @@ select{
 .fsonly{display:none}
 /* 全画面（脳波計の前に座ったつもりで）：記録紙を画面いっぱいに、問題は左下に浮かせる */
 body.eegfs{overflow:hidden}
-body.eegfs .top,body.eegfs .primer,body.eegfs .modes,body.eegfs .level,body.eegfs .foot{display:none}
+body.eegfs .top,body.eegfs .primer,body.eegfs .modes,body.eegfs .modes-cap,body.eegfs .level,body.eegfs .foot{display:none}
 body.eegfs .fsonly{display:inline-flex}
 body.eegfs .desk{position:fixed;inset:0;z-index:15;margin:0;background:var(--paper);
   padding:calc(6px + env(safe-area-inset-top,0px)) max(8px,env(safe-area-inset-right,0px)) calc(6px + env(safe-area-inset-bottom,0px)) max(8px,env(safe-area-inset-left,0px));
@@ -595,6 +603,8 @@ body.eegfs #panel.qz-on .mihon-box,body.eegfs #panel.rp-on .mihon-box{display:no
   </header>
 
   <section class="primer" aria-labelledby="prh">
+    <div class="primer-grid">
+    <div class="primer-l">
     <h2 id="prh">読む前の4つの約束</h2>
     <ol class="rules">
       <li><b><span class="n">約束1</span> 1本の線は「差」</b>脳波の1本は、2つの電極の電位の差です。<code>F3−C3</code> は「F3 から C3 を引いた値」。線をタップすると、どの2つかを頭の図に出します。<svg class="rule-anim" id="ra1" viewBox="0 0 240 88" role="img" aria-label="約束1の図"></svg></li>
@@ -602,13 +612,16 @@ body.eegfs #panel.qz-on .mihon-box,body.eegfs #panel.rp-on .mihon-box{display:no
       <li><b><span class="n">約束3</span> 向かい合ったら焦点</b>双極導出で、となり合う2本が逆向きに振れて向かい合ったら（位相逆転）、2本が共有する電極が焦点です。<svg class="rule-anim" id="ra3" viewBox="0 0 240 88" role="img" aria-label="約束3の図"></svg></li>
       <li><b><span class="n">約束4</span> 読む順番</b>①目を閉じた後頭部のα波 ②左右差 ③突発的な波。いきなり異常を探さず、背景から読みます。<svg class="rule-anim" id="ra4" viewBox="0 0 240 88" role="img" aria-label="約束4の図"></svg></li>
     </ol>
-  </section>
-  <section class="bandbox" aria-labelledby="bdh">
-    <h2 id="bdh">脳波の4つの波 <small>周波数（1秒に何回）で分ける。上の約束とは別の話です</small></h2>
-    <p class="band-scale" id="bandScale"></p>
-    <div class="bands" id="bands"></div>
+    </div>
+    <aside class="bandbox" aria-labelledby="bdh">
+      <h2 id="bdh">4つの波 <small>周波数で分ける</small></h2>
+      <div class="bands" id="bands"></div>
+      <p class="band-scale" id="bandScale"></p>
+    </aside>
+    </div>
   </section>
 
+  <p class="modes-cap">▼ ここを押して始めます。<b>本編</b>はストーリーを順に、<b>練習</b>は好きなところから。</p>
   <nav class="modes" aria-label="モード">
     <a class="mode mode-story" href="#story" data-mode="story"><span class="mg">本編</span><span class="mt">ストーリー</span><span class="ms">新人医師の1年。章を順に進める</span></a>
     <a class="mode" href="#lab" data-mode="lab"><span class="mg">練習</span><span class="mt">触ってみる</span><span class="ms">目を開ける・眠る・光をあてる</span></a>
@@ -2215,7 +2228,7 @@ body.eegfs #panel.qz-on .mihon-box,body.eegfs #panel.rp-on .mihon-box{display:no
   function markTip(m, attr) {
     if (!m) return '';
     if (m.nomark) return '<p class="tip">この問いは脳波の場所の問題ではないので、赤丸は消しています（黄色の帯は残します）。</p>';
-    return '<p class="tip">赤丸と黄色の帯が、見るところです。<button type="button" class="ghost mk-btn" ' + attr + '>この問いの赤丸を出す</button></p>';
+    return '<p class="tip">赤丸と黄色の帯が、見るところです。</p>';
   }
   function optsHTML(a, order, pick) {
     return '<ol class="opts">' + order.map(function (ai, pos) {
@@ -3207,12 +3220,12 @@ body.eegfs #panel.qz-on .mihon-box,body.eegfs #panel.rp-on .mihon-box{display:no
   })();
   // 周波数の4つの波：記録紙と同じ縮尺（いまの感度と、1秒の幅）で描く
   var BANDROWS = [['δ デルタ', '4Hz 未満', 2, 100, '深い睡眠。起きている成人で多ければ異常（意識障害など）'], ['θ シータ', '4〜8Hz 未満', 6, 50, '浅い睡眠・子ども。起きている成人で多ければ異常'], ['α アルファ', '8〜13Hz', 10, 50, '安静・閉眼・覚醒で後頭部に出る。開眼で抑制される'], ['β ベータ', '13Hz より速い', 20, 15, '精神活動・開眼。ベンゾジアゼピンなどの薬で増える']];
-  document.getElementById('bands').innerHTML = BANDROWS.map(function (b, i) { return '<div class="band"><span class="bn">' + b[0] + '<small>' + b[1] + '・約' + b[3] + 'µV</small></span><canvas data-bi="' + i + '" aria-hidden="true"></canvas><span class="bf">' + b[4] + '</span></div>'; }).join('');
+  document.getElementById('bands').innerHTML = BANDROWS.map(function (b, i) { return '<div class="band" title="' + b[4] + '"><span class="bn">' + b[0].split(' ')[0] + '<small>' + b[1].replace(' 未満', '未満').replace('より速い', '〜') + '</small></span><canvas data-bi="' + i + '" aria-hidden="true"></canvas></div>'; }).join('');
   var bandKey = '';
   function bandsSync(pps, k) {
     var box = document.getElementById('bands'); if (!BANDROWS || !box || !box.offsetParent || !box.querySelector('canvas')) return;
     var key = Math.round(pps) + '|' + k.toFixed(4) + '|' + box.clientWidth; if (key === bandKey) return; bandKey = key;
-    document.getElementById('bandScale').textContent = '下の記録紙と同じ縮尺で描いています（感度 ' + V.sens + 'µV/mm、縦線の間が1秒）。大きさは、よく出るおおよその値です。';
+    document.getElementById('bandScale').textContent = '記録紙と同じ縮尺（感度 ' + V.sens + 'µV/mm・縦線の間が1秒）。大きさは目安：δ100・θ50・α50・β15µV';
     box.querySelectorAll('canvas[data-bi]').forEach(function (cv2) {
       var b = BANDROWS[+cv2.getAttribute('data-bi')], W0 = cv2.clientWidth || 300, amp = b[3] / 2 * k, H0 = Math.max(26, Math.ceil(amp * 2 + 10)), dpr = Math.min(window.devicePixelRatio || 1, 2);
       cv2.width = Math.round(W0 * dpr); cv2.height = Math.round(H0 * dpr); cv2.style.height = H0 + 'px';
