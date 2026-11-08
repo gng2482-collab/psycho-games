@@ -137,7 +137,8 @@ body.eegfs .bandbox{display:none}
 @media (max-width:520px){ .rules{grid-template-columns:minmax(0,1fr)} .bands{grid-template-columns:repeat(2, minmax(0,1fr))} }
 
 /* モード */
-.modes{margin-top:26px; display:grid; grid-template-columns:repeat(4, minmax(0,1fr)); gap:8px}
+.modes{margin-top:26px; display:grid; grid-template-columns:repeat(20, minmax(0,1fr)); gap:8px}
+.modes .mode{grid-column:span 4} .modes .mode-hon,.modes .mode-zk{grid-column:span 5}
 .mode{
   font:inherit; text-align:left; cursor:pointer; color:var(--ink); background:var(--panel);
   border:1px solid var(--line); border-radius:var(--r); padding:8px 12px; display:grid; gap:0; min-height:48px; text-decoration:none;
@@ -157,7 +158,7 @@ body.eegfs .bandbox{display:none}
 .mode-story .mg{color:var(--accent)}
 .mode-sen{border-color:#b98a2a} .mode-sen .mg{color:#a06d12}
 .mode .mt{white-space:nowrap}
-@media (max-width:820px){ .modes{grid-template-columns:repeat(2, minmax(0,1fr))} }
+@media (max-width:820px){ .modes{grid-template-columns:repeat(2, minmax(0,1fr))} .modes .mode,.modes .mode-hon,.modes .mode-zk{grid-column:auto} }
 .level{margin-top:10px; display:flex; flex-wrap:wrap; gap:6px 12px; align-items:center}
 .level .lb{font-size:var(--fs-xs); color:var(--muted); letter-spacing:.08em}
 .level .note{font-size:var(--fs-xs); color:var(--muted); max-width:46em; flex:1 1 20em}
@@ -432,6 +433,7 @@ body.stvig #panel .st-again{display:none}
 .hiden-c{display:grid;gap:2px;padding:8px 10px;border:1px dashed var(--line);border-radius:var(--r);background:var(--paper);font-size:var(--fs-xs);color:var(--muted)}
 .hiden-c b{font-size:var(--fs-s);color:var(--muted)}
 .hiden-c.got{border:2px solid #c98a12;background:linear-gradient(135deg,#fff6d6,#ffe39a);color:#5a4200} .hiden-c.got b{color:#7a5500}
+.fs-tip{} body.elecmode .desk,body.elecmode #mihonSec{display:none!important}
 .el-grid{display:grid;grid-template-columns:minmax(0,360px) minmax(0,1fr);gap:16px;align-items:start}
 @media (max-width:700px){.el-grid{grid-template-columns:minmax(0,1fr)}}
 .el-headwrap svg{width:100%;height:auto;display:block}
@@ -442,6 +444,29 @@ body.stvig #panel .st-again{display:none}
 .el-dict{font-size:var(--fs-s);border:1px solid var(--line);border-radius:var(--r);background:var(--paper);padding:6px 10px}
 .el-dict summary{cursor:pointer;font-weight:700;color:var(--accent)} .el-dict ul{margin:6px 0 0;padding-left:1.2em;display:grid;gap:4px}
 body.eegfs .el-grid{grid-template-columns:minmax(0,1fr)}
+/* 沖縄版：背景を海に（空→浅い海→深い海）。明るい表示と暗い表示で色を変える */
+:root.oki body{background:linear-gradient(180deg,#e9f9ff 0,#c4ecf6 260px,#8fd9ea 560px,#4fbcd8 900px,#239bc0 1400px,#12709a 2200px,#0d5a80 100%) no-repeat,#0d5a80;}
+:root.oki body::before{content:'';position:absolute;left:0;right:0;top:530px;height:46px;pointer-events:none;opacity:.55;
+  background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='46'%3E%3Cpath d='M0 30 Q20 18 40 30 T80 30 T120 30 T160 30' fill='none' stroke='%23ffffff' stroke-width='3'/%3E%3Cpath d='M0 40 Q20 30 40 40 T80 40 T120 40 T160 40' fill='none' stroke='%23ffffff' stroke-width='2' opacity='.6'/%3E%3C/svg%3E") repeat-x}
+:root.oki .top,:root.oki .primer,:root.oki .modes-cap,:root.oki .level{position:relative}
+@media (prefers-color-scheme: dark){ :root.oki:not([data-theme="light"]) body{background:linear-gradient(180deg,#0c2533 0,#0b3044 700px,#0a3a52 1400px,#062436 100%) no-repeat,#062436} }
+:root.oki[data-theme="dark"] body{background:linear-gradient(180deg,#0c2533 0,#0b3044 700px,#0a3a52 1400px,#062436 100%) no-repeat,#062436}
+.pr-toggle{display:none;font:inherit;font-size:var(--fs-xs);margin-left:10px;min-height:32px;padding:2px 12px;border:1px solid var(--accent);border-radius:999px;background:var(--panel);color:var(--accent);cursor:pointer;vertical-align:middle}
+@media (max-width:700px){
+  .pr-toggle{display:inline-block}
+  .primer:not(.open) .rules,.primer:not(.open) .bandbox{display:none}
+}
+.hossa{margin-top:14px;display:grid;gap:6px} .hossa h3{margin:0;font-size:var(--fs-m)} .hossa h3 small{font-size:var(--fs-xs);color:var(--muted);font-weight:400;margin-left:6px}
+.hs-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:8px}
+.hs-card{font:inherit;text-align:left;cursor:pointer;display:grid;gap:3px;align-content:start;padding:6px;border:1px solid var(--line);border-radius:var(--r);background:var(--paper);color:var(--ink);font-size:var(--fs-xs);line-height:1.5}
+.hs-card:hover{border-color:var(--accent)} .hs-card.hs-playing{border-color:var(--hot);box-shadow:inset 0 0 0 1px var(--hot)}
+.hs-card b{font-size:var(--fs-s)} .hs-ilae{color:var(--accent)} .hs-eeg{color:var(--muted)}
+.hs-fig{position:relative} .hs-fig .st-capt{display:none;font-size:10.5px;min-height:3em;color:var(--ink)} .hs-playing .hs-fig .st-capt{display:block}
+.hs-play{position:absolute;right:6px;top:6px;font-size:11px;font-weight:700;color:#fff;background:var(--accent);border-radius:999px;padding:1px 8px} .hs-playing .hs-play{background:var(--hot)}
+.hq-grid{display:grid;grid-template-columns:minmax(0,420px) minmax(0,1fr);gap:16px;align-items:start}
+@media (max-width:760px){.hq-grid{grid-template-columns:minmax(0,1fr)}}
+.hq-fig{margin:0;display:grid;gap:4px} .hq-fig .st-capt{font-size:var(--fs-s);min-height:3em}
+.hq-side{display:grid;gap:10px}
 .mk-btn{min-height:30px;padding:2px 10px;margin-left:8px;font-size:var(--fs-xs)}
 .st-reset{display:flex;flex-wrap:wrap;gap:8px;align-items:center;border-top:1px dashed var(--line);padding-top:10px;font-size:var(--fs-s)}
 .st-reset p{flex-basis:100%;margin:0}
@@ -555,6 +580,21 @@ body.eegfs .el-grid{grid-template-columns:minmax(0,1fr)}
 .pt.tilt .p-head{transform:rotate(-13deg)}
 .pt.zzz .p-zzz{display:inline} .pt.zzz .p-zzz text{animation:pZ 2.4s ease-in-out infinite} .pt.zzz .p-zzz text:nth-child(2){animation-delay:.4s} .pt.zzz .p-zzz text:nth-child(3){animation-delay:.8s}
 @keyframes pZ{0%{opacity:0}40%{opacity:1}100%{opacity:0}}
+/* 発作の動き */
+.pt.tonic .p-armR{transform:rotate(100deg)} .pt.tonic .p-armL{transform:rotate(-100deg)} .pt.tonic .p-head{transform:rotate(-5deg) translateY(-2px)}
+.pt.tonic .p-mouth{display:none} .pt.tonic .p-m1,.pt.tonic .p-brow{display:inline} .pt.tonic .p-person{animation:pShiver .12s linear infinite}
+@keyframes pShiver{0%,100%{translate:0 0}50%{translate:.6px 0}}
+.pt.clonic .p-armR{transform:rotate(55deg);animation:pCloR .34s ease-in-out infinite} .pt.clonic .p-armL{transform:rotate(-55deg);animation:pCloL .34s ease-in-out infinite}
+@keyframes pCloR{50%{rotate:-30deg}} @keyframes pCloL{50%{rotate:30deg}}
+.pt.clonic .p-head{animation:pCloH .34s ease-in-out infinite} @keyframes pCloH{50%{translate:0 3px}}
+.pt.clonic .p-mouth{display:none} .pt.clonic .p-m1{display:inline}
+.pt.atonic .p-person{animation:pAton 1.8s ease-in 1 forwards} @keyframes pAton{0%{transform:none}14%,100%{transform:translateY(30px) rotate(5deg)}}
+.pt.atonic .p-head{animation:pAtonH 1.8s ease-in 1 forwards} @keyframes pAtonH{0%{transform:none}14%,100%{transform:rotate(16deg)}}
+.pt.spasm .p-armR{animation:pSpR 2.6s ease-out infinite} .pt.spasm .p-armL{animation:pSpL 2.6s ease-out infinite} .pt.spasm .p-head{animation:pSpH 2.6s ease-out infinite}
+@keyframes pSpR{0%,25%,100%{rotate:0deg}6%{rotate:-70deg}} @keyframes pSpL{0%,25%,100%{rotate:0deg}6%{rotate:70deg}} @keyframes pSpH{0%,25%,100%{rotate:0deg}6%{rotate:12deg}}
+.pt.faint .p-person{animation:pFaint 2.6s ease-in 1 forwards} @keyframes pFaint{0%{transform:none}70%,100%{transform:translate(-14px,30px) rotate(-16deg)}}
+.pt.faint .p-skin,.pt.faint .p-hand{fill:#efe9df} .pt.faint .p-blush{opacity:0}
+.pt.eyesup .p-eyeIn{transform:translateY(-2.5px)}
 @media (prefers-reduced-motion:reduce){.pt *{animation-duration:1.5s!important}}
 
 .side-info p{margin:0}
@@ -662,7 +702,7 @@ body.eegfs #panel.qz-on .mihon-box,body.eegfs #panel.rp-on .mihon-box{display:no
   <section class="primer" aria-labelledby="prh">
     <div class="primer-grid">
     <div class="primer-l">
-    <h2 id="prh" data-oki="読む前に、4つだけ約束さー">読む前の4つの約束</h2>
+    <h2 id="prh"><span data-oki="読む前に、4つだけ約束さー">読む前の4つの約束</span><button type="button" class="pr-toggle" id="prToggle" aria-expanded="false">ひらく ▼</button></h2>
     <ol class="rules">
       <li><b><span class="n">約束1</span> 1本の線は「差」</b>脳波の1本は、2つの電極の電位の差です。<code>F3−C3</code> は「F3 から C3 を引いた値」。線をタップすると、どの2つかを頭の図に出します。<svg class="rule-anim" id="ra1" viewBox="0 0 240 88" role="img" aria-label="約束1の図"></svg></li>
       <li><b><span class="n">約束2</span> 上向きがマイナス</b>脳波はマイナス（陰性）を上に描きます。脳の表面の棘波はたいていマイナスなので、上向きに振れます。<svg class="rule-anim" id="ra2" viewBox="0 0 240 88" role="img" aria-label="約束2の図"></svg></li>
@@ -687,6 +727,7 @@ body.eegfs #panel.qz-on .mihon-box,body.eegfs #panel.rp-on .mihon-box{display:no
     <a class="mode" href="#lab" data-mode="lab"><span class="mg">練習</span><span class="mt">触ってみる</span><span class="ms" data-oki="目開けたり、眠ったり、光あててみて">目を開ける・眠る・光をあてる</span></a>
     <a class="mode" href="#elec" data-mode="elec"><span class="mg">練習</span><span class="mt">電極つけ練習</span><span class="ms" data-oki="検査技師になって電極つけるよー">検査技師になって 10-20法</span></a>
     <a class="mode" href="#dojo" data-mode="dojo"><span class="mg">練習</span><span class="mt">波形道場</span><span class="ms" data-oki="波の名前当ててみて 12問">波の名前を当てる 12問</span></a>
+    <a class="mode" href="#hossa" data-mode="hossa"><span class="mg">練習</span><span class="mt">発作当てクイズ</span><span class="ms" data-oki="動き見て発作の名前当てるよー">動きを見て名前を当てる</span></a>
     <a class="mode" href="#hunter" data-mode="hunter"><span class="mg">練習</span><span class="mt">位相逆転ハンター</span><span class="ms" data-oki="焦点の電極さがすよー 10回">焦点の電極を探す 10回</span></a>
   </nav>
   <div class="level" role="group" aria-labelledby="lvh">
@@ -2280,7 +2321,7 @@ body.eegfs #panel.qz-on .mihon-box,body.eegfs #panel.rp-on .mihon-box{display:no
   ];
 
   var Q = { dojo: null, conf: null, hunter: null, sen: null };
-  var BEST = { dojo: 'eeg-dojo-best', conf: 'eeg-conf-best', hunter: 'eeg-hunter-best', sen: 'eeg-sen-best', elec: 'eeg-elec-best' };
+  var BEST = { dojo: 'eeg-dojo-best', conf: 'eeg-conf-best', hunter: 'eeg-hunter-best', sen: 'eeg-sen-best', elec: 'eeg-elec-best', hossa: 'eeg-hossa-best' };
   function rankOf(p) { return p >= 90 ? 'S' : p >= 75 ? 'A' : p >= 60 ? 'B' : p >= 40 ? 'C' : 'D'; }
 
   // 解説の下に、次の問題文を出す（次があることに気づけるように）。押すとその問題へ動く
@@ -2582,6 +2623,86 @@ body.eegfs #panel.qz-on .mihon-box,body.eegfs #panel.rp-on .mihon-box{display:no
     else if (b.getAttribute('data-go') === 'again') { EQ = newElec(); renderElec(); }
   });
 
+
+  /* ====================== 9f. 発作の図鑑と、発作当てクイズ ====================== */
+  var HOSSA = [
+    { id: 'gtcs', name: '強直間代発作', ilae: '全般起始・運動・強直間代', desc: '強直期（全身が急にこわばる。叫び声のような声）→ 間代期（手足を左右対称にリズムよくガクガク）→ 発作後のもうろうと睡眠。舌の側面をかむ、尿失禁も。', eeg: '発作中は筋電図で埋もれやすい。終わると全般性の抑制と徐波。',
+      anim: { props: 'sofa', loop: 12, steps: [[0, '', '', '座ってテレビを見ている。'], [1.5, 'tonic stare eyesup', 'R:本人:うっ…', '強直期：急に全身がこわばり、声が出る。'], [4.5, 'clonic stare eyesup', '', '間代期：手足を左右対称に、リズムよくガクガクと動かす。'], [8.5, 'drowsy tilt', '', '発作のあと：ぐったりして、もうろうと眠る。']] } },
+    { id: 'absence', name: '定型欠神発作', ilae: '全般起始・非運動・欠神', desc: '数秒間、急に動きが止まって意識が途切れ、急に戻る。まぶたが細かくぴくつくことも。1日に何回も。', eeg: '全般性 3Hz 棘徐波複合。過呼吸で誘発されやすい。', anim: 'absence' },
+    { id: 'myoclonic', name: 'ミオクロニー発作', ilae: '全般起始・運動・ミオクロニー', desc: '一瞬の「ピクッ」。両腕に多く、持っている物を落とす。意識は保たれる。起きてすぐに多い。', eeg: '全般性の多棘徐波。光刺激で誘発されやすい。', anim: 'jme' },
+    { id: 'tonic', name: '強直発作', ilae: '全般起始・運動・強直', desc: '体が数秒〜数十秒こわばって固まる。眠っているときに多い（Lennox-Gastaut 症候群など）。', eeg: '全般性の速い律動（10〜20Hz）。',
+      anim: { props: 'bed', loop: 8, steps: [[0, 'closed', '', '眠っている。'], [1.5, 'tonic stare eyesup', '', '強直発作：両腕を上げて、体がこわばったまま固まる。'], [5.5, 'closed drowsy', '', '十数秒で終わり、また眠る。']] } },
+    { id: 'atonic', name: '脱力発作', ilae: '全般起始・運動・脱力', desc: '一瞬で筋肉の力が抜け、頭や体がガクッと落ちる。転倒してけがをしやすい（保護帽を使うことも）。', eeg: '全般性の多棘徐波や遅棘徐波。',
+      anim: { props: 'exam', loop: 7, steps: [[0, '', '', '座っている。'], [1.5, 'atonic closed', '', '脱力発作：一瞬で力が抜けて、頭と体がガクッと落ちる。'], [4, '', '', 'すぐに起き上がる。']] } },
+    { id: 'spasm', name: 'てんかん性スパズム', ilae: '起始不明（全般など）・運動・てんかん性スパズム', desc: '体と腕を一瞬ぎゅっと曲げる（または伸ばす）。数秒〜数十秒ごとに、何回も続けて（シリーズで）起きる。乳児に多い（West 症候群）。', eeg: '発作のない時期はヒプスアリスミア（高振幅で無秩序な徐波と棘波）。',
+      anim: { who: 'child', props: 'bed', loop: 9, steps: [[0, '', '', '目が覚めたところ。'], [1, 'spasm', '', 'てんかん性スパズム：腕を上げて体を一瞬曲げる。数秒ごとにくり返す（シリーズ）。']] } },
+    { id: 'focalaware', name: '焦点意識保持発作（運動）', ilae: '焦点起始・意識保持・運動', desc: '片側の手や顔がぴくぴくする。意識ははっきりしていて、発作のことを覚えている。', eeg: '反対側の中心部の棘波や律動波（頭皮上で見えないことも多い）。',
+      anim: { props: 'exam', loop: 8, steps: [[0, '', '', '座って話している。'], [1.5, 'jerkR', 'R:本人:また右手が勝手に…', '焦点意識保持発作：右手だけがぴくぴく動く。意識ははっきりしている。'], [6.5, '', '', '1分ほどで止まる。']] } },
+    { id: 'focalimpaired', name: '焦点意識減損発作（側頭葉）', ilae: '焦点起始・意識減損・自動症', desc: '前兆（上腹部の上昇感など）→ 一点凝視、口をもぐもぐ（口部自動症）、手で服をまさぐる → 発作後のもうろう。1分前後。', eeg: '発作のない時期は前側頭部の棘波。発作時は律動的なθ波。', anim: 'tle' },
+    { id: 'pnes', name: '心因性非てんかん性発作（PNES）', ilae: 'てんかん発作ではない', desc: '目を固く閉じる、手足や頭を左右ばらばらに振る、長く続く、終わるとすぐに話せる。', eeg: 'ビデオ脳波で、発作中も α 波などの正常な背景が保たれる。', anim: 'pnes' },
+    { id: 'syncope', name: '失神（反射性）', ilae: 'てんかん発作ではない', desc: '立ちくらみや冷や汗のあと、顔色が悪くなって倒れ、数秒で意識が戻る。短いけいれんが出ることもある。もうろうは短い。', eeg: '発作のない時期の脳波は正常。',
+      anim: { props: 'exam', loop: 8, steps: [[0, '', 'R:本人:なんだか気持ち悪い…', '長く立っていて、気分が悪くなる。'], [2, 'faint closed', '', '顔色が悪くなり、ふっと倒れる。'], [5.5, '', '', '数秒で意識が戻る。もうろうは短い。']] } }
+  ];
+  function hsAnim(h) { return typeof h.anim === 'string' ? ST_CASES[h.anim].anim : h.anim; }
+  var hsT = [];
+  function hsStop() { hsT.forEach(clearTimeout); hsT = []; document.querySelectorAll('.hs-playing').forEach(function (x) { x.classList.remove('hs-playing'); }); }
+  function animOn(box, A) {
+    var svg = box.querySelector('svg'), cap = box.querySelector('.st-capt');
+    var pc = 'pt ' + A.props.split(' ').map(function (x) { return 'props-' + x; }).join(' ') + (A.who ? ' ' + A.who : '');
+    function step(st) {
+      svg.setAttribute('class', pc + (st[1] ? ' ' + st[1] : '') + (st[2] ? ' bub-' + st[2][0] : ''));
+      if (st[2]) { var q = st[2].split(':'), g = svg.querySelector(q[0] === 'L' ? '.p-bubL' : '.p-bubR'); g.querySelector('.p-who').textContent = q[1]; var ln = wrapSay(q.slice(2).join(':')), ts = g.querySelectorAll('tspan'); ts[0].textContent = ln[0]; ts[1].textContent = ln[1]; }
+      if (cap) cap.textContent = st[3];
+    }
+    function cycle() { A.steps.forEach(function (st) { hsT.push(setTimeout(function () { step(st); }, st[0] * 1000)); }); hsT.push(setTimeout(cycle, A.loop * 1000)); }
+    cycle();
+  }
+  function hossaHTML() {
+    return '<div class="hossa"><h3>' + T('発作の図鑑', '発作の図鑑さー') + ' <small>' + T('押すと動きます。動きを見て、名前と脳波を結びつけよう', '押したら動くよー。動きと名前と脳波をセットで覚えようね') + '</small></h3><div class="hs-grid">' +
+      HOSSA.map(function (h) { return '<button type="button" class="hs-card" data-hs="' + h.id + '"><div class="hs-fig">' + ANIM_SVG + '<span class="hs-play">▶ 再生</span><span class="st-capt"></span></div><b>' + esc(h.name) + '</b><span class="hs-ilae">' + esc(h.ilae) + '</span><span>' + esc(h.desc) + '</span><span class="hs-eeg">脳波：' + esc(h.eeg) + '</span></button>'; }).join('') + '</div></div>';
+  }
+  function hossaInit() {
+    panel.querySelectorAll('.hs-card').forEach(function (c) { var h = HOSSA.filter(function (x) { return x.id === c.getAttribute('data-hs'); })[0], A = hsAnim(h); c.querySelector('svg').setAttribute('class', 'pt ' + A.props.split(' ').map(function (x) { return 'props-' + x; }).join(' ') + (A.who ? ' ' + A.who : '')); });
+  }
+  function hossaPlay(card) {
+    var on = card.classList.contains('hs-playing'); hsStop(); if (on) return;
+    var h = HOSSA.filter(function (x) { return x.id === card.getAttribute('data-hs'); })[0];
+    card.classList.add('hs-playing'); animOn(card.querySelector('.hs-fig'), hsAnim(h));
+  }
+  // 発作当てクイズ：動きを見て発作の名前を当てる
+  var HQ = null;
+  function newHossaQ() { var o = shuffled(HOSSA.length); return { list: o, i: 0, pick: o.map(function () { return null; }), opt: o.map(function (k) { var others = shuffled(HOSSA.length).filter(function (j) { return j !== k; }).slice(0, 4); return shuffled(5).map(function (j) { return j === 0 ? k : others[j - 1]; }); }) }; }
+  function renderHossaQ() {
+    hsStop();
+    var S = HQ;
+    if (S.i >= S.list.length) {
+      var right = S.pick.filter(function (p, i) { return p === S.list[i]; }).length;
+      var log = S.list.map(function (k, i) { return '<li>' + (S.pick[i] === k ? '○ ' : '<span class="x">✗ </span>') + esc(HOSSA[k].name) + '</li>'; }).join('');
+      panel.innerHTML = resultHTML('hossa', right, S.list.length, log, '発作当てクイズの結果');
+      return;
+    }
+    var k = S.list[S.i], h = HOSSA[k], p = S.pick[S.i];
+    var html = '<div class="ph"><h2 id="panelH" tabindex="-1">' + T('発作当てクイズ', '発作当てクイズさー') + '</h2><span class="prog">' + T('動きを見て、発作の名前を当てる', '動き見て、発作の名前当ててね') + ' ・ ' + (S.i + 1) + ' / ' + S.list.length + '</span></div>' +
+      '<div class="hq-grid"><figure class="hq-fig" id="hqFig">' + ANIM_SVG + '<figcaption class="st-capt"></figcaption></figure><div class="hq-side">' +
+      '<h3 class="qh"><span class="qn">問</span><span>' + T('この発作の名前はどれか。', 'この発作、なんていう？') + '</span></h3><ol class="opts st-opts">' +
+      S.opt[S.i].map(function (j, pos) { var cls = '', tag = ''; if (p !== null) { if (j === k) { cls = ' right'; tag = '正解'; } else if (j === p) { cls = ' wrong'; tag = 'あなたの答え'; } else cls = ' dim'; }
+        return '<li><button type="button" class="opt' + cls + '" data-hq="' + j + '"' + (p !== null ? ' disabled' : '') + '><span class="k">' + 'abcde'[pos] + '</span><span>' + esc(HOSSA[j].name) + '</span><span class="v">' + tag + '</span></button></li>'; }).join('') + '</ol>';
+    if (p !== null) html += '<div class="why"><p><b>' + (p === k ? T('正解。', '上等！') : T('正解は「', 'あいえなー、正解は「') + esc(h.name) + T('」。', '」さー。')) + '</b>' + esc(h.desc) + '</p><p class="tip"><b>' + esc(h.ilae) + '</b>　脳波：' + esc(h.eeg) + '</p></div><button type="button" class="btn" data-hg="next">' + (S.i === S.list.length - 1 ? '結果を見る' : T('次の発作へ', '次いくよー')) + '</button>';
+    html += '</div></div>';
+    panel.innerHTML = html;
+    var fig = document.getElementById('hqFig'); if (p === null) fig.querySelector('.st-capt').style.visibility = 'hidden';
+    animOn(fig, hsAnim(h));
+  }
+  panel.addEventListener('click', function (e) {
+    var hc = e.target.closest('.hs-card'); if (hc && V.mode === 'zukan') { hossaPlay(hc); return; }
+    if (V.mode !== 'hossa') return;
+    var b = e.target.closest('button'); if (!b) return;
+    var hq = b.getAttribute('data-hq');
+    if (hq != null && HQ.pick[HQ.i] === null) { HQ.pick[HQ.i] = +hq; stamp(+hq === HQ.list[HQ.i]); renderHossaQ(); return; }
+    if (b.getAttribute('data-hg') === 'next') { HQ.i++; renderHossaQ(); }
+    else if (b.getAttribute('data-go') === 'again') { HQ = newHossaQ(); renderHossaQ(); }
+  });
+
   // ---- 位相逆転ハンター
   var INNER = ['F3', 'C3', 'P3', 'F4', 'C4', 'P4', 'F7', 'T3', 'T5', 'F8', 'T4', 'T6', 'Cz'];
   var ENDS = ['Fp1', 'Fp2', 'O1', 'O2', 'Fz', 'Pz'];
@@ -2670,9 +2791,9 @@ body.eegfs #panel.qz-on .mihon-box,body.eegfs #panel.rp-on .mihon-box{display:no
 
   // ---- 問題欄のクリック
   panel.addEventListener('click', function (e) {
-    if (V.mode === 'lab' || V.mode === 'story' || V.mode === 'elec') return;
+    if (V.mode === 'lab' || V.mode === 'story' || V.mode === 'elec' || V.mode === 'hossa') return;
     var b = e.target.closest('button'); if (!b) return;
-    if (V.mode === 'zukan') { var cid = b.getAttribute('data-card'); if (cid) showCard(cid); return; }
+    if (V.mode === 'zukan') { if (b.closest('.hs-card')) return; var cid = b.getAttribute('data-card'); if (cid) showCard(cid); return; }
     var cmk = b.getAttribute('data-cmk');
     if (cmk != null && V.mode === 'conf') { var cc = CONF[Q.conf.i]; V.hl = qMark(cc, cc.qs[+cmk], +cmk); draw(); updateHead(); var dk2 = document.querySelector('.desk'); if (dk2 && !isFs()) dk2.scrollIntoView({ block: 'start', behavior: 'smooth' }); return; }
     if (b.classList.contains('opt')) {
@@ -3613,8 +3734,8 @@ body.eegfs #panel.qz-on .mihon-box,body.eegfs #panel.rp-on .mihon-box{display:no
         return '<li><button type="button" class="zk-card t' + tier + '" data-card="' + c.id + '"><span class="zk-badge">' + TIER[tier] + '</span><canvas class="zk-mini" data-mini="' + c.id + '" aria-hidden="true"></canvas><span class="zk-name">' + esc(c.name) + '</span><span class="zk-feat">' + esc(c.feat) + '</span></button></li>';
       }).join('') + '</ul>';
     });
-    html += hidenHTML();
-    panel.innerHTML = html;
+    html += hossaHTML() + hidenHTML();
+    panel.innerHTML = html; hossaInit();
     panel.querySelectorAll('canvas[data-mini]').forEach(function (cnv) { var id = cnv.getAttribute('data-mini'); drawMini(cnv, CARD_BY[id], ZK[id] === 3); });
   }
   function showCard(id) {
@@ -3639,7 +3760,7 @@ body.eegfs #panel.qz-on .mihon-box,body.eegfs #panel.rp-on .mihon-box{display:no
   syncLevel(); syncZkTab();
 
   /* ====================== 10. モードの切り替え ====================== */
-  var MODES = ['lab', 'story', 'dojo', 'hunter', 'conf', 'sen', 'elec', 'zukan'];
+  var MODES = ['lab', 'story', 'dojo', 'hunter', 'conf', 'sen', 'elec', 'hossa', 'zukan'];
   function setMode(m, focus) {
     if (MODES.indexOf(m) === -1) m = 'lab';
     V.mode = m;
@@ -3647,10 +3768,11 @@ body.eegfs #panel.qz-on .mihon-box,body.eegfs #panel.rp-on .mihon-box{display:no
     headSvg.classList.remove('picking');
     headSvg.querySelectorAll('.el').forEach(function (g2) { g2.classList.remove('ok', 'ng'); g2.removeAttribute('tabindex'); g2.removeAttribute('role'); });
     var ms0 = document.getElementById('mihonSec'); if (ms0 && m !== 'lab') ms0.hidden = true;
-    storyAnimStop(); document.body.classList.remove('stvig'); document.getElementById('stVigBox').removeAttribute('data-k'); document.getElementById('stAnimMini').removeAttribute('data-k');
+    storyAnimStop(); hsStop(); document.body.classList.toggle('elecmode', m === 'elec' || m === 'hossa'); document.body.classList.remove('stvig'); document.getElementById('stVigBox').removeAttribute('data-k'); document.getElementById('stAnimMini').removeAttribute('data-k');
     if (m === 'lab') { enterLab(); }
     else if (m === 'story') { storyEnter(); }
-    else if (m === 'elec') { V.live = false; setPage(ZK_DEFAULT_SPEC); if (!EQ) EQ = newElec(); renderElec(); }
+    else if (m === 'hossa') { if (isFs()) setFs(false); V.live = false; setPage(ZK_DEFAULT_SPEC); if (!HQ) HQ = newHossaQ(); renderHossaQ(); }
+    else if (m === 'elec') { if (isFs()) setFs(false); V.live = false; setPage(ZK_DEFAULT_SPEC); if (!EQ) EQ = newElec(); renderElec(); }
     else if (m === 'zukan') { V.live = false; setPage(ZK_DEFAULT_SPEC); renderZukan(); }
     else {
       if (!Q[m]) Q[m] = ({ dojo: newDojo, conf: newConf, hunter: newHunter, sen: newSen })[m]();
@@ -3751,6 +3873,8 @@ body.eegfs #panel.qz-on .mihon-box,body.eegfs #panel.rp-on .mihon-box{display:no
     el.style.left = Math.max(2, left) + 'px'; el.style.top = top + 'px'; el.classList.toggle('flip', flip);
     if (el.hidden || shisaKey !== mkPos.t0) { shisaKey = mkPos.t0; el.hidden = false; el.classList.remove('pop'); void el.offsetWidth; el.classList.add('pop'); }
   }
+
+  document.getElementById('prToggle').addEventListener('click', function () { var pr = document.querySelector('.primer'), o = pr.classList.toggle('open'); this.setAttribute('aria-expanded', String(o)); this.textContent = o ? 'とじる ▲' : 'ひらく ▼'; if (o) bandKey = ''; draw(); });
 
   /* ====================== 12. はじめる ====================== */
   buildHead();
