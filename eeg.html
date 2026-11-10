@@ -710,6 +710,12 @@ body.eegfs #panel.qz-on .mihon-box,body.eegfs #panel.rp-on .mihon-box{display:no
   body.eegfs #head{max-width:120px}
   body.eegfs .map-note{display:none}
   body.eegfs #panel{width:calc(100vw - 24px);max-height:40vh}
+  /* 縦向きの全画面：横の欄は問題欄の下に隠れるので、症例は問題欄の中に出す */
+  body.eegfs.stvig .desk-side{display:none}
+  body.eegfs.stvig #panel .story{display:block}
+  body.eegfs.stvig #panel .st-again{display:block}
+  body.eegfs.stvig #panel .st-again>.vig{display:grid}
+  body.eegfs.stvig #panel .st-again summary::after{content:''}
 }
 .foot{margin-top:28px; font-size:var(--fs-xs); color:var(--muted); max-width:56em}
 </style>
@@ -2838,7 +2844,7 @@ body.eegfs #panel.qz-on .mihon-box,body.eegfs #panel.rp-on .mihon-box{display:no
       ({ dojo: renderDojo, conf: renderConf, hunter: renderHunter, sen: renderSen })[V.mode]('new');
       document.getElementById('panel').scrollIntoView({ block: 'start', behavior: 'auto' });
     } else if (b.getAttribute('data-go') === 'again') {
-      Q[V.mode] = ({ dojo: newDojo, conf: newConf, hunter: newHunter, sen: newSen })[V.mode]();
+      REVEAL = {}; Q[V.mode] = ({ dojo: newDojo, conf: newConf, hunter: newHunter, sen: newSen })[V.mode]();
       ({ dojo: renderDojo, conf: renderConf, hunter: renderHunter, sen: renderSen })[V.mode]('new');
     }
   });
@@ -3410,7 +3416,7 @@ body.eegfs #panel.qz-on .mihon-box,body.eegfs #panel.rp-on .mihon-box{display:no
   }
   function dailyCard() {
     var d = dailyLoad(), done = d.last === ymd(new Date()), c = ST_CASES[dailyKey()];
-    return '<button type="button" class="st-daily" data-sgo="daily"><span class="st-dh">' + T('今日の1問', '今日の1問さー') + '　' + dayLabel() + '</span><b>' + esc(c.title) + '</b><span class="muted">' + (done ? T('今日はもう解きました（もう一度解けます）', '今日はもう解いたよー（もう一回もできるさー）') : T('1問だけ。毎日つづけると日数が増えます', '1問だけさー。毎日やったら日数が増えるよー')) + (d.days ? T('・連続 ', '・連続 ') + d.days + T(' 日', ' 日') : '') + '</span></button>';
+    return '<button type="button" class="st-daily" data-sgo="daily"><span class="st-dh">' + T('日替わり1問', '日替わり1問さー') + '　' + dayLabel() + '</span><b>' + esc(c.title) + '</b><span class="muted">' + (done ? T('今日はもう解きました（もう一度解けます）', '今日はもう解いたよー（もう一回もできるさー）') : T('1問だけ。毎日つづけると日数が増えます', '1問だけさー。毎日やったら日数が増えるよー')) + (d.days ? T('・連続 ', '・連続 ') + d.days + T(' 日', ' 日') : '') + '</span></button>';
   }
   /* 秘伝カード：各章のボス症例を、実践レベルで全問正解すると手に入る */
   var HIDEN = [['検査室の主', 'アーチファクトだらけの記録から、正常を見つけ出した'], ['外来の目利き', '正常亜型を読みすぎず、5年の薬を見直した'], ['リエゾンの達人', '徐波と速波の合わせ技を見抜いた'], ['当直の守り神', 'LPDs をヘルペスと決めつけなかった'], ['脳波の窓をひらく者', 'ヤコブ病に見えた治る病気を見つけた']];
@@ -3500,7 +3506,7 @@ body.eegfs #panel.qz-on .mihon-box,body.eegfs #panel.rp-on .mihon-box{display:no
   function stHead(sub) {
     var ch = ST_CH[SQ.ch - 1], inCase = SQ.ph === 'case' || SQ.ph === 'eeg', boss = inCase && stCase().boss;
     if (boss) sub = '<span class="boss-tag">★ ' + T('ボス症例', 'ボス症例さー') + '</span>' + sub;
-    if (SQ.daily) return '<div class="ph"><h2 id="panelH" tabindex="-1">' + sub + '</h2><span class="prog">' + T('今日の1問', '今日の1問さー') + ' ・ ' + dayLabel() + '</span></div>';
+    if (SQ.daily) return '<div class="ph"><h2 id="panelH" tabindex="-1">' + sub + '</h2><span class="prog">' + T('日替わり1問', '日替わり1問さー') + ' ・ ' + dayLabel() + '</span></div>';
     return '<div class="ph"><h2 id="panelH" tabindex="-1">' + sub + '</h2><span class="prog">研修 ・ 第' + ch.n + '章 ' + esc(ch.t) + (SQ.ph !== 'chin' && SQ.ph !== 'chout' ? ' ・ 症例 ' + (SQ.ci + 1) + ' / ' + ch.cases.length : '') + '</span></div>'; }
   function senseiHTML(t) { return '<div class="sensei"><span class="sensei-n">指導医</span><p>' + esc(t) + '</p></div>'; }
   function stOpts(q, qi) {
@@ -3523,7 +3529,7 @@ body.eegfs #panel.qz-on .mihon-box,body.eegfs #panel.rp-on .mihon-box{display:no
         dailyCard() +
         '<ol class="st-ch">' + ST_CH.map(function (x) { var ok = x.cases.length > 0, dn = ok && x.cases.every(function (k) { return sv[k] != null; });
           return '<li><button type="button" class="st-chb" data-sch="' + x.n + '"' + (ok ? '' : ' disabled') + '><span class="st-chn">第' + x.n + '章</span><b>' + esc(x.t) + '</b><span class="muted">' + esc(x.d) + '</span><span class="st-chs">' + (ok ? (dn ? 'クリア' : x.cases.filter(function (k) { return sv[k] != null; }).length + ' / ' + x.cases.length + '症例') : '準備中') + '</span></button></li>'; }).join('') + '</ol>' +
-        '<div class="st-reset"><span class="muted">成績のリセット</span><button type="button" class="ghost" data-sgo="reset1">ストーリーの成績だけ</button><button type="button" class="ghost" data-sgo="resetAll">すべて（図鑑・自己ベストも）</button><p class="muted" id="stResetMsg" aria-live="polite"></p></div>';
+        '<div class="st-reset"><span class="muted">成績のリセット</span><button type="button" class="ghost" data-sgo="reset1">研修の成績だけ</button><button type="button" class="ghost" data-sgo="resetAll">すべて（図鑑・自己ベスト・復習・見つけた波も）</button><p class="muted" id="stResetMsg" aria-live="polite"></p></div>';
     } else if (SQ.ph === 'chin') {
       html = stHead('第' + ch.n + '章　' + esc(ch.t)) + senseiHTML(T(ch.intro, OKI_CH[ch.n] && OKI_CH[ch.n][0])) + '<button type="button" class="btn" data-sgo="start">' + T('最初の症例へ', 'さあ、いくよー') + '</button>';
     } else if (SQ.ph === 'case') {
@@ -3532,7 +3538,7 @@ body.eegfs #panel.qz-on .mihon-box,body.eegfs #panel.rp-on .mihon-box{display:no
         '<p class="st-eegnote">' + esc(c.eegNote) + '</p><button type="button" class="btn" data-sgo="eeg">' + T('脳波を見る', '脳波見てみよう') + '</button>';
     } else if (SQ.ph === 'eeg') {
       c = stCase();
-      html = stHead(esc(c.title)) + '<details class="st-again"><summary>症状の動画をもう一度見る</summary>' + vigHTML(c) + animHTML() + '</details>' +
+      html = stHead(esc(c.title)) + '<details class="st-again"><summary>症例と症状を見る</summary>' + vigHTML(c) + animHTML() + '</details>' +
         '<p class="st-eegnote">' + esc(c.eegNote) + '</p>';
       c.qs.forEach(function (q, qi) {
         if (qi > SQ.qi || (SQ.daily && qi > 0)) return; var p = SQ.picks[qi];
@@ -3541,7 +3547,7 @@ body.eegfs #panel.qz-on .mihon-box,body.eegfs #panel.rp-on .mihon-box{display:no
       });
       if (SQ.daily && SQ.picks[0] !== null) {
         var dd = dailyLoad();
-        html += senseiHTML(T('今日の1問、おつかれさま。明日もまた1問。毎日ちょっとずつが、いちばん力になる。', '今日の1問、おつかれさまー。明日もまた1問ね。毎日ちょっとずつが一番力になるさー。')) +
+        html += senseiHTML(T('日替わり1問、おつかれさま。明日もまた1問。毎日ちょっとずつが、いちばん力になる。', '日替わり1問、おつかれさまー。明日もまた1問ね。毎日ちょっとずつが一番力になるさー。')) +
           '<p class="st-score">' + T('連続 ', '連続 ') + dd.days + T(' 日', ' 日目さー') + '</p><div class="row"><button type="button" class="btn" data-sgo="menu">' + T('章の一覧へ戻る', '章の一覧に戻るよー') + '</button></div>';
       } else if (SQ.qi >= c.qs.length) {
         var r = SQ.picks.filter(function (p, i) { return stRight(c.qs[i], p); }).length;
@@ -3591,6 +3597,7 @@ body.eegfs #panel.qz-on .mihon-box,body.eegfs #panel.rp-on .mihon-box{display:no
   }
   function stGo(ph) { SQ.ph = ph; renderStory(true); document.getElementById('panel').scrollIntoView({ block: 'start', behavior: 'auto' }); }
   function stStartCase() {
+    REVEAL = {};
     var c = stCase(); SQ.qi = 0; SQ.sel = []; SQ.picks = c.qs.map(function () { return null; }); SQ.opt = c.qs.map(function (q) { return shuffled(q.a.length); });
     V.hl = null; setPage(ZK_DEFAULT_SPEC); stGo('case');
   }
@@ -3632,7 +3639,7 @@ body.eegfs #panel.qz-on .mihon-box,body.eegfs #panel.rp-on .mihon-box{display:no
       // 押しまちがいを防ぐため、2回押しで実行する
       if (b.getAttribute('data-armed') !== '1') { panel.querySelectorAll('[data-armed]').forEach(function (x) { x.removeAttribute('data-armed'); x.classList.remove('armed'); }); b.setAttribute('data-armed', '1'); b.classList.add('armed'); document.getElementById('stResetMsg').textContent = 'もう一度押すとリセットします（元には戻せません）。'; return; }
       lsSet(STORY_KEY, '{}');
-      if (go === 'resetAll') { ZK = {}; lsSet(ZKEY, '{}'); Object.keys(BEST).forEach(function (k) { lsSet(BEST[k], '0'); }); QZ.n = 0; QZ.ok = 0; syncZkTab(); }
+      if (go === 'resetAll') { ZK = {}; lsSet(ZKEY, '{}'); Object.keys(BEST).forEach(function (k) { lsSet(BEST[k], '0'); }); QZ.n = 0; QZ.ok = 0; [HKEY, RVKEY, FOUND_KEY, DAILY_KEY].forEach(function (k) { lsSet(k, k === HKEY || k === DAILY_KEY ? '{}' : '[]'); }); REVEAL = {}; STREAK = 0; syncZkTab(); rvSync(); ichiCardSync(); }
       renderStory(); document.getElementById('stResetMsg').textContent = go === 'resetAll' ? 'すべての成績をリセットしました。' : '研修の成績をリセットしました。';
       return;
     }
@@ -3784,6 +3791,7 @@ body.eegfs #panel.qz-on .mihon-box,body.eegfs #panel.rp-on .mihon-box{display:no
     var real = b.getAttribute('data-lv') === '1'; if (real === V.real) return;
     V.real = real; lsSet('eeg-level', real ? 'real' : 'basic'); syncLevel();
     if (V.mode === 'lab') { var pre = LIVE ? LIVE.sim.preset : 'normal'; newLive(pre); enterLab(); }
+    else if (V.mode === 'ichi') { /* 今日の一件は、いつも入門の波で出す */ }
     else if (V.spec) { var keepHl = V.hl; setPage(V.spec, true); V.hl = keepHl; draw(); updateHead(); }
   }
   lvSeg.addEventListener('click', onLevel); document.getElementById('lvSeg2').addEventListener('click', onLevel);
