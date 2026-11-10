@@ -408,7 +408,7 @@ body.stvig #panel .st-again{display:none}
 .shisa.pop{animation:shPop .55s cubic-bezier(.2,1.6,.4,1) 1}
 @keyframes shPop{0%{transform:scale(0) rotate(-20deg)}100%{transform:scale(1) rotate(0)}}
 .trace-wrap{position:relative}
-.stamp{position:fixed;z-index:50;pointer-events:none;font-family:var(--f-display);font-size:clamp(28px,4vw,46px);letter-spacing:.06em;padding:6px 22px;border:4px solid currentColor;border-radius:14px;background:color-mix(in srgb,var(--panel) 88%,transparent);transform:translate(-50%,-50%) rotate(-8deg)}
+.stamp{white-space:nowrap;position:fixed;z-index:50;pointer-events:none;font-family:var(--f-display);font-size:clamp(28px,4vw,46px);letter-spacing:.06em;padding:6px 22px;border:4px solid currentColor;border-radius:14px;background:color-mix(in srgb,var(--panel) 88%,transparent);transform:translate(-50%,-50%) rotate(-8deg)}
 .stamp.ok{color:var(--hot)} .stamp.ng{color:var(--accent)}
 .stamp.go{animation:stamp 1.1s ease-out 1 forwards}
 @keyframes stamp{0%{opacity:0;transform:translate(-50%,-50%) rotate(-8deg) scale(2.2)}18%{opacity:1;transform:translate(-50%,-50%) rotate(-8deg) scale(.95)}28%{transform:translate(-50%,-50%) rotate(-8deg) scale(1.05)}75%{opacity:1}100%{opacity:0;transform:translate(-50%,-50%) rotate(-8deg) scale(1)}}
@@ -474,6 +474,20 @@ body.eegfs .el-grid{grid-template-columns:minmax(0,1fr)}
 .rv-list{list-style:none;margin:0;padding:0;display:grid;gap:6px}
 .rv-item{font:inherit;width:100%;text-align:left;cursor:pointer;display:grid;gap:2px;padding:8px 12px;border:1px solid var(--line);border-radius:var(--r);background:var(--paper);color:var(--ink);font-size:var(--fs-s)}
 .rv-item:hover{border-color:var(--accent)} .rv-src{font-size:var(--fs-xs);color:var(--accent);font-weight:700}
+.ichi-card{margin-top:14px}
+.ichi-in{display:grid;gap:6px;padding:14px 18px;border:2px solid var(--ink);border-radius:var(--r);box-shadow:4px 4px 0 var(--line);
+  background-color:var(--sheet);background-image:linear-gradient(var(--grid) 1px,transparent 1px),linear-gradient(90deg,var(--grid) 1px,transparent 1px),linear-gradient(90deg,var(--grid2) 1px,transparent 1px);background-size:100% 18px,18px 100%,90px 100%}
+.ichi-tag{margin:0;font-size:var(--fs-xs);font-weight:700;letter-spacing:.1em;color:var(--hot)}
+.ichi-in h2{margin:0;font-family:var(--f-display);font-weight:400;font-size:clamp(1.4rem,3.4vw,2rem);letter-spacing:.04em}
+.ichi-say{margin:0;font-size:var(--fs-s)} .ichi-say b{color:var(--accent);margin-right:4px}
+.ichi-go{display:flex;align-items:center;gap:12px;flex-wrap:wrap} .ichi-go .btn{text-decoration:none;display:inline-flex;align-items:center;font-size:var(--fs-m);padding-inline:22px}
+.ichi-ask{margin:0;font-size:var(--fs-l);font-weight:700}
+.ichi-hint{border:2px solid var(--mark);background:color-mix(in srgb,var(--mark) 14%,var(--panel));border-radius:var(--r);padding:8px 12px;font-size:var(--fs-s)}
+body.eegfs .ichi-card{display:none}
+.found{margin-top:14px;display:grid;gap:6px} .found h3{margin:0;font-size:var(--fs-m)} .found h3 small{font-size:var(--fs-xs);color:var(--muted);font-weight:400;margin-left:6px}
+.found-g{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:8px}
+.found-c{display:grid;gap:3px;padding:8px;border:2px solid #2f66c9;border-radius:var(--r);background:var(--paper);font-size:var(--fs-xs);line-height:1.5}
+.found-c canvas{width:100%;display:block} .found-c b{font-size:var(--fs-s)}
 .mk-btn{min-height:30px;padding:2px 10px;margin-left:8px;font-size:var(--fs-xs)}
 .st-reset{display:flex;flex-wrap:wrap;gap:8px;align-items:center;border-top:1px dashed var(--line);padding-top:10px;font-size:var(--fs-s)}
 .st-reset p{flex-basis:100%;margin:0}
@@ -706,6 +720,7 @@ body.eegfs #panel.qz-on .mihon-box,body.eegfs #panel.rp-on .mihon-box{display:no
     <div class="h1row"><h1>脳波よみ道場</h1><button type="button" class="oki-btn" id="okiBtn">沖縄版へ</button></div>
     <p class="lead" data-oki="参考書の脳波は動かんけど、ここのは目開けたらα波が消えて、歯くいしばったら筋電図が入るさー。触って、当てて、症例で使えるようになろうね。">参考書の脳波は動きません。ここの脳波は、目を開ければα波が消え、歯をくいしばれば筋電図が入り、導出を切り替えれば同じ棘波が別の形に見えます。触って、当てて、症例で使えるようにします。</p>
   </header>
+  <section class="ichi-card" id="ichiCard" aria-labelledby="ichiH"></section>
 
   <section class="primer" aria-labelledby="prh">
     <div class="primer-grid">
@@ -1433,6 +1448,7 @@ body.eegfs #panel.qz-on .mihon-box,body.eegfs #panel.rp-on .mihon-box{display:no
       markFrac = 0;
       staticMarks(src, chans, rows, sp, tw0, win, xOf, W0, H).forEach(function (m) { markFrac = Math.max(markFrac, (m[1] + 12 - LW) / plotW); redMark(m[0], m[1], m[2], m[3], m[4], markT0, W0, H); });
     }
+    if (V.mode === 'ichi' && typeof ichiDrawTaps === 'function') ichiDrawTaps(chans, rows, xOf, W0);
     // 巻き戻して見ているとき：右上に表示
     if (V.live && V.lback > 0) {
       var lt = '◀ ' + (V.lback / FS).toFixed(1) + '秒前を表示中（再生で今に戻る）';
@@ -2806,7 +2822,7 @@ body.eegfs #panel.qz-on .mihon-box,body.eegfs #panel.rp-on .mihon-box{display:no
 
   // ---- 問題欄のクリック
   panel.addEventListener('click', function (e) {
-    if (V.mode === 'lab' || V.mode === 'story' || V.mode === 'elec' || V.mode === 'hossa' || V.mode === 'review') return;
+    if (V.mode === 'lab' || V.mode === 'story' || V.mode === 'elec' || V.mode === 'hossa' || V.mode === 'review' || V.mode === 'ichi') return;
     var b = e.target.closest('button'); if (!b) return;
     if (V.mode === 'zukan') { if (b.closest('.hs-card')) return; var cid = b.getAttribute('data-card'); if (cid) showCard(cid); return; }
     var cmk = b.getAttribute('data-cmk');
@@ -3749,8 +3765,8 @@ body.eegfs #panel.qz-on .mihon-box,body.eegfs #panel.rp-on .mihon-box{display:no
         return '<li><button type="button" class="zk-card t' + tier + '" data-card="' + c.id + '"><span class="zk-badge">' + TIER[tier] + '</span><canvas class="zk-mini" data-mini="' + c.id + '" aria-hidden="true"></canvas><span class="zk-name">' + esc(c.name) + '</span><span class="zk-feat">' + esc(c.feat) + '</span></button></li>';
       }).join('') + '</ul>';
     });
-    html += hossaHTML() + hidenHTML();
-    panel.innerHTML = html; hossaInit();
+    html += foundHTML() + hossaHTML() + hidenHTML();
+    panel.innerHTML = html; hossaInit(); foundDraw();
     panel.querySelectorAll('canvas[data-mini]').forEach(function (cnv) { var id = cnv.getAttribute('data-mini'); drawMini(cnv, CARD_BY[id], ZK[id] === 3); });
   }
   function showCard(id) {
@@ -3775,7 +3791,7 @@ body.eegfs #panel.qz-on .mihon-box,body.eegfs #panel.rp-on .mihon-box{display:no
   syncLevel(); syncZkTab();
 
   /* ====================== 10. モードの切り替え ====================== */
-  var MODES = ['lab', 'story', 'dojo', 'hunter', 'conf', 'sen', 'elec', 'hossa', 'review', 'zukan'];
+  var MODES = ['lab', 'story', 'dojo', 'hunter', 'conf', 'sen', 'elec', 'hossa', 'review', 'ichi', 'zukan'];
   function setMode(m, focus) {
     if (MODES.indexOf(m) === -1) m = 'lab';
     V.mode = m;
@@ -3786,6 +3802,7 @@ body.eegfs #panel.qz-on .mihon-box,body.eegfs #panel.rp-on .mihon-box{display:no
     storyAnimStop(); hsStop(); document.body.classList.toggle('elecmode', m === 'elec' || m === 'hossa'); document.body.classList.remove('stvig'); document.getElementById('stVigBox').removeAttribute('data-k'); document.getElementById('stAnimMini').removeAttribute('data-k');
     if (m === 'lab') { enterLab(); }
     else if (m === 'story') { storyEnter(); }
+    else if (m === 'ichi') { ichiStart(0); setTimeout(function () { if (coarse && !isFs()) setFs(true); else if (!isFs()) panel.scrollIntoView({ block: 'start', behavior: 'smooth' }); }, 50); }
     else if (m === 'review') { V.live = false; RV.cur = null; V.hl = null; renderReview(); }
     else if (m === 'hossa') { if (isFs()) setFs(false); V.live = false; setPage(ZK_DEFAULT_SPEC); if (!HQ) HQ = newHossaQ(); renderHossaQ(); }
     else if (m === 'elec') { if (isFs()) setFs(false); V.live = false; setPage(ZK_DEFAULT_SPEC); if (!EQ) EQ = newElec(); renderElec(); }
@@ -3868,7 +3885,7 @@ body.eegfs #panel.qz-on .mihon-box,body.eegfs #panel.rp-on .mihon-box{display:no
     okiBtn.textContent = OKI ? '標準版へ' : '沖縄版へ';
     readTokens();
   }
-  okiBtn.addEventListener('click', function () { OKI = !OKI; lsSet('eeg-oki', OKI ? '1' : '0'); applyOki(); setMode(V.mode); toast(OKI ? '<b>はいさい！沖縄版さー</b><br>指導医もうちなーぐちになるよー' : '<b>標準版に戻しました</b>'); });
+  okiBtn.addEventListener('click', function () { OKI = !OKI; lsSet('eeg-oki', OKI ? '1' : '0'); applyOki(); ichiCardSync(); setMode(V.mode); toast(OKI ? '<b>はいさい！沖縄版さー</b><br>指導医もうちなーぐちになるよー' : '<b>標準版に戻しました</b>'); });
   // 正解・不正解のハンコ（連続正解も数える）
   var STREAK = 0, stampT = 0;
   function stamp(ok) {
@@ -3967,9 +3984,113 @@ body.eegfs #panel.qz-on .mihon-box,body.eegfs #panel.rp-on .mihon-box{display:no
     else if (go === 'list') { RV.cur = null; V.hl = null; renderReview(); }
   });
 
+
+  /* ====================== 今日の一件（記録を読んで、波の場所をタップする） ====================== */
+  var ICHI = [
+    { id: 'blink', title: 'まばたきはどこに残った？', ttlO: 'まばたき、どこに残ってる？',
+      say: '患者さんに一度だけまばたきしてもらいました。記録のどこかに残っています。', sayO: '患者さんに1回だけまばたきしてもらったよー。記録のどっかに残ってるさー。',
+      ask: 'まばたきが出たと思うところを、記録紙でタップ', askO: 'まばたき出たと思うとこ、記録紙をタップしてね',
+      el: ['Fp1', 'Fp2'], card: 'blink',
+      hintT: '前のほうの線（いちばん上の Fp1−F3 など）に注目。左から右へ、急に大きく振れるところを探して',
+      hintRow: '線は合っています。その線を左から右へ見て、いちばん大きく振れるところは？',
+      hintTime: '時刻は近い！ でもその瞬間、いちばん大きく振れているのは前のほうの線（Fp）',
+      why: 'まぶたを閉じると眼球が上を向き（ベル現象）、プラスの電気を帯びた角膜が Fp1・Fp2 に近づきます。だから Fp の線に、左右そろった下向きの大きな波が出ます。後ろの電極には広がりません。',
+      look: '前のほうの線で、左右そろった下向きの大きな波' }
+  ];
+  var FOUND_KEY = 'eeg-found-v1';
+  function foundLoad() { try { return JSON.parse(lsGet(FOUND_KEY) || '[]') || []; } catch (e) { return []; } }
+  var IC = null;
+  function ichiToday() { return ymd(new Date()); }
+  function ichiDone() { return foundLoad().some(function (f) { return f.day === ichiToday(); }); }
+  function ichiSeed() { var t = ichiToday(), h = 11; for (var i = 0; i < t.length; i++) h = (h * 31 + t.charCodeAt(i)) % 100003; return h; }
+  function ichiCardSync() {
+    var el = document.getElementById('ichiCard'), q = ICHI[0], done = ichiDone();
+    el.innerHTML = '<div class="ichi-in"><p class="ichi-tag">' + T('今日の一件', '今日の一件さー') + '　' + dayLabel() + '</p>' +
+      '<h2 id="ichiH">' + esc(T(q.title, q.ttlO)) + '</h2>' +
+      '<p class="ichi-say"><b>検査技師</b>「' + esc(T(q.say, q.sayO)) + '」</p>' +
+      '<div class="ichi-go"><a class="btn" href="#ichi">' + (done ? T('もう一度開く', 'もう一回開く') : T('記録を開く', '記録開いてみて')) + '</a><span class="muted">' + (done ? '✓ ' + T('今日はクリア済み', '今日はクリアさー') : T('約1分', '1分くらいさー')) + '</span></div></div>';
+  }
+  function ichiStart(i) {
+    var q = ICHI[i], seed = ichiSeed() + i * 7, tb = 1.6 + (seed % 270) / 100;
+    IC = { i: i, q: q, tb: tb, taps: [], tries: 0, hint: '', done: false, ok: false, seed: seed };
+    var spec = { seed: 300 + seed % 500, preset: 'normal', mont: 'bip', auto: false, init: { eo: 1 }, ev: [['blink', tb]] };
+    V.spec = spec; V.src = buildPage(Object.assign({}, spec, { real: false, notch: V.notch })); V.live = false;
+    V.off = 0; V.hl = null; V.sel = -1; V.cur = null; V.mline = null; V.mont = 'bip'; V.sens = 10; if (V.win > 10) V.win = 10;
+    chanNote.innerHTML = T('記録は止まっています。まばたきが出たと思う線の、その時刻をタップしてください。', '記録は止まってるよー。まばたき出たと思う線の、その時刻をタップしてね。');
+    syncToolbar(); draw(); updateHead();
+    renderIchi();
+  }
+  function ichiDrawTaps(chans, rows, xOf, W0) {
+    if (!IC) return;
+    IC.taps.forEach(function (tp, k) {
+      var ri = -1; chans.forEach(function (c, i) { if (c.label === tp.lab) ri = i; });
+      var y = ri >= 0 ? rows[ri] : tp.y, x = xOf(tp.t);
+      ctx.save(); ctx.strokeStyle = '#2f66c9'; ctx.lineWidth = 3; ctx.lineCap = 'round';
+      ctx.beginPath(); ctx.moveTo(x - 7, y - 7); ctx.lineTo(x + 7, y + 7); ctx.moveTo(x + 7, y - 7); ctx.lineTo(x - 7, y + 7); ctx.stroke();
+      ctx.font = '700 11px "BIZ UDPGothic", sans-serif'; ctx.textAlign = 'left';
+      var tx = T('あなた', 'あんた') + (IC.taps.length > 1 ? (k + 1) : ''); ctx.lineWidth = 3; ctx.strokeStyle = TOK['--sheet']; ctx.strokeText(tx, x + 9, y - 6); ctx.fillStyle = '#2f66c9'; ctx.fillText(tx, x + 9, y - 6);
+      ctx.restore();
+    });
+  }
+  cv.addEventListener('click', function (ev) {
+    if (V.mode !== 'ichi' || !IC || IC.done || !layout) return;
+    ev.stopImmediatePropagation();
+    var r = cv.getBoundingClientRect(), x = ev.clientX - r.left, y = ev.clientY - r.top;
+    if (x < layout.LW) return;
+    var best = -1, bd = 1e9; layout.rows.forEach(function (ry, i) { var d = Math.abs(ry - y); if (d < bd) { bd = d; best = i; } });
+    var c = layout.chans[best]; if (!c || c.kind) { toast(T('脳波の線の上をタップしてください', '脳波の線の上をタップしてね')); return; }
+    var t = (layout.s0 + (x - layout.LW) / layout.plotW * layout.n) / FS;
+    var rowOk = IC.q.el.indexOf(c.a) !== -1 || IC.q.el.indexOf(c.b) !== -1, timeOk = t > IC.tb - 0.35 && t < IC.tb + 0.75;
+    IC.taps.push({ t: t, lab: c.label, y: layout.rows[best] }); IC.tries++;
+    if (rowOk && timeOk) { IC.ok = true; ichiReveal(c.label, t); return; }
+    stamp(false);
+    if (IC.tries >= 2) { ichiReveal(null, t); return; }
+    IC.hint = timeOk ? IC.q.hintTime : rowOk ? IC.q.hintRow : IC.q.hintT;
+    draw(); renderIchi();
+  }, true);
+  function ichiReveal(lab, t) {
+    IC.done = true;
+    V.hl = { t0: IC.tb - 0.15, t1: IC.tb + 0.6, el: IC.q.el, type: IC.q.id, txt: T('まばたき', 'まばたきさー') };
+    if (IC.ok) {
+      stamp(true);
+      var a = foundLoad(); a.unshift({ day: ichiToday(), id: IC.q.id, name: 'まばたき', seed: IC.spec || IC.seed, memo: lab + ' の ' + t.toFixed(1) + ' 秒で見つけた。' + IC.q.look + '。' + (IC.tries > 1 ? 'ヒントのあとで見つけた。' : '1回で見つけた。') });
+      lsSet(FOUND_KEY, JSON.stringify(a.slice(0, 60))); unlock(IC.q.card, 2);
+    }
+    ichiCardSync(); draw(); updateHead(); renderIchi();
+  }
+  function renderIchi() {
+    var q = IC.q, html = '<div class="ph"><h2 id="panelH" tabindex="-1">' + T('今日の一件', '今日の一件さー') + '　' + esc(T(q.title, q.ttlO)) + '</h2></div>' +
+      '<p class="ichi-say"><b>検査技師</b>「' + esc(T(q.say, q.sayO)) + '」</p>';
+    if (!IC.done) {
+      html += '<p class="ichi-ask">👆 ' + esc(T(q.ask, q.askO)) + '</p>';
+      if (IC.hint) html += '<div class="ichi-hint"><b>' + T('ヒント', 'ヒントさー') + '</b>　' + esc(IC.hint) + '<br><span class="muted">' + T('同じ記録で、もう一度どうぞ', '同じ記録で、もう一回やってみて') + '</span></div>';
+    } else {
+      html += '<div class="why"><p><b>' + (IC.ok ? T('見つけました！', '見つけたさー！上等！') : T('答えはここでした。', '答えはここだったよー。')) + '</b>' + T('青い × があなたの押した場所、赤丸が実際にまばたきした時刻です。', '青い×があんたの押したとこ、赤丸が本当にまばたきしたとこさー。') + '</p><p>' + esc(q.why) + '</p>' +
+        (IC.ok ? '<p class="tip">' + T('図鑑の「自分で見つけた波」に残しました。', '図鑑の「自分で見つけた波」に残したよー。') + '</p>' : '') + '</div>' +
+        '<div class="row"><button type="button" class="btn" data-ig="end">' + T('今日はここまで', '今日はここまでね') + '</button>' +
+        (ICHI[IC.i + 1] ? '<button type="button" class="ghost" data-ig="next">' + T('次の一件へ', '次の一件いくよー') + '</button>' : '') +
+        (IC.ok ? '' : '<button type="button" class="ghost" data-ig="retry">' + T('もう一度', 'もう一回') + '</button>') + '</div>';
+    }
+    panel.innerHTML = html;
+  }
+  panel.addEventListener('click', function (e) {
+    if (V.mode !== 'ichi') return;
+    var b = e.target.closest('[data-ig]'); if (!b) return;
+    var g = b.getAttribute('data-ig');
+    if (g === 'next') ichiStart(IC.i + 1);
+    else if (g === 'retry') ichiStart(IC.i);
+    else if (g === 'end') { location.hash = '#zukan'; setTimeout(function () { var f = document.getElementById('foundSec'); if (f) f.scrollIntoView({ block: 'start', behavior: 'smooth' }); }, 100); }
+  });
+  function foundHTML() {
+    var a = foundLoad();
+    return '<div class="found" id="foundSec"><h3>' + T('自分で見つけた波', '自分で見つけた波さー') + ' <small>' + a.length + ' ' + T('件。「今日の一件」で見つけた波と、注目したところ', '件。「今日の一件」で見つけたやつ') + '</small></h3>' +
+      (a.length ? '<div class="found-g">' + a.map(function (f) { return '<div class="found-c"><canvas data-found="' + f.seed + '" aria-hidden="true"></canvas><b>' + esc(f.name) + '</b><span class="muted">' + esc(f.day.replace(/^\d+-/, '').replace('-', '月') + '日') + '</span><span>' + esc(f.memo) + '</span></div>'; }).join('') + '</div>' : '<p class="muted">' + T('まだありません。ページ上の「今日の一件」から始めてください。', 'まだないよー。ページの上の「今日の一件」からどうぞ。') + '</p>') + '</div>';
+  }
+  function foundDraw() { panel.querySelectorAll('canvas[data-found]').forEach(function (cnv) { var sd = +cnv.getAttribute('data-found') || 1; drawMini(cnv, { spec: { seed: 300 + sd % 500, preset: 'normal', auto: false, init: { eo: 1 }, ev: [['blink', 1.2]] }, ch: [['Fp1', 'F3'], ['Fp2', 'F4'], ['F3', 'C3']] }, false); }); }
+
   /* ====================== 12. はじめる ====================== */
   buildHead();
-  applyOki(); syncHo(); rvSync();
+  applyOki(); syncHo(); rvSync(); ichiCardSync();
   if (narrow()) V.win = 5;
   /* ====================== 全画面（脳波計の前に座る） ====================== */
   var fsBtn = document.getElementById('fsBtn'), fsPanelBtn = document.getElementById('fsPanelBtn');
