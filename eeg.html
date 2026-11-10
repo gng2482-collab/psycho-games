@@ -138,7 +138,8 @@ body.eegfs .bandbox{display:none}
 
 /* モード */
 .modes{margin-top:26px; display:grid; gap:8px}
-.mgrp-row{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.mgrp-row{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}
+.mode-labh{border-color:var(--hot);background:color-mix(in srgb,var(--hot) 7%,var(--panel))} .mode-labh .mt{color:var(--hot)}
 .mgrp-h{font:inherit;text-align:left;cursor:pointer;color:var(--ink);background:var(--panel);border:2px solid var(--line);border-radius:var(--r);padding:10px 40px 10px 14px;display:grid;gap:2px;position:relative;text-decoration:none;min-height:58px;box-shadow:0 2px 0 var(--line)}
 .mgrp-h .mt{font-family:var(--f-display);font-size:var(--fs-xl);letter-spacing:.06em} .mgrp-h .ms{font-size:var(--fs-xs);color:var(--muted)}
 .mgrp-hon{border-color:color-mix(in srgb,var(--accent) 55%,var(--line));background:color-mix(in srgb,var(--accent) 7%,var(--panel))}
@@ -146,7 +147,7 @@ body.eegfs .bandbox{display:none}
 .mgrp-h[aria-current="page"]{border-color:var(--accent)}
 .mgrp-ar{position:absolute;right:14px;top:50%;transform:translateY(-50%);color:var(--accent);transition:transform .2s} .mgrp-h[aria-expanded="true"] .mgrp-ar{transform:translateY(-50%) rotate(180deg)}
 .mgrp-b{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:8px;padding:8px;border:1px dashed var(--accent);border-radius:var(--r);background:color-mix(in srgb,var(--accent) 4%,transparent)}
-@media (max-width:700px){.mgrp-row{grid-template-columns:minmax(0,1fr) minmax(0,1fr)} .mode-zkh{grid-column:1/-1} .mgrp-b{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}}
+@media (max-width:700px){.mgrp-row{grid-template-columns:minmax(0,1fr) minmax(0,1fr)} .mgrp-b{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}}
 .mode{
   font:inherit; text-align:left; cursor:pointer; color:var(--ink); background:var(--panel);
   border:1px solid var(--line); border-radius:var(--r); padding:8px 12px; display:grid; gap:0; min-height:48px; text-decoration:none;
@@ -498,6 +499,11 @@ body.eegfs .ichi-card{display:none}
 .found-c canvas{width:100%;display:block} .found-c b{font-size:var(--fs-s)}
 .fl-now{margin:0;font-size:var(--fs-l);font-weight:700;color:var(--hot)}
 .sim-btn{justify-self:start;border-color:var(--accent);color:var(--accent);font-weight:700}
+#tutBtn{position:relative;overflow:visible;margin-top:14px;border-color:var(--hot)}
+#tutBtn::before{content:attr(data-bub);position:absolute;left:50%;bottom:calc(100% + 6px);transform:translateX(-50%);white-space:nowrap;font-size:11px;font-weight:700;line-height:1;color:#fff;background:var(--hot);border-radius:999px;padding:4px 9px;animation:bubBob 1.8s ease-in-out infinite}
+#tutBtn::after{content:'';position:absolute;left:50%;bottom:calc(100% + 1px);transform:translateX(-50%);border:5px solid transparent;border-top-color:var(--hot);border-bottom:0}
+@keyframes bubBob{0%,100%{translate:0 0}50%{translate:0 -2px}}
+@media (prefers-reduced-motion:reduce){#tutBtn::before{animation:none}}
 .mk-btn{min-height:30px;padding:2px 10px;margin-left:8px;font-size:var(--fs-xs)}
 .st-reset{display:flex;flex-wrap:wrap;gap:8px;align-items:center;border-top:1px dashed var(--line);padding-top:10px;font-size:var(--fs-s)}
 .st-reset p{flex-basis:100%;margin:0}
@@ -757,11 +763,12 @@ body.eegfs #panel.qz-on .mihon-box,body.eegfs #panel.rp-on .mihon-box{display:no
     </div>
   </section>
 
-  <p class="modes-cap" data-oki="▼ &lt;b&gt;本編&lt;/b&gt;か&lt;b&gt;練習&lt;/b&gt;を押して、やりたいの選んでね。">▼ <b>本編</b>か<b>練習</b>を押して、やりたいものを選んでください。</p>
+  <p class="modes-cap" data-oki="▼ まずは「触ってみる」から。慣れたら&lt;b&gt;本編&lt;/b&gt;か&lt;b&gt;練習&lt;/b&gt;を開いてね。">▼ まずは「触ってみる」から。慣れたら<b>本編</b>か<b>練習</b>を開いてください。</p>
   <nav class="modes" aria-label="モード">
     <div class="mgrp-row">
+      <a class="mgrp-h mode-labh" href="#lab" data-mode="lab"><span class="mt">まずは触ってみる</span><span class="ms" data-oki="目開けたり、眠ったり、光あててみて">目を開ける・眠る・光をあてる</span></a>
       <button type="button" class="mgrp-h mgrp-hon" data-g="hon" aria-expanded="false"><span class="mt">本編</span><span class="ms" id="gHon" data-oki="症例で読むよー">症例で読む・3つ</span><span class="mgrp-ar">▼</span></button>
-      <button type="button" class="mgrp-h" data-g="ren" aria-expanded="false"><span class="mt">練習</span><span class="ms" id="gRen" data-oki="好きなとこからどうぞー">好きなところから・7つ</span><span class="mgrp-ar">▼</span></button>
+      <button type="button" class="mgrp-h" data-g="ren" aria-expanded="false"><span class="mt">練習</span><span class="ms" id="gRen" data-oki="好きなとこからどうぞー">好きなところから・6つ</span><span class="mgrp-ar">▼</span></button>
       <a class="mgrp-h mode-zkh" href="#zukan" data-mode="zukan"><span class="mt">脳波・発作図鑑</span><span class="ms" id="zkTab">集めたカード</span></a>
     </div>
     <div class="mgrp-b" data-gb="hon" hidden>
@@ -770,13 +777,12 @@ body.eegfs #panel.qz-on .mihon-box,body.eegfs #panel.rp-on .mihon-box{display:no
       <a class="mode mode-hon mode-sen" href="#sen" data-mode="sen"><span class="mg">本編・上級</span><span class="mt">専門医道場</span><span class="ms" data-oki="てんかん専門医レベル 11題・33問さー">てんかん専門医レベル 11題・33問</span></a>
     </div>
     <div class="mgrp-b" data-gb="ren" hidden>
-      <a class="mode" href="#lab" data-mode="lab"><span class="mg">練習</span><span class="mt">触ってみる</span><span class="ms" data-oki="目開けたり、眠ったり、光あててみて">目を開ける・眠る・光をあてる</span></a>
       <a class="mode" href="#elec" data-mode="elec"><span class="mg">練習</span><span class="mt">電極つけ練習</span><span class="ms" data-oki="検査技師になって電極つけるよー">検査技師になって 10-20法</span></a>
       <a class="mode" href="#dojo" data-mode="dojo"><span class="mg">練習</span><span class="mt">波形道場</span><span class="ms" data-oki="波の名前当ててみて 12問">波の名前を当てる 12問</span></a>
+      <a class="mode" href="#hunter" data-mode="hunter"><span class="mg">練習</span><span class="mt">位相逆転ハンター</span><span class="ms" data-oki="焦点の電極さがすよー 10回">焦点の電極を探す 10回</span></a>
       <a class="mode" href="#flash" data-mode="flash"><span class="mg">練習</span><span class="mt">5秒チャレンジ</span><span class="ms" data-oki="5秒だけ見て当てるよー">5秒だけ見て、何の波か当てる</span></a>
       <a class="mode" href="#hossa" data-mode="hossa"><span class="mg">練習</span><span class="mt">発作当てクイズ</span><span class="ms" data-oki="動き見て発作の名前当てるよー">動きを見て名前を当てる</span></a>
       <a class="mode" href="#review" data-mode="review"><span class="mg">練習</span><span class="mt">まちがい復習</span><span class="ms" id="revTab">まちがえた問題を解き直す</span></a>
-      <a class="mode" href="#hunter" data-mode="hunter"><span class="mg">練習</span><span class="mt">位相逆転ハンター</span><span class="ms" data-oki="焦点の電極さがすよー 10回">焦点の電極を探す 10回</span></a>
     </div>
   </nav>
   <div class="level" role="group" aria-labelledby="lvh">
@@ -1824,7 +1830,7 @@ body.eegfs #panel.qz-on .mihon-box,body.eegfs #panel.rp-on .mihon-box{display:no
       '<div class="ctl-row"><span class="lb">練習</span>' +
         '<button type="button" class="act" id="qzBtn">見つけてクイズ</button>' +
         '<button type="button" class="act" id="rpBtn">判読レポートを書く</button>' +
-        '<button type="button" class="act" id="tutBtn">はじめの1分</button></div>' +
+        '<button type="button" class="act" id="tutBtn" data-bub="' + T('迷ったら！', '迷ったらここさー！') + '">はじめの1分</button></div>' +
       '</div><div class="explain" id="explain" aria-live="polite"></div></div>' +
       '<div class="mihon-box"><p class="mihon-c-h">異常脳波の見本（押すと脳の状態が切りかわります）</p><div class="mihon-c">' +
       MIHON.filter(function (m, i) { return m.pre && MIHON.findIndex(function (x) { return x.pre === m.pre; }) === i; }).map(function (m) { return '<button type="button" data-mihon="' + m.pre + '" aria-pressed="' + pr(pre === m.pre) + '">' + esc(m.short || m.name) + '</button>'; }).join('') + '</div></div>';
@@ -2897,16 +2903,16 @@ body.eegfs #panel.qz-on .mihon-box,body.eegfs #panel.rp-on .mihon-box{display:no
     { n: 1, t: '4月　検査室で基本を習う', d: '正常のα波・開眼・睡眠の波・アーチファクト', cases: ['self', 'sleep', 'artifact', 'electrode', 'artboss'],
       intro: '4月、精神科に入ったあなた。まずは検査室で、脳波の「ふつう」を覚えよう。異常を読むには、正常とアーチファクトを知っているのが第一歩。最初は、あなた自身の脳波から。',
       outro: '正常のα波、眠りの波、目と筋肉と電極のアーチファクト。ここまで来れば、異常を読む準備はできた。次は外来へ行こう。' },
-    { n: 2, t: '外来', d: '欠神発作・若年ミオクロニーてんかん・側頭葉てんかん', cases: ['absence', 'jme', 'tle', 'wickboss'],
+    { n: 2, t: '外来', d: 'ぼんやり、ピクッ、もぐもぐ。外来には、いろんな人が来る', cases: ['absence', 'jme', 'tle', 'wickboss'],
       intro: '外来へようこそ。今日は「ぼんやりする」「物を落とす」「記憶が飛ぶ」の3人。どれも発作かもしれないし、そうでないかもしれない。発作の様子と脳波をセットで覚えよう。',
       outro: '3人とも、発作の「見た目」と脳波がちゃんと対応していたね。ぼんやり・ピクッ・もぐもぐ。精神科の外来にも、てんかんの人は普通に来る。見逃さないのが大事。' },
-    { n: 3, t: '病棟とリエゾン', d: 'せん妄・肝性脳症・リチウム中毒・ベンゾジアゼピン', cases: ['delir', 'hepatic', 'lithium', 'benzo', 'mixboss'],
+    { n: 3, t: '病棟とリエゾン', d: '「急におかしくなった」と呼ばれたら、まず体と薬を疑う', cases: ['delir', 'hepatic', 'lithium', 'benzo', 'mixboss'],
       intro: '今月は病棟とリエゾン（ほかの科からの相談）。「急におかしくなった」と呼ばれたら、まず体と薬を疑う。脳波はそのとき強い味方になる。',
       outro: 'ゆっくりになった脳波は「意識が下がっている」サイン。三相波は代謝の脳症、速い波は薬。脳波を見たら、体と薬を探しに行く。これがリエゾンの基本だよ。' },
-    { n: 4, t: '当直と救急', d: '非けいれん性てんかん重積・ヘルペス脳炎・抗NMDA受容体脳炎・PNES', cases: ['ncse', 'hsv', 'nmdar', 'pnes', 'lpdboss'],
+    { n: 4, t: '当直と救急', d: '夜中の呼び出し。精神科の病気だと決めつける前に', cases: ['ncse', 'hsv', 'nmdar', 'pnes', 'lpdboss'],
       intro: '当直と救急へ。夜中に呼ばれる「急な精神症状」「意識障害」「けいれん」。体の病気、とくに脳の病気を見落とさないのが当直医の仕事。そして、けいれんに見えて、実はてんかんではない人もいる。',
       outro: '見えない発作（NCSE）、脳の炎症（ヘルペス、抗NMDA受容体）、そして脳の電気の異常ではない発作（PNES）。どれも脳波がなければ迷う病気。当直で「精神科の病気だろう」と思ったときほど、一度立ち止まろう。' },
-    { n: 5, t: '専門外来', d: 'クロイツフェルト・ヤコブ病・クロザピン・ECT', cases: ['cjd', 'cloz', 'ect', 'triboss'],
+    { n: 5, t: '専門外来', d: '脳波で「見えないもの」を見る、最後の章', cases: ['cjd', 'cloz', 'ect', 'triboss'],
       intro: '最後の章は、もの忘れ外来、クロザピン外来、そして ECT 室。脳波で「見えないもの」を見る場面だよ。',
       outro: 'これで1年が終わり。正常を知り、アーチファクトを見分け、てんかんと脳症を読み分け、薬と治療の影響に気づく。脳波は、精神科医にとって「脳を見る窓」。おつかれさま。' }
   ];
@@ -4129,17 +4135,17 @@ body.eegfs #panel.qz-on .mihon-box,body.eegfs #panel.rp-on .mihon-box{display:no
 
 
   /* モードの列：本編・練習をたたんでおき、押すと開く */
-  var G_NAME = { story: ['hon', '研修スタート'], conf: ['hon', '脳波カンファ'], sen: ['hon', '専門医道場'], lab: ['ren', '触ってみる'], elec: ['ren', '電極つけ練習'], dojo: ['ren', '波形道場'], flash: ['ren', '5秒チャレンジ'], hossa: ['ren', '発作当てクイズ'], review: ['ren', 'まちがい復習'], hunter: ['ren', '位相逆転ハンター'] };
+  var G_NAME = { story: ['hon', '研修スタート'], conf: ['hon', '脳波カンファ'], sen: ['hon', '専門医道場'], elec: ['ren', '電極つけ練習'], dojo: ['ren', '波形道場'], flash: ['ren', '5秒チャレンジ'], hossa: ['ren', '発作当てクイズ'], review: ['ren', 'まちがい復習'], hunter: ['ren', '位相逆転ハンター'] };
   function grpOpen(g) { document.querySelectorAll('.mgrp-h[data-g]').forEach(function (h) { var o = h.getAttribute('data-g') === g; h.setAttribute('aria-expanded', String(o)); document.querySelector('.mgrp-b[data-gb="' + h.getAttribute('data-g') + '"]').hidden = !o; }); }
   function grpSync(m) {
     var x = G_NAME[m];
     document.querySelectorAll('.mgrp-h[data-g]').forEach(function (h) { var g = h.getAttribute('data-g'), on = x && x[0] === g; if (on) h.setAttribute('aria-current', 'page'); else h.removeAttribute('aria-current'); });
     document.getElementById('gHon').textContent = x && x[0] === 'hon' ? '● ' + x[1] : T('症例で読む・3つ', '症例で読むよー');
-    document.getElementById('gRen').textContent = x && x[0] === 'ren' ? '● ' + x[1] : T('好きなところから・7つ', '好きなとこからどうぞー');
+    document.getElementById('gRen').textContent = x && x[0] === 'ren' ? '● ' + x[1] : T('好きなところから・6つ', '好きなとこからどうぞー');
   }
   document.querySelector('.modes').addEventListener('click', function (e) {
     var h = e.target.closest('.mgrp-h[data-g]'); if (h) { var g = h.getAttribute('data-g'); grpOpen(h.getAttribute('aria-expanded') === 'true' ? '' : g); return; }
-    if (e.target.closest('.mgrp-b .mode')) grpOpen('');
+    if (e.target.closest('.mgrp-b .mode, a.mgrp-h')) grpOpen('');
   });
 
 
