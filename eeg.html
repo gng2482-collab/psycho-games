@@ -124,7 +124,7 @@ h1{font-family:var(--f-display); font-weight:400; margin:0; font-size:clamp(2.1r
 .primer-l{display:grid;gap:12px;min-width:0}
 @media (max-width:900px){.primer-grid{grid-template-columns:minmax(0,1fr)}}
 .bandbox{display:grid;gap:4px;border:1px solid var(--line);border-radius:var(--r);background:var(--panel);padding:8px 10px}
-.bandbox h2{margin:0;font-family:var(--f-display);font-weight:400;font-size:var(--fs-m)}
+.bandbox h2{white-space:nowrap;margin:0;font-family:var(--f-display);font-weight:400;font-size:var(--fs-m)}
 .bandbox h2 small{font-family:var(--f-body);font-size:var(--fs-xs);color:var(--muted);margin-left:6px}
 .band-scale{margin:0;font-size:10.5px;color:var(--muted);line-height:1.45}
 .bands{display:grid;gap:0}
@@ -315,7 +315,7 @@ select{
 .fsonly{display:none}
 /* 全画面（脳波計の前に座ったつもりで）：記録紙を画面いっぱいに、問題は左下に浮かせる */
 body.eegfs{overflow:hidden}
-body.eegfs .top,body.eegfs .primer,body.eegfs .modes,body.eegfs .mgrp-b,body.eegfs .modes-cap,body.eegfs .level,body.eegfs .foot{display:none}
+body.eegfs .top,body.eegfs .appbar,body.eegfs #home,body.eegfs .primer,body.eegfs .modes,body.eegfs .mgrp-b,body.eegfs .modes-cap,body.eegfs .level,body.eegfs .foot{display:none}
 body.eegfs .fsonly{display:inline-flex}
 body.eegfs .desk{position:fixed;inset:0;z-index:15;margin:0;background:var(--paper);
   padding:calc(6px + env(safe-area-inset-top,0px)) max(8px,env(safe-area-inset-right,0px)) calc(6px + env(safe-area-inset-bottom,0px)) max(8px,env(safe-area-inset-left,0px));
@@ -462,10 +462,6 @@ body.eegfs .el-grid{grid-template-columns:minmax(0,1fr)}
 @media (prefers-color-scheme: dark){ :root.oki:not([data-theme="light"]) body{background:linear-gradient(180deg,#0c2533 0,#0b3044 700px,#0a3a52 1400px,#062436 100%) no-repeat,#062436} }
 :root.oki[data-theme="dark"] body{background:linear-gradient(180deg,#0c2533 0,#0b3044 700px,#0a3a52 1400px,#062436 100%) no-repeat,#062436}
 .pr-toggle{display:none;font:inherit;font-size:var(--fs-xs);margin-left:10px;min-height:32px;padding:2px 12px;border:1px solid var(--accent);border-radius:999px;background:var(--panel);color:var(--accent);cursor:pointer;vertical-align:middle}
-@media (max-width:700px){
-  .pr-toggle{display:inline-block}
-  .primer:not(.open) .rules,.primer:not(.open) .bandbox{display:none}
-}
 .hossa{margin-top:14px;display:grid;gap:6px} .hossa h3{margin:0;font-size:var(--fs-m)} .hossa h3 small{font-size:var(--fs-xs);color:var(--muted);font-weight:400;margin-left:6px}
 .hs-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:8px}
 .hs-card{font:inherit;text-align:left;cursor:pointer;display:grid;gap:3px;align-content:start;padding:6px;border:1px solid var(--line);border-radius:var(--r);background:var(--paper);color:var(--ink);font-size:var(--fs-xs);line-height:1.5}
@@ -504,6 +500,74 @@ body.eegfs .ichi-card{display:none}
 #tutBtn::after{content:'';position:absolute;left:50%;bottom:calc(100% + 1px);transform:translateX(-50%);border:5px solid transparent;border-top-color:var(--hot);border-bottom:0}
 @keyframes bubBob{0%,100%{translate:0 0}50%{translate:0 -2px}}
 @media (prefers-reduced-motion:reduce){#tutBtn::before{animation:none}}
+/* ===== 画面の切り替え：ホーム（スクロールで読む入口）と、各モードの画面 ===== */
+body:not(.home) #home{display:none}
+body.home #panel,body.home .desk,body.home #mihonSec,body.home .appbar,body.home #fsPanelBtn{display:none!important}
+body.eegfs .appbar,body.eegfs #home{display:none!important}
+.appbar{position:sticky;top:0;z-index:30;display:flex;align-items:center;gap:8px 12px;flex-wrap:wrap;padding:8px 0;margin-bottom:6px;background:color-mix(in srgb,var(--paper) 92%,transparent);backdrop-filter:blur(6px);border-bottom:1px solid var(--line)}
+.ab-home{font-weight:700;color:var(--accent);text-decoration:none;min-height:40px;display:inline-flex;align-items:center;padding:0 10px;border:1px solid var(--line);border-radius:999px;background:var(--panel)}
+.ab-title{font-family:var(--f-display);font-size:var(--fs-l);letter-spacing:.06em} .ab-mode{margin-left:6px;color:var(--accent)}
+.ab-r{margin-left:auto;display:flex;gap:8px;align-items:center}
+.ab-btn{font:inherit;font-weight:700;min-height:40px;padding:0 14px;border:2px solid var(--accent);border-radius:999px;background:var(--panel);color:var(--accent);cursor:pointer}
+.ab-menu{background:var(--accent);color:var(--accent-ink)}
+.ab-btn[aria-expanded="true"]{box-shadow:0 0 0 3px color-mix(in srgb,var(--accent) 30%,transparent)}
+.pop{position:absolute;top:calc(100% + 4px);right:0;z-index:31;background:var(--panel);border:2px solid var(--accent);border-radius:12px;box-shadow:0 12px 32px rgba(0,0,0,.22);padding:12px;width:min(420px,calc(100vw - 32px))}
+.mm{display:flex;flex-wrap:wrap;gap:6px;margin:0}
+.mm-h{flex-basis:100%;margin:6px 0 0;font-size:var(--fs-xs);font-weight:700;color:var(--muted)}
+.mm-i{text-decoration:none;color:var(--ink);font-size:var(--fs-s);padding:6px 12px;min-height:36px;display:inline-flex;align-items:center;border:1px solid var(--line);border-radius:999px;background:var(--paper)}
+.mm-i[aria-current="page"]{background:var(--accent);color:var(--accent-ink);border-color:var(--accent);font-weight:700}
+.mm-lab{border-color:var(--hot);color:var(--hot);font-weight:700}
+.level{display:grid;gap:10px}
+.set-row{display:flex;flex-wrap:wrap;gap:6px 10px;align-items:center}
+@media (max-width:600px){.ab-title,.ab-lb,.ab-home span{display:none}}
+/* ホーム */
+.home{display:block}
+.hsec{min-height:62vh;display:grid;align-content:center;gap:14px;padding-block:56px;border-bottom:1px dashed var(--line)}
+.hero{min-height:calc(100vh - 40px);padding-block:24px 40px}
+.hero-top{display:flex;justify-content:space-between;align-items:center}
+.hero h1{font-size:clamp(2.6rem,9vw,4.8rem)}
+.hero-l{margin:0;font-size:clamp(1.25rem,3.4vw,2rem);font-weight:700;line-height:1.4}
+.hero-l2 b{color:var(--hot)}
+.hero-eeg{background:var(--sheet);border:2px solid var(--ink);border-radius:var(--r);box-shadow:4px 4px 0 var(--line);padding:8px;position:relative}
+#heroCv{width:100%;height:clamp(150px,26vh,240px);display:block}
+.hero-cap{position:absolute;right:14px;top:10px;margin:0;font-weight:700;font-size:var(--fs-s);background:var(--panel);border:2px solid var(--hot);color:var(--hot);border-radius:999px;padding:2px 12px}
+.scroll-cue{justify-self:center;font-size:var(--fs-s);color:var(--muted);animation:cue 1.6s ease-in-out infinite}
+@keyframes cue{50%{transform:translateY(6px)}}
+.hs-no{margin:0;font-family:var(--f-display);color:var(--hot);letter-spacing:.2em;font-size:var(--fs-s)}
+.hsec h2{margin:0;font-family:var(--f-display);font-weight:400;font-size:clamp(1.8rem,5vw,2.8rem);letter-spacing:.04em}
+.hs-l{margin:0;font-size:var(--fs-l);max-width:36em}
+.btn-hero{justify-self:start;display:inline-flex;align-items:center;gap:14px;text-decoration:none;color:#fff;background:var(--hot);border-radius:18px;padding:16px 26px;font-size:clamp(1.3rem,3.4vw,1.8rem);font-weight:700;box-shadow:0 6px 0 color-mix(in srgb,var(--hot) 60%,#000);transition:transform .1s,box-shadow .1s;animation:heroPulse 2.2s ease-in-out infinite}
+.btn-hero small{display:block;font-size:var(--fs-s);font-weight:400;opacity:.9}
+.btn-hero .bh-ic{font-size:1.6em}
+.btn-hero .bh-ar{font-size:.9em;opacity:.9}
+.btn-hero:active{transform:translateY(5px);box-shadow:0 1px 0 color-mix(in srgb,var(--hot) 60%,#000)}
+@keyframes heroPulse{50%{box-shadow:0 6px 0 color-mix(in srgb,var(--hot) 60%,#000),0 0 0 10px color-mix(in srgb,var(--hot) 18%,transparent)}}
+.hgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:10px}
+.hgrid-hon{grid-template-columns:2fr 1fr 1fr} .hgrid-2{grid-template-columns:2fr 1fr}
+@media (max-width:760px){.hgrid-hon,.hgrid-2{grid-template-columns:minmax(0,1fr)}}
+.htile{position:relative;display:grid;gap:4px;align-content:center;text-decoration:none;color:var(--ink);background:var(--panel);border:2px solid var(--accent);border-radius:14px;padding:16px 44px 16px 18px;min-height:86px;box-shadow:0 4px 0 color-mix(in srgb,var(--accent) 45%,var(--line));transition:transform .1s,box-shadow .1s}
+.htile b{font-family:var(--f-display);font-weight:400;font-size:var(--fs-xl);letter-spacing:.04em} .htile span{font-size:var(--fs-s);color:var(--muted)}
+.htile i{position:absolute;right:16px;top:50%;transform:translateY(-50%);font-style:normal;color:var(--accent);font-size:1.2em}
+.htile:hover{background:var(--accent-soft)} .htile:active{transform:translateY(3px);box-shadow:0 1px 0 var(--line)}
+.htile-big{background:color-mix(in srgb,var(--accent) 10%,var(--panel));min-height:120px} .htile-big b{font-size:clamp(1.6rem,3.6vw,2.2rem)}
+.htile-sen{border-color:#b98a2a;box-shadow:0 4px 0 #d9bf87} .htile-sen i{color:#a06d12}
+.rv{opacity:0;transform:translateY(26px);transition:opacity .7s ease,transform .7s ease}
+.rv.in{opacity:1;transform:none}
+@media (prefers-reduced-motion:reduce){.rv{opacity:1;transform:none;transition:none}.btn-hero,.scroll-cue{animation:none}}
+.home .ichi-card{margin:0} .home .ichi-in{height:100%}
+.home .foot{margin:40px 0 0}
+.pr-toggle{display:none!important}
+.chan-note:empty,.map-note:empty{display:none}
+/* ガイド（スポットライト） */
+.coach{position:fixed;inset:0;z-index:80}
+.coach-hole{position:fixed;border-radius:12px;box-shadow:0 0 0 9999px rgba(10,20,25,.62);border:3px solid var(--mark);pointer-events:none;transition:all .35s ease}
+.coach-bub{position:fixed;width:min(340px,calc(100vw - 24px));background:var(--panel);color:var(--ink);border:3px solid var(--mark);border-radius:14px;padding:12px 14px;box-shadow:0 10px 30px rgba(0,0,0,.3);display:grid;gap:8px;transition:top .35s ease,left .35s ease}
+.coach-bub p{margin:0;font-size:var(--fs-m);line-height:1.6}
+.coach-bub .cb-n{font-size:var(--fs-xs);font-weight:700;color:var(--hot)}
+.coach-bub .cb-do{font-weight:700;color:var(--hot)}
+.coach-row{display:flex;justify-content:space-between;align-items:center;gap:8px}
+.coach-row .btn{min-height:40px}
+.coach-skip{font:inherit;font-size:var(--fs-xs);background:none;border:0;color:var(--muted);text-decoration:underline;cursor:pointer;min-height:40px}
 .mk-btn{min-height:30px;padding:2px 10px;margin-left:8px;font-size:var(--fs-xs)}
 .st-reset{display:flex;flex-wrap:wrap;gap:8px;align-items:center;border-top:1px dashed var(--line);padding-top:10px;font-size:var(--fs-s)}
 .st-reset p{flex-basis:100%;margin:0}
@@ -742,62 +806,106 @@ body.eegfs #panel.qz-on .mihon-box,body.eegfs #panel.rp-on .mihon-box{display:no
 </style>
 
 <div class="wrap">
-  <header class="top">
-    <p class="eyebrow" data-oki="精神科試験ゲーム ・ 沖縄版 ・ 脳波の入門から専門医試験まで">精神科試験ゲーム ・ 脳波の入門から専門医試験まで</p>
-    <div class="h1row"><h1>脳波よみ道場</h1><button type="button" class="oki-btn" id="okiBtn">沖縄版へ</button></div>
-    <p class="lead" data-oki="参考書の脳波は動かんけど、ここのは目開けたらα波が消えて、歯くいしばったら筋電図が入るさー。触って、当てて、症例で使えるようになろうね。">参考書の脳波は動きません。ここの脳波は、目を開ければα波が消え、歯をくいしばれば筋電図が入り、導出を切り替えれば同じ棘波が別の形に見えます。触って、当てて、症例で使えるようにします。</p>
+  <header class="appbar" id="appbar">
+    <a class="ab-home" href="#home" aria-label="ホームへ">←<span> ホーム</span></a>
+    <span class="ab-title">脳波よみ道場<span class="ab-mode" id="abModeT"></span></span>
+    <div class="ab-r">
+      <button type="button" class="ab-btn ab-menu" id="menuBtn" aria-expanded="false" aria-controls="menuPop">☰ <span id="abMode">メニュー</span></button>
+      <button type="button" class="ab-btn" id="setBtn" aria-expanded="false" aria-controls="setPop">⚙<span class="ab-lb"> 設定</span></button>
+      <button type="button" class="oki-btn">沖縄版へ</button>
+    </div>
+    <div class="pop" id="menuPop" hidden>
+      <nav class="modes mm" aria-label="モード">
+        <p class="mm-h">まずは</p>
+        <a class="mm-i mm-lab" href="#lab" data-mode="lab">▶ 触ってみる</a>
+        <p class="mm-h">症例で読む（本編）</p>
+        <a class="mm-i" href="#story" data-mode="story">研修スタート</a><a class="mm-i" href="#conf" data-mode="conf">脳波カンファ</a><a class="mm-i" href="#sen" data-mode="sen">専門医道場</a>
+        <p class="mm-h">練習</p>
+        <a class="mm-i" href="#elec" data-mode="elec">電極つけ練習</a><a class="mm-i" href="#dojo" data-mode="dojo">波形道場</a><a class="mm-i" href="#hunter" data-mode="hunter">位相逆転ハンター</a><a class="mm-i" href="#flash" data-mode="flash">5秒チャレンジ</a><a class="mm-i" href="#hossa" data-mode="hossa">発作当てクイズ</a><a class="mm-i" href="#review" data-mode="review">まちがい復習</a>
+        <p class="mm-h">集める</p>
+        <a class="mm-i" href="#zukan" data-mode="zukan">脳波・発作図鑑</a><a class="mm-i" href="#ichi" data-mode="ichi">今日の一件</a>
+      </nav>
+    </div>
+    <div class="pop pop-r" id="setPop" hidden>
+      <div class="level" role="group" aria-label="設定">
+        <div class="set-row"><span class="lb">波</span><span class="seg" id="lvSeg"><button type="button" data-lv="0">入門：きれいな波</button><button type="button" data-lv="1">実践：本物に近い波</button></span>
+    </div><div class="set-row"><span class="lb">選択肢</span><span class="seg" id="hoSeg"><button type="button" data-ho="0">最初から表示</button><button type="button" data-ho="1">後から表示（上級）</button></span></div>
+      </div>
+    </div>
   </header>
-  <section class="ichi-card" id="ichiCard" aria-labelledby="ichiH"></section>
 
-  <section class="primer" aria-labelledby="prh">
-    <div class="primer-grid">
-    <div class="primer-l">
-    <h2 id="prh"><span data-oki="読む前に、4つだけ約束さー">読む前の4つの約束</span><button type="button" class="pr-toggle" id="prToggle" aria-expanded="false">ひらく ▼</button></h2>
+  <main class="home" id="home">
+    <section class="hsec hero">
+      <div class="hero-top"><p class="eyebrow">精神科試験ゲーム</p><button type="button" class="oki-btn" id="okiBtn">沖縄版へ</button></div>
+      <h1>脳波よみ道場</h1>
+      <p class="hero-l rv" data-oki="参考書の脳波は、動かんさー。">参考書の脳波は、動かない。</p>
+      <p class="hero-l hero-l2 rv" data-oki="ここの脳波は、&lt;b&gt;触ったら変わるよー。&lt;/b&gt;">ここの脳波は、<b>触ると変わる。</b></p>
+      <div class="hero-eeg rv"><canvas id="heroCv" aria-hidden="true"></canvas><p class="hero-cap" id="heroCap"></p></div>
+      <p class="scroll-cue">スクロール ▼</p>
+    </section>
+
+    <section class="hsec">
+      <p class="hs-no rv">STEP 1</p>
+      <h2 class="rv" data-oki="まずは、触ってみよう">まずは、触ってみる</h2>
+      <p class="hs-l rv" data-oki="目開けたり、まばたきしたり、眠ったり。押したら、脳波がその場で変わるさー。">目を開ける、まばたき、眠る。押すと、脳波がその場で変わります。</p>
+      <a class="btn-hero rv" href="#lab" data-mode="lab"><span class="bh-ic" aria-hidden="true">👆</span><span>触ってみる<small>1分のガイドつき</small></span><span class="bh-ar" aria-hidden="true">▶</span></a>
+    </section>
+
+    <section class="hsec primer" aria-labelledby="prh">
+      <p class="hs-no rv">STEP 2</p>
+      <h2 id="prh" class="rv" data-oki="読む前に、4つだけ約束さー">読む前に、4つだけ</h2>
+      <div class="primer-grid rv">
+      <div class="primer-l">
     <ol class="rules">
       <li><b><span class="n">約束1</span> 1本の線は「差」</b>脳波の1本は、2つの電極の電位の差です。<code>F3−C3</code> は「F3 から C3 を引いた値」。線をタップすると、どの2つかを頭の図に出します。<svg class="rule-anim" id="ra1" viewBox="0 0 240 88" role="img" aria-label="約束1の図"></svg></li>
       <li><b><span class="n">約束2</span> 上向きがマイナス</b>脳波はマイナス（陰性）を上に描きます。脳の表面の棘波はたいていマイナスなので、上向きに振れます。<svg class="rule-anim" id="ra2" viewBox="0 0 240 88" role="img" aria-label="約束2の図"></svg></li>
       <li><b><span class="n">約束3</span> 向かい合ったら焦点</b>双極導出で、となり合う2本が逆向きに振れて向かい合ったら（位相逆転）、2本が共有する電極が焦点です。<svg class="rule-anim" id="ra3" viewBox="0 0 240 88" role="img" aria-label="約束3の図"></svg></li>
       <li><b><span class="n">約束4</span> 読む順番</b>①目を閉じた後頭部のα波 ②左右差 ③突発的な波。いきなり異常を探さず、背景から読みます。<svg class="rule-anim" id="ra4" viewBox="0 0 240 100" role="img" aria-label="約束4の図"></svg></li>
     </ol>
-    </div>
+      </div>
     <aside class="bandbox" aria-labelledby="bdh">
       <h2 id="bdh">4つの波 <small>周波数で分ける</small></h2>
       <div class="bands" id="bands"></div>
       <p class="band-scale" id="bandScale"></p>
     </aside>
-    </div>
-  </section>
+      </div>
+    </section>
 
-  <p class="modes-cap" data-oki="▼ まずは「触ってみる」から。慣れたら&lt;b&gt;本編&lt;/b&gt;か&lt;b&gt;練習&lt;/b&gt;を開いてね。">▼ まずは「触ってみる」から。慣れたら<b>本編</b>か<b>練習</b>を開いてください。</p>
-  <nav class="modes" aria-label="モード">
-    <div class="mgrp-row">
-      <a class="mgrp-h mode-labh" href="#lab" data-mode="lab"><span class="mt">まずは触ってみる</span><span class="ms" data-oki="目開けたり、眠ったり、光あててみて">目を開ける・眠る・光をあてる</span></a>
-      <button type="button" class="mgrp-h mgrp-hon" data-g="hon" aria-expanded="false"><span class="mt">本編</span><span class="ms" id="gHon" data-oki="症例で読むよー">症例で読む・3つ</span><span class="mgrp-ar">▼</span></button>
-      <button type="button" class="mgrp-h" data-g="ren" aria-expanded="false"><span class="mt">練習</span><span class="ms" id="gRen" data-oki="好きなとこからどうぞー">好きなところから・6つ</span><span class="mgrp-ar">▼</span></button>
-      <a class="mgrp-h mode-zkh" href="#zukan" data-mode="zukan"><span class="mt">脳波・発作図鑑</span><span class="ms" id="zkTab">集めたカード</span></a>
-    </div>
-    <div class="mgrp-b" data-gb="hon" hidden>
-      <a class="mode mode-hon" href="#story" data-mode="story"><span class="mg">本編</span><span class="mt">研修スタート</span><span class="ms" data-oki="新人ドクターの1年。章を順番に進めるよー">新人医師の1年。章を順に進める</span></a>
-      <a class="mode mode-hon" href="#conf" data-mode="conf"><span class="mg">本編</span><span class="mt">脳波カンファ</span><span class="ms" data-oki="精神科の症例 13人・39問さー">精神科の症例 13人・39問</span></a>
-      <a class="mode mode-hon mode-sen" href="#sen" data-mode="sen"><span class="mg">本編・上級</span><span class="mt">専門医道場</span><span class="ms" data-oki="てんかん専門医レベル 11題・33問さー">てんかん専門医レベル 11題・33問</span></a>
-    </div>
-    <div class="mgrp-b" data-gb="ren" hidden>
-      <a class="mode" href="#elec" data-mode="elec"><span class="mg">練習</span><span class="mt">電極つけ練習</span><span class="ms" data-oki="検査技師になって電極つけるよー">検査技師になって 10-20法</span></a>
-      <a class="mode" href="#dojo" data-mode="dojo"><span class="mg">練習</span><span class="mt">波形道場</span><span class="ms" data-oki="波の名前当ててみて 12問">波の名前を当てる 12問</span></a>
-      <a class="mode" href="#hunter" data-mode="hunter"><span class="mg">練習</span><span class="mt">位相逆転ハンター</span><span class="ms" data-oki="焦点の電極さがすよー 10回">焦点の電極を探す 10回</span></a>
-      <a class="mode" href="#flash" data-mode="flash"><span class="mg">練習</span><span class="mt">5秒チャレンジ</span><span class="ms" data-oki="5秒だけ見て当てるよー">5秒だけ見て、何の波か当てる</span></a>
-      <a class="mode" href="#hossa" data-mode="hossa"><span class="mg">練習</span><span class="mt">発作当てクイズ</span><span class="ms" data-oki="動き見て発作の名前当てるよー">動きを見て名前を当てる</span></a>
-      <a class="mode" href="#review" data-mode="review"><span class="mg">練習</span><span class="mt">まちがい復習</span><span class="ms" id="revTab">まちがえた問題を解き直す</span></a>
-    </div>
-  </nav>
-  <div class="level" role="group" aria-labelledby="lvh">
-    <span id="lvh" class="lb">波のレベル</span>
-    <span class="seg" id="lvSeg"><button type="button" data-lv="0">入門：きれいな波</button><button type="button" data-lv="1">実践：本物に近い波</button></span>
-    <span class="lb">選択肢</span><span class="seg" id="hoSeg"><button type="button" data-ho="0">最初から表示</button><button type="button" data-ho="1">後から表示（上級）</button></span>
-    <p class="note">実践では、波が1つずつ不規則になり、問題と関係のないまばたき・筋電図・汗・電極のはずれも混じります。実践で正解すると、図鑑のカードが金色になります。</p>
-  </div>
+    <section class="hsec">
+      <p class="hs-no rv">STEP 3</p>
+      <h2 class="rv" data-oki="症例で読むよー">症例で読む</h2>
+      <p class="hs-l rv" data-oki="国試の形の症例。症状の動画見て、脳波で確かめるさー。">国試の形の症例。症状の動画を見て、脳波で確かめる。</p>
+      <div class="hgrid hgrid-hon rv">
+        <a class="htile htile-big" href="#story" data-mode="story"><b>研修スタート</b><span data-oki="新人ドクターの1年・全5章">新人医師の1年・全5章</span><i aria-hidden="true">▶</i></a>
+        <a class="htile" href="#conf" data-mode="conf"><b>脳波カンファ</b><span data-oki="精神科の症例 13人さー">精神科の症例 13人</span><i aria-hidden="true">▶</i></a>
+        <a class="htile htile-sen" href="#sen" data-mode="sen"><b>専門医道場</b><span data-oki="てんかん専門医レベルさー">てんかん専門医レベル</span><i aria-hidden="true">▶</i></a>
+      </div>
+    </section>
 
-  <div class="fs-tip" id="fsTip" hidden><p data-oki="&lt;b&gt;iPad なら全画面がいいよー。&lt;/b&gt;脳波と頭の図と問題が1画面に並ぶさー。Safari の上のバーも消したかったら、共有ボタン →「ホーム画面に追加」で開いてみてね。"><b>iPad では全画面がおすすめです。</b>脳波・頭の図・問題が1画面に並び、指での操作もしやすくなります。Safari の上のバーも消したいときは、共有ボタン →「ホーム画面に追加」で、アプリとして開いてください。</p><button type="button" class="btn" id="fsTipGo">⛶ 全画面にする</button><button type="button" class="fs-x" id="fsTipX">今後は表示しない</button></div>
+    <section class="hsec">
+      <p class="hs-no rv">STEP 4</p>
+      <h2 class="rv" data-oki="練習するよー">練習する</h2>
+      <div class="hgrid rv">
+        <a class="htile" href="#elec" data-mode="elec"><b>電極つけ練習</b><span data-oki="10-20法の場所さー">10-20法の場所</span><i aria-hidden="true">▶</i></a>
+        <a class="htile" href="#dojo" data-mode="dojo"><b>波形道場</b><span data-oki="波の名前当てるよー">波の名前を当てる</span><i aria-hidden="true">▶</i></a>
+        <a class="htile" href="#hunter" data-mode="hunter"><b>位相逆転ハンター</b><span data-oki="焦点の電極さがすよー">焦点の電極を探す</span><i aria-hidden="true">▶</i></a>
+        <a class="htile" href="#flash" data-mode="flash"><b>5秒チャレンジ</b><span data-oki="5秒だけ見て当てるよー">5秒だけ見て当てる</span><i aria-hidden="true">▶</i></a>
+        <a class="htile" href="#hossa" data-mode="hossa"><b>発作当てクイズ</b><span data-oki="動き見て当てるよー">動きを見て当てる</span><i aria-hidden="true">▶</i></a>
+        <a class="htile" href="#review" data-mode="review"><b>まちがい復習</b><span data-oki="まちがえた問題さー" id="revTab">まちがえた問題</span><i aria-hidden="true">▶</i></a>
+      </div>
+    </section>
+
+    <section class="hsec">
+      <p class="hs-no rv">MORE</p>
+      <h2 class="rv" data-oki="毎日ひとつ、集めるさー">毎日ひとつ、集める</h2>
+      <div class="hgrid hgrid-2 rv">
+        <section class="ichi-card" id="ichiCard" aria-labelledby="ichiH"></section>
+        <a class="htile htile-zk" href="#zukan" data-mode="zukan"><b>脳波・発作図鑑</b><span data-oki="集めたカードさー" id="zkTab">集めたカード</span><i aria-hidden="true">▶</i></a>
+      </div>
+    </section>
+  <p class="foot">波形はこのページの中で合成したもので、実在の患者さんの記録ではありません。形や数値は学習用に単純化しています。「実践」レベルの波も本物に近づけたものですが、実際の記録そのものではありません。図鑑の集まり具合は、このブラウザの中にだけ保存されます。電極名は日本で広く使われる T3・T4・T5・T6（新しい呼び方では T7・T8・P7・P8）です。実際の判読は、記録の条件や臨床経過と合わせて、専門の医師が行ってください。</p>
+  </main>
+
   <section id="panel"></section>
 
   <div class="stamp" id="stamp" hidden aria-live="polite"></div>
@@ -823,7 +931,7 @@ body.eegfs #panel.qz-on .mihon-box,body.eegfs #panel.rp-on .mihon-box{display:no
         <button type="button" class="act" id="fsBtn" aria-pressed="false">全画面</button>
       </div>
       <div class="trace-wrap"><canvas id="trace" role="img" aria-label="脳波の記録"></canvas><div class="shisa" id="shisa" hidden aria-hidden="true"><span class="shisa-say">ココ！</span><svg viewBox="0 0 140 136"><defs><radialGradient id="shB" cx="45%" cy="35%" r="70%"><stop offset="0" stop-color="#f6b46e"/><stop offset="1" stop-color="#c8662c"/></radialGradient><radialGradient id="shM" cx="40%" cy="35%" r="70%"><stop offset="0" stop-color="#d9773a"/><stop offset="1" stop-color="#9c4418"/></radialGradient><radialGradient id="shF" cx="50%" cy="40%" r="65%"><stop offset="0" stop-color="#ffd7a3"/><stop offset="1" stop-color="#eda15c"/></radialGradient></defs><path d="M108 98 C130 92 132 70 120 64 C112 60 106 70 114 74 C120 77 118 86 106 88 Z" fill="url(#shM)" stroke="#7d3313" stroke-width="1.4"/><circle cx="121.0" cy="66.0" r="7.0" fill="url(#shM)" stroke="#7d3313" stroke-width="1.2"/><path d="M122.0 66.0 a3.5 3.5 0 1 1 -4.2 0.1 a2.0 2.0 0 1 1 2.2 0.0" fill="none" stroke="#7d3313" stroke-width="1.3" stroke-linecap="round"/><path d="M50 96 C48 78 62 70 80 70 C100 70 112 82 110 102 C108 122 96 128 80 128 C62 128 52 116 50 96 Z" fill="url(#shB)" stroke="#7d3313" stroke-width="1.6"/><path d="M66 92 q14 10 28 0" fill="none" stroke="#a24b1d" stroke-width="2" opacity=".6"/><path d="M88 108 L90 128" stroke="url(#shB)" stroke-width="13" stroke-linecap="round"/><ellipse cx="91" cy="129" rx="9" ry="5" fill="#f3b26c" stroke="#7d3313" stroke-width="1.3"/><path d="M86 129 v-3 M91 130 v-3 M96 129 v-3" stroke="#7d3313" stroke-width="1"/><path d="M62 96 C48 92 34 88 22 84" stroke="#7d3313" stroke-width="15" stroke-linecap="round" fill="none"/><path d="M62 96 C48 92 34 88 22 84" stroke="#e98e48" stroke-width="12" stroke-linecap="round" fill="none"/><circle cx="18" cy="83" r="9" fill="#f6bd7a" stroke="#7d3313" stroke-width="1.4"/><ellipse cx="7" cy="80" rx="6.5" ry="3.2" fill="#f6bd7a" stroke="#7d3313" stroke-width="1.3" transform="rotate(-12 7 80)"/><circle cx="20" cy="86" r="2.6" fill="#e0866f"/><circle cx="70.0" cy="17.0" r="10.5" fill="url(#shM)" stroke="#7d3313" stroke-width="1.2"/><path d="M71.6 17.0 a5.2 5.2 0 1 1 -6.3 0.1 a2.9 2.9 0 1 1 3.4 0.0" fill="none" stroke="#7d3313" stroke-width="1.3" stroke-linecap="round"/><circle cx="87.5" cy="21.4" r="10.5" fill="url(#shM)" stroke="#7d3313" stroke-width="1.2"/><path d="M89.1 21.4 a5.2 5.2 0 1 1 -6.3 0.1 a2.9 2.9 0 1 1 3.4 0.0" fill="none" stroke="#7d3313" stroke-width="1.3" stroke-linecap="round"/><circle cx="100.3" cy="33.5" r="10.5" fill="url(#shM)" stroke="#7d3313" stroke-width="1.2"/><path d="M101.9 33.5 a5.2 5.2 0 1 1 -6.3 0.1 a2.9 2.9 0 1 1 3.4 0.0" fill="none" stroke="#7d3313" stroke-width="1.3" stroke-linecap="round"/><circle cx="105.0" cy="50.0" r="10.5" fill="url(#shM)" stroke="#7d3313" stroke-width="1.2"/><path d="M106.6 50.0 a5.2 5.2 0 1 1 -6.3 0.1 a2.9 2.9 0 1 1 3.4 0.0" fill="none" stroke="#7d3313" stroke-width="1.3" stroke-linecap="round"/><circle cx="100.3" cy="66.5" r="10.5" fill="url(#shM)" stroke="#7d3313" stroke-width="1.2"/><path d="M101.9 66.5 a5.2 5.2 0 1 1 -6.3 0.1 a2.9 2.9 0 1 1 3.4 0.0" fill="none" stroke="#7d3313" stroke-width="1.3" stroke-linecap="round"/><circle cx="87.5" cy="78.6" r="10.5" fill="url(#shM)" stroke="#7d3313" stroke-width="1.2"/><path d="M89.1 78.6 a5.2 5.2 0 1 1 -6.3 0.1 a2.9 2.9 0 1 1 3.4 0.0" fill="none" stroke="#7d3313" stroke-width="1.3" stroke-linecap="round"/><circle cx="70.0" cy="83.0" r="10.5" fill="url(#shM)" stroke="#7d3313" stroke-width="1.2"/><path d="M71.6 83.0 a5.2 5.2 0 1 1 -6.3 0.1 a2.9 2.9 0 1 1 3.4 0.0" fill="none" stroke="#7d3313" stroke-width="1.3" stroke-linecap="round"/><circle cx="52.5" cy="78.6" r="10.5" fill="url(#shM)" stroke="#7d3313" stroke-width="1.2"/><path d="M54.1 78.6 a5.2 5.2 0 1 1 -6.3 0.1 a2.9 2.9 0 1 1 3.4 0.0" fill="none" stroke="#7d3313" stroke-width="1.3" stroke-linecap="round"/><circle cx="39.7" cy="66.5" r="10.5" fill="url(#shM)" stroke="#7d3313" stroke-width="1.2"/><path d="M41.3 66.5 a5.2 5.2 0 1 1 -6.3 0.1 a2.9 2.9 0 1 1 3.4 0.0" fill="none" stroke="#7d3313" stroke-width="1.3" stroke-linecap="round"/><circle cx="35.0" cy="50.0" r="10.5" fill="url(#shM)" stroke="#7d3313" stroke-width="1.2"/><path d="M36.6 50.0 a5.2 5.2 0 1 1 -6.3 0.1 a2.9 2.9 0 1 1 3.4 0.0" fill="none" stroke="#7d3313" stroke-width="1.3" stroke-linecap="round"/><circle cx="39.7" cy="33.5" r="10.5" fill="url(#shM)" stroke="#7d3313" stroke-width="1.2"/><path d="M41.3 33.5 a5.2 5.2 0 1 1 -6.3 0.1 a2.9 2.9 0 1 1 3.4 0.0" fill="none" stroke="#7d3313" stroke-width="1.3" stroke-linecap="round"/><circle cx="52.5" cy="21.4" r="10.5" fill="url(#shM)" stroke="#7d3313" stroke-width="1.2"/><path d="M54.1 21.4 a5.2 5.2 0 1 1 -6.3 0.1 a2.9 2.9 0 1 1 3.4 0.0" fill="none" stroke="#7d3313" stroke-width="1.3" stroke-linecap="round"/><path d="M44 30 q-6 -14 8 -12 q4 6 0 14 Z M96 30 q6 -14 -8 -12 q-4 6 0 14 Z" fill="#c8662c" stroke="#7d3313" stroke-width="1.3"/><ellipse cx="70" cy="52" rx="27" ry="25" fill="url(#shF)" stroke="#7d3313" stroke-width="1.6"/><path d="M52 37 q4 -7 12 -3 q-5 1 -4 5" fill="none" stroke="#7d3313" stroke-width="2.6" stroke-linecap="round"/><path d="M88 37 q-4 -7 -12 -3 q5 1 4 5" fill="none" stroke="#7d3313" stroke-width="2.6" stroke-linecap="round"/><ellipse cx="60" cy="47" rx="8" ry="9" fill="#fff" stroke="#7d3313" stroke-width="1.3"/><ellipse cx="80" cy="47" rx="8" ry="9" fill="#fff" stroke="#7d3313" stroke-width="1.3"/><circle cx="57.5" cy="48.5" r="5.6" fill="#3a2111"/><circle cx="77.5" cy="48.5" r="5.6" fill="#3a2111"/><circle cx="55.6" cy="46" r="2.2" fill="#fff"/><circle cx="75.6" cy="46" r="2.2" fill="#fff"/><circle cx="59.5" cy="51" r="1" fill="#fff"/><circle cx="79.5" cy="51" r="1" fill="#fff"/><ellipse cx="70" cy="62" rx="15" ry="9" fill="#ffe2bd" opacity=".9"/><path d="M62 57 q8 -5 16 0 q-2 6 -8 6 q-6 0 -8 -6 Z" fill="#4a2412"/><ellipse cx="67" cy="57.5" rx="2.4" ry="1.3" fill="#fff" opacity=".6"/><path d="M56 64 Q70 82 84 64 Q70 70 56 64 Z" fill="#8a2420" stroke="#5a1a10" stroke-width="1.2"/><ellipse cx="70" cy="72" rx="6.5" ry="3.6" fill="#f17a86"/><path d="M59 65 l3 4 l2 -3 Z M81 65 l-3 4 l-2 -3 Z" fill="#fff"/><ellipse cx="49" cy="60" rx="4.5" ry="3" fill="#f48a7a" opacity=".55"/><ellipse cx="91" cy="60" rx="4.5" ry="3" fill="#f48a7a" opacity=".55"/></svg></div></div>
-      <p class="chan-note" id="chanNote">線をタップすると、どの2つの電極の差かを頭の図に出します。</p>
+      <p class="chan-note" id="chanNote"></p>
     </div>
     <aside class="desk-side" aria-label="頭の図（10-20法）">
       <svg id="head" viewBox="-1.3 -1.24 2.6 2.48" role="group" aria-label="電極の配置"></svg>
@@ -854,14 +962,13 @@ body.eegfs #panel.qz-on .mihon-box,body.eegfs #panel.rp-on .mihon-box{display:no
         </div>
         <div id="siBody"></div>
       </div>
-      <p class="map-note" id="mapNote">上が鼻、左が左半球。奇数は左、偶数は右、z は正中。波をタップすると、その瞬間の電位を色で出します。</p>
+      <p class="map-note" id="mapNote"></p>
     </aside>
   </section>
 
-  <section class="mihon-wrap" id="mihonSec" hidden aria-labelledby="mhh"><h2 id="mhh">異常脳波の見本<small>押すと、脳波計でその状態の脳波が流れます。教科書の形を1本の線で。最初の1枚は比べる基準の正常です</small></h2><div class="mihon" id="mihon"></div></section>
+  <section class="mihon-wrap" id="mihonSec" hidden aria-labelledby="mhh"><h2 id="mhh">異常脳波の見本</h2><div class="mihon" id="mihon"></div></section>
   <button type="button" class="ghost fsonly" id="fsPanelBtn" aria-pressed="true">問題を隠す</button>
   <div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
-  <p class="foot">波形はこのページの中で合成したもので、実在の患者さんの記録ではありません。形や数値は学習用に単純化しています。「実践」レベルの波も本物に近づけたものですが、実際の記録そのものではありません。図鑑の集まり具合は、このブラウザの中にだけ保存されます。電極名は日本で広く使われる T3・T4・T5・T6（新しい呼び方では T7・T8・P7・P8）です。実際の判読は、記録の条件や臨床経過と合わせて、専門の医師が行ってください。</p>
 </div>
 
 <script>
@@ -1626,7 +1733,7 @@ body.eegfs #panel.qz-on .mihon-box,body.eegfs #panel.rp-on .mihon-box{display:no
   }
   // 電位の地図：タップした瞬間の、頭の上の電位（平均基準）を色で塗る
   var topoCv = document.createElement('canvas'); topoCv.width = topoCv.height = 140;
-  var MAP_DEFAULT = '上が鼻、左が左半球。奇数は左、偶数は右、z は正中。波をタップすると、その瞬間の電位を色で出します。';
+  var MAP_DEFAULT = '';
   function updateTopo() {
     var img = headSvg.querySelector('#hmTopo'), note = document.getElementById('mapNote');
     if (!img) return;
@@ -1650,7 +1757,7 @@ body.eegfs #panel.qz-on .mihon-box,body.eegfs #panel.rp-on .mihon-box{display:no
   function hexRgb(h) { h = (h || '#888888').replace('#', ''); if (h.length === 3) h = h.replace(/(.)/g, '$1$1'); var n3 = parseInt(h, 16); return [n3 >> 16 & 255, n3 >> 8 & 255, n3 & 255]; }
 
   function noteFor(c) {
-    if (!c) return '線をタップすると、その瞬間を📌で固定し、どの2つの電極の差かを頭の図に出します。固定したまま導出を切り替えて、同じ瞬間の見え方を比べられます。' + (V.live ? '左右になぞると、巻き戻し・早送り。' : '');
+    if (!c) return '';
     if (c.kind === 'ecg') return '<b>ECG</b>：同時にとっている心電図。規則正しい波が脳波に混じっていたら、ここと時刻を比べます。';
     if (c.kind === 'ph') return '<b>光刺激</b>：光が点滅した時刻の印です。';
     var ref = c.b === 'AV' ? '19個の電極の平均' : c.b === 'LE' ? '左右の耳朶の平均' : c.b;
@@ -1814,7 +1921,7 @@ body.eegfs #panel.qz-on .mihon-box,body.eegfs #panel.rp-on .mihon-box{display:no
     var st = LIVE.st, f = LIVE.flags, pre = LIVE.sim.preset;
     var opts = Object.keys(PRE).map(function (k) { return '<option value="' + k + '"' + (k === pre ? ' selected' : '') + '>' + PRE[k].name + '</option>'; }).join('');
     var pr = function (on) { return on ? 'true' : 'false'; };
-    return '<div class="ph"><h2 id="panelH" tabindex="-1">触ってみる</h2><span class="prog">流れる脳波に、操作がすぐに出ます。線をタップすると頭の図に電極が出ます。</span></div>' +
+    return '<div class="ph"><h2 id="panelH" tabindex="-1">触ってみる</h2></div>' +
       '<div class="lab-grid"><div class="ctl">' +
       '<div class="ctl-row"><label class="lb" for="preset">脳の状態</label><select id="preset">' + opts + '</select><button type="button" class="act" id="labReset">最初の状態に戻す</button></div>' +
       '<div class="ctl-row"><span class="lb">目と体</span>' +
@@ -1986,8 +2093,7 @@ body.eegfs #panel.qz-on .mihon-box,body.eegfs #panel.rp-on .mihon-box{display:no
     explain(LIVE.sim.preset, true);
     chanNote.innerHTML = noteFor(null);
     syncToolbar(); draw(); updateHead(); kick(); faceSync();
-    if (TUT.step >= 0) tutShow();
-    else if (!lsGet('eeg-tut') && LIVE.sim.preset === 'normal') { lsSet('eeg-tut', '1'); TUT.step = 0; tutShow(); }
+    if (!lsGet('eeg-tut') && LIVE.sim.preset === 'normal' && !TOUR) { lsSet('eeg-tut', '1'); setTimeout(tourStart, 400); }
   }
   /* はじめの1分：3つのボタンを順に押してもらう */
   var TUT = { step: -1 };
@@ -2028,7 +2134,7 @@ body.eegfs #panel.qz-on .mihon-box,body.eegfs #panel.rp-on .mihon-box{display:no
     if (mh) { mihonGo(mh.getAttribute('data-mihon')); return; }
     if (e.target.closest('#tutSkip')) { tutEnd(); return; }
     if (e.target.closest('#labReset')) { TUT.step = -1; QZ.cur = null; var m0 = V.mont; newLive(LIVE.sim.preset); V.mont = m0; V.playing = true; enterLab(); toast('<b>最初の状態に戻しました</b><br>操作をすべて取り消して、記録をとり直しています'); return; }
-    if (e.target.closest('#tutBtn')) { tutStart(); return; }
+    if (e.target.closest('#tutBtn')) { tourStart(); return; }
     if (e.target.closest('#qzBtn')) { TUT.step = -1; tutMark(); quizStart(); return; }
     if (e.target.closest('#rpBtn')) { TUT.step = -1; tutMark(); reportOpen(); return; }
     var qa = e.target.closest('[data-qz]'); if (qa) { quizName(qa.getAttribute('data-qz')); return; }
@@ -2079,9 +2185,9 @@ body.eegfs #panel.qz-on .mihon-box,body.eegfs #panel.rp-on .mihon-box{display:no
     liveHlEl = els; updateHead();
     var seen = {};
     sideInfo.hidden = false;
-    document.getElementById('siBody').innerHTML = '<p class="lb">記録紙に出ている反応</p>' +
+    document.getElementById('siBody').innerHTML =
       (vis.length ? '<ul class="si-list">' + vis.filter(function (h) { if (seen[h.txt]) return false; seen[h.txt] = 1; return true; }).slice(-4).map(function (h) { return '<li><b>' + esc(h.txt) + '</b><span>' + esc(h.el.length > 6 ? h.el.slice(0, 5).join(' ') + ' ほか' : h.el.join(' ')) + '</span></li>'; }).join('') + '</ul>'
-        : '<p class="muted">ボタンを押すと、反応が出る電極が黄色になります。</p>') +
+        : '') +
       (QZ.n ? '<p><span class="lb">クイズ</span><b>' + QZ.n + '問中 ' + QZ.ok + '問正解</b></p>' : '');
   }
   // 記録紙を左右になぞる：右へ＝巻き戻し、左へ＝早送り（なぞると一時停止。再生で今に戻る）
@@ -3808,7 +3914,7 @@ body.eegfs #panel.qz-on .mihon-box,body.eegfs #panel.rp-on .mihon-box{display:no
       '<div class="zk-top"><p class="zk-title">称号　<b>' + esc(tt[1]) + '</b></p>' +
       '<div class="meter" role="img" aria-label="' + pts + ' / ' + max + ' 点"><span style="width:' + Math.round(pts / max * 100) + '%"></span></div>' +
       '<p class="muted" style="font-size:var(--fs-s)">' + pts + '点（満点 ' + max + '点）' + (nx ? '　次の称号「' + esc(nx[1]) + '」まで あと ' + (nx[0] - pts) + ' 点' : '　すべて集めました') + '</p>' +
-      '<p class="legend">発見（触ってみるで見た）＝1点、正解（入門で正解）＝2点、実践で正解＝3点の金のカード。カードを押すと、脳波計で大きく見られます。</p></div>';
+      '<p class="legend">発見1点・正解2点・実践で正解3点（金）</p>';
     ZK_CATS.forEach(function (cat) {
       html += '<h3 class="zk-cat">' + cat + '</h3><ul class="zk-grid">' + CARDS.filter(function (c) { return c.cat === cat; }).map(function (c) {
         var tier = ZK[c.id] || 0;
@@ -3843,16 +3949,17 @@ body.eegfs #panel.qz-on .mihon-box,body.eegfs #panel.rp-on .mihon-box{display:no
   syncLevel(); syncZkTab();
 
   /* ====================== 10. モードの切り替え ====================== */
-  var MODES = ['lab', 'story', 'dojo', 'hunter', 'conf', 'sen', 'elec', 'hossa', 'review', 'ichi', 'flash', 'zukan'];
+  var MODES = ['home', 'lab', 'story', 'dojo', 'hunter', 'conf', 'sen', 'elec', 'hossa', 'review', 'ichi', 'flash', 'zukan'];
   function setMode(m, focus) {
-    if (MODES.indexOf(m) === -1) m = 'lab';
+    if (MODES.indexOf(m) === -1) m = 'home';
     V.mode = m;
     document.querySelectorAll('[data-mode]').forEach(function (a) { if (a.getAttribute('data-mode') === m) a.setAttribute('aria-current', 'page'); else a.removeAttribute('aria-current'); });
     headSvg.classList.remove('picking');
     headSvg.querySelectorAll('.el').forEach(function (g2) { g2.classList.remove('ok', 'ng'); g2.removeAttribute('tabindex'); g2.removeAttribute('role'); });
     var ms0 = document.getElementById('mihonSec'); if (ms0 && m !== 'lab') ms0.hidden = true;
-    storyAnimStop(); hsStop(); flStop(); grpSync(m); document.body.classList.toggle('elecmode', m === 'elec' || m === 'hossa'); document.body.classList.remove('stvig'); document.getElementById('stVigBox').removeAttribute('data-k'); document.getElementById('stAnimMini').removeAttribute('data-k');
-    if (m === 'lab') { enterLab(); }
+    storyAnimStop(); hsStop(); flStop(); grpSync(m); if (m !== 'lab') tourEnd(); popClose(); document.body.classList.toggle('elecmode', m === 'elec' || m === 'hossa'); document.body.classList.remove('stvig'); document.getElementById('stVigBox').removeAttribute('data-k'); document.getElementById('stAnimMini').removeAttribute('data-k');
+    if (m === 'home') { if (isFs()) setFs(false); homeEnter(); }
+    else if (m === 'lab') { enterLab(); window.scrollTo(0, 0); }
     else if (m === 'story') { storyEnter(); }
     else if (m === 'ichi') { ichiStart(0); setTimeout(function () { if (coarse && !isFs()) setFs(true); else if (!isFs()) panel.scrollIntoView({ block: 'start', behavior: 'smooth' }); }, 50); }
     else if (m === 'flash') { V.live = false; FL = newFlash(); flStart(); }
@@ -3935,10 +4042,11 @@ body.eegfs #panel.qz-on .mihon-box,body.eegfs #panel.rp-on .mihon-box{display:no
   function applyOki() {
     document.documentElement.classList.toggle('oki', OKI);
     document.querySelectorAll('[data-oki]').forEach(function (el) { if (!el.hasAttribute('data-std')) el.setAttribute('data-std', el.innerHTML); el.innerHTML = OKI ? el.getAttribute('data-oki') : el.getAttribute('data-std'); });
-    okiBtn.textContent = OKI ? '標準版へ' : '沖縄版へ';
+    document.querySelectorAll('.oki-btn').forEach(function (b) { b.textContent = OKI ? '標準版へ' : '沖縄版へ'; });
     readTokens();
   }
-  okiBtn.addEventListener('click', function () { OKI = !OKI; lsSet('eeg-oki', OKI ? '1' : '0'); applyOki(); ichiCardSync(); setMode(V.mode); toast(OKI ? '<b>はいさい！沖縄版さー</b><br>指導医もうちなーぐちになるよー' : '<b>標準版に戻しました</b>'); });
+  document.querySelectorAll('.oki-btn').forEach(function (ob) { ob.addEventListener('click', okiToggle); });
+  function okiToggle() { OKI = !OKI; lsSet('eeg-oki', OKI ? '1' : '0'); applyOki(); ichiCardSync(); setMode(V.mode); toast(OKI ? '<b>はいさい！沖縄版さー</b><br>指導医もうちなーぐちになるよー' : '<b>標準版に戻しました</b>'); }
   // 正解・不正解のハンコ（連続正解も数える）
   var STREAK = 0, stampT = 0;
   function stamp(ok) {
@@ -3960,7 +4068,7 @@ body.eegfs #panel.qz-on .mihon-box,body.eegfs #panel.rp-on .mihon-box{display:no
     if (el.hidden || shisaKey !== mkPos.t0) { shisaKey = mkPos.t0; el.hidden = false; el.classList.remove('pop'); void el.offsetWidth; el.classList.add('pop'); }
   }
 
-  document.getElementById('prToggle').addEventListener('click', function () { var pr = document.querySelector('.primer'), o = pr.classList.toggle('open'); this.setAttribute('aria-expanded', String(o)); this.textContent = o ? 'とじる ▲' : 'ひらく ▼'; if (o) bandKey = ''; draw(); });
+  if (document.getElementById('prToggle')) document.getElementById('prToggle').addEventListener('click', function () { var pr = document.querySelector('.primer'), o = pr.classList.toggle('open'); this.setAttribute('aria-expanded', String(o)); this.textContent = o ? 'とじる ▲' : 'ひらく ▼'; if (o) bandKey = ''; draw(); });
 
 
   /* ====================== 上級：選択肢を、考えてから出す ====================== */
@@ -4142,19 +4250,49 @@ body.eegfs #panel.qz-on .mihon-box,body.eegfs #panel.rp-on .mihon-box{display:no
   function foundDraw() { panel.querySelectorAll('canvas[data-found]').forEach(function (cnv) { var sd = +cnv.getAttribute('data-found') || 1; drawMini(cnv, { spec: { seed: 300 + sd % 500, preset: 'normal', auto: false, init: { eo: 1 }, ev: [['blink', 1.2]] }, ch: [['Fp1', 'F3'], ['Fp2', 'F4'], ['F3', 'C3']] }, false); }); }
 
 
-  /* モードの列：本編・練習をたたんでおき、押すと開く */
-  var G_NAME = { story: ['hon', '研修スタート'], conf: ['hon', '脳波カンファ'], sen: ['hon', '専門医道場'], elec: ['ren', '電極つけ練習'], dojo: ['ren', '波形道場'], flash: ['ren', '5秒チャレンジ'], hossa: ['ren', '発作当てクイズ'], review: ['ren', 'まちがい復習'], hunter: ['ren', '位相逆転ハンター'] };
-  function grpOpen(g) { document.querySelectorAll('.mgrp-h[data-g]').forEach(function (h) { var o = h.getAttribute('data-g') === g; h.setAttribute('aria-expanded', String(o)); document.querySelector('.mgrp-b[data-gb="' + h.getAttribute('data-g') + '"]').hidden = !o; }); }
-  function grpSync(m) {
-    var x = G_NAME[m];
-    document.querySelectorAll('.mgrp-h[data-g]').forEach(function (h) { var g = h.getAttribute('data-g'), on = x && x[0] === g; if (on) h.setAttribute('aria-current', 'page'); else h.removeAttribute('aria-current'); });
-    document.getElementById('gHon').textContent = x && x[0] === 'hon' ? '● ' + x[1] : T('症例で読む・3つ', '症例で読むよー');
-    document.getElementById('gRen').textContent = x && x[0] === 'ren' ? '● ' + x[1] : T('好きなところから・6つ', '好きなとこからどうぞー');
+  /* 上のバー：メニューと設定（押すと開く小さな窓） */
+  var M_NAME = { lab: '触ってみる', story: '研修スタート', conf: '脳波カンファ', sen: '専門医道場', elec: '電極つけ練習', dojo: '波形道場', hunter: '位相逆転ハンター', flash: '5秒チャレンジ', hossa: '発作当てクイズ', review: 'まちがい復習', zukan: '脳波・発作図鑑', ichi: '今日の一件' };
+  function popClose() { ['menuPop', 'setPop'].forEach(function (id) { document.getElementById(id).hidden = true; }); ['menuBtn', 'setBtn'].forEach(function (id) { document.getElementById(id).setAttribute('aria-expanded', 'false'); }); }
+  function popToggle(btnId, popId) { var p = document.getElementById(popId), o = p.hidden; popClose(); p.hidden = !o; document.getElementById(btnId).setAttribute('aria-expanded', String(o)); }
+  document.getElementById('menuBtn').addEventListener('click', function (e) { e.stopPropagation(); popToggle('menuBtn', 'menuPop'); });
+  document.getElementById('setBtn').addEventListener('click', function (e) { e.stopPropagation(); popToggle('setBtn', 'setPop'); });
+  document.addEventListener('click', function (e) { if (!e.target.closest('.pop')) popClose(); else if (e.target.closest('.mm-i')) popClose(); });
+  function grpOpen() {}
+  function grpSync(m) { document.getElementById('abModeT').textContent = M_NAME[m] ? '／' + M_NAME[m] : ''; document.body.classList.toggle('home', m === 'home'); }
+  /* ホーム：スクロールすると、順に出てくる */
+  var rvObs = window.IntersectionObserver ? new IntersectionObserver(function (es) { es.forEach(function (en) { if (en.isIntersecting) { en.target.classList.add('in'); rvObs.unobserve(en.target); } }); }, { threshold: 0.15 }) : null;
+  document.querySelectorAll('.rv').forEach(function (el) { if (rvObs) rvObs.observe(el); else el.classList.add('in'); });
+  var heroRaf = 0, heroT0 = 0;
+  function heroDraw(ts) {
+    heroRaf = 0; if (V.mode !== 'home' || document.hidden) return;
+    var cv2 = document.getElementById('heroCv'); if (!cv2 || !cv2.clientWidth) { heroRaf = requestAnimationFrame(heroDraw); return; }
+    if (!heroT0) heroT0 = ts;
+    var W0 = cv2.clientWidth, H0 = cv2.clientHeight, dpr = Math.min(window.devicePixelRatio || 1, 2);
+    if (cv2.width !== Math.round(W0 * dpr)) { cv2.width = Math.round(W0 * dpr); cv2.height = Math.round(H0 * dpr); }
+    var c2 = cv2.getContext('2d'); c2.setTransform(dpr, 0, 0, dpr, 0, 0);
+    c2.fillStyle = TOK['--sheet']; c2.fillRect(0, 0, W0, H0);
+    c2.strokeStyle = TOK['--grid']; c2.lineWidth = 1;
+    var sec = 6, pps = W0 / sec, t = (ts - heroT0) / 1000, cyc = 7, ph = t % cyc, open = ph > 3.5;
+    for (var gx = 0; gx <= W0; gx += pps / 5) { c2.beginPath(); c2.moveTo(gx, 0); c2.lineTo(gx, H0); c2.stroke(); }
+    var names = ['Fp', 'F', 'C', 'P', 'O'], n = names.length, sp = H0 / (n + 0.3);
+    c2.font = '11px ui-monospace, monospace'; c2.fillStyle = TOK['--muted'];
+    for (var r = 0; r < n; r++) {
+      var yc = sp * (r + 0.75); c2.fillText(names[r], 4, yc + 4);
+      c2.strokeStyle = TOK['--trace']; c2.lineWidth = 1.3; c2.beginPath();
+      for (var x = 26; x <= W0; x += 2) {
+        var tt = t - (W0 - x) / pps, pp = ((tt % cyc) + cyc) % cyc, op = pp > 3.5, w = r / (n - 1);
+        var aA = (op ? 0.12 : 1) * (0.25 + 0.75 * w * w) * sp * 0.38 * (0.75 + 0.25 * Math.sin(tt * 1.3));
+        var v = aA * Math.sin(tt * 2 * Math.PI * 10 + r) + sp * 0.05 * Math.sin(tt * 37 + r * 2) + sp * 0.04 * Math.sin(tt * 3.1 + r);
+        if (r === 0) { var d = pp - 3.55; v += -sp * 0.55 * Math.exp(-d * d / 0.008); }
+        var y = yc - v; x === 26 ? c2.moveTo(x, y) : c2.lineTo(x, y);
+      }
+      c2.stroke();
+    }
+    var cap = document.getElementById('heroCap'), txt = open ? T('👁 目を開けた → α波が消えた', '👁 目開けた → α波が消えたさー') : T('😌 目を閉じている → 後ろに α波', '😌 目つぶってる → 後ろにα波');
+    if (cap.textContent !== txt) cap.textContent = txt;
+    heroRaf = requestAnimationFrame(heroDraw);
   }
-  document.querySelector('.modes').addEventListener('click', function (e) {
-    var h = e.target.closest('.mgrp-h[data-g]'); if (h) { var g = h.getAttribute('data-g'); grpOpen(h.getAttribute('aria-expanded') === 'true' ? '' : g); return; }
-    if (e.target.closest('.mgrp-b .mode, a.mgrp-h')) grpOpen('');
-  });
+  function homeEnter() { V.live = false; if (!heroRaf) heroRaf = requestAnimationFrame(heroDraw); window.scrollTo(0, 0); bandKey = ''; var w = document.querySelector('.wrap').clientWidth; bandsSync(Math.max(50, (Math.min(w, 1180) - 330) / 10), (26 / 10) / V.sens); }
 
 
   /* ====================== 5秒チャレンジ：5秒だけ見て、何の波か当てる ====================== */
@@ -4205,6 +4343,70 @@ body.eegfs #panel.qz-on .mihon-box,body.eegfs #panel.rp-on .mihon-box{display:no
     if (b.getAttribute('data-fg') === 'next') { FL.i++; if (FL.i < FL.list.length) flStart(); else renderFlash(); }
     else if (b.getAttribute('data-go') === 'again') { FL = newFlash(); flStart(); }
   });
+
+
+  /* ====================== ガイド（スポットライトで、押すところを順に示す） ====================== */
+  var TOUR = null;
+  var TOUR_STEPS = [
+    { sel: '.trace-wrap', t: 'これが脳波。頭の電極の電気が、左から右へ流れています。', o: 'これが脳波さー。頭の電極の電気が、左から右へ流れてるよー。' },
+    { sel: '[data-act="eyes"]', wait: true, t: '「目を開ける」を押してみてください。', o: '「目を開ける」押してみて。' },
+    { sel: '.trace-wrap', delay: 1600, t: '後ろの O1・O2 の大きな波（α波）が小さくなりました。黄色い帯が、反応したところです。', o: '後ろの O1・O2 の大きな波（α波）が小さくなったでしょ？黄色い帯が反応したとこさー。' },
+    { sel: '#head', t: 'どの電極で起きたかは、頭の図でも黄色に光ります。奇数は左、偶数は右。', o: 'どの電極で起きたかは、頭の図でも黄色く光るよー。奇数は左、偶数は右。' },
+    { sel: '[data-act="blink"]', wait: true, t: '次は「まばたき」を押してみてください。', o: '次は「まばたき」押してみて。' },
+    { sel: '.trace-wrap', delay: 1300, t: 'いちばん上の Fp に大きな波。目の動きも脳波に写ります。てんかんの波と見分ける第一歩です。', o: 'いちばん上の Fp に大きな波が出たさー。目の動きも脳波に写るわけよ。' },
+    { sel: '.ctl', t: 'ほかにも、眠る・過呼吸・光・電極の失敗などを試せます。迷ったら「はじめの1分」でもう一度。', o: 'ほかにも、眠ったり、過呼吸したり、光あてたり。迷ったら「はじめの1分」でもう一回ね。' },
+    { sel: '#menuBtn', t: '慣れたら、ここから「症例で読む（本編）」や「練習」へ進めます。', o: '慣れたら、ここから本編とか練習に進めるよー。' }
+  ];
+  function tourStart() {
+    if (V.mode !== 'lab') return;
+    if (isFs()) setFs(false);
+    var st = LIVE && LIVE.st;
+    if (!LIVE || LIVE.sim.preset !== 'normal' || st.eo || st.sleep || st.hv || st.photic) { newLive('normal'); V.mont = 'bip'; enterLab(); }
+    V.lback = 0; if (!V.playing) { V.playing = true; syncToolbar(); kick(); }
+    tourEnd();
+    var el = document.createElement('div'); el.className = 'coach'; el.innerHTML = '<div class="coach-hole"></div><div class="coach-bub" role="dialog" aria-live="polite"></div>';
+    document.body.appendChild(el);
+    TOUR = { i: 0, el: el, tm: 0 };
+    el.addEventListener('click', tourClick);
+    tourShow();
+  }
+  function tourEnd() { if (!TOUR) return; clearTimeout(TOUR.tm); TOUR.el.remove(); TOUR = null; }
+  function tourTarget() { var st = TOUR_STEPS[TOUR.i]; return st ? document.querySelector(st.sel) : null; }
+  function tourShow() {
+    if (!TOUR) return;
+    var st = TOUR_STEPS[TOUR.i], tg = tourTarget();
+    if (!st) { tourEnd(); toast(T('<b>ガイドおしまい</b><br>あとは自由に触ってみてください', '<b>ガイドおしまいさー</b><br>あとは自由に触ってみてね')); return; }
+    if (!tg) { TOUR.i++; tourShow(); return; }
+    var bub = TOUR.el.querySelector('.coach-bub'), last = TOUR.i === TOUR_STEPS.length - 1;
+    bub.innerHTML = '<span class="cb-n">' + T('はじめの1分', 'はじめの1分さー') + '　' + (TOUR.i + 1) + ' / ' + TOUR_STEPS.length + '</span><p' + (st.wait ? ' class="cb-do"' : '') + '>' + (st.wait ? '👆 ' : '') + esc(T(st.t, st.o)) + '</p>' +
+      '<div class="coach-row"><button type="button" class="coach-skip" data-c="skip">' + T('ガイドを閉じる', 'ガイド閉じる') + '</button>' + (st.wait ? '' : '<button type="button" class="btn" data-c="next">' + (last ? T('おしまい', 'おしまい') : T('次へ ▶', '次へ ▶')) + '</button>') + '</div>';
+    var r0 = tg.getBoundingClientRect();
+    if (r0.top < 60 || r0.bottom > innerHeight - 20) tg.scrollIntoView({ block: r0.height > innerHeight * 0.6 ? 'start' : 'center', behavior: 'smooth' });
+    clearTimeout(TOUR.tm); TOUR.tm = setTimeout(tourPlace, 380);
+  }
+  function tourPlace() {
+    if (!TOUR) return; var tg = tourTarget(); if (!tg) return;
+    var r = tg.getBoundingClientRect(), pad = 6, hole = TOUR.el.querySelector('.coach-hole'), bub = TOUR.el.querySelector('.coach-bub');
+    var top = Math.max(4, r.top - pad), bot = Math.min(innerHeight - 4, r.bottom + pad);
+    hole.style.left = (r.left - pad) + 'px'; hole.style.top = top + 'px'; hole.style.width = (r.width + pad * 2) + 'px'; hole.style.height = Math.max(20, bot - top) + 'px';
+    var bw = bub.offsetWidth, bh = bub.offsetHeight, bx = Math.min(Math.max(12, r.left + r.width / 2 - bw / 2), innerWidth - bw - 12), by;
+    if (bot + 12 + bh < innerHeight) by = bot + 12; else if (top - 12 - bh > 0) by = top - 12 - bh; else { by = Math.max(12, innerHeight - bh - 16); bx = Math.min(innerWidth - bw - 12, r.right - bw - 16); }
+    bub.style.left = bx + 'px'; bub.style.top = by + 'px';
+  }
+  function tourClick(e) {
+    if (!TOUR) return;
+    var c = e.target.closest('[data-c]');
+    if (c) { if (c.getAttribute('data-c') === 'skip') tourEnd(); else { TOUR.i++; tourShow(); } return; }
+    var st = TOUR_STEPS[TOUR.i], tg = tourTarget(); if (!st || !st.wait || !tg) return;
+    var r = tg.getBoundingClientRect();
+    if (e.clientX >= r.left - 6 && e.clientX <= r.right + 6 && e.clientY >= r.top - 6 && e.clientY <= r.bottom + 6) {
+      tg.click(); TOUR.i++;
+      var nx = TOUR_STEPS[TOUR.i]; TOUR.el.querySelector('.coach-bub').style.visibility = 'hidden';
+      clearTimeout(TOUR.tm); TOUR.tm = setTimeout(function () { if (TOUR) { TOUR.el.querySelector('.coach-bub').style.visibility = ''; tourShow(); } }, (nx && nx.delay) || 600);
+    }
+  }
+  window.addEventListener('resize', function () { if (TOUR) tourPlace(); });
+  window.addEventListener('scroll', function () { if (TOUR) tourPlace(); }, { passive: true });
 
   /* ====================== 12. はじめる ====================== */
   buildHead();
@@ -4320,7 +4522,7 @@ body.eegfs #panel.qz-on .mihon-box,body.eegfs #panel.rp-on .mihon-box{display:no
   });
   var resizeT = 0;
   window.addEventListener('resize', function () { clearTimeout(resizeT); resizeT = setTimeout(function () { if (isFs()) syncFs(); else draw(); }, 80); });
-  setMode((location.hash || '#lab').slice(1));
+  setMode((location.hash || '#home').slice(1));
   if (document.fonts && document.fonts.ready) document.fonts.ready.then(function () { draw(); });
 
   // 確認用
