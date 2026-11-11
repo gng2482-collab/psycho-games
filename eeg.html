@@ -1595,6 +1595,12 @@ body.eegfs #panel.qz-on .mihon-box,body.eegfs #panel.rp-on .mihon-box{display:no
       markFrac = 0;
       staticMarks(src, chans, rows, sp, tw0, win, xOf, W0, H).forEach(function (m) { markFrac = Math.max(markFrac, (m[1] + 12 - LW) / plotW); redMark(m[0], m[1], m[2], m[3], m[4], markT0, W0, H); });
     }
+    // 止まっているときは、止まっていることがわかるように出す
+    if (V.live && !V.playing && !(V.lback > 0)) {
+      ctx.font = '700 13px "BIZ UDPGothic", sans-serif'; ctx.textAlign = 'right';
+      var pz = T('⏸ 一時停止中（上の「再生」で流れます）', '⏸ 止まってるよー（「再生」で流れるさー）'), pzw = ctx.measureText(pz).width;
+      ctx.fillStyle = TOK['--hot']; ctx.fillRect(W0 - RP - pzw - 14, 15, pzw + 14, 19); ctx.fillStyle = '#fff'; ctx.fillText(pz, W0 - RP - 7, 29);
+    }
     if (V.mode === 'ichi' && typeof ichiDrawTaps === 'function') ichiDrawTaps(chans, rows, xOf, W0);
     if (typeof flDraw === 'function') flDraw(W0, H);
     // 巻き戻して見ているとき：右上に表示
@@ -2087,7 +2093,7 @@ body.eegfs #panel.qz-on .mihon-box,body.eegfs #panel.rp-on .mihon-box{display:no
   function enterLab() {
     if (!LIVE) newLive('normal');
     V.live = true; V.src = LIVE.src; V.spec = null; V.hl = null; V.sel = -1;
-    if (!V.playInit) { V.playing = !reduceMotion; V.playInit = true; }
+    if (!V.playInit) { V.playing = true; V.playInit = true; }
     panel.innerHTML = labHTML();
     renderMihonSec();
     explain(LIVE.sim.preset, true);
