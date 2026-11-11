@@ -568,6 +568,8 @@ body.eegfs .appbar,body.eegfs #home{display:none!important}
 .coach-row{display:flex;justify-content:space-between;align-items:center;gap:8px}
 .coach-row .btn{min-height:40px}
 .coach-skip{font:inherit;font-size:var(--fs-xs);background:none;border:0;color:var(--muted);text-decoration:underline;cursor:pointer;min-height:40px}
+.act-no{color:var(--muted);border-style:dashed}
+.imp-note{margin-top:6px;font-size:var(--fs-s);border-left:3px solid var(--hot);padding-left:8px}
 .mk-btn{min-height:30px;padding:2px 10px;margin-left:8px;font-size:var(--fs-xs)}
 .st-reset{display:flex;flex-wrap:wrap;gap:8px;align-items:center;border-top:1px dashed var(--line);padding-top:10px;font-size:var(--fs-s)}
 .st-reset p{flex-basis:100%;margin:0}
@@ -1015,7 +1017,7 @@ body.eegfs #panel.qz-on .mihon-box,body.eegfs #panel.rp-on .mihon-box{display:no
   function sm(x) { return x <= 0 ? 0 : x >= 1 ? 1 : x * x * (3 - 2 * x); }
   function addW(out, w, s) { for (var e = 0; e < NE; e++) if (w[e]) out[e] += w[e] * s; }
 
-  var BG0 = { alpha: 48, alphaF: 10, beta: 5, betaF: 19, betaW: 'beta', theta: 4, delta: 4, hvTheta: 10, hvDelta: 10, focal: null, suppress: 1, ecgArt: 0, hum: null, photicAmp: 22, noise: 0.62 };
+  var BG0 = { alpha: 48, alphaF: 10, beta: 5, betaF: 19, betaW: 'beta', theta: 4, delta: 4, hvTheta: 10, hvDelta: 10, focal: null, suppress: 1, ecgArt: 0, hum: null, photicAmp: 22, noise: 0.62, react: 1 };
   var RAMP = { eo: 0.35, hv: 4, sleep: 1.5, photic: 0, flat: 0.4 };
 
   // 突発的な波（イベント）。SH は時刻 u での1つの値を返す形。lag があれば電極ごとにずらして使う
@@ -1134,7 +1136,7 @@ body.eegfs #panel.qz-on .mihon-box,body.eegfs #panel.rp-on .mihon-box{display:no
   var PRE = {
     normal: { name: '健康な成人', bg: {} },
     benzo: { name: 'ベンゾジアゼピン服用', bg: { beta: 20, betaW: 'front', betaF: 21 } },
-    delirium: { name: 'せん妄（びまん性徐波）', bg: { alpha: 16, alphaF: 7, theta: 20, delta: 24 } },
+    delirium: { name: 'せん妄（びまん性徐波）', bg: { react: 0.35, alpha: 16, alphaF: 7, theta: 20, delta: 24 } },
     absence: { name: '欠神てんかん（過呼吸で誘発）', bg: { hvDelta: 18 }, gen: function (sim, t0, t1) {
       var m = sim.mem; if (m.p == null) m.p = t0 + 1;
       while (m.p < t1) { if (sim.stateAt(m.p).hv > 0.6) { var d = 4.5 + sim.R() * 2.5; sim.events.push(mkEv('sw', m.p, { f0: 3.4, f1: 2.8, dur: d, amp: 340 })); m.p += d + 5 + sim.R() * 5; } else m.p += 0.5; }
@@ -1145,34 +1147,36 @@ body.eegfs #panel.qz-on .mihon-box,body.eegfs #panel.rp-on .mihon-box{display:no
     } },
     tle: { name: '左側頭葉てんかん', bg: { focal: { e: 'T3', amp: 14 } }, gen: function (sim, t0, t1) {
       var m = sim.mem; if (m.p == null) m.p = t0 + 1.2;
-      while (m.p < t1) { sim.events.push(mkEv('spike', m.p, { e: 'T3', amp: 110 + sim.R() * 40 })); m.p += 1.8 + sim.R() * 3.8; }
+      // 眠るとノンレム睡眠で棘波が増える（N1 で約2倍、N2 で約3倍）
+      while (m.p < t1) { sim.events.push(mkEv('spike', m.p, { e: 'T3', amp: 110 + sim.R() * 40 })); var sl = Math.min(2, sim.stateAt(m.p).sleep); m.p += (1.8 + sim.R() * 3.8) / (1 + 1.1 * sl); }
     } },
-    hepatic: { name: '肝性脳症（三相波）', bg: { alpha: 10, alphaF: 7, theta: 14, delta: 20 }, gen: function (sim, t0, t1) {
+    hepatic: { name: '肝性脳症（三相波）', bg: { react: 0.15, alpha: 10, alphaF: 7, theta: 14, delta: 20 }, gen: function (sim, t0, t1) {
       var m = sim.mem; if (m.p == null) { m.p = t0 + 0.4; m.run = 0; }
       while (m.p < t1) {
         if (m.run <= 0) { m.run = 6 + Math.floor(sim.R() * 6); m.p += 0.6 + sim.R() * 1.2; continue; }
         sim.events.push(mkEv('tri', m.p, { amp: 120 + sim.R() * 30 })); m.run--; m.p += 0.5 + sim.R() * 0.12;
       }
     } },
-    cjd: { name: 'クロイツフェルト・ヤコブ病（PSD）', bg: { alpha: 8, theta: 4, delta: 4, suppress: 0.45 }, gen: function (sim, t0, t1) {
+    cjd: { name: 'クロイツフェルト・ヤコブ病（PSD）', bg: { react: 0, alpha: 8, theta: 4, delta: 4, suppress: 0.45 }, gen: function (sim, t0, t1) {
       var m = sim.mem; if (m.p == null) m.p = t0 + 0.5;
       while (m.p < t1) { sim.events.push(mkEv('psd', m.p, { amp: 150 + sim.R() * 30 })); m.p += 0.95 + sim.R() * 0.15; }
     } },
-    hsv: { name: 'ヘルペス脳炎（LPDs）', bg: { alpha: 26, focal: { e: 'T3', amp: 28 } }, gen: function (sim, t0, t1) {
+    hsv: { name: 'ヘルペス脳炎（LPDs）', bg: { react: 0.3, alpha: 26, focal: { e: 'T3', amp: 28 } }, gen: function (sim, t0, t1) {
       var m = sim.mem; if (m.p == null) m.p = t0 + 0.6;
       while (m.p < t1) { sim.events.push(mkEv('lpd', m.p, { e: 'T3', amp: 130 + sim.R() * 30 })); m.p += 1.2 + sim.R() * 0.4; }
     } },
-    ncse: { name: '非けいれん性てんかん重積', bg: { alpha: 6, theta: 10 }, gen: function (sim, t0, t1) {
+    ncse: { name: '非けいれん性てんかん重積', bg: { react: 0, alpha: 6, theta: 10 }, gen: function (sim, t0, t1) {
       var m = sim.mem; if (m.p == null) m.p = t0 - 0.5;
       while (m.p < t1) { var d = 3 + sim.R() * 2; sim.events.push(mkEv('sw', m.p, { f0: 2.7, f1: 2.3, dur: d, amp: 170, spike: 0.85 })); m.p += d; }
     } },
-    nmdar: { name: '抗NMDA受容体脳炎', bg: { alpha: 4, beta: 4, theta: 10, delta: 6 }, gen: function (sim, t0, t1) {
+    nmdar: { name: '抗NMDA受容体脳炎', bg: { react: 0.1, alpha: 4, beta: 4, theta: 10, delta: 6 }, gen: function (sim, t0, t1) {
       var m = sim.mem; if (m.p == null) m.p = t0 - 0.5;
       while (m.p < t1) { var d = 6 + sim.R() * 4; sim.events.push(mkEv('brush', m.p, { dur: d, f: 1.5 + sim.R() * 0.3, amp: 110, beta: 30 })); m.p += d - 0.3; }
     } },
     wicket: { name: 'ウィケット棘波（正常亜型）', bg: { alpha: 22, theta: 8 }, gen: function (sim, t0, t1) {
       var m = sim.mem; if (m.p == null) { m.p = t0 + 1; m.side = 0; }
-      while (m.p < t1) { sim.events.push(mkEv('wicket', m.p, { e: m.side ? 'T4' : 'T3', dur: 0.7 + sim.R() * 0.5, amp: 60 })); m.side = sim.R() < 0.5 ? 1 - m.side : m.side; m.p += 2.5 + sim.R() * 3; }
+      // 眠気・浅い睡眠のときだけ出る（はっきり起きているときは出ない）
+      while (m.p < t1) { if (sim.stateAt(m.p).sleep < 0.4) { m.p += 0.5; continue; } sim.events.push(mkEv('wicket', m.p, { e: m.side ? 'T4' : 'T3', dur: 0.7 + sim.R() * 0.5, amp: 60 })); m.side = sim.R() < 0.5 ? 1 - m.side : m.side; m.p += 2.5 + sim.R() * 3; }
     } },
     clozapine: { name: 'クロザピン増量中', bg: { alpha: 30, alphaF: 9, theta: 14, delta: 10 }, gen: function (sim, t0, t1) {
       var m = sim.mem; if (m.p == null) m.p = t0 + 1.5;
@@ -1222,7 +1226,7 @@ body.eegfs #panel.qz-on .mihon-box,body.eegfs #panel.rp-on .mihon-box{display:no
     };
     var srcMix = function (set, e) { var v = 0; for (var k5 = 0; k5 < set.S.length; k5++) v += set.S[k5].w[e] * set.buf[k5]; return v * set.norm[e]; };
     var sim = {
-      R: R, bg: bg, nz: nz, ph: ph, emgF: emgF, events: [], mem: {}, notch: !!spec.notch, real: real,
+      arT: -99, R: R, bg: bg, nz: nz, ph: ph, emgF: emgF, events: [], mem: {}, notch: !!spec.notch, real: real,
       preset: spec.preset || 'normal', auto: spec.auto !== false,
       tl: { eo: [[-99, init.eo || 0]], hv: [[-99, init.hv || 0]], sleep: [[-99, init.sleep || 0]], photic: [[-99, init.photic || 0]], flat: [[-99, init.flat || 0]] }
     };
@@ -1244,11 +1248,13 @@ body.eegfs #panel.qz-on .mihon-box,body.eegfs #panel.rp-on .mihon-box{display:no
     sim.sample = function (t, out) {
       var s = sim.stateAt(t), b = sim.bg;
       var drowsy = Math.min(1, s.sleep);
-      var aAmp = b.alpha * (1 - 0.85 * s.eo) * (1 - 0.9 * drowsy) * (0.72 + 0.28 * Math.sin(TAU * 0.21 * t + 1.1));
+      // 反応性（react）：開眼や刺激で背景がどれだけ変わるか。意識障害では小さい
+      var rc = b.react == null ? 1 : b.react, ar = (t >= sim.arT && t < sim.arT + 4) ? Math.min(1, (t - sim.arT) / 0.4) * Math.min(1, (sim.arT + 4 - t) / 0.8) : 0;
+      var aAmp = b.alpha * (1 - 0.85 * s.eo * rc) * (1 - 0.9 * drowsy) * (0.72 + 0.28 * Math.sin(TAU * 0.21 * t + 1.1));
       var aPh = TAU * b.alphaF * t + 0.5 * Math.sin(TAU * 0.33 * t);
       var bAmp = b.beta * (1 + 0.5 * s.eo);
-      var thA = b.theta + 8 * drowsy + s.hv * b.hvTheta;
-      var dA = b.delta + (s.sleep > 1 ? 16 * (s.sleep - 1) : 0) + s.hv * b.hvDelta;
+      var thA = (b.theta + 8 * drowsy + s.hv * b.hvTheta) * (1 - 0.35 * rc * ar);
+      var dA = (b.delta + (s.sleep > 1 ? 16 * (s.sleep - 1) : 0) + s.hv * b.hvDelta) * (1 - 0.45 * rc * ar);
       var Wb = b.betaW === 'front' ? W.front : W.beta;
       var fv = 0;
       if (fw) fv = b.focal.amp * (Math.sin(TAU * 1.4 * t + fph[0]) + 0.7 * Math.sin(TAU * 2.3 * t + fph[1]) + 0.5 * Math.sin(TAU * 0.9 * t + fph[2]));
@@ -1257,7 +1263,7 @@ body.eegfs #panel.qz-on .mihon-box,body.eegfs #panel.rp-on .mihon-box{display:no
         srcRun(RS.bgn, t); if (thA > 0) srcRun(RS.th, t); if (dA > 0) srcRun(RS.de, t); srcRun(RS.be, t);
         var A = rx.a;
         var envR = Math.max(0, 0.58 + 0.28 * Math.sin(TAU * 0.17 * t + A[0]) + 0.22 * Math.sin(TAU * 0.41 * t + A[1]) + 0.14 * Math.sin(TAU * 0.93 * t + A[2]));
-        var aAmpR = b.alpha * (1 - 0.85 * s.eo) * (1 - 0.9 * drowsy) * envR;
+        var aAmpR = b.alpha * (1 - 0.85 * s.eo * rc) * (1 - 0.9 * drowsy) * envR;
         var aPhR = TAU * b.alphaF * t + 2.2 * Math.sin(TAU * 0.11 * t + A[3]) + 1.4 * Math.sin(TAU * 0.23 * t + A[4]);
         for (var e = 0; e < NE; e++) {
           var p = ph[e], x0 = POS[E[e]][0], y0 = POS[E[e]][1];
@@ -1893,15 +1899,24 @@ body.eegfs #panel.qz-on .mihon-box,body.eegfs #panel.rp-on .mihon-box{display:no
     absence: ['欠神てんかん', 'このままでは正常に近い脳波です。「過呼吸」を押してください。数秒後に、全般性の3Hz棘徐波が急に始まり、急に終わります。'],
     jme: ['若年ミオクロニーてんかん', '光刺激を15Hzか20Hzにしてください。後頭部の光駆動に加えて、全体に多棘徐波が出ます（光突発反応）。'],
     tle: ['左側頭葉てんかん', '左側頭（T3）に棘波がときどき出ます。双極導出で F7−T3 と T3−T5 が向かい合うところを探してください。同じ場所にゆっくりした波も混じります。'],
-    hepatic: ['肝性脳症', '前頭部で大きい三相波が1秒に2回ほど続きます。基準導出で縦に見比べると、前の電極から後ろの電極へ、山が少しずつ遅れます。'],
+    hepatic: ['肝性脳症「うとうと」「眠る」を押すと、棘波が増えます。', '前頭部で大きい三相波が1秒に2回ほど続きます。基準導出で縦に見比べると、前の電極から後ろの電極へ、山が少しずつ遅れます。'],
     cjd: ['クロイツフェルト・ヤコブ病', '背景が平坦に近くなり、約1秒ごとに全般性の鋭い波がくり返します（周期性同期性放電、PSD）。下の心電図と時刻が合わないことも確かめてください。'],
     hsv: ['ヘルペス脳炎', '左側頭部に、1〜1.5秒ごとの周期性の鋭い波が出ます（一側性周期性放電、LPDs。以前の PLEDs）。基準導出では、左の耳朶 A1 にも波が入って、左のチャンネルに逆向きの小さな波が見えます。'],
     ncse: ['非けいれん性てんかん重積', '全般性の律動的な棘徐波が途切れずに続いています。けいれんがなくても、意識障害の人でこれが続けば NCSE を疑います。'],
     nmdar: ['抗NMDA受容体脳炎', '全般性の律動的なδ波に、20Hz台の速い波が「刷毛でなでたように」重なっています（extreme delta brush）。抗NMDA受容体脳炎で見られる特徴的な所見です。'],
-    wicket: ['ウィケット棘波', '側頭部に、アーチ形の鋭い波が1秒ほど連なって出ます。中年以降の人の眠気のときに多い正常亜型です。後ろに徐波が続かず、背景も乱れません。てんかん波と読みすぎやすい代表です。'],
+    wicket: ['ウィケット棘波', 'はっきり起きているときは出ません。「うとうと N1」を押してください。眠気が出ると、側頭部にアーチ形の鋭い波が1秒ほど連なって出ます。中年以降の人の眠気のときに多い正常亜型で、後ろに徐波が続かず、背景も乱れません。てんかん波と読みすぎやすい代表です。'],
     clozapine: ['クロザピン増量中', '背景がやや遅く、全般性の突発波がときどき出ます。クロザピンは用量に応じて脳波異常とけいれんを起こしやすくします。']
   };
   var ACT_TXT = {
+    eoP0: ['まぶたを開けた（手で）', '呼びかけても目を開けないので、まぶたを手で開けました。後頭部の背景はほとんど変わりません（反応性がない）。意識障害が重いほど、開眼や刺激への反応は乏しくなります。'],
+    eoP1: ['まぶたを開けた（手で）', '呼びかけても目を開けないので、まぶたを手で開けました。後頭部の遅いα波が少しだけ小さくなりますが、健康な人ほどはっきりとは変わりません（反応性が乏しい）。'],
+    call0: ['名前を呼んだ', '呼びかけても、背景はほとんど変わりません。刺激への反応性がないことは、重い意識障害を示します。'],
+    call1: ['名前を呼んだ', '呼びかけで、少しのあいだ徐波が減り、背景がわずかに速くなりました。刺激で背景が変わるか（反応性）は、意識障害の重さや経過の目安になります。'],
+    pain0: ['痛み刺激（胸骨をこする）', '体が動いて、体動と筋電図のアーチファクトが入りました。その奥の背景は、ほとんど変わりません（反応性がない）。アーチファクトを「反応」と読まないように注意します。'],
+    pain1: ['痛み刺激（胸骨をこする）', '体が動いて、体動と筋電図のアーチファクトが入りました。その奥で、少しのあいだ徐波が減っています。アーチファクトではなく、背景そのものが変わったかを見ます。'],
+    hvNo: ['過呼吸はできません', '意識障害のある人は、指示に従って深呼吸を続けられません。過呼吸のように指示が要る賦活は、意識が保たれている人に行います。意識障害では、呼びかけ・痛み刺激・まぶたを手で開けることで反応をみます。'],
+    tleS: ['眠った（側頭葉てんかん）', '眠ると、左側頭（T3）の棘波が増えてきます。てんかん性放電の多くはノンレム睡眠で出やすくなるので、脳波検査では眠りの記録が役に立ちます。'],
+    wkS: ['うとうとした（ウィケット棘波）', '眠気が出ると、側頭部にアーチ形の波が連なって出てきました。ウィケット棘波は眠気・浅い睡眠のときの正常亜型で、はっきり起きているときには出にくい波です。'],
     eo1: ['目を開けた', '後頭部のα波が小さくなりました（α減衰）。目を閉じると戻ります。開眼で小さくなること自体が、その波が正常な後頭部α律動だという証拠です。'],
     eo0: ['目を閉じた', '後頭部にα波が戻りました。'],
     blink: ['まばたき', 'Fp1・Fp2 に、左右そろった大きな下向きの波。まぶたを閉じると眼球が上を向き（ベル現象）、プラスの角膜が Fp に近づきます。下向き＝プラスです。後ろの電極には広がりません。'],
@@ -1922,6 +1937,9 @@ body.eegfs #panel.qz-on .mihon-box,body.eegfs #panel.rp-on .mihon-box{display:no
     ecg0: ['心電図が消えた', '耳朶の電極の位置を直した、という想定です。']
   };
 
+  // 意識が下がっている状態：指示が要る操作の代わりに、呼びかけ・痛み刺激・まぶたを手で開けるで反応をみる
+  var IMPAIRED = ['delirium', 'hepatic', 'cjd', 'ncse', 'hsv', 'nmdar'];
+  function isImp() { return LIVE && IMPAIRED.indexOf(LIVE.sim.preset) !== -1; }
   function labHTML() {
     var st = LIVE.st, f = LIVE.flags, pre = LIVE.sim.preset;
     var opts = Object.keys(PRE).map(function (k) { return '<option value="' + k + '"' + (k === pre ? ' selected' : '') + '>' + PRE[k].name + '</option>'; }).join('');
@@ -1929,6 +1947,14 @@ body.eegfs #panel.qz-on .mihon-box,body.eegfs #panel.rp-on .mihon-box{display:no
     return '<div class="ph"><h2 id="panelH" tabindex="-1">触ってみる</h2></div>' +
       '<div class="lab-grid"><div class="ctl">' +
       '<div class="ctl-row"><label class="lb" for="preset">脳の状態</label><select id="preset">' + opts + '</select><button type="button" class="act" id="labReset">最初の状態に戻す</button></div>' +
+      (IMPAIRED.indexOf(pre) !== -1 ?
+      '<div class="ctl-row"><span class="lb">反応をみる</span>' +
+        '<button type="button" class="act" data-act="call">名前を呼ぶ</button>' +
+        '<button type="button" class="act" data-act="pain">痛み刺激</button>' +
+        '<button type="button" class="act" data-act="eyes" aria-pressed="' + pr(st.eo) + '">まぶたを手で開ける</button></div>' +
+      '<div class="ctl-row"><span class="lb">賦活</span>' +
+        '<button type="button" class="act act-no" data-act="hv">過呼吸（できない）</button>'
+      :
       '<div class="ctl-row"><span class="lb">目と体</span>' +
         '<button type="button" class="act" data-act="eyes" aria-pressed="' + pr(st.eo) + '">目を開ける</button>' +
         '<button type="button" class="act" data-act="blink">まばたき</button>' +
@@ -1936,7 +1962,7 @@ body.eegfs #panel.qz-on .mihon-box,body.eegfs #panel.rp-on .mihon-box{display:no
         '<button type="button" class="act" data-act="lookR">右を見る</button>' +
         '<button type="button" class="act" data-act="clench">歯をくいしばる</button></div>' +
       '<div class="ctl-row"><span class="lb">賦活</span>' +
-        '<button type="button" class="act" data-act="hv" aria-pressed="' + pr(st.hv) + '">過呼吸</button>' +
+        '<button type="button" class="act" data-act="hv" aria-pressed="' + pr(st.hv) + '">過呼吸</button>') +
         '<label class="act" for="photic" style="display:inline-flex;gap:6px;align-items:center">光刺激 <select id="photic" style="min-height:28px"><option value="0">止める</option><option value="5">5Hz</option><option value="10">10Hz</option><option value="15">15Hz</option><option value="20">20Hz</option></select></label></div>' +
       '<div class="ctl-row"><span class="lb">眠り</span><span class="seg" id="sleepSeg">' +
         ['起きている', 'うとうと N1', '眠る N2'].map(function (t, i) { return '<button type="button" data-s="' + i + '" aria-pressed="' + pr(st.sleep === i) + '">' + t + '</button>'; }).join('') + '</span></div>' +
@@ -2029,14 +2055,16 @@ body.eegfs #panel.qz-on .mihon-box,body.eegfs #panel.rp-on .mihon-box{display:no
     panel.classList.remove('rp-on', 'qz-on');
     var t = isPreset ? LAB_TXT[key] : ACT_TXT[key];
     var el = document.getElementById('explain'); if (!el || !t) return;
-    el.innerHTML = (TUT.step >= 0 ? tutBox('', T(TUT_STEPS[TUT.step].ask, TUT_STEPS[TUT.step].askO)) : '') + '<h3>' + esc(t[0]) + '</h3><p>' + esc(t[1]) + '</p>';
+    el.innerHTML = '<h3>' + esc(t[0]) + '</h3><p>' + esc(t[1]) + '</p>' + (isPreset && IMPAIRED.indexOf(key) !== -1 ? '<p class="imp-note">' + T('意識が下がっているので、指示が要る操作（目を開けて・過呼吸など）はできません。「名前を呼ぶ」「痛み刺激」「まぶたを手で開ける」で、刺激への反応をみてください。', '意識が下がってるから、指示が要る操作はできんさー。「名前を呼ぶ」「痛み刺激」「まぶたを手で開ける」で反応みてね。') + '</p>' : '');
   }
   function labAct(act, val) {
     var L = LIVE, sim = L.sim, t = L.w / FS + 0.05, st = L.st;
     MK_REAL = sim.real; MKR = Math.random;
     var ann = function (txt) { L.ann.push([t, txt]); };
     var SC = ['Fp1','Fp2','F7','F3','Fz','F4','F8','T3','C3','Cz','C4','T4','T5','P3','Pz','P4','T6','O1','O2'];
-    var HLMAP = { eyes: [['O1','O2','P3','P4','T5','T6'], 3, function () { return st.eo ? 'α波が減る' : 'α波が戻る'; }], blink: [['Fp1','Fp2'], 1, 'まばたき'], lookL: [['F7','F8'], 1.8, '眼球運動'], lookR: [['F7','F8'], 1.8, '眼球運動'],
+    var imp = isImp(), rcv = sim.bg.react == null ? 1 : sim.bg.react;
+    var HLMAP = { eyes: [['O1','O2','P3','P4','T5','T6'], 3, function () { return imp ? (st.eo ? (rcv < 0.05 ? 'α波の反応なし' : 'α波の反応が乏しい') : '') : st.eo ? 'α波が減る' : 'α波が戻る'; }],
+      call: [SC, 4, function () { return rcv < 0.05 ? '背景は変わらない' : '徐波が少し減る'; }], pain: [SC, 4, function () { return rcv < 0.05 ? '体動のみ・背景は不変' : '体動＋徐波が少し減る'; }], blink: [['Fp1','Fp2'], 1, 'まばたき'], lookL: [['F7','F8'], 1.8, '眼球運動'], lookR: [['F7','F8'], 1.8, '眼球運動'],
       clench: [['F7','F8','T3','T4','T5','T6'], 3, '筋電図'], hv: [SC, 10, function () { return st.hv ? '徐波が増える' : ''; }], photic: [['O1','O2'], 8, function () { return st.photic ? '光駆動' : ''; }],
       sleep: [['Cz','C3','C4','Fz','Pz'], 8, function () { return ['', '頭蓋頂鋭波', '紡錘波・K複合'][st.sleep]; }], pop: [['C4'], 2, '電極ポップ'], hum: [['O2'], 10, function () { return L.flags.hum ? 'ハム（50Hz）' : ''; }], ecg: [['A1'], 10, function () { return L.flags.ecg ? '心電図の混入' : ''; }] };
     setTimeout(function () {
@@ -2048,14 +2076,18 @@ body.eegfs #panel.qz-on .mihon-box,body.eegfs #panel.rp-on .mihon-box{display:no
       L.hls.push(band); if (L.hls.length > 30) L.hls.shift();
     }, 0);
     switch (act) {
-      case 'eyes': st.eo = st.eo ? 0 : 1; sim.set(t, 'eo', st.eo); if (st.eo) { sim.events.push(mkEv('blink', t, {})); if (st.sleep) { st.sleep = 0; sim.set(t, 'sleep', 0); } } ann(st.eo ? '開眼' : '閉眼'); explain(st.eo ? 'eo1' : 'eo0'); break;
+      case 'call': sim.arT = t; ann('呼びかけ'); explain(rcv < 0.05 ? 'call0' : 'call1'); break;
+      case 'pain': sim.arT = t; sim.events.push(mkEv('move', t + 0.1, { dur: 1.3, amp: 55 })); sim.events.push(mkEv('emg', t + 0.1, { dur: 1.4, amp: 16 })); ann('痛み刺激'); explain(rcv < 0.05 ? 'pain0' : 'pain1'); break;
+      case 'eyes': if (imp) { st.eo = st.eo ? 0 : 1; sim.set(t, 'eo', st.eo); ann(st.eo ? 'まぶたを開ける' : 'まぶたを閉じる'); if (st.eo) explain(rcv < 0.05 ? 'eoP0' : 'eoP1'); else explain(LIVE.sim.preset, true); break; }
+        st.eo = st.eo ? 0 : 1; sim.set(t, 'eo', st.eo); if (st.eo) { sim.events.push(mkEv('blink', t, {})); if (st.sleep) { st.sleep = 0; sim.set(t, 'sleep', 0); } } ann(st.eo ? '開眼' : '閉眼'); explain(st.eo ? 'eo1' : 'eo0'); break;
       case 'blink': sim.events.push(mkEv('blink', t, {})); ann('まばたき'); explain('blink'); break;
       case 'lookL': sim.events.push(mkEv('look', t, { dir: 1, dur: 1.4 })); ann('左を見る'); explain('lookL'); break;
       case 'lookR': sim.events.push(mkEv('look', t, { dir: -1, dur: 1.4 })); ann('右を見る'); explain('lookR'); break;
       case 'clench': sim.events.push(mkEv('emg', t, { dur: 2.5 })); ann('くいしばり'); explain('clench'); break;
-      case 'hv': st.hv = st.hv ? 0 : 1; sim.set(t, 'hv', st.hv); ann(st.hv ? 'HV 開始' : 'HV 終了'); explain(st.hv ? 'hv1' : 'hv0'); break;
+      case 'hv': if (imp) { explain('hvNo'); break; }
+        st.hv = st.hv ? 0 : 1; sim.set(t, 'hv', st.hv); ann(st.hv ? 'HV 開始' : 'HV 終了'); explain(st.hv ? 'hv1' : 'hv0'); break;
       case 'photic': st.photic = val; sim.set(t, 'photic', val); ann(val ? '光 ' + val + 'Hz' : '光 終了'); explain(val ? 'ph' : 'ph0'); break;
-      case 'sleep': st.sleep = val; sim.set(t, 'sleep', val); if (val) { st.eo = 0; sim.set(t, 'eo', 0); } ann(['覚醒', 'N1', 'N2'][val]); explain('s' + val); break;
+      case 'sleep': st.sleep = val; sim.set(t, 'sleep', val); if (val) { st.eo = 0; sim.set(t, 'eo', 0); } ann(['覚醒', 'N1', 'N2'][val]); explain(val && LIVE.sim.preset === 'tle' ? 'tleS' : val && LIVE.sim.preset === 'wicket' ? 'wkS' : 's' + val); break;
       case 'pop': sim.events.push(mkEv('pop', t, { e: 'C4', amp: -170 })); ann('C4 浮く'); explain('pop'); break;
       case 'hum': L.flags.hum = !L.flags.hum; sim.bg.hum = L.flags.hum ? { e: 'O2', amp: 48, f: 50 } : null; explain(L.flags.hum ? 'hum1' : 'hum0'); break;
       case 'ecg': L.flags.ecg = !L.flags.ecg; sim.bg.ecgArt = L.flags.ecg ? 34 : 0; explain(L.flags.ecg ? 'ecg1' : 'ecg0');
@@ -2163,7 +2195,7 @@ body.eegfs #panel.qz-on .mihon-box,body.eegfs #panel.rp-on .mihon-box{display:no
   function clearLiveSide() { if (!sideKey) return; sideKey = ''; liveHlEl = []; sideInfo.hidden = true; }
   /* 患者さんの顔：操作と同時に、目・口・首が動く（光刺激は点滅させない） */
   var face = document.getElementById('face'), faceT = {};
-  var DULL = ['delirium', 'hepatic', 'cjd', 'ncse', 'hsv', 'nmdar'];
+  var DULL = IMPAIRED;
   function faceFlash(cls, ms) { face.classList.add(cls); clearTimeout(faceT[cls]); faceT[cls] = setTimeout(function () { face.classList.remove(cls); }, ms); }
   function faceSync(act, val) {
     if (!LIVE) return; var st = LIVE.st;
