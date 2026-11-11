@@ -841,14 +841,13 @@ body.eegfs #panel.qz-on .mihon-box,body.eegfs #panel.rp-on .mihon-box{display:no
       <p class="hero-l rv" data-oki="参考書の脳波は、動かんさー。">参考書の脳波は、動かない。</p>
       <p class="hero-l hero-l2 rv" data-oki="ここの脳波は、&lt;b&gt;触ったら変わるよー。&lt;/b&gt;">ここの脳波は、<b>触ると変わる。</b></p>
       <div class="hero-eeg rv"><canvas id="heroCv" aria-hidden="true"></canvas><p class="hero-cap" id="heroCap"></p></div>
-      <p class="scroll-cue">スクロール ▼</p>
     </section>
 
     <section class="hsec">
       <p class="hs-no rv">STEP 1</p>
       <h2 class="rv" data-oki="まずは、触ってみよう">まずは、触ってみる</h2>
       <p class="hs-l rv" data-oki="目開けたり、まばたきしたり、眠ったり。押したら、脳波がその場で変わるさー。">目を開ける、まばたき、眠る。押すと、脳波がその場で変わります。</p>
-      <a class="btn-hero rv" href="#lab" data-mode="lab"><span class="bh-ic" aria-hidden="true">👆</span><span>触ってみる<small>1分のガイドつき</small></span><span class="bh-ar" aria-hidden="true">▶</span></a>
+      <a class="btn-hero rv" href="#lab" data-mode="lab" id="heroLab"><span class="bh-ic" aria-hidden="true">👆</span><span>触ってみる<small>1分のガイドつき</small></span><span class="bh-ar" aria-hidden="true">▶</span></a>
     </section>
 
     <section class="hsec primer" aria-labelledby="prh">
@@ -2099,7 +2098,7 @@ body.eegfs #panel.qz-on .mihon-box,body.eegfs #panel.rp-on .mihon-box{display:no
     explain(LIVE.sim.preset, true);
     chanNote.innerHTML = noteFor(null);
     syncToolbar(); draw(); updateHead(); kick(); faceSync();
-    if (!lsGet('eeg-tut') && LIVE.sim.preset === 'normal' && !TOUR) { lsSet('eeg-tut', '1'); setTimeout(tourStart, 400); }
+    if ((TOUR_NEXT || !lsGet('eeg-tut')) && !TOUR) { TOUR_NEXT = false; lsSet('eeg-tut', '1'); setTimeout(tourStart, 400); }
   }
   /* はじめの1分：3つのボタンを順に押してもらう */
   var TUT = { step: -1 };
@@ -4352,7 +4351,9 @@ body.eegfs #panel.qz-on .mihon-box,body.eegfs #panel.rp-on .mihon-box{display:no
 
 
   /* ====================== ガイド（スポットライトで、押すところを順に示す） ====================== */
-  var TOUR = null;
+  var TOUR = null, TOUR_NEXT = false;
+  // ホームの「触ってみる」から入ったときは、毎回ガイドから始める
+  document.getElementById('heroLab').addEventListener('click', function () { TOUR_NEXT = true; if (V.mode === 'lab') { TOUR_NEXT = false; tourStart(); } });
   var TOUR_STEPS = [
     { sel: '.trace-wrap', t: 'これが脳波。頭の電極の電気が、左から右へ流れています。', o: 'これが脳波さー。頭の電極の電気が、左から右へ流れてるよー。' },
     { sel: '[data-act="eyes"]', wait: true, t: '「目を開ける」を押してみてください。', o: '「目を開ける」押してみて。' },
@@ -4413,6 +4414,18 @@ body.eegfs #panel.qz-on .mihon-box,body.eegfs #panel.rp-on .mihon-box{display:no
   }
   window.addEventListener('resize', function () { if (TOUR) tourPlace(); });
   window.addEventListener('scroll', function () { if (TOUR) tourPlace(); }, { passive: true });
+
+  /* 感想・指摘を送る：Google フォームの「事前入力した URL」をここに入れると、ボタンが出る。
+     最後の入力欄に、いまの画面（モード名）を自動で入れる。例：'https://docs.google.com/forms/d/e/xxxx/viewform?usp=pp_url&entry.123=' */
+  var FEEDBACK_URL = '';
+  (function () {
+    if (!FEEDBACK_URL) return;
+    var a = document.createElement('a'); a.className = 'ab-btn fb-btn'; a.target = '_blank'; a.rel = 'noopener'; a.textContent = '✉ 感想'; a.href = '#';
+    a.addEventListener('click', function () { a.href = FEEDBACK_URL + encodeURIComponent('脳波よみ道場／' + (M_NAME[V.mode] || 'ホーム')); });
+    document.querySelector('.ab-r').insertBefore(a, document.querySelector('.ab-r .oki-btn'));
+    var b = a.cloneNode(true); b.textContent = '✉ 感想・間違いの指摘を送る'; b.addEventListener('click', function () { b.href = FEEDBACK_URL + encodeURIComponent('脳波よみ道場／ホーム'); });
+    document.querySelector('#home .foot').before(b);
+  })();
 
   /* ====================== 12. はじめる ====================== */
   buildHead();
