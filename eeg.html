@@ -569,6 +569,9 @@ body.eegfs .appbar,body.eegfs #home{display:none!important}
 .coach-row .btn{min-height:40px}
 .coach-skip{font:inherit;font-size:var(--fs-xs);background:none;border:0;color:var(--muted);text-decoration:underline;cursor:pointer;min-height:40px}
 .act-no{color:var(--muted);border-style:dashed}
+.rx-tbl{margin:8px 0 0;display:grid;gap:2px;font-size:var(--fs-xs);border:1px solid var(--line);border-radius:var(--r);padding:6px 8px;background:var(--paper)}
+.rx-tbl .rx-h{font-weight:700;color:var(--accent)} .rx-tbl div{display:grid;grid-template-columns:6.5em minmax(0,1fr);gap:6px} .rx-tbl dt{color:var(--muted)} .rx-tbl dd{margin:0}
+.act-bz{border-color:var(--accent);color:var(--accent);font-weight:700}
 .imp-note{margin-top:6px;font-size:var(--fs-s);border-left:3px solid var(--hot);padding-left:8px}
 .mk-btn{min-height:30px;padding:2px 10px;margin-left:8px;font-size:var(--fs-xs)}
 .st-reset{display:flex;flex-wrap:wrap;gap:8px;align-items:center;border-top:1px dashed var(--line);padding-top:10px;font-size:var(--fs-s)}
@@ -1018,7 +1021,7 @@ body.eegfs #panel.qz-on .mihon-box,body.eegfs #panel.rp-on .mihon-box{display:no
   function addW(out, w, s) { for (var e = 0; e < NE; e++) if (w[e]) out[e] += w[e] * s; }
 
   var BG0 = { alpha: 48, alphaF: 10, beta: 5, betaF: 19, betaW: 'beta', theta: 4, delta: 4, hvTheta: 10, hvDelta: 10, focal: null, suppress: 1, ecgArt: 0, hum: null, photicAmp: 22, noise: 0.62, react: 1 };
-  var RAMP = { eo: 0.35, hv: 4, sleep: 1.5, photic: 0, flat: 0.4 };
+  var RAMP = { eo: 0.35, hv: 4, sleep: 1.5, photic: 0, flat: 0.4, bz: 4 };
 
   // 突発的な波（イベント）。SH は時刻 u での1つの値を返す形。lag があれば電極ごとにずらして使う
   function frac(x) { return x - Math.floor(x); }
@@ -1135,43 +1138,62 @@ body.eegfs #panel.qz-on .mihon-box,body.eegfs #panel.rp-on .mihon-box{display:no
   // 脳の状態（病態）の設定
   var PRE = {
     normal: { name: '健康な成人', bg: {} },
-    benzo: { name: 'ベンゾジアゼピン服用', bg: { beta: 20, betaW: 'front', betaF: 21 } },
-    delirium: { name: 'せん妄（びまん性徐波）', bg: { react: 0.35, alpha: 16, alphaF: 7, theta: 20, delta: 24 } },
+    benzo: { name: 'ベンゾジアゼピン服用', bg: { beta: 20, betaW: 'front', betaF: 21, sleepBeta: 6 } },
+    delirium: { name: 'せん妄（びまん性徐波）', bg: { react: 0.35, alpha: 16, alphaF: 7, theta: 20, delta: 24 }, gen: function (sim, t0, t1) {
+      // 落ち着かず体を動かす（体動のアーチファクト）
+      var m = sim.mem; if (m.mv == null) m.mv = t0 + 4 + sim.R() * 4;
+      while (m.mv < t1) { sim.events.push(mkEv('move', m.mv, { dur: 0.8 + sim.R() * 0.8, amp: 35 + sim.R() * 25 })); m.mv += 7 + sim.R() * 7; }
+    } },
     absence: { name: '欠神てんかん（過呼吸で誘発）', bg: { hvDelta: 18 }, gen: function (sim, t0, t1) {
       var m = sim.mem; if (m.p == null) m.p = t0 + 1;
-      while (m.p < t1) { if (sim.stateAt(m.p).hv > 0.6) { var d = 4.5 + sim.R() * 2.5; sim.events.push(mkEv('sw', m.p, { f0: 3.4, f1: 2.8, dur: d, amp: 340 })); m.p += d + 5 + sim.R() * 5; } else m.p += 0.5; }
+      while (m.p < t1) { var sa = sim.stateAt(m.p);
+        if (sa.hv > 0.6) { var d = 4.5 + sim.R() * 2.5; sim.events.push(mkEv('sw', m.p, { f0: 3.4, f1: 2.8, dur: d, amp: 340 })); m.p += d + 5 + sim.R() * 5; }
+        // 眠ると、短く崩れた放電が増える
+        else if (sa.sleep > 0.5) { var d2 = 0.5 + sim.R() * 0.6; sim.events.push(mkEv('polysw', m.p, { dur: d2, amp: 210 })); m.p += d2 + 2.5 + sim.R() * 3.5; }
+        else m.p += 0.5; }
     } },
     jme: { name: '若年ミオクロニーてんかん（光で誘発）', bg: {}, gen: function (sim, t0, t1) {
       var m = sim.mem; if (m.p == null) m.p = t0 + 1;
-      while (m.p < t1) { if (sim.stateAt(m.p).photic >= 12) { var d = 1.2 + sim.R() * 1.2; sim.events.push(mkEv('polysw', m.p, { dur: d, amp: 230 })); m.p += d + 2.5 + sim.R() * 2; } else m.p += 0.5; }
+      while (m.p < t1) { var sj = sim.stateAt(m.p);
+        if (sj.photic >= 12) { var d = 1.2 + sim.R() * 1.2; sim.events.push(mkEv('polysw', m.p, { dur: d, amp: 230 })); m.p += d + 2.5 + sim.R() * 2; }
+        // 眠気（寝入りばな・起きがけ）で増える
+        else if (sj.sleep > 0.5 && sj.sleep < 1.5) { var d3 = 0.8 + sim.R() * 0.6; sim.events.push(mkEv('polysw', m.p, { dur: d3, amp: 200 })); m.p += d3 + 4 + sim.R() * 4; }
+        else m.p += 0.5; }
     } },
     tle: { name: '左側頭葉てんかん', bg: { focal: { e: 'T3', amp: 14 } }, gen: function (sim, t0, t1) {
       var m = sim.mem; if (m.p == null) m.p = t0 + 1.2;
       // 眠るとノンレム睡眠で棘波が増える（N1 で約2倍、N2 で約3倍）
       while (m.p < t1) { sim.events.push(mkEv('spike', m.p, { e: 'T3', amp: 110 + sim.R() * 40 })); var sl = Math.min(2, sim.stateAt(m.p).sleep); m.p += (1.8 + sim.R() * 3.8) / (1 + 1.1 * sl); }
     } },
-    hepatic: { name: '肝性脳症（三相波）', bg: { react: 0.15, alpha: 10, alphaF: 7, theta: 14, delta: 20 }, gen: function (sim, t0, t1) {
+    hepatic: { name: '肝性脳症（三相波）', bg: { bzD: 12, bzB: 12, react: 0.15, alpha: 10, alphaF: 7, theta: 14, delta: 20 }, gen: function (sim, t0, t1) {
       var m = sim.mem; if (m.p == null) { m.p = t0 + 0.4; m.run = 0; }
       while (m.p < t1) {
-        if (m.run <= 0) { m.run = 6 + Math.floor(sim.R() * 6); m.p += 0.6 + sim.R() * 1.2; continue; }
-        sim.events.push(mkEv('tri', m.p, { amp: 120 + sim.R() * 30 })); m.run--; m.p += 0.5 + sim.R() * 0.12;
+        // 刺激で増え、深く眠ると・ベンゾジアゼピンで小さく少なくなる
+        var sh = sim.stateAt(m.p), stim = m.p >= sim.arT && m.p < sim.arT + 4, f = (1 - 0.3 * Math.min(2, sh.sleep)) * (1 - 0.65 * sh.bz) * (stim ? 1.35 : 1);
+        if (m.run <= 0) { m.run = Math.round((6 + Math.floor(sim.R() * 6)) * (stim ? 1.5 : 1) * (1 - 0.5 * sh.bz)); m.p += (0.6 + sim.R() * 1.2) * (1 + Math.min(2, sh.sleep) + 2 * sh.bz) / (stim ? 2 : 1); continue; }
+        if (f > 0.2) sim.events.push(mkEv('tri', m.p, { amp: (120 + sim.R() * 30) * f })); m.run--; m.p += 0.5 + sim.R() * 0.12;
       }
     } },
-    cjd: { name: 'クロイツフェルト・ヤコブ病（PSD）', bg: { react: 0, alpha: 8, theta: 4, delta: 4, suppress: 0.45 }, gen: function (sim, t0, t1) {
+    cjd: { name: 'クロイツフェルト・ヤコブ病（PSD）', bg: { bzB: 10, react: 0, alpha: 8, theta: 4, delta: 4, suppress: 0.45 }, gen: function (sim, t0, t1) {
       var m = sim.mem; if (m.p == null) m.p = t0 + 0.5;
-      while (m.p < t1) { sim.events.push(mkEv('psd', m.p, { amp: 150 + sim.R() * 30 })); m.p += 0.95 + sim.R() * 0.15; }
+      // 眠ると・ベンゾジアゼピンで小さくなる
+      while (m.p < t1) { var sc = sim.stateAt(m.p), sl = Math.min(2, sc.sleep); sim.events.push(mkEv('psd', m.p, { amp: (150 + sim.R() * 30) * (1 - 0.3 * sl) * (1 - 0.55 * sc.bz) })); m.p += (0.95 + sim.R() * 0.15) * (1 + 0.3 * sl); }
     } },
     hsv: { name: 'ヘルペス脳炎（LPDs）', bg: { react: 0.3, alpha: 26, focal: { e: 'T3', amp: 28 } }, gen: function (sim, t0, t1) {
       var m = sim.mem; if (m.p == null) m.p = t0 + 0.6;
       while (m.p < t1) { sim.events.push(mkEv('lpd', m.p, { e: 'T3', amp: 130 + sim.R() * 30 })); m.p += 1.2 + sim.R() * 0.4; }
     } },
-    ncse: { name: '非けいれん性てんかん重積', bg: { react: 0, alpha: 6, theta: 10 }, gen: function (sim, t0, t1) {
+    ncse: { name: '非けいれん性てんかん重積', bg: { bzA: 26, bzR: 0.6, react: 0, alpha: 6, theta: 10 }, gen: function (sim, t0, t1) {
       var m = sim.mem; if (m.p == null) m.p = t0 - 0.5;
-      while (m.p < t1) { var d = 3 + sim.R() * 2; sim.events.push(mkEv('sw', m.p, { f0: 2.7, f1: 2.3, dur: d, amp: 170, spike: 0.85 })); m.p += d; }
+      // ベンゾジアゼピンで止まる
+      while (m.p < t1) { var bzn = sim.stateAt(m.p).bz; if (bzn > 0.6) { m.p += 0.5; continue; } var d = (3 + sim.R() * 2) * (bzn > 0.2 ? 0.5 : 1); sim.events.push(mkEv('sw', m.p, { f0: 2.7, f1: 2.3, dur: d, amp: 170 * (1 - bzn), spike: 0.85 })); m.p += d; }
     } },
     nmdar: { name: '抗NMDA受容体脳炎', bg: { react: 0.1, alpha: 4, beta: 4, theta: 10, delta: 6 }, gen: function (sim, t0, t1) {
       var m = sim.mem; if (m.p == null) m.p = t0 - 0.5;
       while (m.p < t1) { var d = 6 + sim.R() * 4; sim.events.push(mkEv('brush', m.p, { dur: d, f: 1.5 + sim.R() * 0.3, amp: 110, beta: 30 })); m.p += d - 0.3; }
+      // 口や顔が勝手に動く（口部ジスキネジア）：筋電図と体動のアーチファクト
+      if (m.dk == null) m.dk = t0 + 1;
+      while (m.dk < t1) { var dd = 0.5 + sim.R() * 0.6; sim.events.push(mkEv('emg', m.dk, { dur: dd, amp: 9 + sim.R() * 6 })); if (sim.R() < 0.4) sim.events.push(mkEv('move', m.dk, { dur: dd, amp: 25 })); m.dk += 1.8 + sim.R() * 2; }
     } },
     wicket: { name: 'ウィケット棘波（正常亜型）', bg: { alpha: 22, theta: 8 }, gen: function (sim, t0, t1) {
       var m = sim.mem; if (m.p == null) { m.p = t0 + 1; m.side = 0; }
@@ -1180,9 +1202,27 @@ body.eegfs #panel.qz-on .mihon-box,body.eegfs #panel.rp-on .mihon-box{display:no
     } },
     clozapine: { name: 'クロザピン増量中', bg: { alpha: 30, alphaF: 9, theta: 14, delta: 10 }, gen: function (sim, t0, t1) {
       var m = sim.mem; if (m.p == null) m.p = t0 + 1.5;
-      while (m.p < t1) { var d = 1 + sim.R() * 0.8; sim.events.push(mkEv('sw', m.p, { f0: 4.6, f1: 3.9, dur: d, amp: 220, spike: 0.9 })); m.p += d + 3 + sim.R() * 4; }
+      // 過呼吸・光刺激で誘発されやすい
+      while (m.p < t1) { var sz = sim.stateAt(m.p), pv = 1 + sz.hv + (sz.photic >= 10 ? 0.8 : 0); var d = 1 + sim.R() * 0.8; sim.events.push(mkEv('sw', m.p, { f0: 4.6, f1: 3.9, dur: d, amp: 220, spike: 0.9 })); m.p += d + (3 + sim.R() * 4) / pv; }
     } }
   };
+  // 状態ごとの「刺激への反応の表」：sp＝睡眠の波の強さ（1＝健康）、rows＝画面に出す一覧
+  var RX = {
+    normal: { rows: [['開眼', 'α波が消える'], ['眠ると', '頭蓋頂鋭波→紡錘波'], ['過呼吸', 'ゆっくりした波が増える']] },
+    benzo: { sp: 1.5, rows: [['開眼', 'α波の減衰は保たれる'], ['眠ると', '紡錘波と速波が目立つ']] },
+    delirium: { sp: 0.45, rows: [['開眼', '反応が乏しい'], ['刺激', '徐波が少し減る'], ['眠ると', '睡眠の波が崩れる'], ['その他', '体動のアーチファクトが多い']] },
+    absence: { rows: [['過呼吸', '3Hz 棘徐波が出る'], ['眠ると', '短く崩れた放電が増える']] },
+    jme: { rows: [['光', '多棘徐波（光突発反応）'], ['眠気', '放電が増える']] },
+    tle: { rows: [['眠ると', '棘波が増える'], ['過呼吸・光', 'ふつうは変わらない']] },
+    hepatic: { sp: 0.35, rows: [['開眼', 'ほぼ反応なし'], ['刺激', '三相波が増える'], ['眠ると', '三相波が減る'], ['BZ 静注', '三相波は減るが意識は改善しない']] },
+    cjd: { sp: 0.3, rows: [['開眼', '反応なし'], ['刺激', 'PSD とミオクローヌス'], ['眠ると', 'PSD が小さくなる'], ['BZ 静注', 'PSD は小さくなるが意識は不変']] },
+    hsv: { sp: 0.45, rows: [['開眼', '反応が乏しい'], ['刺激', 'LPDs はあまり変わらない']] },
+    ncse: { sp: 0.2, rows: [['開眼・刺激', '反応なし・放電は止まらない'], ['BZ 静注', '放電が止まり、意識が戻る']] },
+    nmdar: { sp: 0.25, rows: [['開眼', 'ほぼ反応なし'], ['その他', '口の動きの筋電図が多い']] },
+    wicket: { rows: [['眠気', 'このときだけ出る']] },
+    clozapine: { rows: [['過呼吸・光', '放電が増える']] }
+  };
+  var BZ_OK = ['ncse', 'hepatic', 'cjd'];
 
   function makeSim(spec) {
     var R = rng(spec.seed || 7);
@@ -1228,7 +1268,7 @@ body.eegfs #panel.qz-on .mihon-box,body.eegfs #panel.rp-on .mihon-box{display:no
     var sim = {
       arT: -99, R: R, bg: bg, nz: nz, ph: ph, emgF: emgF, events: [], mem: {}, notch: !!spec.notch, real: real,
       preset: spec.preset || 'normal', auto: spec.auto !== false,
-      tl: { eo: [[-99, init.eo || 0]], hv: [[-99, init.hv || 0]], sleep: [[-99, init.sleep || 0]], photic: [[-99, init.photic || 0]], flat: [[-99, init.flat || 0]] }
+      tl: { eo: [[-99, init.eo || 0]], hv: [[-99, init.hv || 0]], sleep: [[-99, init.sleep || 0]], photic: [[-99, init.photic || 0]], flat: [[-99, init.flat || 0]], bz: [[-99, init.bz || 0]] }
     };
     sim.set = function (t, k, v) { sim.tl[k].push([t, v]); };
     sim.stateAt = function (t) {
@@ -1249,12 +1289,12 @@ body.eegfs #panel.qz-on .mihon-box,body.eegfs #panel.rp-on .mihon-box{display:no
       var s = sim.stateAt(t), b = sim.bg;
       var drowsy = Math.min(1, s.sleep);
       // 反応性（react）：開眼や刺激で背景がどれだけ変わるか。意識障害では小さい
-      var rc = b.react == null ? 1 : b.react, ar = (t >= sim.arT && t < sim.arT + 4) ? Math.min(1, (t - sim.arT) / 0.4) * Math.min(1, (sim.arT + 4 - t) / 0.8) : 0;
-      var aAmp = b.alpha * (1 - 0.85 * s.eo * rc) * (1 - 0.9 * drowsy) * (0.72 + 0.28 * Math.sin(TAU * 0.21 * t + 1.1));
+      var rc = (b.react == null ? 1 : b.react) + (b.bzR || 0) * s.bz, ar = (t >= sim.arT && t < sim.arT + 4) ? Math.min(1, (t - sim.arT) / 0.4) * Math.min(1, (sim.arT + 4 - t) / 0.8) : 0;
+      var aAmp = (b.alpha + (b.bzA || 0) * s.bz) * (1 - 0.85 * s.eo * Math.min(1, rc)) * (1 - 0.9 * drowsy) * (0.72 + 0.28 * Math.sin(TAU * 0.21 * t + 1.1));
       var aPh = TAU * b.alphaF * t + 0.5 * Math.sin(TAU * 0.33 * t);
-      var bAmp = b.beta * (1 + 0.5 * s.eo);
-      var thA = (b.theta + 8 * drowsy + s.hv * b.hvTheta) * (1 - 0.35 * rc * ar);
-      var dA = (b.delta + (s.sleep > 1 ? 16 * (s.sleep - 1) : 0) + s.hv * b.hvDelta) * (1 - 0.45 * rc * ar);
+      var bAmp = b.beta * (1 + 0.5 * s.eo) + (b.bzB || 0) * s.bz + (b.sleepBeta || 0) * Math.min(2, s.sleep);
+      var thA = (b.theta + 8 * drowsy + s.hv * b.hvTheta) * (1 - 0.35 * Math.min(1, rc) * ar);
+      var dA = (b.delta + (s.sleep > 1 ? 16 * (s.sleep - 1) : 0) + s.hv * b.hvDelta + (b.bzD || 0) * s.bz) * (1 - 0.45 * Math.min(1, rc) * ar);
       var Wb = b.betaW === 'front' ? W.front : W.beta;
       var fv = 0;
       if (fw) fv = b.focal.amp * (Math.sin(TAU * 1.4 * t + fph[0]) + 0.7 * Math.sin(TAU * 2.3 * t + fph[1]) + 0.5 * Math.sin(TAU * 0.9 * t + fph[2]));
@@ -1263,7 +1303,7 @@ body.eegfs #panel.qz-on .mihon-box,body.eegfs #panel.rp-on .mihon-box{display:no
         srcRun(RS.bgn, t); if (thA > 0) srcRun(RS.th, t); if (dA > 0) srcRun(RS.de, t); srcRun(RS.be, t);
         var A = rx.a;
         var envR = Math.max(0, 0.58 + 0.28 * Math.sin(TAU * 0.17 * t + A[0]) + 0.22 * Math.sin(TAU * 0.41 * t + A[1]) + 0.14 * Math.sin(TAU * 0.93 * t + A[2]));
-        var aAmpR = b.alpha * (1 - 0.85 * s.eo * rc) * (1 - 0.9 * drowsy) * envR;
+        var aAmpR = (b.alpha + (b.bzA || 0) * s.bz) * (1 - 0.85 * s.eo * Math.min(1, rc)) * (1 - 0.9 * drowsy) * envR;
         var aPhR = TAU * b.alphaF * t + 2.2 * Math.sin(TAU * 0.11 * t + A[3]) + 1.4 * Math.sin(TAU * 0.23 * t + A[4]);
         for (var e = 0; e < NE; e++) {
           var p = ph[e], x0 = POS[E[e]][0], y0 = POS[E[e]][1];
@@ -1351,10 +1391,13 @@ body.eegfs #panel.qz-on .mihon-box,body.eegfs #panel.rp-on .mihon-box{display:no
     if (m.slp == null) m.slp = t0 + 0.8;
     while (m.slp < t1) {
       var s = Math.round(sim.stateAt(m.slp).sleep);
-      if (s === 1) { sim.events.push(mkEv('vertex', m.slp, { amp: 140 + R() * 40 })); m.slp += 2.5 + R() * 3; }
+      // 睡眠の波：意識障害では弱く崩れ、ベンゾジアゼピンでは紡錘波が目立つ（RX[...].sp）
+      var sp = (RX[sim.preset] && RX[sim.preset].sp) || 1, skip = sp < 1 && R() > sp + 0.2;
+      if (s === 1) { if (!skip) sim.events.push(mkEv('vertex', m.slp, { amp: (140 + R() * 40) * Math.min(1, sp + 0.2) })); m.slp += 2.5 + R() * 3; }
       else if (s === 2) {
-        if (R() < 0.35) { sim.events.push(mkEv('kc', m.slp, { amp: 150 + R() * 40 })); sim.events.push(mkEv('spindle', m.slp + 0.6, { dur: 0.8 + R() * 0.5, amp: 40 })); m.slp += 5 + R() * 3; }
-        else { sim.events.push(mkEv('spindle', m.slp, { dur: 0.7 + R() * 0.7, amp: 36 + R() * 10 })); m.slp += 3 + R() * 3; }
+        if (skip) m.slp += 3 + R() * 3;
+        else if (R() < 0.35) { sim.events.push(mkEv('kc', m.slp, { amp: (150 + R() * 40) * Math.min(1, sp + 0.2) })); sim.events.push(mkEv('spindle', m.slp + 0.6, { dur: 0.8 + R() * 0.5, amp: 40 * sp })); m.slp += 5 + R() * 3; }
+        else { sim.events.push(mkEv('spindle', m.slp, { dur: (0.7 + R() * 0.7) * (sp > 1 ? 1.4 : 1), amp: (36 + R() * 10) * sp })); m.slp += (3 + R() * 3) / (sp > 1 ? 1.6 : 1); }
       } else m.slp += 0.5;
     }
     var pre = PRE[sim.preset];
@@ -1862,7 +1905,7 @@ body.eegfs #panel.qz-on .mihon-box,body.eegfs #panel.rp-on .mihon-box{display:no
     sim.R = Math.random;
     sim.notch = V.notch;
     var data = []; for (var k = 0; k < NS; k++) data.push(new Float32Array(BUF));
-    LIVE = { sim: sim, data: data, w: 0, schedT: 0, ann: [], st: { eo: 0, hv: 0, sleep: 0, photic: 0 }, flags: { hum: false, ecg: false } };
+    LIVE = { sim: sim, data: data, w: 0, schedT: 0, ann: [], st: { eo: 0, hv: 0, sleep: 0, photic: 0, bz: 0 }, flags: { hum: false, ecg: false } };
     LIVE.hls = []; V.lback = 0;
     LIVE.src = { get N() { return LIVE.w; }, dur: 64, photic: true, ann: LIVE.ann, hls: LIVE.hls, get: function (k2, i) { return LIVE.data[k2][i % BUF]; } };
     advance(Math.round(10 * FS));
@@ -1908,6 +1951,10 @@ body.eegfs #panel.qz-on .mihon-box,body.eegfs #panel.rp-on .mihon-box{display:no
     clozapine: ['クロザピン増量中', '背景がやや遅く、全般性の突発波がときどき出ます。クロザピンは用量に応じて脳波異常とけいれんを起こしやすくします。']
   };
   var ACT_TXT = {
+    bz_ncse: ['ベンゾジアゼピンを静注した（NCSE）', '数秒のうちに、途切れなかった棘徐波が止まり、背景に α 波が戻ってきました。呼びかけへの反応も戻ります（反応性が戻る）。脳波と臨床症状の両方がよくなったので、非けいれん性てんかん重積と判断できます（Salzburg 基準）。続けて静注の抗てんかん薬を使います。'],
+    bz_hepatic: ['ベンゾジアゼピンを静注した（三相波）', '三相波は小さく少なくなりました。でも背景はむしろ遅くなり、速波が混じり、意識はよくなりません。三相波もベンゾジアゼピンで減ることがあるので、「消えたからてんかん」とは言えません。決め手は臨床症状の改善を伴うかどうかです。肝性脳症ではベンゾジアゼピンが意識を悪くするので、ふつうは避けます。'],
+    bz_cjd: ['ベンゾジアゼピンを静注した（PSD）', 'PSD は小さくなりましたが、意識や反応は変わりません。周期性の波が薬で減っても、病気がよくなったわけではありません。'],
+    bzDone: ['もう投与しました', '続けての投与は呼吸抑制に注意します。ここでは1回だけです。「最初の状態に戻す」でやり直せます。'],
     eoP0: ['まぶたを開けた（手で）', '呼びかけても目を開けないので、まぶたを手で開けました。後頭部の背景はほとんど変わりません（反応性がない）。意識障害が重いほど、開眼や刺激への反応は乏しくなります。'],
     eoP1: ['まぶたを開けた（手で）', '呼びかけても目を開けないので、まぶたを手で開けました。後頭部の遅いα波が少しだけ小さくなりますが、健康な人ほどはっきりとは変わりません（反応性が乏しい）。'],
     call0: ['名前を呼んだ', '呼びかけても、背景はほとんど変わりません。刺激への反応性がないことは、重い意識障害を示します。'],
@@ -1951,7 +1998,8 @@ body.eegfs #panel.qz-on .mihon-box,body.eegfs #panel.rp-on .mihon-box{display:no
       '<div class="ctl-row"><span class="lb">反応をみる</span>' +
         '<button type="button" class="act" data-act="call">名前を呼ぶ</button>' +
         '<button type="button" class="act" data-act="pain">痛み刺激</button>' +
-        '<button type="button" class="act" data-act="eyes" aria-pressed="' + pr(st.eo) + '">まぶたを手で開ける</button></div>' +
+        '<button type="button" class="act" data-act="eyes" aria-pressed="' + pr(st.eo) + '">まぶたを手で開ける</button>' +
+        (BZ_OK.indexOf(pre) !== -1 ? '<button type="button" class="act act-bz" data-act="bz" aria-pressed="' + pr(st.bz) + '">💉 ベンゾジアゼピン静注</button>' : '') + '</div>' +
       '<div class="ctl-row"><span class="lb">賦活</span>' +
         '<button type="button" class="act act-no" data-act="hv">過呼吸（できない）</button>'
       :
@@ -2055,8 +2103,10 @@ body.eegfs #panel.qz-on .mihon-box,body.eegfs #panel.rp-on .mihon-box{display:no
     panel.classList.remove('rp-on', 'qz-on');
     var t = isPreset ? LAB_TXT[key] : ACT_TXT[key];
     var el = document.getElementById('explain'); if (!el || !t) return;
-    el.innerHTML = '<h3>' + esc(t[0]) + '</h3><p>' + esc(t[1]) + '</p>' + (isPreset && IMPAIRED.indexOf(key) !== -1 ? '<p class="imp-note">' + T('意識が下がっているので、指示が要る操作（目を開けて・過呼吸など）はできません。「名前を呼ぶ」「痛み刺激」「まぶたを手で開ける」で、刺激への反応をみてください。', '意識が下がってるから、指示が要る操作はできんさー。「名前を呼ぶ」「痛み刺激」「まぶたを手で開ける」で反応みてね。') + '</p>' : '');
+    el.innerHTML = '<h3>' + esc(t[0]) + '</h3><p>' + esc(t[1]) + '</p>' + (isPreset && RX[key] ? '<dl class="rx-tbl"><dt class="rx-h">この状態の反応</dt>' + RX[key].rows.map(function (r) { return '<div><dt>' + r[0] + '</dt><dd>' + r[1] + '</dd></div>'; }).join('') + '</dl>' : '') + (isPreset && IMPAIRED.indexOf(key) !== -1 ? '<p class="imp-note">' + T('意識が下がっているので、指示が要る操作（目を開けて・過呼吸など）はできません。「名前を呼ぶ」「痛み刺激」「まぶたを手で開ける」で、刺激への反応をみてください。', '意識が下がってるから、指示が要る操作はできんさー。「名前を呼ぶ」「痛み刺激」「まぶたを手で開ける」で反応みてね。') + '</p>' : '');
   }
+  // ヤコブ病：音や刺激で、PSD がミオクローヌス（ぴくっ）と一緒に出る
+  function stimPsd(sim, t) { sim.events.push(mkEv('psd', t + 0.25, { amp: 170 })); sim.events.push(mkEv('emg', t + 0.27, { dur: 0.25, amp: 22 })); sim.events.push(mkEv('move', t + 0.27, { dur: 0.4, amp: 30 })); }
   function labAct(act, val) {
     var L = LIVE, sim = L.sim, t = L.w / FS + 0.05, st = L.st;
     MK_REAL = sim.real; MKR = Math.random;
@@ -2064,6 +2114,7 @@ body.eegfs #panel.qz-on .mihon-box,body.eegfs #panel.rp-on .mihon-box{display:no
     var SC = ['Fp1','Fp2','F7','F3','Fz','F4','F8','T3','C3','Cz','C4','T4','T5','P3','Pz','P4','T6','O1','O2'];
     var imp = isImp(), rcv = sim.bg.react == null ? 1 : sim.bg.react;
     var HLMAP = { eyes: [['O1','O2','P3','P4','T5','T6'], 3, function () { return imp ? (st.eo ? (rcv < 0.05 ? 'α波の反応なし' : 'α波の反応が乏しい') : '') : st.eo ? 'α波が減る' : 'α波が戻る'; }],
+      bz: [SC, 10, function () { return { ncse: '放電が止まる', hepatic: '三相波が減る（意識は不変）', cjd: 'PSD が小さくなる' }[LIVE.sim.preset] || ''; }],
       call: [SC, 4, function () { return rcv < 0.05 ? '背景は変わらない' : '徐波が少し減る'; }], pain: [SC, 4, function () { return rcv < 0.05 ? '体動のみ・背景は不変' : '体動＋徐波が少し減る'; }], blink: [['Fp1','Fp2'], 1, 'まばたき'], lookL: [['F7','F8'], 1.8, '眼球運動'], lookR: [['F7','F8'], 1.8, '眼球運動'],
       clench: [['F7','F8','T3','T4','T5','T6'], 3, '筋電図'], hv: [SC, 10, function () { return st.hv ? '徐波が増える' : ''; }], photic: [['O1','O2'], 8, function () { return st.photic ? '光駆動' : ''; }],
       sleep: [['Cz','C3','C4','Fz','Pz'], 8, function () { return ['', '頭蓋頂鋭波', '紡錘波・K複合'][st.sleep]; }], pop: [['C4'], 2, '電極ポップ'], hum: [['O2'], 10, function () { return L.flags.hum ? 'ハム（50Hz）' : ''; }], ecg: [['A1'], 10, function () { return L.flags.ecg ? '心電図の混入' : ''; }] };
@@ -2076,8 +2127,9 @@ body.eegfs #panel.qz-on .mihon-box,body.eegfs #panel.rp-on .mihon-box{display:no
       L.hls.push(band); if (L.hls.length > 30) L.hls.shift();
     }, 0);
     switch (act) {
-      case 'call': sim.arT = t; ann('呼びかけ'); explain(rcv < 0.05 ? 'call0' : 'call1'); break;
-      case 'pain': sim.arT = t; sim.events.push(mkEv('move', t + 0.1, { dur: 1.3, amp: 55 })); sim.events.push(mkEv('emg', t + 0.1, { dur: 1.4, amp: 16 })); ann('痛み刺激'); explain(rcv < 0.05 ? 'pain0' : 'pain1'); break;
+      case 'bz': if (st.bz) { explain('bzDone'); break; } st.bz = 1; sim.set(t, 'bz', 1); ann('BZ 静注'); explain('bz_' + LIVE.sim.preset); break;
+      case 'call': sim.arT = t; if (LIVE.sim.preset === 'cjd') stimPsd(sim, t); ann('呼びかけ'); explain(rcv < 0.05 ? 'call0' : 'call1'); break;
+      case 'pain': sim.arT = t; if (LIVE.sim.preset === 'cjd') stimPsd(sim, t); sim.events.push(mkEv('move', t + 0.1, { dur: 1.3, amp: 55 })); sim.events.push(mkEv('emg', t + 0.1, { dur: 1.4, amp: 16 })); ann('痛み刺激'); explain(rcv < 0.05 ? 'pain0' : 'pain1'); break;
       case 'eyes': if (imp) { st.eo = st.eo ? 0 : 1; sim.set(t, 'eo', st.eo); ann(st.eo ? 'まぶたを開ける' : 'まぶたを閉じる'); if (st.eo) explain(rcv < 0.05 ? 'eoP0' : 'eoP1'); else explain(LIVE.sim.preset, true); break; }
         st.eo = st.eo ? 0 : 1; sim.set(t, 'eo', st.eo); if (st.eo) { sim.events.push(mkEv('blink', t, {})); if (st.sleep) { st.sleep = 0; sim.set(t, 'sleep', 0); } } ann(st.eo ? '開眼' : '閉眼'); explain(st.eo ? 'eo1' : 'eo0'); break;
       case 'blink': sim.events.push(mkEv('blink', t, {})); ann('まばたき'); explain('blink'); break;
@@ -2202,7 +2254,8 @@ body.eegfs #panel.qz-on .mihon-box,body.eegfs #panel.rp-on .mihon-box{display:no
     face.classList.toggle('eo', !!st.eo && !st.sleep);
     face.classList.toggle('s1', st.sleep === 1); face.classList.toggle('s2', st.sleep === 2);
     face.classList.toggle('hv', !!st.hv); face.classList.toggle('ph', !!st.photic);
-    face.classList.toggle('dull', DULL.indexOf(LIVE.sim.preset) !== -1);
+    face.classList.toggle('dull', DULL.indexOf(LIVE.sim.preset) !== -1 && !(LIVE.sim.preset === 'ncse' && st.bz));
+    if (st.bz && LIVE.sim.preset !== 'ncse') face.classList.add('s1'); if (st.bz && LIVE.sim.preset === 'ncse') face.classList.add('eo');
     document.getElementById('fLampHz').textContent = st.photic ? st.photic + 'Hz' : '';
     if (act === 'blink' || (act === 'eyes' && st.eo)) faceFlash('blink', 260);
     if (act === 'lookL') { face.classList.remove('lookR'); faceFlash('lookL', 1400); }
