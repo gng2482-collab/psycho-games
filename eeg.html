@@ -615,7 +615,8 @@ body.phone .sheet-b #mihonSec{margin:0}
 body.phone .chan-note{display:none}
 body.phone #tbMore{display:inline-flex}
 body.phone:not(.tbopen) .toolbar label.tb-item,body.phone:not(.tbopen) #notch,body.phone:not(.tbopen) #measBtn{display:none}
-body.phone .toolbar{gap:4px;flex-wrap:wrap}
+body.phone .toolbar{gap:4px;flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;flex:none} body.phone .toolbar::-webkit-scrollbar{display:none} body.phone .toolbar>*{flex:none}
+body.phone.tbopen .toolbar{flex-wrap:wrap}
 body.phone .toolbar .lb{display:none}
 body.phone .toolbar .seg button,body.phone .toolbar .act,body.phone .toolbar select{min-height:34px;padding:2px 8px;font-size:var(--fs-xs)}
 body.phone:not(.eegfs) #fsBtn{display:none}
@@ -631,6 +632,33 @@ body.phone .ph h2{font-size:var(--fs-l)}
 body.phone .ph .prog{font-size:var(--fs-xs)}
 body.phone .qh{font-size:var(--fs-m)}
 body.phone .stamp{top:calc(var(--eegH) / 2)!important;left:50%!important}
+#hemiBtn{display:none} body.phone #hemiBtn{display:inline-flex} #hemiBtn[aria-pressed="true"]{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.mini-head{display:none}
+body.phone .mini-head:not([hidden]){display:block;position:absolute;right:4px;top:18px;z-index:5;width:86px;background:color-mix(in srgb,var(--panel) 90%,transparent);border:1px solid var(--line);border-radius:10px;padding:2px;box-shadow:0 2px 8px rgba(0,0,0,.15);cursor:pointer;transition:width .2s}
+body.phone .mini-head.big{width:200px}
+body.phone .mini-head #head{max-width:none;width:100%}
+body.phone .trace-wrap{position:relative}
+/* 触ってみる：ボタンは横にスワイプする大きなチップの列 */
+body.phone[data-mode="lab"] .lab-grid{display:flex;flex-direction:column;gap:10px}
+body.phone[data-mode="lab"] .ctl{gap:6px}
+body.phone[data-mode="lab"] .ctl-row{flex-wrap:nowrap;overflow-x:auto;overscroll-behavior-x:contain;scrollbar-width:none;padding-bottom:2px;-webkit-overflow-scrolling:touch}
+body.phone[data-mode="lab"] .ctl-row::-webkit-scrollbar{display:none}
+body.phone[data-mode="lab"] .ctl-row .lb{flex:none;min-width:0;font-size:10px;writing-mode:vertical-rl;letter-spacing:.05em;color:var(--muted)}
+body.phone[data-mode="lab"] .ctl-row .act,body.phone[data-mode="lab"] .ctl-row .seg button{flex:none;min-height:46px;padding:6px 14px;border-radius:999px;font-size:var(--fs-s);white-space:nowrap}
+body.phone[data-mode="lab"] .ctl-row .seg{flex:none;display:inline-flex}
+body.phone[data-mode="lab"] .ctl-row select{flex:none;min-height:44px}
+body.phone[data-mode="lab"] .si-top #face{width:56px;height:56px}
+body.phone .fb-set{justify-self:start}
+.fb-home{justify-self:start;margin-top:30px;font-weight:700;min-height:44px;display:inline-flex;align-items:center;padding:0 18px;border:2px solid var(--accent);border-radius:999px;color:var(--accent);text-decoration:none}
+.fb-set{font-weight:700;color:var(--accent);text-decoration:none}
+/* 横向きのスマホ：左に縦のタブ、真ん中に脳波、右に問題 */
+body.phone.land{--tabH:0px;--railW:calc(58px + env(safe-area-inset-left,0px))}
+body.phone.land:not(.eegfs) .tabbar{top:0;bottom:0;right:auto;width:var(--railW);height:auto;grid-template-columns:1fr;grid-auto-rows:minmax(0,1fr);padding:env(safe-area-inset-top,0px) 0 0 env(safe-area-inset-left,0px);border-top:0;border-right:1px solid var(--line)}
+body.phone.land:not(.eegfs):not(.home) .desk-main{left:var(--railW);right:40vw;bottom:0;height:auto;border-bottom:0;border-right:2px solid var(--line)}
+body.phone.land:not(.eegfs):not(.home) .sheet{left:auto;right:0;width:40vw;top:0!important;bottom:0;border-radius:0;box-shadow:none}
+body.phone.land .sheet-h{display:none}
+body.phone.land .tb-pop,body.phone.land .pop{left:calc(var(--railW) + 8px);right:auto;width:min(360px,60vw);bottom:8px;max-height:calc(100svh - 16px);overflow:auto}
+body.phone.land.home{padding-left:calc(var(--railW) + 8px);padding-bottom:16px}
 .mk-btn{min-height:30px;padding:2px 10px;margin-left:8px;font-size:var(--fs-xs)}
 .st-reset{display:flex;flex-wrap:wrap;gap:8px;align-items:center;border-top:1px dashed var(--line);padding-top:10px;font-size:var(--fs-s)}
 .st-reset p{flex-basis:100%;margin:0}
@@ -989,6 +1017,7 @@ body.eegfs #panel.qz-on .mihon-box,body.eegfs #panel.rp-on .mihon-box{display:no
         <button type="button" class="act" id="notch" aria-pressed="false">ACフィルタ</button>
         <button type="button" class="act" id="measBtn" aria-pressed="false">ものさし</button>
         <span class="tb-item" id="pager" hidden><button type="button" class="act" id="pgPrev" aria-label="前の5秒">◀</button><button type="button" class="act" id="pgNext" aria-label="次の5秒">▶</button></span>
+        <button type="button" class="act" id="hemiBtn">左右：全部</button>
         <button type="button" class="act" id="tbMore" aria-expanded="false">⚙ 記録の設定</button>
         <button type="button" class="act" id="playBtn" hidden>一時停止</button>
         <span class="tb-item fsonly"><span class="lb">波</span><span class="seg" id="lvSeg2"><button type="button" data-lv="0">入門</button><button type="button" data-lv="1">実践</button></span></span>
@@ -1510,8 +1539,11 @@ body.eegfs #panel.qz-on .mihon-box,body.eegfs #panel.rp-on .mihon-box{display:no
   function shuffled(n) { var a = []; for (var i = 0; i < n; i++) a.push(i); for (var j = n - 1; j > 0; j--) { var r = Math.floor(Math.random() * (j + 1)); var t = a[j]; a[j] = a[r]; a[r] = t; } return a; }
   function chLabel(c) { return c[0] + '−' + c[1]; }
 
+  // 左右だけ表示（スマホで線が多すぎるとき）：L＝左と正中、R＝右と正中
+  function hemiOk(c) { if (!V.hemi) return true; var xs = [c[0], c[1]].map(function (e) { return POS[e] ? POS[e][0] : 0; }); return V.hemi === 'L' ? xs[0] <= 0.01 && xs[1] <= 0.01 : xs[0] >= -0.01 && xs[1] >= -0.01; }
   function channels() {
-    var m = MONT[V.mont], list = m.ch.map(function (c, i) { return { a: c[0], b: c[1], label: chLabel(c), gap: m.gaps.indexOf(i) !== -1 }; });
+    var m = MONT[V.mont], list = [], prev = -1;
+    m.ch.forEach(function (c, i) { if (!hemiOk(c)) return; list.push({ a: c[0], b: c[1], label: chLabel(c), gap: list.length > 0 && (m.gaps.indexOf(i) !== -1 || i !== prev + 1) }); prev = i; });
     list.push({ kind: 'ecg', label: 'ECG', gap: true });
     if (V.src && V.src.photic) list.push({ kind: 'ph', label: '光刺激', gap: false });
     return list;
@@ -4133,7 +4165,7 @@ body.eegfs #panel.qz-on .mihon-box,body.eegfs #panel.rp-on .mihon-box{display:no
   var MODES = ['home', 'lab', 'story', 'dojo', 'hunter', 'conf', 'sen', 'elec', 'hossa', 'review', 'ichi', 'flash', 'zukan'];
   function setMode(m, focus) {
     if (MODES.indexOf(m) === -1) m = 'home';
-    V.mode = m; document.body.setAttribute('data-mode', m); if (typeof tbSync === 'function') { tbSync(m); sheetFor(['zukan', 'elec', 'hossa', 'review'].indexOf(m) === -1); }
+    V.mode = m; document.body.setAttribute('data-mode', m); if (typeof placeHead === 'function' && deskSide) placeHead(); if (typeof tbSync === 'function') { tbSync(m); sheetFor(['zukan', 'elec', 'hossa', 'review'].indexOf(m) === -1); }
     document.querySelectorAll('[data-mode]').forEach(function (a) { if (a.getAttribute('data-mode') === m) a.setAttribute('aria-current', 'page'); else a.removeAttribute('aria-current'); });
     headSvg.classList.remove('picking');
     headSvg.querySelectorAll('.el').forEach(function (g2) { g2.classList.remove('ok', 'ng'); g2.removeAttribute('tabindex'); g2.removeAttribute('role'); });
@@ -4602,14 +4634,16 @@ body.eegfs #panel.qz-on .mihon-box,body.eegfs #panel.rp-on .mihon-box{display:no
 
   /* 感想・指摘を送る：Google フォームの「事前入力した URL」をここに入れると、ボタンが出る。
      最後の入力欄に、いまの画面（モード名）を自動で入れる。例：'https://docs.google.com/forms/d/e/xxxx/viewform?usp=pp_url&entry.123=' */
-  var FEEDBACK_URL = '';
+  var FEEDBACK_URL = 'https://docs.google.com/forms/d/e/1FAIpQLSdNJkjXAVATEdI6vKRfg8gmFf87viEZP8qCpqCzv9lQGojGeg/viewform';
+  function fbHref(where) { return /entry\.\d+=$/.test(FEEDBACK_URL) ? FEEDBACK_URL + encodeURIComponent('脳波よみ道場／' + where) : FEEDBACK_URL; }
   (function () {
     if (!FEEDBACK_URL) return;
     var a = document.createElement('a'); a.className = 'ab-btn fb-btn'; a.target = '_blank'; a.rel = 'noopener'; a.textContent = '✉ 感想'; a.href = '#';
-    a.addEventListener('click', function () { a.href = FEEDBACK_URL + encodeURIComponent('脳波よみ道場／' + (M_NAME[V.mode] || 'ホーム')); });
+    a.href = fbHref('ホーム'); a.addEventListener('click', function () { a.href = fbHref(M_NAME[V.mode] || 'ホーム'); });
     document.querySelector('.ab-r').insertBefore(a, document.querySelector('.ab-r .oki-btn'));
-    var b = a.cloneNode(true); b.textContent = '✉ 感想・間違いの指摘を送る'; b.addEventListener('click', function () { b.href = FEEDBACK_URL + encodeURIComponent('脳波よみ道場／ホーム'); });
+    var b = a.cloneNode(true); b.textContent = '✉ 感想・間違いの指摘を送る'; b.className = 'fb-home';
     document.querySelector('#home .foot').before(b);
+    var c = a.cloneNode(true); c.className = 'fb-set'; c.textContent = '✉ 感想・間違いの指摘を送る'; document.querySelector('#setPop .level').appendChild(c);
   })();
 
   /* ====================== 12. はじめる ====================== */
@@ -4727,13 +4761,25 @@ body.eegfs #panel.qz-on .mihon-box,body.eegfs #panel.rp-on .mihon-box{display:no
   // スマホの幅：脳波を上に固定し、その下に問題や操作を並べる
   // スマホ：画面が変わったら、シートをいちばん上から見せる。脳波を使わない画面ではシートを高く
   function sheetFor(hasEeg) { if (!document.body.classList.contains('phone')) return; var sb = document.getElementById('sheetB'); if (sb) sb.scrollTop = 0; var sh = document.getElementById('sheet'); if (sh) sh.setAttribute('data-s', hasEeg ? 'mid' : 'high'); }
+  // スマホの触ってみる：頭の図を記録紙の右上に小さく重ねる（押すと大きく）
+  var miniHead = document.createElement('div'); miniHead.className = 'mini-head'; miniHead.setAttribute('aria-hidden', 'true');
+  document.querySelector('.trace-wrap').appendChild(miniHead);
+  miniHead.addEventListener('click', function (e) { e.stopPropagation(); miniHead.classList.toggle('big'); });
+  function placeHead() {
+    var hd = document.getElementById('head'), want = document.body.classList.contains('phone') && V.mode === 'lab';
+    if (want && hd.parentNode !== miniHead) miniHead.appendChild(hd);
+    else if (!want && hd.parentNode === miniHead) deskSide.insertBefore(hd, deskSide.firstChild);
+    miniHead.hidden = !want;
+  }
   var deskSec = document.querySelector('.desk'), deskSide = document.querySelector('.desk-side'), mihonEl = document.getElementById('mihonSec'), sheetB = document.getElementById('sheetB');
   function phoneSync() {
-    var ph = innerWidth <= 700, was = document.body.classList.contains('phone');
+    var ph = Math.min(innerWidth, innerHeight) <= 500 || innerWidth <= 700, was = document.body.classList.contains('phone');
+    document.body.classList.toggle('land', ph && innerWidth > innerHeight);
     document.body.classList.toggle('phone', ph);
     // スマホでは、問題・頭の図・見本をシートの中へ移す（戻すときは元の場所へ）
     if (ph && !was) { sheetB.appendChild(panel); sheetB.appendChild(deskSide); sheetB.appendChild(mihonEl); }
     else if (!ph && was) { deskSec.before(panel); deskSec.appendChild(deskSide); deskSec.after(mihonEl); }
+    placeHead();
     var ab = document.getElementById('appbar'); document.documentElement.style.setProperty('--abh', (ab && ab.offsetHeight ? ab.offsetHeight : 0) + 'px');
   }
   phoneSync();
@@ -4764,6 +4810,7 @@ body.eegfs #panel.qz-on .mihon-box,body.eegfs #panel.rp-on .mihon-box{display:no
     popClose(); location.hash = '#' + t;
   });
   document.addEventListener('click', function (e) { if (!e.target.closest('.tb-pop')) tbPopClose(); else if (e.target.closest('.tb-pop a')) tbPopClose(); });
+  document.getElementById('hemiBtn').addEventListener('click', function () { V.hemi = V.hemi === '' || !V.hemi ? 'L' : V.hemi === 'L' ? 'R' : ''; V.sel = -1; this.textContent = '左右：' + (V.hemi === 'L' ? '左だけ' : V.hemi === 'R' ? '右だけ' : '全部'); this.setAttribute('aria-pressed', String(!!V.hemi)); draw(); updateHead(); });
   document.getElementById('tbMore').addEventListener('click', function () { var o = document.body.classList.toggle('tbopen'); this.setAttribute('aria-expanded', String(o)); this.textContent = o ? '⚙ 閉じる' : '⚙ 記録の設定'; requestAnimationFrame(draw); });
   var resizeT = 0;
   window.addEventListener('resize', function () { clearTimeout(resizeT); resizeT = setTimeout(function () { phoneSync(); if (isFs()) syncFs(); else draw(); }, 80); });
