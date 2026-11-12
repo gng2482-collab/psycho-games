@@ -575,6 +575,27 @@ body.eegfs .appbar,body.eegfs #home{display:none!important}
 .imp-note{margin-top:6px;font-size:var(--fs-s);border-left:3px solid var(--hot);padding-left:8px}
 .resume{display:flex;flex-wrap:wrap;gap:8px 12px;align-items:center;padding:8px 12px;border:2px dashed var(--mark);border-radius:var(--r);background:color-mix(in srgb,var(--mark) 12%,var(--panel));font-size:var(--fs-s)}
 .resume .ghost{min-height:36px}
+/* ===== スマホ（幅700px以下）：脳波を上に固定し、問題・操作をその下に ===== */
+#tbMore{display:none}
+body.phone:not(.eegfs):not(.home) .wrap{display:flex;flex-direction:column}
+body.phone:not(.eegfs) .desk{display:contents}
+body.phone:not(.eegfs) .desk-main{order:1;position:sticky;top:var(--abh,0px);z-index:20;height:54svh;display:flex;flex-direction:column;gap:4px;background:var(--paper);padding:2px 0 6px;border-bottom:2px solid var(--line);margin-inline:-4px;padding-inline:4px}
+body.phone:not(.eegfs) .desk-main .trace-wrap{flex:1 1 auto;min-height:0;overflow-y:auto}
+body.phone:not(.eegfs) #panel{order:2;margin-top:10px}
+body.phone:not(.eegfs) .desk-side{order:3;position:static;margin-top:12px}
+body.phone:not(.eegfs) #mihonSec{order:4}
+body.phone .chan-note{display:none}
+body.phone #tbMore{display:inline-flex}
+body.phone:not(.tbopen) .toolbar label.tb-item,body.phone:not(.tbopen) #notch,body.phone:not(.tbopen) #measBtn{display:none}
+body.phone .toolbar{gap:4px;flex-wrap:wrap}
+body.phone .toolbar .lb{display:none}
+body.phone .toolbar .seg button,body.phone .toolbar .act,body.phone .toolbar select{min-height:34px;padding:2px 8px;font-size:var(--fs-xs)}
+body.phone:not(.eegfs) #fsBtn{display:none}
+body.phone #head{max-width:230px;margin-inline:auto}
+body.phone.stvig .st-vigbox{display:none!important}
+body.phone .st-mini{max-width:280px;margin-inline:auto}
+body.phone #panel{padding:12px}
+body.phone .appbar{margin-bottom:0}
 .mk-btn{min-height:30px;padding:2px 10px;margin-left:8px;font-size:var(--fs-xs)}
 .st-reset{display:flex;flex-wrap:wrap;gap:8px;align-items:center;border-top:1px dashed var(--line);padding-top:10px;font-size:var(--fs-s)}
 .st-reset p{flex-basis:100%;margin:0}
@@ -932,6 +953,7 @@ body.eegfs #panel.qz-on .mihon-box,body.eegfs #panel.rp-on .mihon-box{display:no
         <button type="button" class="act" id="notch" aria-pressed="false">ACフィルタ</button>
         <button type="button" class="act" id="measBtn" aria-pressed="false">ものさし</button>
         <span class="tb-item" id="pager" hidden><button type="button" class="act" id="pgPrev" aria-label="前の5秒">◀</button><button type="button" class="act" id="pgNext" aria-label="次の5秒">▶</button></span>
+        <button type="button" class="act" id="tbMore" aria-expanded="false">⚙ 記録の設定</button>
         <button type="button" class="act" id="playBtn" hidden>一時停止</button>
         <span class="tb-item fsonly"><span class="lb">波</span><span class="seg" id="lvSeg2"><button type="button" data-lv="0">入門</button><button type="button" data-lv="1">実践</button></span></span>
         <button type="button" class="act" id="fsBtn" aria-pressed="false">全画面</button>
@@ -1471,8 +1493,9 @@ body.eegfs #panel.qz-on .mihon-box,body.eegfs #panel.rp-on .mihon-box{display:no
     mkPos = null;
     var chans = channels();
     var W0 = cv.clientWidth || 600, nar = W0 < 560;
-    var LW = nar ? 50 : 62, RP = 8, top = 30, bottom = 74, sp = nar ? 20 : 26, gapPx = 6;
-    if (document.body.classList.contains('eegfs')) { var avail = cv.parentNode.clientHeight, ng = chans.filter(function (c) { return c.gap; }).length; if (avail > 120) sp = Math.max(12, Math.min(48, Math.floor((avail - top - bottom - ng * gapPx) / chans.length))); }
+    var phn = document.body.classList.contains('phone') && !document.body.classList.contains('eegfs');
+    var LW = nar ? 50 : 62, RP = 8, top = phn ? 24 : 30, bottom = phn ? 30 : 74, sp = nar ? 20 : 26, gapPx = phn ? 3 : 6;
+    if (document.body.classList.contains('eegfs') || phn) { var avail = cv.parentNode.clientHeight, ng = chans.filter(function (c) { return c.gap; }).length; if (avail > 120) sp = Math.max(12, Math.min(48, Math.floor((avail - top - bottom - ng * gapPx) / chans.length))); }
     var H = top + bottom + chans.length * sp + chans.filter(function (c) { return c.gap; }).length * gapPx;
     var dpr = Math.min(window.devicePixelRatio || 1, 2);
     if (cv.width !== Math.round(W0 * dpr) || cv.height !== Math.round(H * dpr)) { cv.width = Math.round(W0 * dpr); cv.height = Math.round(H * dpr); cv.style.height = H + 'px'; }
@@ -1626,7 +1649,7 @@ body.eegfs #panel.qz-on .mihon-box,body.eegfs #panel.rp-on .mihon-box{display:no
     ctx.font = '10px "BIZ UDPGothic", sans-serif'; ctx.textAlign = 'left';
     var lbl = function (bd) { return bd[0] + ' ' + bd[3] + ' ' + bd[2] + 'µV'; };
     var segW = Math.max(pxPerSec, ctx.measureText(lbl(BANDS[2])).width + 4), gapB = 8, bx = LW, by = H - 34, room = W0 - RP - calW - LW;
-    if (room >= (segW + gapB) * 2) {
+    if (!phn && room >= (segW + gapB) * 2) {
       BANDS.forEach(function (bd) {
         if (bx + segW > LW + room) return;
         var amp = Math.min((bd[2] / 2) * k, 22);
@@ -3910,7 +3933,8 @@ body.eegfs #panel.qz-on .mihon-box,body.eegfs #panel.rp-on .mihon-box{display:no
     else if (go === 'eeg') {
       setPage(stCase().spec); SQ.ph = 'eeg'; renderStory(true);
       // iPad では脳波と問題を並べて見られるよう全画面に。パソコンでは脳波が見えるところまで動かす
-      if (window.matchMedia && matchMedia('(pointer:coarse)').matches && !isFs()) setFs(true);
+      if (document.body.classList.contains('phone')) window.scrollTo(0, 0);
+      else if (window.matchMedia && matchMedia('(pointer:coarse)').matches && !isFs()) setFs(true);
       else if (!isFs()) { var dk = document.querySelector('.desk'); if (dk) dk.scrollIntoView({ block: 'start', behavior: 'smooth' }); }
     }
     else if (go === 'next') { if (SQ.ci < ST_CH[SQ.ch - 1].cases.length - 1) { SQ.ci++; stStartCase(); } else { setPage(ZK_DEFAULT_SPEC); stGo('chout'); } }
@@ -4073,7 +4097,7 @@ body.eegfs #panel.qz-on .mihon-box,body.eegfs #panel.rp-on .mihon-box{display:no
     if (m === 'home') { if (isFs()) setFs(false); homeEnter(); }
     else if (m === 'lab') { enterLab(); window.scrollTo(0, 0); }
     else if (m === 'story') { storyEnter(); }
-    else if (m === 'ichi') { ichiStart(0); setTimeout(function () { if (coarse && !isFs()) setFs(true); else if (!isFs()) panel.scrollIntoView({ block: 'start', behavior: 'smooth' }); }, 50); }
+    else if (m === 'ichi') { ichiStart(0); setTimeout(function () { if (document.body.classList.contains('phone')) window.scrollTo(0, 0); else if (coarse && !isFs()) setFs(true); else if (!isFs()) panel.scrollIntoView({ block: 'start', behavior: 'smooth' }); }, 50); }
     else if (m === 'flash') { V.live = false; FL = newFlash(); flStart(); }
     else if (m === 'review') { V.live = false; RV.cur = null; V.hl = null; renderReview(); }
     else if (m === 'hossa') { if (isFs()) setFs(false); V.live = false; setPage(ZK_DEFAULT_SPEC); if (!HQ) HQ = newHossaQ(); renderHossaQ(); }
@@ -4655,8 +4679,15 @@ body.eegfs #panel.qz-on .mihon-box,body.eegfs #panel.rp-on .mihon-box{display:no
     else if (e.key === 'ArrowLeft' && page(-1)) e.preventDefault();
     else if (e.key === 'Escape' && isFs()) setFs(false);
   });
+  // スマホの幅：脳波を上に固定し、その下に問題や操作を並べる
+  function phoneSync() {
+    document.body.classList.toggle('phone', innerWidth <= 700);
+    var ab = document.getElementById('appbar'); document.documentElement.style.setProperty('--abh', (ab && ab.offsetHeight ? ab.offsetHeight : 0) + 'px');
+  }
+  phoneSync();
+  document.getElementById('tbMore').addEventListener('click', function () { var o = document.body.classList.toggle('tbopen'); this.setAttribute('aria-expanded', String(o)); this.textContent = o ? '⚙ 閉じる' : '⚙ 記録の設定'; requestAnimationFrame(draw); });
   var resizeT = 0;
-  window.addEventListener('resize', function () { clearTimeout(resizeT); resizeT = setTimeout(function () { if (isFs()) syncFs(); else draw(); }, 80); });
+  window.addEventListener('resize', function () { clearTimeout(resizeT); resizeT = setTimeout(function () { phoneSync(); if (isFs()) syncFs(); else draw(); }, 80); });
   setMode((location.hash || '#home').slice(1));
   if (document.fonts && document.fonts.ready) document.fonts.ready.then(function () { draw(); });
 
