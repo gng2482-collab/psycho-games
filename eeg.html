@@ -573,6 +573,8 @@ body.eegfs .appbar,body.eegfs #home{display:none!important}
 .rx-tbl .rx-h{font-weight:700;color:var(--accent)} .rx-tbl div{display:grid;grid-template-columns:6.5em minmax(0,1fr);gap:6px} .rx-tbl dt{color:var(--muted)} .rx-tbl dd{margin:0}
 .act-bz{border-color:var(--accent);color:var(--accent);font-weight:700}
 .imp-note{margin-top:6px;font-size:var(--fs-s);border-left:3px solid var(--hot);padding-left:8px}
+.resume{display:flex;flex-wrap:wrap;gap:8px 12px;align-items:center;padding:8px 12px;border:2px dashed var(--mark);border-radius:var(--r);background:color-mix(in srgb,var(--mark) 12%,var(--panel));font-size:var(--fs-s)}
+.resume .ghost{min-height:36px}
 .mk-btn{min-height:30px;padding:2px 10px;margin-left:8px;font-size:var(--fs-xs)}
 .st-reset{display:flex;flex-wrap:wrap;gap:8px;align-items:center;border-top:1px dashed var(--line);padding-top:10px;font-size:var(--fs-s)}
 .st-reset p{flex-basis:100%;margin:0}
@@ -2594,6 +2596,15 @@ body.eegfs #panel.qz-on .mihon-box,body.eegfs #panel.rp-on .mihon-box{display:no
   ];
 
   var Q = { dojo: null, conf: null, hunter: null, sen: null };
+  // 途中まで解いた問題に戻ったとき：「前回の続き」を知らせ、最初から解き直せるようにする
+  var RESUME = false;
+  function resumeHTML() { return RESUME ? '<div class="resume">' + T('前回の続きです（答えた問いはそのまま残っています）', '前回の続きさー（答えたとこは残ってるよー）') + '<button type="button" class="ghost" data-resume="1">' + T('この症例を最初から解き直す', '最初から解き直す') + '</button></div>' : ''; }
+  document.getElementById('panel').addEventListener('click', function (e) {
+    if (!e.target.closest('[data-resume]')) return;
+    e.stopImmediatePropagation(); RESUME = false; V.hl = null;
+    if (V.mode === 'story') { stStartCase(); SQ.ph = 'eeg'; setPage(stCase().spec); renderStory(true); }
+    else if (V.mode === 'conf' || V.mode === 'sen') { var S = Q[V.mode], L = V.mode === 'conf' ? CONF : SENMON; S.picks[S.i] = L[S.i].qs.map(function () { return null; }); S.opt[S.i] = L[S.i].qs.map(function (q) { return shuffled(q.a.length); }); (V.mode === 'conf' ? renderConf : renderSen)('new'); }
+  }, true);
   var BEST = { dojo: 'eeg-dojo-best', conf: 'eeg-conf-best', hunter: 'eeg-hunter-best', sen: 'eeg-sen-best', elec: 'eeg-elec-best', hossa: 'eeg-hossa-best', flash: 'eeg-flash-best' };
   function rankOf(p) { return p >= 90 ? 'S' : p >= 75 ? 'A' : p >= 60 ? 'B' : p >= 40 ? 'C' : 'D'; }
 
@@ -2668,7 +2679,7 @@ body.eegfs #panel.qz-on .mihon-box,body.eegfs #panel.rp-on .mihon-box{display:no
     var c = CONF[S.i], picks = S.picks[S.i], k = picks.indexOf(null);
     if (focus === 'new') setPage(c.spec);
     var html = '<div class="ph"><h2 id="panelH" tabindex="-1">' + esc(c.title) + '</h2><span class="prog">' + esc(c.time) + ' ・ 脳波カンファ ' + CONF.length + '人中 ' + (S.i + 1) + '人目</span></div>' +
-      '<p class="story">' + esc(c.story) + '</p>';
+      resumeHTML() + '<p class="story">' + esc(c.story) + '</p>';
     c.qs.forEach(function (q, qi) {
       var p = picks[qi];
       if (p === null && qi !== k) return;
@@ -2681,6 +2692,7 @@ body.eegfs #panel.qz-on .mihon-box,body.eegfs #panel.rp-on .mihon-box{display:no
     if (focus === 'new' || focus === true) document.getElementById('panelH').focus({ preventScroll: true });
   }
   function answerConf(ai) {
+    RESUME = false;
     var S = Q.conf, picks = S.picks[S.i], k = picks.indexOf(null); if (k === -1) return;
     picks[k] = ai;
     V.hl = qMark(CONF[S.i], CONF[S.i].qs[k], k); draw(); updateHead(); stamp(ai === 0); revMark('conf', S.i, k, ai === 0);
@@ -2818,7 +2830,7 @@ body.eegfs #panel.qz-on .mihon-box,body.eegfs #panel.rp-on .mihon-box{display:no
     var c = SENMON[S.i], picks = S.picks[S.i], k = picks.indexOf(null);
     if (focus === 'new') setPage(c.spec);
     var html = '<div class="ph"><h2 id="panelH" tabindex="-1">' + esc(c.title) + '</h2><span class="prog">' + esc(c.time) + ' ・ 専門医道場 ' + SENMON.length + '題中 ' + (S.i + 1) + '題目</span></div>' +
-      '<p class="story">' + esc(c.story) + '</p>';
+      resumeHTML() + '<p class="story">' + esc(c.story) + '</p>';
     c.qs.forEach(function (q, qi) {
       var p = picks[qi];
       if (p === null && qi !== k) return;
@@ -2831,6 +2843,7 @@ body.eegfs #panel.qz-on .mihon-box,body.eegfs #panel.rp-on .mihon-box{display:no
     if (focus === 'new' || focus === true) document.getElementById('panelH').focus({ preventScroll: true });
   }
   function answerSen(ai) {
+    RESUME = false;
     var S = Q.sen, picks = S.picks[S.i], k = picks.indexOf(null); if (k === -1) return;
     picks[k] = ai;
     V.hl = qMark(SENMON[S.i], SENMON[S.i].qs[k], k); draw(); updateHead(); stamp(ai === 0); revMark('sen', S.i, k, ai === 0);
@@ -3778,7 +3791,7 @@ body.eegfs #panel.qz-on .mihon-box,body.eegfs #panel.rp-on .mihon-box{display:no
         '<p class="st-eegnote">' + esc(c.eegNote) + '</p><button type="button" class="btn" data-sgo="eeg">' + T('脳波を見る', '脳波見てみよう') + '</button>';
     } else if (SQ.ph === 'eeg') {
       c = stCase();
-      html = stHead(esc(c.title)) + '<details class="st-again"><summary>症例と症状を見る</summary>' + vigHTML(c) + animHTML() + '</details>' +
+      html = stHead(esc(c.title)) + resumeHTML() + '<details class="st-again"><summary>症例と症状を見る</summary>' + vigHTML(c) + animHTML() + '</details>' +
         '<p class="st-eegnote">' + esc(c.eegNote) + '</p>';
       c.qs.forEach(function (q, qi) {
         if (qi > SQ.qi || (SQ.daily && qi > 0)) return; var p = SQ.picks[qi];
@@ -3831,17 +3844,26 @@ body.eegfs #panel.qz-on .mihon-box,body.eegfs #panel.rp-on .mihon-box{display:no
   function stVigAuto() {}
   function storyEnter() {
     V.live = false;
+    // 別の画面から戻ったとき：解き終わった症例は出さず、次の症例（最後なら章の一覧）へ進める
+    if (SQ.ph === 'eeg' && SQ.qi >= stCase().qs.length) {
+      if (SQ.daily) { SQ.daily = false; SQ.ph = 'menu'; }
+      else if (SQ.ci < ST_CH[SQ.ch - 1].cases.length - 1) { SQ.ci++; stStartCase(); return; }
+      else SQ.ph = 'menu';
+    }
+    RESUME = SQ.ph === 'eeg' && SQ.picks.some(function (x) { return x !== null; });
     if (SQ.ph === 'eeg') { setPage(stCase().spec); if (SQ.picks[0] !== null) { V.hl = stCase().hl; draw(); updateHead(); } }
     else setPage(ZK_DEFAULT_SPEC);
     renderStory(true);
   }
   function stGo(ph) { SQ.ph = ph; renderStory(true); document.getElementById('panel').scrollIntoView({ block: 'start', behavior: 'auto' }); }
   function stStartCase() {
+    RESUME = false;
     REVEAL = {};
     var c = stCase(); SQ.qi = 0; SQ.sel = []; SQ.picks = c.qs.map(function () { return null; }); SQ.opt = c.qs.map(function (q) { return shuffled(q.a.length); });
     V.hl = null; setPage(ZK_DEFAULT_SPEC); stGo('case');
   }
   function stAnswer(p) {
+    RESUME = false;
     var c = stCase(), q = c.qs[SQ.qi]; SQ.picks[SQ.qi] = p; SQ.sel = [];
     V.hl = qMark(c, q, SQ.qi); draw(); updateHead(); stVigAuto(); stamp(stRight(q, p));
     var qi = SQ.qi; SQ.qi++; revMark('story', stKey(), qi, stRight(q, p));
@@ -4059,6 +4081,15 @@ body.eegfs #panel.qz-on .mihon-box,body.eegfs #panel.rp-on .mihon-box{display:no
     else if (m === 'zukan') { V.live = false; setPage(ZK_DEFAULT_SPEC); renderZukan(); }
     else {
       if (!Q[m]) Q[m] = ({ dojo: newDojo, conf: newConf, hunter: newHunter, sen: newSen })[m]();
+      // 別の画面から戻ったとき：答え終わった問題は飛ばして、次の問題から（全部終わっていたら新しく始める）
+      (function () {
+        var S = Q[m];
+        if (m === 'dojo') { while (S.i < S.ord.length && S.picks[S.i] !== null) S.i++; if (S.i >= S.ord.length) Q[m] = newDojo(); }
+        else if (m === 'conf' || m === 'sen') { var L = m === 'conf' ? CONF : SENMON; while (S.i < L.length && S.picks[S.i].indexOf(null) === -1) S.i++; if (S.i >= L.length) Q[m] = m === 'conf' ? newConf() : newSen(); }
+        else if (m === 'hunter') { while (S.i < S.rounds.length && S.rounds[S.i].pickE !== null && (!S.rounds[S.i].judge || S.rounds[S.i].pickK !== null)) S.i++; if (S.i >= S.rounds.length) Q[m] = newHunter(); }
+      })();
+      V.hl = null;
+      RESUME = (m === 'conf' || m === 'sen') && Q[m].i < (m === 'conf' ? CONF : SENMON).length && Q[m].picks[Q[m].i].some(function (x) { return x !== null; });
       ({ dojo: renderDojo, conf: renderConf, hunter: renderHunter, sen: renderSen })[m]('new');
       // 答えたあとの問題に戻ってきたときは、見るところを出し直す
       if (m === 'dojo' && Q.dojo.i < Q.dojo.ord.length && Q.dojo.picks[Q.dojo.i] !== null) { V.hl = DOJO[Q.dojo.ord[Q.dojo.i]].hl; draw(); updateHead(); }
