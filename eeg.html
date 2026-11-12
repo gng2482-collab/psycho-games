@@ -575,15 +575,43 @@ body.eegfs .appbar,body.eegfs #home{display:none!important}
 .imp-note{margin-top:6px;font-size:var(--fs-s);border-left:3px solid var(--hot);padding-left:8px}
 .resume{display:flex;flex-wrap:wrap;gap:8px 12px;align-items:center;padding:8px 12px;border:2px dashed var(--mark);border-radius:var(--r);background:color-mix(in srgb,var(--mark) 12%,var(--panel));font-size:var(--fs-s)}
 .resume .ghost{min-height:36px}
-/* ===== スマホ（幅700px以下）：脳波を上に固定し、問題・操作をその下に ===== */
-#tbMore{display:none}
-body.phone:not(.eegfs):not(.home) .wrap{display:flex;flex-direction:column}
-body.phone:not(.eegfs) .desk{display:contents}
-body.phone:not(.eegfs) .desk-main{order:1;position:sticky;top:var(--abh,0px);z-index:20;height:54svh;display:flex;flex-direction:column;gap:4px;background:var(--paper);padding:2px 0 6px;border-bottom:2px solid var(--line);margin-inline:-4px;padding-inline:4px}
-body.phone:not(.eegfs) .desk-main .trace-wrap{flex:1 1 auto;min-height:0;overflow-y:auto}
-body.phone:not(.eegfs) #panel{order:2;margin-top:10px}
-body.phone:not(.eegfs) .desk-side{order:3;position:static;margin-top:12px}
-body.phone:not(.eegfs) #mihonSec{order:4}
+/* ===== スマホ（幅700px以下）：脳波は上に固定、操作と問題は下から出るシート、いちばん下にタブバー ===== */
+#tbMore,.tabbar,.sheet,.tb-pop{display:none}
+.pop .oki-btn{display:none}
+body.phone{--tabH:calc(58px + env(safe-area-inset-bottom,0px));--eegH:47svh}
+body.phone:not(.eegfs) .tabbar{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));position:fixed;left:0;right:0;bottom:0;z-index:45;height:var(--tabH);padding-bottom:env(safe-area-inset-bottom,0px);background:var(--panel);border-top:1px solid var(--line);box-shadow:0 -4px 16px rgba(0,0,0,.08)}
+.tabbar button{font:inherit;font-size:10.5px;font-weight:700;border:0;background:none;color:var(--muted);display:grid;justify-items:center;align-content:center;gap:1px;cursor:pointer;min-height:48px}
+.tabbar button i{font-style:normal;font-size:20px;line-height:1}
+.tabbar button[aria-current="true"]{color:var(--accent)} .tabbar button[aria-current="true"] i{transform:translateY(-1px)}
+.tabbar .tb-lab{color:var(--hot)}
+.tb-pop{position:fixed;left:8px;right:8px;bottom:calc(var(--tabH) + 8px);z-index:46;background:var(--panel);border:2px solid var(--accent);border-radius:14px;box-shadow:0 10px 30px rgba(0,0,0,.25);padding:8px;gap:6px}
+body.phone .tb-pop:not([hidden]){display:grid}
+.tb-pop a{display:flex;align-items:center;justify-content:space-between;text-decoration:none;color:var(--ink);font-weight:700;padding:12px 14px;border:1px solid var(--line);border-radius:10px;background:var(--paper);min-height:52px}
+.tb-pop a small{font-weight:400;color:var(--muted);font-size:var(--fs-xs)}
+.tb-pop a[aria-current="page"]{border-color:var(--accent);background:var(--accent-soft)}
+/* 上のバーは使わない（設定の窓だけ残す） */
+body.phone .appbar{position:static;height:0;min-height:0;padding:0;margin:0;border:0;overflow:visible;background:none;backdrop-filter:none}
+body.phone .appbar>:not(.pop){display:none!important}
+body.phone .pop{position:fixed;top:auto;bottom:calc(var(--tabH) + 8px);left:8px;right:8px;width:auto;z-index:46}
+body.phone .pop .oki-btn{display:inline-flex;justify-self:start}
+body.phone #menuPop{display:none!important}
+body.phone.home{padding-bottom:calc(var(--tabH) + 16px)}
+/* 脳波：画面の上に固定 */
+body.phone:not(.eegfs):not(.home) .desk-main{position:fixed;top:0;left:0;right:0;z-index:20;height:var(--eegH);display:flex;flex-direction:column;gap:4px;background:var(--paper);padding:calc(4px + env(safe-area-inset-top,0px)) 8px 4px;border-bottom:2px solid var(--line)}
+body.phone:not(.eegfs):not(.home) .desk-main .trace-wrap{flex:1 1 auto;min-height:0;overflow-y:auto}
+body.phone:not(.eegfs):not(.home) .wrap{min-height:100svh}
+/* 下から出るシート（低・中・高の3段） */
+body.phone:not(.eegfs):not(.home) .sheet{display:flex;flex-direction:column;position:fixed;left:0;right:0;bottom:var(--tabH);z-index:30;top:var(--eegH);background:var(--panel);border-radius:18px 18px 0 0;box-shadow:0 -6px 22px rgba(0,0,0,.16);transition:top .28s ease}
+body.phone .sheet[data-s="high"]{top:calc(10svh)!important}
+body.phone .sheet[data-s="low"]{top:calc(100svh - var(--tabH) - 132px)!important}
+body.phone .sheet.drag{transition:none}
+.sheet-h{flex:none;display:grid;justify-items:center;padding:8px 0 4px;cursor:grab;touch-action:none}
+.sheet-h span{width:44px;height:5px;border-radius:3px;background:var(--line)}
+.sheet-b{flex:1 1 auto;min-height:0;overflow-y:auto;overscroll-behavior:contain;padding:0 10px 18px;display:flex;flex-direction:column;gap:12px}
+body.phone .sheet-b #panel{margin:0;border:0;padding:4px 4px 0;background:none}
+body.phone .sheet-b .desk-side{position:static;border:0;background:none;padding:0}
+body.phone[data-mode="hunter"] .sheet-b .desk-side{order:-1}
+body.phone .sheet-b #mihonSec{margin:0}
 body.phone .chan-note{display:none}
 body.phone #tbMore{display:inline-flex}
 body.phone:not(.tbopen) .toolbar label.tb-item,body.phone:not(.tbopen) #notch,body.phone:not(.tbopen) #measBtn{display:none}
@@ -594,8 +622,15 @@ body.phone:not(.eegfs) #fsBtn{display:none}
 body.phone #head{max-width:230px;margin-inline:auto}
 body.phone.stvig .st-vigbox{display:none!important}
 body.phone .st-mini{max-width:280px;margin-inline:auto}
-body.phone #panel{padding:12px}
-body.phone .appbar{margin-bottom:0}
+/* 問題：親指で押しやすい大きな選択肢 */
+body.phone .opts{grid-template-columns:minmax(0,1fr)!important;gap:8px}
+body.phone .opt{min-height:54px;font-size:var(--fs-m);padding:10px 14px}
+body.phone .btn{min-height:50px;width:100%;justify-content:center}
+body.phone .row .btn,body.phone .row .ghost{flex:1 1 auto}
+body.phone .ph h2{font-size:var(--fs-l)}
+body.phone .ph .prog{font-size:var(--fs-xs)}
+body.phone .qh{font-size:var(--fs-m)}
+body.phone .stamp{top:calc(var(--eegH) / 2)!important;left:50%!important}
 .mk-btn{min-height:30px;padding:2px 10px;margin-left:8px;font-size:var(--fs-xs)}
 .st-reset{display:flex;flex-wrap:wrap;gap:8px;align-items:center;border-top:1px dashed var(--line);padding-top:10px;font-size:var(--fs-s)}
 .st-reset p{flex-basis:100%;margin:0}
@@ -856,6 +891,7 @@ body.eegfs #panel.qz-on .mihon-box,body.eegfs #panel.rp-on .mihon-box{display:no
     </div>
     <div class="pop pop-r" id="setPop" hidden>
       <div class="level" role="group" aria-label="設定">
+        <button type="button" class="oki-btn">沖縄版へ</button>
         <div class="set-row"><span class="lb">波</span><span class="seg" id="lvSeg"><button type="button" data-lv="0">入門：きれいな波</button><button type="button" data-lv="1">実践：本物に近い波</button></span>
     </div><div class="set-row"><span class="lb">選択肢</span><span class="seg" id="hoSeg"><button type="button" data-ho="0">最初から表示</button><button type="button" data-ho="1">後から表示（上級）</button></span></div>
       </div>
@@ -996,6 +1032,10 @@ body.eegfs #panel.qz-on .mihon-box,body.eegfs #panel.rp-on .mihon-box{display:no
 
   <section class="mihon-wrap" id="mihonSec" hidden aria-labelledby="mhh"><h2 id="mhh">異常脳波の見本</h2><div class="mihon" id="mihon"></div></section>
   <button type="button" class="ghost fsonly" id="fsPanelBtn" aria-pressed="true">問題を隠す</button>
+  <div class="sheet" id="sheet" data-s="mid" aria-label="問題と操作"><div class="sheet-h" id="sheetH" role="button" aria-label="シートの高さを変える"><span></span></div><div class="sheet-b" id="sheetB"></div></div>
+  <div class="tb-pop" id="tpHon" hidden><a href="#story" data-mode="story">研修スタート<small>新人医師の1年</small></a><a href="#conf" data-mode="conf">脳波カンファ<small>精神科の症例</small></a><a href="#sen" data-mode="sen">専門医道場<small>てんかん専門医レベル</small></a></div>
+  <div class="tb-pop" id="tpRen" hidden><a href="#elec" data-mode="elec">電極つけ練習</a><a href="#dojo" data-mode="dojo">波形道場</a><a href="#hunter" data-mode="hunter">位相逆転ハンター</a><a href="#flash" data-mode="flash">5秒チャレンジ</a><a href="#hossa" data-mode="hossa">発作当てクイズ</a><a href="#review" data-mode="review">まちがい復習</a><a href="#ichi" data-mode="ichi">今日の一件</a></div>
+  <nav class="tabbar" id="tabbar" aria-label="タブ"><button type="button" data-tb="home"><i>⌂</i>ホーム</button><button type="button" data-tb="lab" class="tb-lab"><i>👆</i>触る</button><button type="button" data-tb="hon"><i>📖</i>本編</button><button type="button" data-tb="ren" class="tb-ren"><i>✏️</i>練習</button><button type="button" data-tb="zukan"><i>🗂</i>図鑑</button><button type="button" data-tb="set"><i>⚙</i>設定</button></nav>
   <div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
 </div>
 
@@ -1495,7 +1535,7 @@ body.eegfs #panel.qz-on .mihon-box,body.eegfs #panel.rp-on .mihon-box{display:no
     var W0 = cv.clientWidth || 600, nar = W0 < 560;
     var phn = document.body.classList.contains('phone') && !document.body.classList.contains('eegfs');
     var LW = nar ? 50 : 62, RP = 8, top = phn ? 24 : 30, bottom = phn ? 30 : 74, sp = nar ? 20 : 26, gapPx = phn ? 3 : 6;
-    if (document.body.classList.contains('eegfs') || phn) { var avail = cv.parentNode.clientHeight, ng = chans.filter(function (c) { return c.gap; }).length; if (avail > 120) sp = Math.max(12, Math.min(48, Math.floor((avail - top - bottom - ng * gapPx) / chans.length))); }
+    if (document.body.classList.contains('eegfs') || phn) { var avail = cv.parentNode.clientHeight, ng = chans.filter(function (c) { return c.gap; }).length; if (avail > 120) sp = Math.max(phn ? 8 : 12, Math.min(48, Math.floor((avail - top - bottom - ng * gapPx) / chans.length))); }
     var H = top + bottom + chans.length * sp + chans.filter(function (c) { return c.gap; }).length * gapPx;
     var dpr = Math.min(window.devicePixelRatio || 1, 2);
     if (cv.width !== Math.round(W0 * dpr) || cv.height !== Math.round(H * dpr)) { cv.width = Math.round(W0 * dpr); cv.height = Math.round(H * dpr); cv.style.height = H + 'px'; }
@@ -2660,6 +2700,7 @@ body.eegfs #panel.qz-on .mihon-box,body.eegfs #panel.rp-on .mihon-box{display:no
   // ---- 波形道場
   function newDojo() { var ord = shuffled(DOJO.length); return { ord: ord, i: 0, picks: ord.map(function () { return null; }), opt: ord.map(function (d) { return shuffled(DOJO[d].a.length); }) }; }
   function renderDojo(focus) {
+    if (focus === 'new') sheetFor(true);
     var S = Q.dojo;
     if (S.i >= S.ord.length) {
       var right = S.picks.filter(function (p) { return p === 0; }).length;
@@ -2690,6 +2731,7 @@ body.eegfs #panel.qz-on .mihon-box,body.eegfs #panel.rp-on .mihon-box{display:no
   // ---- 脳波カンファ
   function newConf() { return { i: 0, picks: CONF.map(function (c) { return c.qs.map(function () { return null; }); }), opt: CONF.map(function (c) { return c.qs.map(function (q) { return shuffled(q.a.length); }); }) }; }
   function renderConf(focus) {
+    if (focus === 'new') sheetFor(true);
     var S = Q.conf;
     if (S.i >= CONF.length) {
       var right = 0, total = 0, log = '';
@@ -2841,6 +2883,7 @@ body.eegfs #panel.qz-on .mihon-box,body.eegfs #panel.rp-on .mihon-box{display:no
   // ---- 専門医道場（脳波カンファと同じしくみ）
   function newSen() { return { i: 0, picks: SENMON.map(function (c) { return c.qs.map(function () { return null; }); }), opt: SENMON.map(function (c) { return c.qs.map(function (q) { return shuffled(q.a.length); }); }) }; }
   function renderSen(focus) {
+    if (focus === 'new') sheetFor(true);
     var S = Q.sen;
     if (S.i >= SENMON.length) {
       var right = 0, total = 0, log = '';
@@ -3043,6 +3086,7 @@ body.eegfs #panel.qz-on .mihon-box,body.eegfs #panel.rp-on .mihon-box{display:no
     return x + ' は鎖のいちばん後ろの端です。' + down.join('・') + ' が下向きに大きく振れますが、向かい合う相手の線がありません。鎖の端では位相逆転が見えないので、いちばん大きく振れる端の電極を疑い、基準導出に切り替えて確かめます。';
   }
   function renderHunter(focus) {
+    if (focus === 'new') sheetFor(true);
     var S = Q.hunter;
     headSvg.classList.remove('picking');
     if (S.i >= S.rounds.length) {
@@ -3838,6 +3882,7 @@ body.eegfs #panel.qz-on .mihon-box,body.eegfs #panel.rp-on .mihon-box{display:no
     }
     panel.innerHTML = html;
     stVigSync();
+    if (focus) sheetFor(SQ.ph === 'eeg');
     if (SQ.ph === 'case' || SQ.ph === 'eeg') storyAnimRun(stCase()); else storyAnimStop();
     if (focus) { var h = document.getElementById('panelH'); if (h) h.focus({ preventScroll: true }); }
     draw();
@@ -4088,7 +4133,7 @@ body.eegfs #panel.qz-on .mihon-box,body.eegfs #panel.rp-on .mihon-box{display:no
   var MODES = ['home', 'lab', 'story', 'dojo', 'hunter', 'conf', 'sen', 'elec', 'hossa', 'review', 'ichi', 'flash', 'zukan'];
   function setMode(m, focus) {
     if (MODES.indexOf(m) === -1) m = 'home';
-    V.mode = m;
+    V.mode = m; document.body.setAttribute('data-mode', m); if (typeof tbSync === 'function') { tbSync(m); sheetFor(['zukan', 'elec', 'hossa', 'review'].indexOf(m) === -1); }
     document.querySelectorAll('[data-mode]').forEach(function (a) { if (a.getAttribute('data-mode') === m) a.setAttribute('aria-current', 'page'); else a.removeAttribute('aria-current'); });
     headSvg.classList.remove('picking');
     headSvg.querySelectorAll('.el').forEach(function (g2) { g2.classList.remove('ok', 'ng'); g2.removeAttribute('tabindex'); g2.removeAttribute('role'); });
@@ -4502,7 +4547,7 @@ body.eegfs #panel.qz-on .mihon-box,body.eegfs #panel.rp-on .mihon-box{display:no
     { sel: '[data-act="blink"]', wait: true, t: '次は「まばたき」を押してみてください。', o: '次は「まばたき」押してみて。' },
     { sel: '.trace-wrap', delay: 1300, t: 'いちばん上の Fp に大きな波。目の動きも脳波に写ります。てんかんの波と見分ける第一歩です。', o: 'いちばん上の Fp に大きな波が出たさー。目の動きも脳波に写るわけよ。' },
     { sel: '.ctl', t: 'ほかにも、眠る・過呼吸・光・電極の失敗などを試せます。迷ったら「はじめの1分」でもう一度。', o: 'ほかにも、眠ったり、過呼吸したり、光あてたり。迷ったら「はじめの1分」でもう一回ね。' },
-    { sel: '#menuBtn', t: '慣れたら、ここから「症例で読む（本編）」や「練習」へ進めます。', o: '慣れたら、ここから本編とか練習に進めるよー。' }
+    { sel: '#menuBtn|#tabbar', t: '慣れたら、ここから「症例で読む（本編）」や「練習」へ進めます。', o: '慣れたら、ここから本編とか練習に進めるよー。' }
   ];
   function tourStart() {
     if (V.mode !== 'lab') return;
@@ -4518,7 +4563,7 @@ body.eegfs #panel.qz-on .mihon-box,body.eegfs #panel.rp-on .mihon-box{display:no
     tourShow();
   }
   function tourEnd() { if (!TOUR) return; clearTimeout(TOUR.tm); TOUR.el.remove(); TOUR = null; }
-  function tourTarget() { var st = TOUR_STEPS[TOUR.i]; return st ? document.querySelector(st.sel) : null; }
+  function tourTarget() { var st = TOUR_STEPS[TOUR.i]; if (!st) return null; var c = st.sel.split('|').map(function (x) { return document.querySelector(x); }).filter(function (el) { return el && el.getBoundingClientRect().width > 0; }); return c[0] || null; }
   function tourShow() {
     if (!TOUR) return;
     var st = TOUR_STEPS[TOUR.i], tg = tourTarget();
@@ -4680,11 +4725,45 @@ body.eegfs #panel.qz-on .mihon-box,body.eegfs #panel.rp-on .mihon-box{display:no
     else if (e.key === 'Escape' && isFs()) setFs(false);
   });
   // スマホの幅：脳波を上に固定し、その下に問題や操作を並べる
+  // スマホ：画面が変わったら、シートをいちばん上から見せる。脳波を使わない画面ではシートを高く
+  function sheetFor(hasEeg) { if (!document.body.classList.contains('phone')) return; var sb = document.getElementById('sheetB'); if (sb) sb.scrollTop = 0; var sh = document.getElementById('sheet'); if (sh) sh.setAttribute('data-s', hasEeg ? 'mid' : 'high'); }
+  var deskSec = document.querySelector('.desk'), deskSide = document.querySelector('.desk-side'), mihonEl = document.getElementById('mihonSec'), sheetB = document.getElementById('sheetB');
   function phoneSync() {
-    document.body.classList.toggle('phone', innerWidth <= 700);
+    var ph = innerWidth <= 700, was = document.body.classList.contains('phone');
+    document.body.classList.toggle('phone', ph);
+    // スマホでは、問題・頭の図・見本をシートの中へ移す（戻すときは元の場所へ）
+    if (ph && !was) { sheetB.appendChild(panel); sheetB.appendChild(deskSide); sheetB.appendChild(mihonEl); }
+    else if (!ph && was) { deskSec.before(panel); deskSec.appendChild(deskSide); deskSec.after(mihonEl); }
     var ab = document.getElementById('appbar'); document.documentElement.style.setProperty('--abh', (ab && ab.offsetHeight ? ab.offsetHeight : 0) + 'px');
   }
   phoneSync();
+  /* シート：取っ手を上下にドラッグ（押すと段を切り替え） */
+  var sheet = document.getElementById('sheet'), shDrag = null;
+  function sheetSet(st) { sheet.setAttribute('data-s', st); }
+  document.getElementById('sheetH').addEventListener('pointerdown', function (e) { shDrag = { y: e.clientY, top: sheet.getBoundingClientRect().top, moved: false }; sheet.classList.add('drag'); this.setPointerCapture && this.setPointerCapture(e.pointerId); });
+  document.getElementById('sheetH').addEventListener('pointermove', function (e) { if (!shDrag) return; var dy = e.clientY - shDrag.y; if (Math.abs(dy) > 6) shDrag.moved = true; if (shDrag.moved) { sheet.style.top = Math.max(innerHeight * 0.08, Math.min(innerHeight - 140, shDrag.top + dy)) + 'px'; } });
+  document.getElementById('sheetH').addEventListener('pointerup', function (e) {
+    if (!shDrag) return; sheet.classList.remove('drag');
+    var top = sheet.getBoundingClientRect().top, moved = shDrag.moved; shDrag = null; sheet.style.top = '';
+    if (!moved) { var cur = sheet.getAttribute('data-s'); sheetSet(cur === 'mid' ? 'high' : cur === 'high' ? 'low' : 'mid'); return; }
+    var r = top / innerHeight; sheetSet(r < 0.3 ? 'high' : r < 0.62 ? 'mid' : 'low');
+  });
+  /* タブバー */
+  function tbSync(m) {
+    var g = { home: 'home', lab: 'lab', story: 'hon', conf: 'hon', sen: 'hon', zukan: 'zukan' }[m] || 'ren';
+    document.querySelectorAll('#tabbar [data-tb]').forEach(function (b) { b.setAttribute('aria-current', String(b.getAttribute('data-tb') === g)); });
+    document.querySelectorAll('.tb-pop a').forEach(function (a) { if (a.getAttribute('data-mode') === m) a.setAttribute('aria-current', 'page'); else a.removeAttribute('aria-current'); });
+  }
+  function tbPopClose() { document.querySelectorAll('.tb-pop').forEach(function (x) { x.hidden = true; }); }
+  document.getElementById('tabbar').addEventListener('click', function (e) {
+    var b = e.target.closest('[data-tb]'); if (!b) return; e.stopPropagation();
+    var t = b.getAttribute('data-tb'), pop = { hon: 'tpHon', ren: 'tpRen' }[t];
+    if (pop) { var el = document.getElementById(pop), o = el.hidden; tbPopClose(); popClose(); el.hidden = !o; return; }
+    tbPopClose();
+    if (t === 'set') { popToggle('setBtn', 'setPop'); return; }
+    popClose(); location.hash = '#' + t;
+  });
+  document.addEventListener('click', function (e) { if (!e.target.closest('.tb-pop')) tbPopClose(); else if (e.target.closest('.tb-pop a')) tbPopClose(); });
   document.getElementById('tbMore').addEventListener('click', function () { var o = document.body.classList.toggle('tbopen'); this.setAttribute('aria-expanded', String(o)); this.textContent = o ? '⚙ 閉じる' : '⚙ 記録の設定'; requestAnimationFrame(draw); });
   var resizeT = 0;
   window.addEventListener('resize', function () { clearTimeout(resizeT); resizeT = setTimeout(function () { phoneSync(); if (isFs()) syncFs(); else draw(); }, 80); });
