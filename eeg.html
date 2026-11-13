@@ -523,13 +523,15 @@ body.eegfs .appbar,body.eegfs #home{display:none!important}
 /* ホーム */
 .home{display:block}
 .hsec{min-height:62vh;display:grid;align-content:center;gap:14px;padding-block:56px;border-bottom:1px dashed var(--line)}
-.hero{min-height:calc(100vh - 40px);padding-block:24px 40px}
+.hero{min-height:0;padding-block:20px 36px;align-content:start;gap:10px}
+.hero-go{display:flex;flex-wrap:wrap;align-items:center;gap:8px 16px;margin-top:6px}
+.hero-go-t{margin:0;font-size:var(--fs-s);color:var(--muted)}
 .hero-top{display:flex;justify-content:space-between;align-items:center}
 .hero h1{font-size:clamp(2.6rem,9vw,4.8rem)}
 .hero-l{margin:0;font-size:clamp(1.25rem,3.4vw,2rem);font-weight:700;line-height:1.4}
 .hero-l2 b{color:var(--hot)}
 .hero-eeg{background:var(--sheet);border:2px solid var(--ink);border-radius:var(--r);box-shadow:4px 4px 0 var(--line);padding:8px;position:relative}
-#heroCv{width:100%;height:clamp(150px,26vh,240px);display:block}
+#heroCv{width:100%;height:clamp(110px,20vh,200px);display:block}
 .hero-cap{position:absolute;right:14px;top:10px;margin:0;font-weight:700;font-size:var(--fs-s);background:var(--panel);border:2px solid var(--hot);color:var(--hot);border-radius:999px;padding:2px 12px}
 .scroll-cue{justify-self:center;font-size:var(--fs-s);color:var(--muted);animation:cue 1.6s ease-in-out infinite}
 @keyframes cue{50%{transform:translateY(6px)}}
@@ -933,17 +935,12 @@ body.eegfs #panel.qz-on .mihon-box,body.eegfs #panel.rp-on .mihon-box{display:no
       <p class="hero-l rv" data-oki="参考書の脳波は、動かんさー。">参考書の脳波は、動かない。</p>
       <p class="hero-l hero-l2 rv" data-oki="ここの脳波は、&lt;b&gt;触ったら変わるよー。&lt;/b&gt;">ここの脳波は、<b>触ると変わる。</b></p>
       <div class="hero-eeg rv"><canvas id="heroCv" aria-hidden="true"></canvas><p class="hero-cap" id="heroCap"></p></div>
+      <div class="hero-go"><a class="btn-hero" href="#lab" data-mode="lab" id="heroLab"><span class="bh-ic" aria-hidden="true">👆</span><span>触ってみる<small>1分のガイドつき</small></span><span class="bh-ar" aria-hidden="true">▶</span></a></div>
     </section>
 
-    <section class="hsec">
-      <p class="hs-no rv">STEP 1</p>
-      <h2 class="rv" data-oki="まずは、触ってみよう">まずは、触ってみる</h2>
-      <p class="hs-l rv" data-oki="目開けたり、まばたきしたり、眠ったり。押したら、脳波がその場で変わるさー。">目を開ける、まばたき、眠る。押すと、脳波がその場で変わります。</p>
-      <a class="btn-hero rv" href="#lab" data-mode="lab" id="heroLab"><span class="bh-ic" aria-hidden="true">👆</span><span>触ってみる<small>1分のガイドつき</small></span><span class="bh-ar" aria-hidden="true">▶</span></a>
-    </section>
 
     <section class="hsec primer" aria-labelledby="prh">
-      <p class="hs-no rv">STEP 2</p>
+      <p class="hs-no rv">STEP 1</p>
       <h2 id="prh" class="rv" data-oki="読む前に、4つだけ約束さー">読む前に、4つだけ</h2>
       <div class="primer-grid rv">
       <div class="primer-l">
@@ -963,7 +960,7 @@ body.eegfs #panel.qz-on .mihon-box,body.eegfs #panel.rp-on .mihon-box{display:no
     </section>
 
     <section class="hsec">
-      <p class="hs-no rv">STEP 3</p>
+      <p class="hs-no rv">STEP 2</p>
       <h2 class="rv" data-oki="症例で読むよー">症例で読む</h2>
       <p class="hs-l rv" data-oki="国試の形の症例。症状の動画見て、脳波で確かめるさー。">国試の形の症例。症状の動画を見て、脳波で確かめる。</p>
       <div class="hgrid hgrid-hon rv">
@@ -974,7 +971,7 @@ body.eegfs #panel.qz-on .mihon-box,body.eegfs #panel.rp-on .mihon-box{display:no
     </section>
 
     <section class="hsec">
-      <p class="hs-no rv">STEP 4</p>
+      <p class="hs-no rv">STEP 3</p>
       <h2 class="rv" data-oki="練習するよー">練習する</h2>
       <div class="hgrid rv">
         <a class="htile" href="#elec" data-mode="elec"><b>電極つけ練習</b><span data-oki="10-20法の場所さー">10-20法の場所</span><i aria-hidden="true">▶</i></a>
