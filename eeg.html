@@ -4584,26 +4584,28 @@ body.eegfs #panel.qz-on .mihon-box,body.eegfs #panel.rp-on .mihon-box{display:no
   var TOUR = null, TOUR_NEXT = false;
   // ホームの「触ってみる」から入ったときは、毎回ガイドから始める
   document.getElementById('heroLab').addEventListener('click', function () { TOUR_NEXT = true; if (V.mode === 'lab') { TOUR_NEXT = false; tourStart(); } });
+  // ガイドの手順。skip が true の手順は飛ばす（スマホ・すでに全画面のときは全画面の手順なし）。delay は前の手順を押してから吹き出しを出すまでの待ち時間
+  function phoneNow() { return document.body.classList.contains('phone'); }
   var TOUR_STEPS = [
-    { sel: '.trace-wrap', t: 'これが脳波。頭の電極の電気が、左から右へ流れています。', o: 'これが脳波さー。頭の電極の電気が、左から右へ流れてるよー。' },
-    { sel: '[data-act="eyes"]', wait: true, t: '「目を開ける」を押してみてください。', o: '「目を開ける」押してみて。' },
+    { sel: '#fsBtn', wait: true, skip: function () { return phoneNow() || isFs(); }, t: 'まず「全画面にする」を押してください。脳波・頭の図・ボタンが1画面に並びます。', o: 'まず「全画面にする」押してみて。脳波と頭の図とボタンが1画面に並ぶさー。' },
+    { sel: '[data-act="eyes"]', wait: true, delay: 800, t: '「目を開ける」を押してください。', o: '「目を開ける」押してみて。' },
     { sel: '.trace-wrap', delay: 1600, t: '後ろの O1・O2 の大きな波（α波）が小さくなりました。黄色い帯が、反応したところです。', o: '後ろの O1・O2 の大きな波（α波）が小さくなったでしょ？黄色い帯が反応したとこさー。' },
-    { sel: '#head', t: 'どの電極で起きたかは、頭の図でも黄色に光ります。奇数は左、偶数は右。', o: 'どの電極で起きたかは、頭の図でも黄色く光るよー。奇数は左、偶数は右。' },
-    { sel: '[data-act="blink"]', wait: true, t: '次は「まばたき」を押してみてください。', o: '次は「まばたき」押してみて。' },
+    { sel: '#head', t: '頭の図でも、反応した電極が黄色に光ります。奇数は左、偶数は右。', o: '頭の図でも、反応した電極が黄色く光るよー。奇数は左、偶数は右。' },
+    { sel: '[data-act="blink"]', wait: true, t: '次は「まばたき」を押してください。', o: '次は「まばたき」押してみて。' },
     { sel: '.trace-wrap', delay: 1300, t: 'いちばん上の Fp に大きな波。目の動きも脳波に写ります。てんかんの波と見分ける第一歩です。', o: 'いちばん上の Fp に大きな波が出たさー。目の動きも脳波に写るわけよ。' },
     { sel: '.ctl', t: 'ほかにも、眠る・過呼吸・光・電極の失敗などを試せます。迷ったら「はじめの1分」でもう一度。', o: 'ほかにも、眠ったり、過呼吸したり、光あてたり。迷ったら「はじめの1分」でもう一回ね。' },
-    { sel: '#menuBtn|#tabbar', t: '慣れたら、ここから「症例で読む（本編）」や「練習」へ進めます。', o: '慣れたら、ここから本編とか練習に進めるよー。' }
+    { sel: '#fsBtn|#tabbar', t: '「全画面を終了」でいつでも戻れます（パソコンは Esc キーでも）。慣れたら、ホームから本編や練習へ。', o: '「全画面を終了」でいつでも戻れるよー（パソコンは Esc でも）。慣れたら本編とか練習に進んでね。', tp: '慣れたら、下のタブから「本編」や「練習」へ進めます。', op: '慣れたら、下のタブから「本編」とか「練習」に進んでね。' }
   ];
   function tourStart() {
     if (V.mode !== 'lab') return;
-    if (isFs()) setFs(false);
     var st = LIVE && LIVE.st;
     if (!LIVE || LIVE.sim.preset !== 'normal' || st.eo || st.sleep || st.hv || st.photic) { newLive('normal'); V.mont = 'bip'; enterLab(); }
     V.lback = 0; if (!V.playing) { V.playing = true; syncToolbar(); kick(); }
     tourEnd();
     var el = document.createElement('div'); el.className = 'coach'; el.innerHTML = '<div class="coach-hole"></div><div class="coach-bub" role="dialog" aria-live="polite"></div>';
     document.body.appendChild(el);
-    TOUR = { i: 0, el: el, tm: 0 };
+    var off = TOUR_STEPS[0].skip() ? 1 : 0;
+    TOUR = { i: 0, el: el, tm: 0, off: off, n: TOUR_STEPS.length - off };
     el.addEventListener('click', tourClick);
     tourShow();
   }
@@ -4613,9 +4615,9 @@ body.eegfs #panel.qz-on .mihon-box,body.eegfs #panel.rp-on .mihon-box{display:no
     if (!TOUR) return;
     var st = TOUR_STEPS[TOUR.i], tg = tourTarget();
     if (!st) { tourEnd(); toast(T('<b>ガイドおしまい</b><br>あとは自由に触ってみてください', '<b>ガイドおしまいさー</b><br>あとは自由に触ってみてね')); return; }
-    if (!tg) { TOUR.i++; tourShow(); return; }
+    if (!tg || (st.skip && TOUR.i === 0 && TOUR.off)) { TOUR.i++; tourShow(); return; }
     var bub = TOUR.el.querySelector('.coach-bub'), last = TOUR.i === TOUR_STEPS.length - 1;
-    bub.innerHTML = '<span class="cb-n">' + T('はじめの1分', 'はじめの1分さー') + '　' + (TOUR.i + 1) + ' / ' + TOUR_STEPS.length + '</span><p' + (st.wait ? ' class="cb-do"' : '') + '>' + (st.wait ? '👆 ' : '') + esc(T(st.t, st.o)) + '</p>' +
+    bub.innerHTML = '<span class="cb-n">' + T('はじめの1分', 'はじめの1分さー') + '　' + (TOUR.i + 1 - TOUR.off) + ' / ' + TOUR.n + '</span><p' + (st.wait ? ' class="cb-do"' : '') + '>' + (st.wait ? '👆 ' : '') + esc(phoneNow() && st.tp ? T(st.tp, st.op) : T(st.t, st.o)) + '</p>' +
       '<div class="coach-row"><button type="button" class="coach-skip" data-c="skip">' + T('ガイドを閉じる', 'ガイド閉じる') + '</button>' + (st.wait ? '' : '<button type="button" class="btn" data-c="next">' + (last ? T('おしまい', 'おしまい') : T('次へ ▶', '次へ ▶')) + '</button>') + '</div>';
     var r0 = tg.getBoundingClientRect();
     if (r0.top < 60 || r0.bottom > innerHeight - 20) tg.scrollIntoView({ block: r0.height > innerHeight * 0.6 ? 'start' : 'center', behavior: 'smooth' });
