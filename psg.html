@@ -99,6 +99,8 @@ button{font:inherit;color:inherit}
 .appbar a{color:var(--accent);font-weight:700;text-decoration:none;border:1px solid var(--line);border-radius:999px;padding:4px 14px;background:var(--panel)}
 .appbar b{font-family:var(--f-display);font-weight:400;font-size:var(--fs-l);letter-spacing:.05em}
 .appbar span{color:var(--accent)}
+.appbar a,.appbar span{white-space:nowrap}
+@media (max-width:560px){.appbar b{display:none}}
 
 /* ホーム */
 .hero{padding-block:22px 28px;display:grid;gap:10px;border-bottom:1px dashed var(--line)}
@@ -121,7 +123,11 @@ h1{font-family:var(--f-display);font-weight:400;margin:0;font-size:clamp(2.1rem,
 .soon div{border:2px dashed var(--line);border-radius:12px;padding:12px 14px;background:var(--panel)}
 .soon b{display:block;font-size:var(--fs-l)}
 .soon small{color:var(--muted)}
-.soon .lv{display:inline-block;font-size:var(--fs-xs);color:var(--hot);font-weight:700}
+.soon .lv{display:inline-block;font-size:var(--fs-xs);color:var(--muted);font-weight:700}
+.soon .lv.new{color:var(--hot)}
+.soon a.go{border:2px solid var(--accent);border-radius:12px;padding:12px 14px;background:var(--panel);text-decoration:none;color:var(--ink);box-shadow:0 4px 0 color-mix(in srgb,var(--accent) 35%,transparent)}
+.soon a.go b{color:var(--accent)}
+.soon a.go:hover{background:var(--accent-soft)}
 .foot{font-size:var(--fs-xs);color:var(--muted);padding-top:18px;max-width:60em}
 .foot a{color:var(--accent)}
 @media (max-width:820px){.rules,.soon{grid-template-columns:repeat(2,minmax(0,1fr))}}
@@ -160,12 +166,39 @@ h1{font-family:var(--f-display);font-weight:400;margin:0;font-size:clamp(2.1rem,
 .ch{font-family:var(--f-mono);font-size:.92em;background:var(--accent-soft);border-radius:4px;padding:0 4px;white-space:nowrap}
 .hint{font-size:var(--fs-xs);color:var(--hot);font-weight:700}
 .toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);z-index:70;background:var(--panel);border:2px solid var(--mark);border-radius:12px;padding:8px 16px;box-shadow:0 8px 24px rgba(0,0,0,.2);font-size:var(--fs-s);max-width:min(560px,calc(100vw - 32px))}
+/* ステージ判定道場 */
+.dj-ans{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:6px}
+.dj-ans button{min-height:58px;border-radius:10px;border:2px solid var(--accent);background:var(--panel);color:var(--accent);font-family:var(--f-display);font-size:1.4rem;cursor:pointer;display:grid;place-items:center;line-height:1.1;padding:4px 0}
+.dj-ans button small{font-family:var(--f-body);font-size:.68rem;color:var(--muted)}
+.dj-ans button:hover:not(:disabled){background:var(--accent-soft)}
+.dj-ans button:disabled{cursor:default;opacity:.55}
+.dj-ans button.pick{opacity:1;background:var(--hot);border-color:var(--hot);color:#fff}
+.dj-ans button.pick small{color:#fff}
+.dj-ans button.truth{opacity:1;background:var(--ok);border-color:var(--ok);color:#fff}
+.dj-ans button.truth small{color:#fff}
+.dj-top{display:flex;flex-wrap:wrap;gap:6px 12px;align-items:center;justify-content:space-between}
+.dj-top h3{margin:0;font-size:var(--fs-m)}
+.dj-no{font-family:var(--f-mono);font-size:var(--fs-s);color:var(--muted)}
+.dj-no b{font-family:var(--f-display);font-weight:400;font-size:1.5rem;color:var(--ink)}
+.verdict{font-family:var(--f-display);font-size:1.6rem;line-height:1.2}
+.verdict.ok{color:var(--ok)} .verdict.ng{color:var(--hot)}
+.clue{display:flex;flex-wrap:wrap;gap:4px}
+.clue span{font-size:var(--fs-xs);border:1px solid var(--line);border-radius:999px;padding:0 8px;background:var(--sheet);white-space:nowrap}
+.clue span.on{border-color:var(--ann);color:var(--ann);font-weight:700;background:color-mix(in srgb,var(--mark) 18%,var(--panel))}
+.res-t{width:100%;border-collapse:collapse;font-size:var(--fs-s)}
+.res-t th,.res-t td{border-bottom:1px solid var(--line);padding:3px 6px;text-align:left}
+.res-t td.n{text-align:right;font-family:var(--f-mono)}
+.big{font-family:var(--f-display);font-size:2.6rem;line-height:1.1;color:var(--accent)}
+.row-btn{display:flex;flex-wrap:wrap;gap:8px}
+.kbd{font-size:var(--fs-xs);color:var(--muted)}
+#djHyp{cursor:pointer}
 /* 人の絵の動き */
 .pt-leg{transform-box:fill-box;transform-origin:0% 50%;transition:transform .15s}
 .pt-arm{transform-box:fill-box;transform-origin:100% 50%;transition:transform .2s}
 
 /* スマホ・細い画面：脳波を上、操作を下に */
 @media (max-width:900px){
+  #djDesk .d-main{grid-template-rows:auto auto 56svh}
   .desk{grid-template-columns:minmax(0,1fr);height:auto}
   .d-main{grid-template-rows:auto auto 62svh}
   .d-side{overflow:visible}
@@ -199,9 +232,9 @@ h1{font-family:var(--f-display);font-weight:400;margin:0;font-size:clamp(2.1rem,
     </section>
     <section class="hsec">
       <p class="hs-no">NEXT</p>
-      <h2>これから増えるもの</h2>
+      <h2>練習する</h2>
       <div class="soon">
-        <div><span class="lv">準備中</span><b>ステージ判定道場</b><small>30秒を見て W・N1・N2・N3・R を当てる。続けると睡眠図ができる</small></div>
+        <a class="go" href="#stage"><span class="lv new">NEW</span><b>ステージ判定道場 ▶</b><small>30秒を見て W・N1・N2・N3・R を当てる。続けると睡眠図ができる</small></a>
         <div><span class="lv">準備中</span><b>イベント判定</b><small>無呼吸・低呼吸・覚醒・脚の動きを、なぞって付ける</small></div>
         <div><span class="lv">準備中</span><b>睡眠図あてクイズ</b><small>一晩の睡眠図だけで、どの人の夜かを当てる</small></div>
         <div><span class="lv">準備中</span><b>症例で読む</b><small>治らない不眠・夜中に暴れる・授業中に眠る…精神科の症例</small></div>
@@ -255,6 +288,31 @@ h1{font-family:var(--f-display);font-weight:400;margin:0;font-size:clamp(2.1rem,
       </aside>
     </div>
   </section>
+  <!-- ステージ判定道場 -->
+  <section id="stage" hidden aria-label="ステージ判定道場">
+    <div class="appbar"><a href="#home">← ホーム</a><b>睡眠よみ道場</b><span>／ステージ判定道場</span></div>
+    <div class="desk" id="djDesk">
+      <div class="d-main">
+        <div class="tbar">
+          <span class="tb-item"><span class="lb">表示</span><span class="seg" id="djGrp"><button type="button" data-g="neuro">脳・目・筋</button><button type="button" data-g="all">全部</button></span></span>
+          <span class="tb-item"><span class="lb">記録</span><span class="seg" id="djLv"><button type="button" data-lv="0">入門：健康な人</button><button type="button" data-lv="1">実践：無呼吸の人</button></span></span>
+          <button type="button" class="act" id="djHint" aria-pressed="false">ヒント（目印を出す）</button>
+        </div>
+        <div class="hyp"><canvas id="djHyp" role="img" aria-label="あなたの睡眠図と正解"></canvas><span class="hyp-stat" id="djHypStat">上：あなたの判定　下：正解（答えた区切りだけ）。印を押すと、その区切りを見直せます。</span></div>
+        <div class="trace"><canvas id="djCv" role="img" aria-label="30秒の記録"></canvas></div>
+      </div>
+      <aside class="d-side">
+        <div class="card ctl">
+          <div class="dj-top"><h3>この30秒の段階は？</h3><span class="dj-no" id="djNo"></span></div>
+          <div class="dj-ans" id="djAns">
+            <button type="button" data-a="W">W<small>覚醒</small></button><button type="button" data-a="N1">N1<small>うとうと</small></button><button type="button" data-a="N2">N2<small>浅い</small></button><button type="button" data-a="N3">N3<small>深い</small></button><button type="button" data-a="R">R<small>レム</small></button>
+          </div>
+          <p class="kbd">パソコンはキーでも：W・1・2・3・R、次へは Enter</p>
+        </div>
+        <div class="card ex" id="djEx" aria-live="polite"></div>
+      </aside>
+    </div>
+  </section>
   <div class="toast" id="toast" role="status" hidden></div>
 </div>
 
@@ -263,7 +321,7 @@ h1{font-family:var(--f-display);font-weight:400;margin:0;font-size:clamp(2.1rem,
   'use strict';
   /* ====================== 小道具 ====================== */
   var FS = 100;                       // 1秒あたりの点の数
-  var BUF = FS * 60 * 6;              // 6分ぶん持つ（5分表示＋余裕）
+  var BUF = FS * 60 * 12;             // 12分ぶん持つ（ステージ判定の1回分＝10分を見直せるように）
   var START_CLOCK = 23 * 3600;        // 記録は 23:00 に始まる（消灯）
   function rnd() { return Math.random(); }
   function randn() { var u = 1 - rnd(), v = rnd(); return Math.sqrt(-2 * Math.log(u)) * Math.cos(2 * Math.PI * v); }
@@ -293,9 +351,9 @@ h1{font-family:var(--f-display);font-weight:400;margin:0;font-size:clamp(2.1rem,
   var CH = [
     { k: 'E1', n: 'E1-M2', sc: 160, h: 1, grp: 'neuro', col: 'eog' },
     { k: 'E2', n: 'E2-M1', sc: 160, h: 1, grp: 'neuro', col: 'eog' },
-    { k: 'F4', n: 'F4-M1', sc: 110, h: 1.1, grp: 'neuro' },
-    { k: 'C4', n: 'C4-M1', sc: 110, h: 1.1, grp: 'neuro' },
-    { k: 'O2', n: 'O2-M1', sc: 110, h: 1.1, grp: 'neuro' },
+    { k: 'F4', n: 'F4-M1', sc: 85, h: 1.1, grp: 'neuro' },
+    { k: 'C4', n: 'C4-M1', sc: 85, h: 1.1, grp: 'neuro' },
+    { k: 'O2', n: 'O2-M1', sc: 85, h: 1.1, grp: 'neuro' },
     { k: 'CHIN', n: 'あご筋電', sc: 45, h: 0.85, grp: 'neuro' },
     { k: 'ECG', n: '心電図', sc: 1300, h: 0.8, grp: 'both' },
     { k: 'LL', n: '左脚 筋電', sc: 55, h: 0.6, grp: 'neuro', col: 'leg' },
@@ -308,7 +366,7 @@ h1{font-family:var(--f-display);font-weight:400;margin:0;font-size:clamp(2.1rem,
     { k: 'SPO2', n: 'SpO2', sc: 1, h: 1.3, grp: 'resp', spo2: true }
   ];
   var CI = {}; CH.forEach(function (c, i) { CI[c.k] = i; c.buf = new Float32Array(BUF); });
-  var STAGE_BUF = new Uint8Array(BUF);  // 点ごとの本当の段階（0:W 1:N1 2:N2 3:N3 4:R）
+  var STAGE_BUF = new Uint8Array(BUF), ALW = new Float32Array(BUF);  // ALW：その点の α 波の強さ（0〜1）  // 点ごとの本当の段階（0:W 1:N1 2:N2 3:N3 4:R）
   var STG = ['W', 'N1', 'N2', 'N3', 'R'], STG_I = { W: 0, N1: 1, N2: 2, N3: 3, R: 4 };
   var STG_NAME = { W: '覚醒', N1: 'N1（うとうと）', N2: 'N2（浅い睡眠）', N3: 'N3（深い睡眠）', R: 'レム睡眠' };
 
@@ -339,9 +397,9 @@ h1{font-family:var(--f-display);font-weight:400;margin:0;font-size:clamp(2.1rem,
 
   /* ====================== 状態 ====================== */
   var S;
-  var src = { al: BP(10, 4), be: BP(20, 1.5), th: BP(5.5, 1.4), de: BP(0.9, 1.1), ind: [BP(7, 0.6), BP(7, 0.6), BP(7, 0.6)], emg: BP(38, 0.7), legn: BP(38, 0.7), sn: BP(40, 2), mov: BP(1.5, 0.6) };
+  var src = { al: BP(10, 7), be: BP(20, 1.5), th: BP(5.5, 1.4), de: BP(0.9, 1.1), ind: [BP(7, 0.6), BP(7, 0.6), BP(7, 0.6)], emg: BP(38, 0.7), legn: BP(38, 0.7), sn: BP(40, 2), mov: BP(1.5, 0.6) };
   // 背景の波（al・be・th・de）は RMS の大きさ（山から谷はその約5倍）。一時的な波（sp・k・v・st）は山の高さ
-  var REG = { F4: { al: 3, be: 1.6, th: 6, de: 30, sp: 18, k: 115, v: 40, st: 20 }, C4: { al: 6, be: 1.6, th: 7, de: 24, sp: 26, k: 95, v: 70, st: 30 }, O2: { al: 12, be: 1.3, th: 5, de: 17, sp: 10, k: 40, v: 16, st: 10 } };
+  var REG = { F4: { al: 4, be: 1.6, th: 6, de: 30, sp: 18, k: 115, v: 40, st: 20 }, C4: { al: 8, be: 1.6, th: 7, de: 24, sp: 26, k: 95, v: 70, st: 30 }, O2: { al: 17, be: 1.3, th: 5, de: 17, sp: 10, k: 40, v: 16, st: 10 } };
 
   function reset(personKey) {
     var p = PERSONS[personKey || (S && S.pk) || 'healthy'];
@@ -356,6 +414,7 @@ h1{font-family:var(--f-display);font-weight:400;margin:0;font-size:clamp(2.1rem,
       epochs: [], epCount: [0, 0, 0, 0, 0], evs: [], lastEv: null, minSat: 100, sleepSec: 0, nextSched: 0
     };
     for (var i = 0; i < CH.length; i++) CH[i].buf.fill(0);
+    if (typeof LATER !== 'undefined' && LATER) LATER.length = 0;
     // 最初の6分ぶんを埋めておく（画面が空にならないように）
     var pre = FS * 300; for (var j = 0; j < pre; j++) step();
   }
@@ -380,16 +439,17 @@ h1{font-family:var(--f-display);font-weight:400;margin:0;font-size:clamp(2.1rem,
     if (S.auto) { var ei = Math.floor((t - S.autoOff) / 30); var ns = S.night[Math.min(ei, S.night.length - 1)]; if (ns !== S.stage) setStageRaw(ns); st = S.stage; }
     var dt = 0.25, m = S.mix;
     // 一時的な波
-    if (m.N2 > 0.5 && rnd() < 0.15 * dt) { var sp = addTr('sp', 0.7 + rnd() * 0.8); addAnn(sp.t0, sp.t1, ['C4'], '紡錘波'); }
-    if (m.N3 > 0.5 && rnd() < 0.05 * dt) { var sp3 = addTr('sp', 0.6 + rnd() * 0.5, 0.7); addAnn(sp3.t0, sp3.t1, ['C4'], '紡錘波'); }
-    if (m.N2 > 0.5 && rnd() < 0.045 * dt) { var kc = addTr('k', 1.1, 0.8 + rnd() * 0.5); addAnn(kc.t0, kc.t1, ['F4', 'C4'], 'K複合'); if (rnd() < 0.5) addTr('sp', 0.8, 0.8, { t0: kc.t0 + 0.6, t1: kc.t0 + 1.4 }); }
-    if (m.N1 > 0.5 && rnd() < 0.12 * dt) { var vx = addTr('v', 0.45, 0.8 + rnd() * 0.5); addAnn(vx.t0, vx.t1, ['C4'], '頭蓋頂鋭波'); }
-    if (m.R > 0.5 && rnd() < 0.04 * dt) { var sw = addTr('saw', 2 + rnd() * 1.5); addAnn(sw.t0, sw.t1, ['C4'], '鋸歯状波'); }
-    if (m.R > 0.5 && !S.remBurst && rnd() < 0.13 * dt) { S.remBurst = 2 + Math.floor(rnd() * 5); addAnn(t, t + S.remBurst * 0.7 + 0.4, ['E1', 'E2'], '急速眼球運動（逆向き）'); }
+    if (st === 'N2' && m.N2 > 0.3 && rnd() < 0.15 * dt) { var sp = addTr('sp', 0.7 + rnd() * 0.8); addAnn(sp.t0, sp.t1, ['C4'], '紡錘波'); }
+    if (st === 'N3' && m.N3 > 0.3 && rnd() < 0.05 * dt) { var sp3 = addTr('sp', 0.6 + rnd() * 0.5, 0.7); addAnn(sp3.t0, sp3.t1, ['C4'], '紡錘波'); }
+    if (st === 'N2' && m.N2 > 0.3 && rnd() < 0.045 * dt) { var kc = addTr('k', 1.1, 0.8 + rnd() * 0.5); addAnn(kc.t0, kc.t1, ['F4', 'C4'], 'K複合'); if (rnd() < 0.5) addTr('sp', 0.8, 0.8, { t0: kc.t0 + 0.6, t1: kc.t0 + 1.4 }); }
+    if (st === 'N1' && m.N1 > 0.3 && rnd() < 0.12 * dt) { var vx = addTr('v', 0.45, 0.8 + rnd() * 0.5); addAnn(vx.t0, vx.t1, ['C4'], '頭蓋頂鋭波'); }
+    if (st === 'R' && m.R > 0.3 && rnd() < 0.04 * dt) { var sw = addTr('saw', 2 + rnd() * 1.5); addAnn(sw.t0, sw.t1, ['C4'], '鋸歯状波'); }
+    if (st === 'R' && m.R > 0.3 && !S.remBurst && rnd() < 0.13 * dt) { S.remBurst = 2 + Math.floor(rnd() * 5); addAnn(t, t + S.remBurst * 0.7 + 0.4, ['E1', 'E2'], '急速眼球運動（逆向き）'); }
+    if (S.remBurst && st !== 'R') S.remBurst = 0;
     if (S.remBurst && rnd() < 0.45) { addTr('sac', 1.2, (rnd() < 0.5 ? -1 : 1) * (70 + rnd() * 80)); S.remBurst--; }
     if (m.W > 0.6 && rnd() < 0.22 * dt) addTr('blink', 0.4, 0.8 + rnd() * 0.4);
     if (m.W > 0.6 && rnd() < 0.15 * dt) addTr('sac', 1, (rnd() < 0.5 ? -1 : 1) * (50 + rnd() * 60));
-    if (m.R > 0.5 && rnd() < (p.rbd ? 0.9 : 0.25) * dt) addTr('twitch', p.rbd ? 0.4 + rnd() * 1.4 : 0.15, p.rbd ? 1.6 + rnd() : 1);
+    if (st === 'R' && rnd() < (p.rbd ? 0.9 : 0.25) * dt) addTr('twitch', p.rbd ? 0.4 + rnd() * 1.4 : 0.15, p.rbd ? 1.6 + rnd() : 1);
     if (p.rbd && m.R > 0.6 && t > S.rbdNext && rnd() < 0.05 * dt * 4) { S.rbdNext = t + 25 + rnd() * 30; rbdEpisode(); }
     if (p.rbd && m.R > 0.6 && rnd() < 0.02 * dt * 4) addAnn(t, t + 6, ['CHIN'], 'レムなのにあごの筋活動（RWA）', 'event');
     // 周期性四肢運動：浅い眠りで、20〜40秒おきに続けて
@@ -478,7 +538,7 @@ h1{font-family:var(--f-display);font-weight:400;margin:0;font-size:clamp(2.1rem,
     out.E1 = eyeH - 0.35 * eyeV + contam + 4 * randn() * 0.3 + movN * 1.2;
     out.E2 = -eyeH + eyeV + contam + 4 * randn() * 0.3 + movN * 1.2;
     // あごの筋電図：覚醒で高く、レムで最も低い（RBD ではレムでも高い）
-    var chinBase = m.W * 16 + m.N1 * 11 + m.N2 * 8.5 + m.N3 * 7.5 + m.R * (p.rbd ? 9 : 1.5) + ar * 14;
+    var chinBase = m.W * 16 + m.N1 * 11 + m.N2 * 8.5 + m.N3 * 7.5 + m.R * (p.rbd ? 9 : 1.2) + ar * 14;
     out.CHIN = (chinBase + chinA + movA * 60) * src.emg() * 0.6;
     out.LL = (2 + legL + movA * 25) * src.legn() * 0.7; out.RL = (2 + legR + movA * 25) * src.legn() * 0.7;
     // ---- 呼吸 ----
@@ -521,7 +581,7 @@ h1{font-family:var(--f-display);font-weight:400;margin:0;font-size:clamp(2.1rem,
     // 書きこむ
     var bi = i % BUF;
     for (var c = 0; c < CH.length; c++) CH[c].buf[bi] = out[CH[c].k];
-    STAGE_BUF[bi] = STG_I[S.stage];
+    STAGE_BUF[bi] = STG_I[S.stage]; ALW[bi] = wA * wane;
     // 30秒ごとの段階（その区切りでいちばん多かった段階）
     S.epCount[STG_I[S.stage]]++;
     if ((i + 1) % (30 * FS) === 0) { var best = 0; for (var e = 1; e < 5; e++) if (S.epCount[e] > S.epCount[best]) best = e; S.epochs.push(best); S.epCount = [0, 0, 0, 0, 0]; if (best !== 0) S.sleepSec += 30; }
@@ -532,50 +592,52 @@ h1{font-family:var(--f-display);font-weight:400;margin:0;font-size:clamp(2.1rem,
   var V = { win: 30, grp: 'all', speed: 1, paused: false, marks: true };
   var trCv = document.getElementById('trCv'), hypCv = document.getElementById('hypCv');
   function fitCanvas(cv) { var r = cv.getBoundingClientRect(), dpr = Math.min(2, window.devicePixelRatio || 1); var w = Math.max(10, Math.round(r.width * dpr)), h = Math.max(10, Math.round(r.height * dpr)); if (cv.width !== w || cv.height !== h) { cv.width = w; cv.height = h; } return { w: r.width, h: r.height, dpr: dpr }; }
-  function visibleCh() { return CH.filter(function (c) { return V.grp === 'all' || c.grp === V.grp || c.grp === 'both'; }); }
+  function visibleCh(grp) { return CH.filter(function (c) { return grp === 'all' || c.grp === grp || c.grp === 'both'; }); }
 
-  function drawTrace() {
-    var f = fitCanvas(trCv), ctx = trCv.getContext('2d'), W = f.w, H = f.h;
+  // o：{ cv, tEnd（右端の時刻）, win, grp, marks, label（右上の文字。空なら出さない） }
+  function drawTrace(o) {
+    o = o || {}; var cv = o.cv || trCv, win = o.win || V.win, grp = o.grp || V.grp, marks = o.marks !== undefined ? o.marks : V.marks, tEnd = o.tEnd !== undefined ? o.tEnd : S.wi / FS;
+    var f = fitCanvas(cv), ctx = cv.getContext('2d'), W = f.w, H = f.h;
     ctx.setTransform(f.dpr, 0, 0, f.dpr, 0, 0); ctx.clearRect(0, 0, W, H);
-    var LW = W < 560 ? 62 : 88, top = 18, plotW = W - LW - 6, chs = visibleCh();
+    var LW = W < 560 ? 62 : 88, top = 18, plotW = W - LW - 6, chs = visibleCh(grp);
     var tot = chs.reduce(function (a, c) { return a + c.h; }, 0), unit = (H - top - 4) / tot;
-    var tEnd = S.wi / FS, tStart = tEnd - V.win, pxPerS = plotW / V.win;
+    var tStart = tEnd - win, pxPerS = plotW / win;
     var ink = css('--trace'), grid = css('--grid'), grid2 = css('--grid2'), muted = css('--muted'), mark = css('--mark'), ann = css('--ann');
     var colOf = { eog: css('--accent'), resp: css('--resp'), leg: css('--leg') };
     // 行の位置
     var y = top, rows = {};
     chs.forEach(function (c) { var hh = c.h * unit; rows[c.k] = { y0: y, y1: y + hh, mid: y + hh / 2, hh: hh }; y += hh; });
     // 目印（黄色い帯）
-    if (V.marks || true) {
+    {
       S.ann.forEach(function (a) {
-        if (a.t1 < tStart || a.t0 > tEnd) return; if (a.kind === 'micro' && (!V.marks || V.win > 30)) return;
-        if (a.kind === 'event' && !V.marks) return;
-        var x0 = LW + Math.max(0, a.t0 - tStart) * pxPerS, x1 = LW + Math.min(V.win, a.t1 - tStart) * pxPerS; if (x1 - x0 < 1) return;
+        if (a.t1 < tStart || a.t0 > tEnd) return; if (a.kind === 'micro' && (!marks || win > 30)) return;
+        if (a.kind === 'event' && !marks) return;
+        var x0 = LW + Math.max(0, a.t0 - tStart) * pxPerS, x1 = LW + Math.min(win, a.t1 - tStart) * pxPerS; if (x1 - x0 < 1) return;
         ctx.fillStyle = color(mark, a.kind === 'event' ? 0.26 : 0.22);
         var any = false, ly = 1e9;
         a.chs.forEach(function (k) { var rw = rows[k]; if (!rw) return; any = true; ctx.fillRect(x0, rw.y0 + 1, x1 - x0, rw.hh - 2); if (rw.y0 < ly) ly = rw.y0; });
-        if (any && (x1 - x0 > ctx.measureText(a.label).width * 0.9 || V.win === 30)) { ctx.fillStyle = ann; ctx.font = '700 11px ' + css('--f-body'); var tx = Math.max(LW + 2, Math.min(x0 + 3, W - 8 - ctx.measureText(a.label).width)); ctx.fillText(a.label, tx, ly + 11); }
+        if (any && (x1 - x0 > ctx.measureText(a.label).width * 0.9 || win === 30)) { ctx.fillStyle = ann; ctx.font = '700 11px ' + css('--f-body'); var tx = Math.max(LW + 2, Math.min(x0 + 3, W - 8 - ctx.measureText(a.label).width)); ctx.fillText(a.label, tx, ly + 11); }
       });
     }
     // 方眼：30秒表示は1秒ごと、2分・5分は10秒ごと。30秒の区切りは太く
-    ctx.font = '700 12px ' + css('--f-body'); var stLab = '本当の段階：' + STG_NAME[S.stage], stW = ctx.measureText(stLab).width;
-    ctx.fillStyle = css('--sheet'); ctx.fillRect(W - stW - 14, 0, stW + 14, 15); ctx.fillStyle = css('--accent'); ctx.fillText(stLab, W - stW - 8, 12);
-    var minor = V.win === 30 ? 1 : 10;
+    ctx.font = '700 12px ' + css('--f-body'); var stLab = o.label !== undefined ? o.label : '本当の段階：' + STG_NAME[S.stage], stW = stLab ? ctx.measureText(stLab).width : 0;
+    if (stLab) { ctx.fillStyle = css('--sheet'); ctx.fillRect(W - stW - 14, 0, stW + 14, 15); ctx.fillStyle = css('--accent'); ctx.fillText(stLab, W - stW - 8, 12); }
+    var minor = win === 30 ? 1 : 10;
     for (var s = Math.ceil(tStart / minor) * minor; s <= tEnd; s += minor) {
       var x = LW + (s - tStart) * pxPerS, isEp = Math.abs(s % 30) < 1e-6;
       ctx.strokeStyle = isEp ? grid2 : grid; ctx.lineWidth = isEp ? 1.4 : 1;
       ctx.beginPath(); ctx.moveTo(x + 0.5, top - 2); ctx.lineTo(x + 0.5, H - 2); ctx.stroke();
-      if ((isEp || (V.win === 30 && s % 5 === 0)) && x < W - stW - 70) { ctx.fillStyle = muted; ctx.font = '10px ' + css('--f-mono'); ctx.fillText(clock(s), x + 3, 11); }
+      if ((isEp || (win === 30 && s % 5 === 0)) && x < W - stW - 70) { ctx.fillStyle = muted; ctx.font = '10px ' + css('--f-mono'); ctx.fillText(clock(s), x + 3, 11); }
     }
     // 線
-    var n = Math.round(V.win * FS), i0 = S.wi - n;
+    var n = Math.round(win * FS), iEnd = Math.round(tEnd * FS), i0 = iEnd - n;
     chs.forEach(function (c) {
       var rw = rows[c.k];
       ctx.fillStyle = muted; ctx.font = (W < 560 ? '10px ' : '11px ') + css('--f-mono'); ctx.textBaseline = 'middle';
       ctx.fillText(c.n, 4, rw.mid); ctx.textBaseline = 'alphabetic';
       ctx.strokeStyle = c.col ? colOf[c.col] : ink; ctx.lineWidth = 1;
-      if (c.spo2) { drawSpo2(ctx, c, rw, LW, plotW, i0, n); return; }
-      var g = (rw.hh / 2) * 0.95 / c.sc, lim = rw.hh * 0.62;
+      if (c.spo2) { drawSpo2(ctx, c, rw, LW, plotW, i0, n, iEnd); return; }
+      var g = (rw.hh / 2) * 0.95 / c.sc, lim = rw.hh * 0.85;
       ctx.beginPath();
       var spp = n / plotW;
       if (spp <= 2) {
@@ -594,7 +656,7 @@ h1{font-family:var(--f-display);font-weight:400;margin:0;font-size:clamp(2.1rem,
     // 30秒表示：今の区切りの段階（本当の段階）
 
   }
-  function drawSpo2(ctx, c, rw, LW, plotW, i0, n) {
+  function drawSpo2(ctx, c, rw, LW, plotW, i0, n, iEnd) {
     var lo = 80, hi = 100, yOf = function (v) { return rw.y1 - 4 - (clamp(v, lo, hi) - lo) / (hi - lo) * (rw.hh - 8); };
     ctx.strokeStyle = css('--grid2'); ctx.setLineDash([3, 3]);
     [90].forEach(function (v) { ctx.beginPath(); ctx.moveTo(LW, yOf(v)); ctx.lineTo(LW + plotW, yOf(v)); ctx.stroke(); });
@@ -603,7 +665,7 @@ h1{font-family:var(--f-display);font-weight:400;margin:0;font-size:clamp(2.1rem,
     var step = Math.max(1, Math.floor(n / plotW));
     for (var k = 0; k < n; k += step) { var ii = i0 + k; if (ii < 0) continue; var x = LW + k / n * plotW, y = yOf(c.buf[ii % BUF]); if (k === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y); }
     ctx.stroke(); ctx.lineWidth = 1;
-    var last = c.buf[(S.wi - 1 + BUF) % BUF]; ctx.fillStyle = css('--hot'); ctx.font = '700 12px ' + css('--f-mono'); ctx.fillText(Math.round(last) + '%', LW + 4, rw.y0 + 13);
+    var last = c.buf[(iEnd - 1 + BUF) % BUF]; ctx.fillStyle = css('--hot'); ctx.font = '700 12px ' + css('--f-mono'); ctx.fillText(Math.round(last) + '%', LW + 4, rw.y0 + 13);
   }
   function color(c, a) { if (c.charAt(0) === '#') { var h = c.slice(1); if (h.length === 3) h = h.replace(/./g, '$&$&'); var n = parseInt(h, 16); return 'rgba(' + (n >> 16 & 255) + ',' + (n >> 8 & 255) + ',' + (n & 255) + ',' + a + ')'; } return c; }
 
@@ -730,6 +792,166 @@ h1{font-family:var(--f-display);font-weight:400;margin:0;font-size:clamp(2.1rem,
     });
   });
 
+  /* ====================== ステージ判定道場 ====================== */
+  var DJ = { n: 20, i: 0, truth: [], ans: [], t0: [], feat: [], answered: false, hint: false, grp: 'neuro', lv: +(lsGet('psg-dj-lv') || 0), done: false, view: -1 };
+  // 1回分の段階の並び（20区切り＝10分）。自然な順番だけを使い、5つの段階を必ず入れる
+  function makeRound(n) {
+    var NEXT = { W: [['N1', 1]], N1: [['N2', 0.85], ['W', 0.15]], N2: [['N3', 0.4], ['R', 0.4], ['W', 0.2]], N3: [['N2', 1]], R: [['W', 0.45], ['N2', 0.55]] };
+    var RUN = { W: [1, 3], N1: [1, 3], N2: [2, 4], N3: [2, 4], R: [2, 4] };
+    for (var tries = 0; tries < 200; tries++) {
+      var a = [], st = 'W';
+      while (a.length < n) {
+        var r = RUN[st], k = r[0] + Math.floor(rnd() * (r[1] - r[0] + 1));
+        for (var j = 0; j < k && a.length < n; j++) a.push(st);
+        var x = rnd(), acc = 0, nx = NEXT[st];
+        for (var q = 0; q < nx.length; q++) { acc += nx[q][1]; if (x <= acc) { st = nx[q][0]; break; } }
+      }
+      if (STG.every(function (s0) { return a.indexOf(s0) !== -1; })) return a;
+    }
+    return a;
+  }
+  // この30秒の手がかりを数える
+  function epochFeat(t0) {
+    var i0 = Math.round(t0 * FS), n = 30 * FS, f = { al: 0, sw: 0, chin: 0, cnt: {} };
+    var c = 0; for (var k = 0; k < n; k++) if (ALW[(i0 + k) % BUF] > 0.45) c++;
+    f.al = Math.round(c / n * 100);
+    var ch = CH[CI.CHIN].buf, s2 = 0; for (var k2 = 0; k2 < n; k2++) { var v = ch[(i0 + k2) % BUF]; s2 += v * v; } f.chin = Math.sqrt(s2 / n);
+    // 徐波：F4 を 2Hz 付近より遅い成分にして、半波ごとに長さと大きさを見る（0.5〜2Hz で、山から谷が75µV 以上）
+    var F = CH[CI.F4].buf, y1 = 0, y2 = 0, lp = [], al = 0.1;
+    for (var k3 = -100; k3 < n; k3++) { var xx = F[(i0 + k3 + BUF) % BUF]; y1 += (xx - y1) * al; y2 += (y1 - y2) * al; if (k3 >= 0) lp.push(y2); }
+    var zc = [0]; for (var k4 = 1; k4 < n; k4++) if ((lp[k4 - 1] < 0) !== (lp[k4] < 0)) zc.push(k4); zc.push(n);
+    var pk = []; for (var z = 0; z + 1 < zc.length; z++) { var m = 0; for (var k5 = zc[z]; k5 < zc[z + 1]; k5++) m = Math.max(m, Math.abs(lp[k5])); pk.push(m); }
+    var slow = 0;
+    for (var z2 = 0; z2 < pk.length; z2++) {
+      var d = (zc[z2 + 1] - zc[z2]) / FS, nb = Math.max(pk[z2 - 1] || 0, pk[z2 + 1] || 0);
+      if (d >= 0.25 && d <= 1.0 && pk[z2] + nb >= 75 * 0.82) slow += d;
+    }
+    f.sw = Math.round(slow / 30 * 100);
+    S.ann.forEach(function (a) { if (a.kind !== 'micro' || a.t0 < t0 || a.t0 >= t0 + 30) return; f.cnt[a.label] = (f.cnt[a.label] || 0) + 1; });
+    return f;
+  }
+  function chinWord(v) { return v < 3.3 ? 'いちばん低い' : v < 7.5 ? '中くらい' : '高い'; }
+  function clueHTML(f) {
+    var c = f.cnt, it = [['α波', f.al + '%', f.al >= 50], ['紡錘波', (c['紡錘波'] || 0) + '回', c['紡錘波'] > 0], ['K複合', (c['K複合'] || 0) + '回', c['K複合'] > 0], ['徐波', f.sw + '%', f.sw >= 20], ['頭蓋頂鋭波', (c['頭蓋頂鋭波'] || 0) + '回', c['頭蓋頂鋭波'] > 0], ['急速眼球運動', (c['急速眼球運動（逆向き）'] || 0) + '回', c['急速眼球運動（逆向き）'] > 0], ['あご', chinWord(f.chin), f.chin < 3.3]];
+    return '<div class="clue">' + it.map(function (x) { return '<span class="' + (x[2] ? 'on' : '') + '">' + x[0] + ' ' + x[1] + '</span>'; }).join('') + '</div>';
+  }
+  var WHY = {
+    W: function (f) { return 'α波が30秒の半分以上（この区切りは約' + f.al + '%）。まばたきや速い目の動きがあり、あごの筋電図は高め → <b>W</b>。'; },
+    N1: function (f) { return 'α波は半分未満（約' + f.al + '%）で、低い θ 波に置きかわった。紡錘波・K複合はまだない。ゆっくりした目の動きや頭蓋頂鋭波も手がかり → <b>N1</b>。'; },
+    N2: function (f) { return '紡錘波（' + (f.cnt['紡錘波'] || 0) + '回）か K複合（' + (f.cnt['K複合'] || 0) + '回）がある。徐波は20％未満（約' + f.sw + '%） → <b>N2</b>。'; },
+    N3: function (f) { return '0.5〜2Hz・75µV 以上の徐波が30秒の20％（6秒）以上（約' + f.sw + '%）。F4 でいちばん大きい → <b>N3</b>。紡錘波が混じっていても N3 です。'; },
+    R: function (f) { return '低い振幅の混ざった波、急速眼球運動（E1・E2 が逆向きに鋭く）、あごの筋電図が' + chinWord(f.chin) + ' → <b>R</b>。'; }
+  };
+  var TIP = {
+    'W>N1': 'α波が出たり消えたりしていても、半分未満なら N1 です。O2 の α波が占める長さを見積もって。',
+    'N1>W': 'α波が半分以上あれば、まだ W です。',
+    'N1>N2': '紡錘波（12〜14Hz の短い束）か K複合が1つでもあれば N2。C4 と F4 をよく探して。',
+    'N2>N1': 'この区切りには紡錘波も K複合もありません。',
+    'N2>N3': '徐波が20％（6秒ぶん）を超えたら N3。F4 の大きくゆっくりした波の長さを足してみて。',
+    'N3>N2': '大きな徐波が20％に届いていないので N2。K複合1つだけでは N3 になりません。',
+    'R>N1': 'あごの筋電図を比べて。レムはいちばん低い。目の動きも、レムは鋭く、N1 はゆっくり。',
+    'N1>R': 'あごの筋電図がいちばん低く、鋭い目の動きがあるのはレムの特徴です。',
+    'R>W': 'W は α波があり、あごが高い。レムは α波がほとんどなく、あごが最低。',
+    'W>R': '鋭い目の動きでも、α波が多くあごが高ければ W です（目を開けて見回している）。',
+    'R>N2': 'レムでは紡錘波・K複合が出ません。あごの高さも比べて。',
+    'N2>R': '紡錘波か K複合があれば N2。あごもレムほど低くありません。'
+  };
+  function djStart() {
+    reset(DJ.lv ? 'osa' : 'healthy'); S.dojo = true;
+    DJ.truth = makeRound(DJ.n); S.night = DJ.truth.slice(); S.auto = true; S.autoOff = S.wi / FS;
+    DJ.i = 0; DJ.ans = []; DJ.t0 = []; DJ.feat = []; DJ.done = false; DJ.view = -1;
+    djEpoch();
+  }
+  function djEpoch() {
+    var t0 = S.wi / FS; for (var k = 0; k < 30 * FS; k++) step();
+    DJ.t0[DJ.i] = t0; DJ.feat[DJ.i] = epochFeat(t0); DJ.answered = false; DJ.hint = false; djSync();
+  }
+  function djAnswer(a) {
+    if (DJ.done || DJ.answered) return;
+    DJ.ans[DJ.i] = a; DJ.answered = true; lsSet('psg-tried', '1'); djSync();
+  }
+  function djNext() {
+    if (!DJ.answered && !DJ.done) return;
+    if (DJ.done) { djStart(); return; }
+    if (DJ.i + 1 >= DJ.n) { djFinish(); return; }
+    DJ.i++; djEpoch();
+  }
+  function djFinish() {
+    DJ.done = true; DJ.view = -1;
+    var ok = DJ.ans.filter(function (a, i) { return a === DJ.truth[i]; }).length, pct = Math.round(ok / DJ.n * 100);
+    var key = 'psg-dj-best-' + DJ.lv, best = +(lsGet(key) || 0); DJ.newBest = pct > best; if (pct > best) lsSet(key, String(pct));
+    DJ.pct = pct; DJ.best = Math.max(best, pct); djSync();
+  }
+  function djSync() {
+    var view = DJ.done ? DJ.view : DJ.i, show = view >= 0;
+    setSeg('djGrp', 'data-g', DJ.grp); setSeg('djLv', 'data-lv', DJ.lv);
+    document.getElementById('djHint').setAttribute('aria-pressed', String(DJ.hint)); document.getElementById('djHint').disabled = DJ.answered || DJ.done;
+    document.getElementById('djNo').innerHTML = DJ.done ? (show ? '区切り <b>' + (view + 1) + '</b> / ' + DJ.n : 'おしまい') : '区切り <b>' + (DJ.i + 1) + '</b> / ' + DJ.n;
+    var answeredView = DJ.done ? show : DJ.answered, pick = show ? DJ.ans[view] : null, tr = show ? DJ.truth[view] : null;
+    document.querySelectorAll('#djAns button').forEach(function (b) {
+      var a = b.getAttribute('data-a'); b.disabled = answeredView || DJ.done; b.classList.toggle('pick', !!(answeredView && a === pick && a !== tr)); b.classList.toggle('truth', !!(answeredView && a === tr));
+    });
+    var ex = document.getElementById('djEx'), h = '';
+    if (DJ.done && !show) {
+      var by = {}; STG.forEach(function (s0) { by[s0] = [0, 0]; }); DJ.truth.forEach(function (t, i) { by[t][1]++; if (DJ.ans[i] === t) by[t][0]++; });
+      var msg = DJ.pct >= 90 ? '判定者として十分です。' : DJ.pct >= 80 ? '上出来。専門の判定者どうしの一致率（およそ8割）と同じくらいです。' : DJ.pct >= 60 ? 'あと一歩。まちがえた区切りを、睡眠図の印から見直してみましょう。' : 'まずは「触ってみる」で、各段階の手がかりを見比べてみましょう。';
+      h = '<h3>結果</h3><p class="big">' + DJ.pct + '%</p><p>' + DJ.n + '区切り中 ' + DJ.ans.filter(function (a, i) { return a === DJ.truth[i]; }).length + ' 区切りが正解（' + (DJ.lv ? '実践' : '入門') + 'の自己ベスト ' + DJ.best + '%' + (DJ.newBest ? '　更新！' : '') + '）</p><p>' + msg + '</p>' +
+        '<table class="res-t"><tr><th>段階</th><th>正解 / 出題</th></tr>' + STG.map(function (s0) { return '<tr><td>' + STG_NAME[s0] + '</td><td class="n">' + by[s0][0] + ' / ' + by[s0][1] + '</td></tr>'; }).join('') + '</table>' +
+        '<p class="kbd">上の睡眠図の印を押すと、その区切りを見直せます。</p><div class="row-btn"><button type="button" class="btn" data-dj="again">もう1回（新しい10分）</button><a class="act" href="#lab" style="text-decoration:none;display:inline-flex;align-items:center;color:inherit">触ってみるへ</a></div>';
+    } else if (answeredView) {
+      var f = DJ.feat[view], ok = pick === tr;
+      h = '<p class="verdict ' + (ok ? 'ok' : 'ng') + '">' + (ok ? '正解！' : 'ざんねん') + '</p>' +
+        (ok ? '' : '<p>あなた：<b>' + STG_NAME[pick] + '</b>　正解：<b>' + STG_NAME[tr] + '</b></p>') +
+        '<p>' + WHY[tr](f) + '</p>' + (ok || !TIP[pick + '>' + tr] ? '' : '<p class="ev">' + TIP[pick + '>' + tr] + '</p>') +
+        '<h3>この30秒の手がかり</h3>' + clueHTML(f) +
+        (DJ.done ? '<div class="row-btn"><button type="button" class="act" data-dj="sum">結果にもどる</button></div>' : '<div class="row-btn"><button type="button" class="btn" data-dj="next">' + (DJ.i + 1 >= DJ.n ? '結果を見る' : '次の30秒へ ▶') + '</button></div>');
+    } else {
+      h = '<h3>見る順番</h3><ul><li><span class="ch">O2</span> の α波は半分以上？ → W</li><li><span class="ch">C4</span>・<span class="ch">F4</span> に紡錘波・K複合？ → N2</li><li><span class="ch">F4</span> の大きな徐波が20％以上？ → N3</li><li>あごが最低で、鋭い目の動き？ → R</li><li>どれでもなく、低い θ 波 → N1</li></ul>' +
+        (DJ.lv ? '<p class="ev">実践：無呼吸のあとの覚醒反応で、α波が数秒だけ出ます。30秒の半分を超えなければ、段階は変えません。</p>' : '');
+    }
+    ex.innerHTML = h;
+  }
+  function djDraw() {
+    var view = DJ.done ? DJ.view : DJ.i;
+    if (view < 0) view = DJ.n - 1;
+    var answered = DJ.done ? DJ.view >= 0 : DJ.answered;
+    drawTrace({ cv: document.getElementById('djCv'), tEnd: DJ.t0[view] + 30, win: 30, grp: DJ.grp, marks: answered || DJ.hint, label: answered ? '正解：' + STG_NAME[DJ.truth[view]] : '' });
+    djDrawHyp();
+  }
+  function djDrawHyp() {
+    var cv = document.getElementById('djHyp'), f = fitCanvas(cv), ctx = cv.getContext('2d'), W = f.w, H = f.h;
+    ctx.setTransform(f.dpr, 0, 0, f.dpr, 0, 0); ctx.clearRect(0, 0, W, H);
+    var LW = 56, ew = (W - LW - 8) / DJ.n, half = (H - 6) / 2, order = [0, 4, 1, 2, 3];
+    var yOf = function (si, base) { return base + 4 + order.indexOf(si) * (half - 10) / 4; };
+    ctx.font = '10px ' + css('--f-mono'); ctx.fillStyle = css('--muted'); ctx.fillText('あなた', 4, 14); ctx.fillText('正解', 4, half + 14);
+    var nAns = DJ.ans.length;
+    [[DJ.ans, 0, css('--accent')], [DJ.truth.slice(0, DJ.done ? DJ.n : (DJ.answered ? DJ.i + 1 : DJ.i)), half, css('--trace')]].forEach(function (L) {
+      var arr = L[0], base = L[1];
+      ctx.strokeStyle = css('--grid'); for (var k = 0; k < 5; k++) { var gy = base + 4 + k * (half - 10) / 4; ctx.beginPath(); ctx.moveTo(LW, gy); ctx.lineTo(W - 8, gy); ctx.stroke(); }
+      ctx.strokeStyle = L[2]; ctx.lineWidth = 1.6; ctx.beginPath();
+      for (var e = 0; e < arr.length; e++) { var yy = yOf(STG_I[arr[e]], base); if (e === 0) ctx.moveTo(LW, yy); else ctx.lineTo(LW + e * ew, yy); ctx.lineTo(LW + (e + 1) * ew, yy); }
+      ctx.stroke(); ctx.lineWidth = 1;
+      ctx.strokeStyle = css('--rem'); ctx.lineWidth = 4; for (var e2 = 0; e2 < arr.length; e2++) if (arr[e2] === 'R') { ctx.beginPath(); ctx.moveTo(LW + e2 * ew, yOf(4, base)); ctx.lineTo(LW + (e2 + 1) * ew, yOf(4, base)); ctx.stroke(); } ctx.lineWidth = 1;
+    });
+    // まちがえた区切りに赤い印、今の区切りに黄色
+    for (var e3 = 0; e3 < nAns; e3++) { var ok = DJ.ans[e3] === DJ.truth[e3]; if (!ok && (DJ.done || e3 < DJ.i || DJ.answered)) { ctx.fillStyle = css('--hot'); ctx.beginPath(); ctx.arc(LW + (e3 + 0.5) * ew, H / 2, 3.5, 0, 7); ctx.fill(); } }
+    var cur = DJ.done ? DJ.view : DJ.i; if (cur >= 0) { ctx.fillStyle = color(css('--mark'), 0.4); ctx.fillRect(LW + cur * ew, 2, ew, H - 4); }
+  }
+  document.getElementById('djAns').addEventListener('click', function (e) { var b = e.target.closest('button'); if (b) djAnswer(b.getAttribute('data-a')); });
+  document.getElementById('djEx').addEventListener('click', function (e) { var b = e.target.closest('[data-dj]'); if (!b) return; var k = b.getAttribute('data-dj'); if (k === 'next') djNext(); else if (k === 'again') djStart(); else if (k === 'sum') { DJ.view = -1; djSync(); } });
+  document.getElementById('djGrp').addEventListener('click', function (e) { var b = e.target.closest('button'); if (!b) return; DJ.grp = b.getAttribute('data-g'); djSync(); });
+  document.getElementById('djLv').addEventListener('click', function (e) { var b = e.target.closest('button'); if (!b) return; var lv = +b.getAttribute('data-lv'); if (lv === DJ.lv) return; DJ.lv = lv; lsSet('psg-dj-lv', String(lv)); djStart(); toast(lv ? '実践：無呼吸の人の記録です。覚醒反応や呼吸の乱れが混じります。' : '入門：健康な人の記録です。'); });
+  document.getElementById('djHint').addEventListener('click', function () { DJ.hint = !DJ.hint; djSync(); });
+  document.getElementById('djHyp').addEventListener('click', function (e) {
+    if (!DJ.done) return; var r = this.getBoundingClientRect(), ew = (r.width - 56 - 8) / DJ.n, k = Math.floor((e.clientX - r.left - 56) / ew);
+    if (k >= 0 && k < DJ.n) { DJ.view = k; djSync(); }
+  });
+  document.addEventListener('keydown', function (e) {
+    if (document.body.dataset.mode !== 'stage' || e.metaKey || e.ctrlKey || e.altKey) return;
+    var m = { w: 'W', W: 'W', '0': 'W', '1': 'N1', '2': 'N2', '3': 'N3', r: 'R', R: 'R', '5': 'R' }[e.key];
+    if (m) { djAnswer(m); e.preventDefault(); } else if (e.key === 'Enter' || e.key === ' ') { if (DJ.answered || DJ.done) { djNext(); e.preventDefault(); } }
+  });
+
   /* ====================== 回す ====================== */
   var lastT = 0, accum = 0;
   function frame(ts) {
@@ -739,7 +961,8 @@ h1{font-family:var(--f-display);font-weight:400;margin:0;font-size:clamp(2.1rem,
       if (!V.paused) { accum += dt * V.speed * FS; var n = Math.floor(accum); accum -= n; for (var i = 0; i < n; i++) step(); }
       drawTrace(); drawHyp(); drawPerson();
       if (S.stage !== lastExStage) { lastExStage = S.stage; showEx(); syncCtl(); }
-    } else if (document.body.dataset.mode === 'home') { heroStep(dt); }
+    } else if (document.body.dataset.mode === 'stage') { djDraw(); }
+    else if (document.body.dataset.mode === 'home') { heroStep(dt); }
   }
 
   /* ====================== ホームの見本（閉塞性無呼吸が流れる） ====================== */
@@ -771,19 +994,20 @@ h1{font-family:var(--f-display);font-weight:400;margin:0;font-size:clamp(2.1rem,
   }
 
   /* ====================== 画面の切りかえ ====================== */
-  function fitDesk() { var d = document.getElementById('desk'); if (!d || document.body.dataset.mode !== 'lab') return; var top = d.getBoundingClientRect().top + window.scrollY; d.style.setProperty('--deskH', Math.max(420, window.innerHeight - top - 10) + 'px'); }
+  function fitDesk() { var m = document.body.dataset.mode, d = document.getElementById(m === 'stage' ? 'djDesk' : 'desk'); if (!d || (m !== 'lab' && m !== 'stage')) return; var top = d.getBoundingClientRect().top + window.scrollY; d.style.setProperty('--deskH', Math.max(420, window.innerHeight - top - 10) + 'px'); }
   function setMode() {
-    var m = location.hash === '#lab' ? 'lab' : 'home';
+    var m = location.hash === '#lab' ? 'lab' : location.hash === '#stage' ? 'stage' : 'home';
     document.body.dataset.mode = m;
-    document.getElementById('home').hidden = m !== 'home'; document.getElementById('lab').hidden = m !== 'lab';
-    if (m === 'lab') { fitDesk(); syncCtl(); showEx(); window.scrollTo(0, 0); }
+    document.getElementById('home').hidden = m !== 'home'; document.getElementById('lab').hidden = m !== 'lab'; document.getElementById('stage').hidden = m !== 'stage';
+    if (m === 'lab') { if (S.dojo) { reset(document.getElementById('personSel').value || 'healthy'); } fitDesk(); syncCtl(); showEx(); window.scrollTo(0, 0); }
+    if (m === 'stage') { fitDesk(); window.scrollTo(0, 0); if (!S.dojo || !DJ.truth.length) djStart(); else djSync(); }
   }
   window.addEventListener('hashchange', setMode);
   window.addEventListener('resize', fitDesk);
   reset('healthy');
   setMode();
   requestAnimationFrame(frame);
-  window.__psg = { S: function () { return S; }, V: V, step: step, reset: reset };
+  window.__psg = { S: function () { return S; }, V: V, step: step, reset: reset, DJ: DJ };
 })();
 </script>
 
