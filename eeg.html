@@ -1033,6 +1033,7 @@ body.eegfs #panel.qz-on .mihon-box,body.eegfs #panel.rp-on .mihon-box{display:no
         <button type="button" class="act" id="tbMore" aria-expanded="false">⚙ 記録の設定</button>
         <button type="button" class="act" id="playBtn" hidden>一時停止</button>
         <span class="tb-item fsonly"><span class="lb">波</span><span class="seg" id="lvSeg2"><button type="button" data-lv="0">入門</button><button type="button" data-lv="1">実践</button></span></span>
+        <span class="tb-item fsonly"><span class="lb">選択肢</span><span class="seg" id="hoSeg2"><button type="button" data-ho="0">表示</button><button type="button" data-ho="1">後から</button></span></span>
         <button type="button" class="act" id="fsBtn" aria-pressed="false" data-bub="おすすめ！">全画面</button>
         <span class="tb-item fsonly fs-nav" id="fsNav" aria-label="ほかのモードへ"><button type="button" class="act" data-fsnav="tpHon" aria-expanded="false">📖 症例 ▾</button><button type="button" class="act" data-fsnav="tpRen" aria-expanded="false">✏️ 練習 ▾</button><a class="act" href="#ichi" data-mode="ichi">📅 今日の一件</a><a class="act" href="#zukan" data-mode="zukan">🗂 図鑑</a><a class="act" href="#home" data-mode="home">⌂ ホーム</a></span>
       </div>
@@ -4324,8 +4325,9 @@ body.eegfs #panel.qz-on .mihon-box,body.eegfs #panel.rp-on .mihon-box{display:no
     if (!HIDE_OPT || (pick !== null && pick !== undefined) || REVEAL[key]) return html;
     return '<div class="reveal-box"><button type="button" class="btn reveal-opts" data-reveal="' + key + '">' + T('選択肢を表示', '選択肢を出す') + '</button></div>';
   }
-  function syncHo() { document.querySelectorAll('#hoSeg button').forEach(function (b) { b.setAttribute('aria-pressed', String((b.getAttribute('data-ho') === '1') === HIDE_OPT)); }); }
-  document.getElementById('hoSeg').addEventListener('click', function (e) { var b = e.target.closest('button'); if (!b) return; HIDE_OPT = b.getAttribute('data-ho') === '1'; lsSet('eeg-hideopt', HIDE_OPT ? '1' : '0'); syncHo(); rerender(); });
+  function syncHo() { document.querySelectorAll('#hoSeg button, #hoSeg2 button').forEach(function (b) { b.setAttribute('aria-pressed', String((b.getAttribute('data-ho') === '1') === HIDE_OPT)); }); }
+  function onHo(e) { var b = e.target.closest('button'); if (!b) return; HIDE_OPT = b.getAttribute('data-ho') === '1'; lsSet('eeg-hideopt', HIDE_OPT ? '1' : '0'); syncHo(); rerender(); }
+  document.getElementById('hoSeg').addEventListener('click', onHo); document.getElementById('hoSeg2').addEventListener('click', onHo);
   function rerender() { var f = { story: renderStory, conf: renderConf, sen: renderSen, dojo: renderDojo, review: renderReview }[V.mode]; if (f) f(); }
   panel.addEventListener('click', function (e) {
     var b = e.target.closest('[data-reveal]'); if (!b) return;
