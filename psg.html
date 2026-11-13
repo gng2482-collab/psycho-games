@@ -1,0 +1,791 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="精神科試験ゲーム">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icon-180.png">
+<style>
+:root{color-scheme:light; padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px)}
+body{margin:0; font:14px system-ui,-apple-system,sans-serif}
+img{max-width:100%}
+[hidden]{display:none!important}
+.ipad-bar{display:flex; flex-wrap:wrap; gap:6px 14px; align-items:center; justify-content:space-between;
+  padding:8px max(16px, env(safe-area-inset-right,0px)) 8px max(16px, env(safe-area-inset-left,0px));
+  font:600 14px system-ui,-apple-system,"Hiragino Sans",sans-serif; background:#1d2a33; color:#f3f6f8}
+.ipad-bar a{color:#f3f6f8; text-decoration:none; padding:6px 10px; border:1px solid #4a5d6a; border-radius:6px}
+.ipad-bar span{opacity:.85; font-weight:400}
+</style>
+<script>
+/* プレイヤーごとに記録を分ける（自分は今までどおり、ゲストは頭に印をつける） */
+(function () {
+  try {
+    var P = window.localStorage.getItem('ipad-player') || 'me';
+    window.__ipadPlayer = P;
+    if (P === 'me') return;
+    var pre = 'p:' + P + ':', S = Storage.prototype, g = S.getItem, s = S.setItem, r = S.removeItem;
+    var map = function (k) { return k === 'ipad-player' ? k : pre + k; };
+    S.getItem = function (k) { return g.call(this, map(k)); };
+    S.setItem = function (k, v) { return s.call(this, map(k), v); };
+    S.removeItem = function (k) { return r.call(this, map(k)); };
+  } catch (e) { /* 保存できない環境 */ }
+})();
+if ('serviceWorker' in navigator) { window.addEventListener('load', function () { navigator.serviceWorker.register('sw.js').catch(function () {}); }); }
+</script>
+</head>
+<body>
+<nav class="ipad-bar" aria-label="アプリ"><a href="index.html">← ゲーム一覧</a><span id="ipadWho"></span></nav>
+<script>(function(){var P=window.__ipadPlayer||'me';document.getElementById('ipadWho').textContent='プレイヤー：'+(P==='me'?'自分':P);})();</script>
+<title>睡眠よみ道場</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=BIZ+UDGothic:wght@400;700&family=BIZ+UDPGothic:wght@400;700&family=DotGothic16&display=swap">
+<style>
+/* 睡眠よみ道場（PSG）。脳波よみ道場の姉妹版。見た目の決まり（色・文字）は脳波よみ道場と同じ */
+:root{
+  --paper:#edf0ea; --panel:#fafbf7; --ink:#1a2220; --muted:#5a6661; --line:#c8d1ca;
+  --sheet:#fbfcf8; --grid:#e3ebe5; --grid2:#bccfc4; --trace:#17241f;
+  --accent:#0f6b84; --accent-ink:#fff; --mark:#e9b949; --hot:#c0404a; --ok:#2a7a55; --ann:#8a5a10;
+  --rem:#c0404a; --resp:#1f5fa8; --leg:#6a4bb0;
+  --accent-soft:color-mix(in srgb, var(--accent) 10%, var(--panel));
+  --f-display:"DotGothic16","BIZ UDPGothic","Hiragino Sans","Yu Gothic",system-ui,sans-serif;
+  --f-body:"BIZ UDPGothic","Hiragino Sans","Hiragino Kaku Gothic ProN","Yu Gothic",Meiryo,system-ui,sans-serif;
+  --f-mono:"BIZ UDGothic",ui-monospace,"SFMono-Regular",Menlo,Consolas,monospace;
+  --fs-xs:.78rem; --fs-s:.875rem; --fs-m:1rem; --fs-l:1.12rem; --fs-xl:1.4rem;
+  --r:5px;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --paper:#0f1513; --panel:#161e1b; --ink:#e1e9e5; --muted:#95a39d; --line:#2b3732;
+    --sheet:#111916; --grid:#1b2622; --grid2:#2e3f38; --trace:#cfe4da;
+    --accent:#5cc0d9; --accent-ink:#0f1513; --mark:#e2b54b; --hot:#ef6f77; --ok:#63c993; --ann:#e2b54b;
+    --rem:#ef6f77; --resp:#6fa4ec; --leg:#a98ef0;
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --paper:#0f1513; --panel:#161e1b; --ink:#e1e9e5; --muted:#95a39d; --line:#2b3732;
+  --sheet:#111916; --grid:#1b2622; --grid2:#2e3f38; --trace:#cfe4da;
+  --accent:#5cc0d9; --accent-ink:#0f1513; --mark:#e2b54b; --hot:#ef6f77; --ok:#63c993; --ann:#e2b54b;
+  --rem:#ef6f77; --resp:#6fa4ec; --leg:#a98ef0;
+  color-scheme:dark;
+}
+[hidden]{display:none!important}
+*,*::before,*::after{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--f-body);font-size:var(--fs-m);line-height:1.75;
+  padding-left:max(16px, env(safe-area-inset-left, 0px));padding-right:max(16px, env(safe-area-inset-right, 0px));padding-block:0 40px;overflow-wrap:anywhere}
+:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+h1,h2,h3{text-wrap:balance;line-height:1.35}
+p{margin:0}
+.wrap{max-width:1180px;margin:0 auto}
+button{font:inherit;color:inherit}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;min-height:44px;padding:6px 16px;border-radius:8px;border:2px solid var(--accent);background:var(--accent);color:var(--accent-ink);font-weight:700;cursor:pointer;text-decoration:none}
+.act{min-height:38px;padding:4px 10px;border-radius:6px;border:1px solid var(--line);background:var(--panel);cursor:pointer;font-size:var(--fs-s);white-space:nowrap}
+.act:hover{border-color:var(--accent)}
+.act[aria-pressed="true"],.seg button[aria-pressed="true"]{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:6px;overflow:hidden;background:var(--panel)}
+.seg button{border:0;border-right:1px solid var(--line);background:transparent;min-height:38px;padding:4px 10px;cursor:pointer;font-size:var(--fs-s);white-space:nowrap}
+.seg button:last-child{border-right:0}
+.act.flash{animation:fl .6s ease 1}
+@keyframes fl{0%{background:var(--mark)}100%{background:var(--panel)}}
+
+/* 上のバー */
+.appbar{display:flex;align-items:center;gap:10px;padding-block:10px;border-bottom:1px solid var(--line)}
+.appbar a{color:var(--accent);font-weight:700;text-decoration:none;border:1px solid var(--line);border-radius:999px;padding:4px 14px;background:var(--panel)}
+.appbar b{font-family:var(--f-display);font-weight:400;font-size:var(--fs-l);letter-spacing:.05em}
+.appbar span{color:var(--accent)}
+
+/* ホーム */
+.hero{padding-block:22px 28px;display:grid;gap:10px;border-bottom:1px dashed var(--line)}
+.eyebrow{font-size:var(--fs-xs);letter-spacing:.16em;color:var(--muted)}
+h1{font-family:var(--f-display);font-weight:400;margin:0;font-size:clamp(2.1rem,8vw,3.4rem);letter-spacing:.08em;line-height:1.15;text-shadow:3px 3px 0 var(--line)}
+.tag{font-size:clamp(1.1rem,3.2vw,1.6rem);font-weight:700;line-height:1.5}
+.tag em{font-style:normal;color:var(--hot)}
+.hero-cv{width:100%;height:170px;display:block;background:var(--sheet);border:2px solid var(--ink);border-radius:6px;box-shadow:4px 4px 0 var(--line)}
+.btn-hero{display:inline-flex;align-items:center;gap:14px;justify-self:start;padding:14px 26px;border-radius:14px;background:var(--hot);color:#fff;text-decoration:none;box-shadow:0 5px 0 color-mix(in srgb,var(--hot) 60%,#000);font-weight:700}
+.btn-hero i{font-style:normal;font-size:2rem}
+.btn-hero b{display:block;font-size:1.5rem;line-height:1.2}
+.btn-hero small{font-weight:400;font-size:var(--fs-xs)}
+.hsec{display:grid;gap:12px;padding-block:28px;border-bottom:1px dashed var(--line)}
+.hs-no{font-family:var(--f-display);color:var(--hot);letter-spacing:.14em;font-size:var(--fs-s)}
+.hsec h2{margin:0;font-family:var(--f-display);font-weight:400;font-size:clamp(1.6rem,4.6vw,2.4rem);letter-spacing:.04em}
+.rules{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
+.rules li{border-top:3px double var(--ink);padding-top:8px;font-size:var(--fs-s)}
+.rules b{display:block;margin-bottom:4px;font-family:var(--f-display);font-weight:400;font-size:var(--fs-m);color:var(--accent)}
+.soon{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}
+.soon div{border:2px dashed var(--line);border-radius:12px;padding:12px 14px;background:var(--panel)}
+.soon b{display:block;font-size:var(--fs-l)}
+.soon small{color:var(--muted)}
+.soon .lv{display:inline-block;font-size:var(--fs-xs);color:var(--hot);font-weight:700}
+.foot{font-size:var(--fs-xs);color:var(--muted);padding-top:18px;max-width:60em}
+.foot a{color:var(--accent)}
+@media (max-width:820px){.rules,.soon{grid-template-columns:repeat(2,minmax(0,1fr))}}
+
+/* 触ってみる：1画面に収める */
+.desk{display:grid;grid-template-columns:minmax(0,1fr) 340px;gap:10px;height:var(--deskH,80vh);padding-top:8px}
+.d-main{display:grid;grid-template-rows:auto auto minmax(0,1fr);gap:6px;min-height:0}
+.tbar{display:flex;flex-wrap:wrap;gap:6px 10px;align-items:center}
+.tbar .lb{font-size:var(--fs-xs);color:var(--muted);margin-right:4px}
+.tb-item{display:inline-flex;align-items:center}
+.hyp{position:relative;background:var(--sheet);border:1px solid var(--line);border-radius:6px}
+.hyp canvas{display:block;width:100%;height:84px}
+.hyp-stat{display:block;font-size:var(--fs-xs);color:var(--muted);font-family:var(--f-mono);padding:0 8px 2px;border-top:1px solid var(--grid);line-height:1.6}
+.trace{position:relative;min-height:0;background:var(--sheet);border:1px solid var(--line);border-radius:6px;overflow:hidden}
+.trace canvas{display:block;width:100%;height:100%}
+.d-side{display:grid;align-content:start;gap:10px;min-height:0;overflow:auto;overscroll-behavior:contain}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:10px 12px}
+.who{display:grid;grid-template-columns:150px minmax(0,1fr);gap:10px;align-items:center}
+.who svg{width:150px;height:auto;display:block}
+.who h3{margin:0;font-size:var(--fs-m)}
+.who p{font-size:var(--fs-xs);color:var(--muted);line-height:1.5}
+.now{font-family:var(--f-mono);font-size:var(--fs-xs);color:var(--muted)}
+.now b{font-family:var(--f-display);font-weight:400;font-size:1.6rem;color:var(--ink)}
+.ctl{display:grid;gap:7px}
+.ctl h3{margin:0;font-size:var(--fs-m)}
+.ctl-row{display:flex;flex-wrap:wrap;gap:5px;align-items:center}
+.ctl-row .lb{min-width:4.6em;font-size:var(--fs-xs);color:var(--muted)}
+.ctl select{font:inherit;font-size:var(--fs-s);min-height:38px;border:1px solid var(--line);border-radius:6px;background:var(--panel);padding:2px 6px;max-width:100%}
+.stg button{min-width:44px}
+.ex{display:grid;gap:6px;font-size:var(--fs-s);line-height:1.6;border-left:4px solid var(--mark);padding-left:10px}
+.ex h3{margin:0;font-size:var(--fs-m)}
+.ex ul{margin:0;padding-left:1.2em}
+.ex li{margin:2px 0}
+.ex .ev{background:color-mix(in srgb,var(--mark) 16%,var(--panel));border-radius:8px;padding:8px 10px}
+.ex .ev b{color:var(--ann)}
+.ch{font-family:var(--f-mono);font-size:.92em;background:var(--accent-soft);border-radius:4px;padding:0 4px;white-space:nowrap}
+.hint{font-size:var(--fs-xs);color:var(--hot);font-weight:700}
+.toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);z-index:70;background:var(--panel);border:2px solid var(--mark);border-radius:12px;padding:8px 16px;box-shadow:0 8px 24px rgba(0,0,0,.2);font-size:var(--fs-s);max-width:min(560px,calc(100vw - 32px))}
+/* 人の絵の動き */
+.pt-leg{transform-box:fill-box;transform-origin:0% 50%;transition:transform .15s}
+.pt-arm{transform-box:fill-box;transform-origin:100% 50%;transition:transform .2s}
+
+/* スマホ・細い画面：脳波を上、操作を下に */
+@media (max-width:900px){
+  .desk{grid-template-columns:minmax(0,1fr);height:auto}
+  .d-main{grid-template-rows:auto auto 62svh}
+  .d-side{overflow:visible}
+}
+@media (max-width:560px){
+  .who{grid-template-columns:110px minmax(0,1fr)}
+  .who svg{width:110px}
+  .hyp canvas{height:70px}
+}
+</style>
+
+<div class="wrap" id="app">
+  <!-- ホーム -->
+  <main id="home">
+    <section class="hero">
+      <p class="eyebrow">精神科試験ゲーム　PSG（睡眠ポリグラフ検査）</p>
+      <h1>睡眠よみ道場</h1>
+      <p class="tag">一晩の記録は、長くて読みにくい。<br>ここでは、<em>眠らせて、止めて、読める。</em></p>
+      <canvas class="hero-cv" id="heroCv" aria-label="閉塞性無呼吸の記録が流れる見本"></canvas>
+      <a class="btn-hero" href="#lab" id="heroLab"><i>👆</i><span><b>触ってみる</b><small>段階とできごとを、ボタンで起こす</small></span></a>
+    </section>
+    <section class="hsec">
+      <p class="hs-no">STEP 1</p>
+      <h2>読む前に、4つだけ</h2>
+      <ul class="rules">
+        <li><b>30秒でひと区切り</b>睡眠の段階は、30秒（1エポック）ごとに決めます。半分以上を占める段階が、その区切りの段階です。</li>
+        <li><b>目の2本は逆向き</b><span class="ch">E1</span>と<span class="ch">E2</span>が逆向きに振れたら目の動き。同じ向きなら、脳波（徐波や K 複合）が写っているだけです。</li>
+        <li><b>あごはレムで最低</b>あごの筋電図は、レム睡眠でいちばん低くなります（体の力が抜ける）。レムなのに高ければ、レム睡眠行動障害を疑います。</li>
+        <li><b>呼吸は4点セット</b>気流・胸・腹・SpO2 を並べて見ます。SpO2 は、呼吸が止まってから20〜30秒遅れて下がります。</li>
+      </ul>
+    </section>
+    <section class="hsec">
+      <p class="hs-no">NEXT</p>
+      <h2>これから増えるもの</h2>
+      <div class="soon">
+        <div><span class="lv">準備中</span><b>ステージ判定道場</b><small>30秒を見て W・N1・N2・N3・R を当てる。続けると睡眠図ができる</small></div>
+        <div><span class="lv">準備中</span><b>イベント判定</b><small>無呼吸・低呼吸・覚醒・脚の動きを、なぞって付ける</small></div>
+        <div><span class="lv">準備中</span><b>睡眠図あてクイズ</b><small>一晩の睡眠図だけで、どの人の夜かを当てる</small></div>
+        <div><span class="lv">準備中</span><b>症例で読む</b><small>治らない不眠・夜中に暴れる・授業中に眠る…精神科の症例</small></div>
+      </div>
+    </section>
+    <p class="foot">波形と呼吸の記録は、このページの中で合成した学習用のもので、実在の患者さんの記録ではありません。形や数値は学習用に単純化しています。判定のルールは米国睡眠医学会（AASM）の判定マニュアルの考え方に沿っています（低呼吸は「呼吸の振幅が30％以上下がり、SpO2 が3％以上下がるか覚醒反応を伴う」）。実際の判読は、記録の条件や臨床経過と合わせて専門の医師が行ってください。内容は専門医の確認の途中です（試作版）。<br>姉妹版：<a href="eeg.html">脳波よみ道場</a></p>
+  </main>
+
+  <!-- 触ってみる -->
+  <section id="lab" hidden aria-label="触ってみる">
+    <div class="appbar"><a href="#home">← ホーム</a><b>睡眠よみ道場</b><span>／触ってみる</span></div>
+    <div class="desk" id="desk">
+      <div class="d-main">
+        <div class="tbar">
+          <span class="tb-item"><span class="lb">1画面</span><span class="seg" id="winSeg"><button type="button" data-w="30">30秒</button><button type="button" data-w="120">2分</button><button type="button" data-w="300">5分</button></span></span>
+          <span class="tb-item"><span class="lb">表示</span><span class="seg" id="grpSeg"><button type="button" data-g="all">全部</button><button type="button" data-g="neuro">脳・目・筋</button><button type="button" data-g="resp">呼吸</button></span></span>
+          <span class="tb-item"><span class="lb">速さ</span><span class="seg" id="spdSeg"><button type="button" data-s="1">等速</button><button type="button" data-s="10">10倍</button><button type="button" data-s="60">60倍</button></span></span>
+          <button type="button" class="act" id="pauseBtn" aria-pressed="false">一時停止</button>
+          <button type="button" class="act" id="markBtn" aria-pressed="true">目印</button>
+        </div>
+        <div class="hyp"><canvas id="hypCv" role="img" aria-label="睡眠図（ここまでの睡眠の段階）"></canvas><span class="hyp-stat" id="hypStat"></span></div>
+        <div class="trace"><canvas id="trCv" role="img" aria-label="睡眠ポリグラフの記録"></canvas></div>
+      </div>
+      <aside class="d-side">
+        <div class="card who">
+          <svg id="ptSvg" viewBox="0 0 200 110" aria-hidden="true">
+            <rect x="6" y="64" width="188" height="30" rx="6" fill="#c9d6e8"/><rect x="6" y="88" width="188" height="16" rx="4" fill="#8aa0bd"/>
+            <rect x="12" y="52" width="46" height="18" rx="9" fill="#f4f1ea" stroke="#c9c2b4"/>
+            <g id="ptArm" class="pt-arm"><rect x="58" y="47" width="40" height="10" rx="5" fill="#f2c9a0"/></g>
+            <g id="ptBody"><ellipse cx="104" cy="60" rx="46" ry="13" fill="#7fa6c9"/></g>
+            <g id="ptLegL" class="pt-leg"><rect x="146" y="58" width="44" height="9" rx="4.5" fill="#5f87ad"/></g>
+            <g id="ptLegR" class="pt-leg"><rect x="146" y="63" width="44" height="9" rx="4.5" fill="#557ba0"/></g>
+            <rect x="80" y="62" width="112" height="18" rx="6" fill="#e9eef6" opacity=".92"/>
+            <circle cx="40" cy="47" r="15" fill="#f2c9a0"/><path d="M26 42 Q40 26 55 40" fill="#3b2f2a"/>
+            <g id="ptEyeC"><path d="M33 47 q3 2 6 0" stroke="#3b2f2a" stroke-width="1.6" fill="none"/></g>
+            <g id="ptEyeO" hidden><circle cx="36" cy="46" r="1.8" fill="#3b2f2a"/></g>
+            <ellipse id="ptMouth" cx="44" cy="54" rx="2.2" ry="1" fill="#8a3b3b"/>
+            <text id="ptSay" x="62" y="22" font-size="13" font-weight="700" fill="#c0404a"></text>
+          </svg>
+          <div><h3 id="ptName">健康な人</h3><p id="ptDesc"></p><p class="now" id="nowLine"></p></div>
+        </div>
+        <div class="card ctl">
+          <div class="ctl-row"><span class="lb">人</span><select id="personSel" aria-label="人を選ぶ"></select></div>
+          <div class="ctl-row"><span class="lb">段階</span><span class="seg stg" id="stgSeg"><button type="button" data-st="W">覚醒</button><button type="button" data-st="N1">N1</button><button type="button" data-st="N2">N2</button><button type="button" data-st="N3">N3</button><button type="button" data-st="R">レム</button></span></div>
+          <div class="ctl-row"><span class="lb"></span><button type="button" class="act" id="autoBtn" aria-pressed="false">一晩の流れにまかせる</button></div>
+          <div class="ctl-row"><span class="lb">呼吸</span><button type="button" class="act" data-ev="obs">閉塞性無呼吸</button><button type="button" class="act" data-ev="cen">中枢性無呼吸</button><button type="button" class="act" data-ev="hyp">低呼吸</button></div>
+          <div class="ctl-row"><span class="lb">体</span><button type="button" class="act" data-ev="aro">覚醒反応</button><button type="button" class="act" data-ev="plm">脚のピクつき</button><button type="button" class="act" data-ev="mov">寝返り</button><button type="button" class="act" data-ev="rbd" id="rbdBtn">夢の行動化</button></div>
+          <div class="ctl-row"><span class="lb"></span><button type="button" class="act" id="resetBtn">最初の状態に戻す</button></div>
+        </div>
+        <div class="card ex" id="exBox" aria-live="polite"></div>
+      </aside>
+    </div>
+  </section>
+  <div class="toast" id="toast" role="status" hidden></div>
+</div>
+
+<script>
+(function () {
+  'use strict';
+  /* ====================== 小道具 ====================== */
+  var FS = 100;                       // 1秒あたりの点の数
+  var BUF = FS * 60 * 6;              // 6分ぶん持つ（5分表示＋余裕）
+  var START_CLOCK = 23 * 3600;        // 記録は 23:00 に始まる（消灯）
+  function rnd() { return Math.random(); }
+  function randn() { var u = 1 - rnd(), v = rnd(); return Math.sqrt(-2 * Math.log(u)) * Math.cos(2 * Math.PI * v); }
+  function gauss(x, m, s) { var d = (x - m) / s; return Math.exp(-0.5 * d * d); }
+  function clamp(x, a, b) { return x < a ? a : x > b ? b : x; }
+  function lsGet(k) { try { return localStorage.getItem(k); } catch (e) { return null; } }
+  function lsSet(k, v) { try { localStorage.setItem(k, v); } catch (e) {} }
+  function clock(t) { var s = Math.floor(START_CLOCK + t) % 86400; var h = Math.floor(s / 3600), m = Math.floor(s / 60) % 60, ss = s % 60; return h + ':' + (m < 10 ? '0' : '') + m + ':' + (ss < 10 ? '0' : '') + ss; }
+  function hm(sec) { sec = Math.max(0, Math.round(sec)); var h = Math.floor(sec / 3600), m = Math.floor(sec / 60) % 60; return h + '時間' + (m < 10 ? '0' : '') + m + '分'; }
+  var toastT = 0;
+  function toast(html) { var el = document.getElementById('toast'); el.innerHTML = html; el.hidden = false; clearTimeout(toastT); toastT = setTimeout(function () { el.hidden = true; }, 3600); }
+  function css(v) { return getComputedStyle(document.documentElement).getPropertyValue(v).trim(); }
+
+  // 帯域を通した雑音（2次の帯域通過フィルタ）。最初に強さをそろえておく
+  function BP(f0, q) {
+    var w = 2 * Math.PI * f0 / FS, al = Math.sin(w) / (2 * q), a0 = 1 + al;
+    var b0 = al / a0, b2 = -al / a0, a1 = -2 * Math.cos(w) / a0, a2 = (1 - al) / a0;
+    var x1 = 0, x2 = 0, y1 = 0, y2 = 0, g = 1;
+    function f() { var x = randn(); var y = b0 * x + b2 * x2 - a1 * y1 - a2 * y2; x2 = x1; x1 = x; y2 = y1; y1 = y; return y * g; }
+    var s = 0, n = 6000; for (var i = 0; i < n; i++) { var v = f(); s += v * v; }
+    g = 1 / Math.sqrt(s / n);
+    return f;
+  }
+
+  /* ====================== 記録の線（チャンネル） ====================== */
+  // sc：行の半分の高さに当たる値。grp：表示の切り替え用
+  var CH = [
+    { k: 'E1', n: 'E1-M2', sc: 160, h: 1, grp: 'neuro', col: 'eog' },
+    { k: 'E2', n: 'E2-M1', sc: 160, h: 1, grp: 'neuro', col: 'eog' },
+    { k: 'F4', n: 'F4-M1', sc: 110, h: 1.1, grp: 'neuro' },
+    { k: 'C4', n: 'C4-M1', sc: 110, h: 1.1, grp: 'neuro' },
+    { k: 'O2', n: 'O2-M1', sc: 110, h: 1.1, grp: 'neuro' },
+    { k: 'CHIN', n: 'あご筋電', sc: 45, h: 0.85, grp: 'neuro' },
+    { k: 'ECG', n: '心電図', sc: 1300, h: 0.8, grp: 'both' },
+    { k: 'LL', n: '左脚 筋電', sc: 55, h: 0.6, grp: 'neuro', col: 'leg' },
+    { k: 'RL', n: '右脚 筋電', sc: 55, h: 0.6, grp: 'neuro', col: 'leg' },
+    { k: 'SNORE', n: 'いびき', sc: 1.4, h: 0.6, grp: 'resp' },
+    { k: 'FLOW', n: '気流（温度）', sc: 1.5, h: 1.1, grp: 'resp', col: 'resp' },
+    { k: 'NP', n: '鼻圧', sc: 1.5, h: 1.1, grp: 'resp', col: 'resp' },
+    { k: 'THO', n: '胸', sc: 1.6, h: 1, grp: 'resp', col: 'resp' },
+    { k: 'ABD', n: '腹', sc: 1.6, h: 1, grp: 'resp', col: 'resp' },
+    { k: 'SPO2', n: 'SpO2', sc: 1, h: 1.3, grp: 'resp', spo2: true }
+  ];
+  var CI = {}; CH.forEach(function (c, i) { CI[c.k] = i; c.buf = new Float32Array(BUF); });
+  var STAGE_BUF = new Uint8Array(BUF);  // 点ごとの本当の段階（0:W 1:N1 2:N2 3:N3 4:R）
+  var STG = ['W', 'N1', 'N2', 'N3', 'R'], STG_I = { W: 0, N1: 1, N2: 2, N3: 3, R: 4 };
+  var STG_NAME = { W: '覚醒', N1: 'N1（うとうと）', N2: 'N2（浅い睡眠）', N3: 'N3（深い睡眠）', R: 'レム睡眠' };
+
+  /* ====================== 人（状態） ====================== */
+  var PERSONS = {
+    healthy: { n: '健康な人', d: '30代。いびきなし。夜中に何度か短く目が覚めるのは正常の範囲。', spo2: 97.5, snore: 0, osa: 0, rbd: false, plm: 0, age: 'young' },
+    osa: { n: 'いびきと無呼吸の人', d: '50代男性、太りぎみ。家族に「いびきが止まる」と言われた。閉塞性睡眠時無呼吸（のどがふさがって呼吸が止まる）。', spo2: 95.5, snore: 0.7, osa: 1, rbd: false, plm: 0, age: 'mid' },
+    rbd: { n: '夜中に暴れる人', d: '70代男性。夢の中でけんかをして、隣の妻をたたいてしまう。レム睡眠行動障害（RBD）。', spo2: 95.5, snore: 0.15, osa: 0, rbd: true, plm: 0, age: 'old' },
+    plm: { n: '脚がピクつく人', d: '60代女性。夕方から脚がむずむずする（むずむず脚症候群）。眠ると脚が周期的にピクつく（周期性四肢運動）。', spo2: 96.5, snore: 0.1, osa: 0, rbd: false, plm: 1, age: 'mid' }
+  };
+
+  // 一晩の流れ（30秒ごとの段階）。約90分の周期で、前半は N3、後半はレムが多い
+  function makeNight(p) {
+    var a = [], push = function (s, min) { for (var i = 0; i < Math.round(min * 2); i++) a.push(s); };
+    var n3 = p.age === 'young' ? [30, 22, 8, 2, 0] : p.age === 'mid' ? [16, 10, 3, 0, 0] : [6, 3, 0, 0, 0];
+    if (p.osa) n3 = [5, 2, 0, 0, 0];
+    var rem = [8, 15, 20, 26, 30];
+    push('W', p.age === 'old' ? 20 : 12); push('N1', 4);
+    for (var c = 0; c < 5; c++) {
+      push('N2', c === 0 ? 14 : 20); if (n3[c]) { push('N3', n3[c]); push('N2', 8); }
+      if (p.osa || p.age === 'old') { push('W', 1); push('N1', 2); push('N2', 6); }
+      push('R', rem[c]);
+      if (c < 4) { push('W', p.age === 'young' ? 0.5 : 2); push('N1', 2); }
+    }
+    push('W', 10);
+    return a;
+  }
+
+  /* ====================== 状態 ====================== */
+  var S;
+  var src = { al: BP(10, 4), be: BP(20, 1.5), th: BP(5.5, 1.4), de: BP(0.9, 1.1), ind: [BP(7, 0.6), BP(7, 0.6), BP(7, 0.6)], emg: BP(38, 0.7), legn: BP(38, 0.7), sn: BP(40, 2), mov: BP(1.5, 0.6) };
+  // 背景の波（al・be・th・de）は RMS の大きさ（山から谷はその約5倍）。一時的な波（sp・k・v・st）は山の高さ
+  var REG = { F4: { al: 3, be: 1.6, th: 6, de: 30, sp: 18, k: 115, v: 40, st: 20 }, C4: { al: 6, be: 1.6, th: 7, de: 24, sp: 26, k: 95, v: 70, st: 30 }, O2: { al: 12, be: 1.3, th: 5, de: 17, sp: 10, k: 40, v: 16, st: 10 } };
+
+  function reset(personKey) {
+    var p = PERSONS[personKey || (S && S.pk) || 'healthy'];
+    S = {
+      pk: personKey || (S && S.pk) || 'healthy', p: p, wi: 0, stage: 'W', auto: false, night: makeNight(p), autoOff: 0,
+      mix: { W: 1, N1: 0, N2: 0, N3: 0, R: 0 },
+      tr: [],                  // 一時的な波（紡錘波・K 複合など）
+      ann: [],                 // 黄色い帯の目印
+      resp: null, nextResp: 30, arou: [], hb: { last: -1, next: 0.5 }, hr: 70, ph: 0, rate: 15,
+      flow: 1, np: 1, eff: 1, par: 0, lim: 0, snore: 0, sat: p.spo2, satBuf: new Float32Array(BUF),
+      eye: { h: 0, v: 0, semPh: 0, semA: 0 }, deS: 0, remBurst: 0, plmNext: 0, plmSeries: 0, rbdNext: 0,
+      epochs: [], epCount: [0, 0, 0, 0, 0], evs: [], lastEv: null, minSat: 100, sleepSec: 0, nextSched: 0
+    };
+    for (var i = 0; i < CH.length; i++) CH[i].buf.fill(0);
+    // 最初の6分ぶんを埋めておく（画面が空にならないように）
+    var pre = FS * 300; for (var j = 0; j < pre; j++) step();
+  }
+
+  /* ====================== 1点ずつ作る ====================== */
+  function addTr(type, dur, amp, extra) { var t = S.wi / FS; var o = { type: type, t0: t, t1: t + dur, a: amp || 1 }; if (extra) for (var k in extra) o[k] = extra[k]; S.tr.push(o); return o; }
+  function addAnn(t0, t1, chs, label, kind) { S.ann.push({ t0: t0, t1: t1, chs: chs, label: label, kind: kind || 'micro' }); if (S.ann.length > 400) S.ann.splice(0, 100); }
+  function arousalLevel(t) { var a = 0; for (var i = 0; i < S.arou.length; i++) { var r = S.arou[i]; if (t >= r.t0 && t < r.t1) { var u = Math.min(1, (t - r.t0) / 0.4, (r.t1 - t) / 0.8); if (u > a) a = u; } } return a; }
+  function startArousal(dur, label) {
+    var t = S.wi / FS; S.arou.push({ t0: t, t1: t + dur });
+    if (S.arou.length > 30) S.arou.shift();
+    addAnn(t, t + dur, ['F4', 'C4', 'O2', 'CHIN'], label || '覚醒反応', 'event');
+    countEv('aro');
+  }
+  function countEv(type) { var t = S.wi / FS; S.evs.push({ t: t, type: type }); if (S.evs.length > 3000) S.evs.shift(); }
+
+  function sleeping() { return S.stage !== 'W'; }
+
+  // 0.25秒ごとに、次に起こることを決める
+  function schedule(t) {
+    var st = S.stage, p = S.p;
+    if (S.auto) { var ei = Math.floor((t - S.autoOff) / 30); var ns = S.night[Math.min(ei, S.night.length - 1)]; if (ns !== S.stage) setStageRaw(ns); st = S.stage; }
+    var dt = 0.25, m = S.mix;
+    // 一時的な波
+    if (m.N2 > 0.5 && rnd() < 0.15 * dt) { var sp = addTr('sp', 0.7 + rnd() * 0.8); addAnn(sp.t0, sp.t1, ['C4'], '紡錘波'); }
+    if (m.N3 > 0.5 && rnd() < 0.05 * dt) { var sp3 = addTr('sp', 0.6 + rnd() * 0.5, 0.7); addAnn(sp3.t0, sp3.t1, ['C4'], '紡錘波'); }
+    if (m.N2 > 0.5 && rnd() < 0.045 * dt) { var kc = addTr('k', 1.1, 0.8 + rnd() * 0.5); addAnn(kc.t0, kc.t1, ['F4', 'C4'], 'K複合'); if (rnd() < 0.5) addTr('sp', 0.8, 0.8, { t0: kc.t0 + 0.6, t1: kc.t0 + 1.4 }); }
+    if (m.N1 > 0.5 && rnd() < 0.12 * dt) { var vx = addTr('v', 0.45, 0.8 + rnd() * 0.5); addAnn(vx.t0, vx.t1, ['C4'], '頭蓋頂鋭波'); }
+    if (m.R > 0.5 && rnd() < 0.04 * dt) { var sw = addTr('saw', 2 + rnd() * 1.5); addAnn(sw.t0, sw.t1, ['C4'], '鋸歯状波'); }
+    if (m.R > 0.5 && !S.remBurst && rnd() < 0.13 * dt) { S.remBurst = 2 + Math.floor(rnd() * 5); addAnn(t, t + S.remBurst * 0.7 + 0.4, ['E1', 'E2'], '急速眼球運動（逆向き）'); }
+    if (S.remBurst && rnd() < 0.45) { addTr('sac', 1.2, (rnd() < 0.5 ? -1 : 1) * (70 + rnd() * 80)); S.remBurst--; }
+    if (m.W > 0.6 && rnd() < 0.22 * dt) addTr('blink', 0.4, 0.8 + rnd() * 0.4);
+    if (m.W > 0.6 && rnd() < 0.15 * dt) addTr('sac', 1, (rnd() < 0.5 ? -1 : 1) * (50 + rnd() * 60));
+    if (m.R > 0.5 && rnd() < (p.rbd ? 0.9 : 0.25) * dt) addTr('twitch', p.rbd ? 0.4 + rnd() * 1.4 : 0.15, p.rbd ? 1.6 + rnd() : 1);
+    if (p.rbd && m.R > 0.6 && t > S.rbdNext && rnd() < 0.05 * dt * 4) { S.rbdNext = t + 25 + rnd() * 30; rbdEpisode(); }
+    if (p.rbd && m.R > 0.6 && rnd() < 0.02 * dt * 4) addAnn(t, t + 6, ['CHIN'], 'レムなのにあごの筋活動（RWA）', 'event');
+    // 周期性四肢運動：浅い眠りで、20〜40秒おきに続けて
+    if (p.plm && (st === 'N1' || st === 'N2') && t > S.plmNext) { plmOne(rnd() < 0.3); S.plmNext = t + 20 + rnd() * 16; }
+    // 閉塞性無呼吸の人：眠ると無呼吸・低呼吸が続く（N3 では少ない、レムで長い）
+    if (p.osa && sleeping() && !S.resp && t > S.nextResp) {
+      if (st === 'N3' && rnd() < 0.7) S.nextResp = t + 30;
+      else { var hyp = rnd() < 0.38; startResp(hyp ? 'hyp' : 'obs', (st === 'R' ? 22 : 14) + rnd() * 16); }
+    }
+    // 健康な人も、たまに自然な覚醒反応
+    if (!p.osa && sleeping() && rnd() < 0.004 * dt) startArousal(3 + rnd() * 6, '覚醒反応（自然）');
+    // 古いものを捨てる
+    if (S.tr.length > 60) S.tr = S.tr.filter(function (o) { return o.t1 > t - 2; });
+  }
+
+  function plmOne(withArousal) {
+    var t = S.wi / FS, both = rnd() < 0.45, left = rnd() < 0.5, d = 0.8 + rnd() * 2.2;
+    if (both || left) addTr('leg', d, 0.8 + rnd() * 0.6, { side: 'L' });
+    if (both || !left) addTr('leg', d, 0.8 + rnd() * 0.6, { side: 'R' });
+    addAnn(t, t + d, both ? ['LL', 'RL'] : [left ? 'LL' : 'RL'], '脚の動き（PLM）', 'event'); countEv('plm');
+    if (withArousal) setTimeout0(function () { startArousal(3 + rnd() * 4, 'PLM に続く覚醒反応'); }, 0.6);
+  }
+  function rbdEpisode() {
+    var t = S.wi / FS; addTr('mov', 3 + rnd() * 3, 0.9, { rbd: true }); addTr('twitch', 4, 3);
+    addTr('leg', 2.5, 1.4, { side: 'L' }); addTr('leg', 2, 1.2, { side: 'R' });
+    addAnn(t, t + 5, ['CHIN', 'LL', 'RL'], '夢の行動化（体が動く）', 'event'); countEv('rbd');
+    S.say = { txt: 'えいっ！', t1: t + 4 };
+  }
+  // 少し後に行う（記録の時間で）
+  var LATER = [];
+  function setTimeout0(fn, sec) { LATER.push({ t: S.wi / FS + sec, fn: fn }); }
+
+  function startResp(type, dur) {
+    var t = S.wi / FS;
+    S.resp = { type: type, t0: t, t1: t + dur, minSat: S.sat };
+    var lab = { obs: '閉塞性無呼吸', cen: '中枢性無呼吸', hyp: '低呼吸' }[type];
+    addAnn(t, t + dur, type === 'hyp' ? ['NP', 'THO', 'ABD'] : ['FLOW', 'NP', 'THO', 'ABD'], lab, 'event');
+    S.lastEv = type; countEv(type); showEx();
+  }
+  function endResp(t) {
+    var r = S.resp; S.resp = { type: 'rec', t0: t, t1: t + (r.type === 'cen' ? 6 : 9), from: r.type };
+    if (r.type !== 'cen' || rnd() < 0.4) startArousal(r.type === 'hyp' ? 3.5 + rnd() * 3 : 5 + rnd() * 6, r.type === 'cen' ? '覚醒反応' : '呼吸再開時の覚醒反応');
+    // SpO2 の低下は遅れて出る：その場所にも目印
+    var lag = 18;
+    addAnn(r.t0 + lag + (r.t1 - r.t0) * 0.5, t + lag + 6, ['SPO2'], 'SpO2 が遅れて下がる', 'event');
+    S.nextResp = t + (S.p.osa ? 30 + rnd() * 45 : 1e9);
+  }
+
+  function setStageRaw(st) { S.stage = st; }
+
+  function step() {
+    var i = S.wi, t = i / FS, dt = 1 / FS, p = S.p, m = S.mix;
+    if (t >= S.nextSched) { S.nextSched = t + 0.25; schedule(t); }
+    for (var li = LATER.length - 1; li >= 0; li--) if (t >= LATER[li].t) { var fn = LATER[li].fn; LATER.splice(li, 1); fn(); }
+    // 段階は数秒かけて切りかわる
+    for (var s = 0; s < 5; s++) { var k = STG[s]; m[k] += ((S.stage === k ? 1 : 0) - m[k]) * dt / 2.5; }
+    var ar = arousalLevel(t);
+    // ---- 脳波 ----
+    var al = src.al(), be = src.be(), th = src.th(); S.deS += (src.de() - S.deS) * 0.16; var de = S.deS * 1.25;
+    var wA = Math.min(1, m.W + ar * 0.9), wane = 0.65 + 0.35 * Math.sin(2 * Math.PI * t / 6.3);
+    var thA = m.N1 * 1 + m.N2 * 0.8 + m.N3 * 0.3 + m.R * 0.75, deA = m.N3 * 1.15 + m.N2 * 0.22 + m.N1 * 0.06;
+    var trv = { F4: 0, C4: 0, O2: 0 }, eyeH = 0, eyeV = 0, chinA = 0, legL = 0, legR = 0, movA = 0;
+    for (var ti = 0; ti < S.tr.length; ti++) {
+      var o = S.tr[ti]; if (t < o.t0 || t >= o.t1) continue; var u = t - o.t0, d = o.t1 - o.t0;
+      if (o.type === 'sp') { var env = Math.pow(Math.sin(Math.PI * u / d), 2) * o.a, w = Math.sin(2 * Math.PI * 13 * u); trv.F4 += REG.F4.sp * env * w; trv.C4 += REG.C4.sp * env * w; trv.O2 += REG.O2.sp * env * w; }
+      else if (o.type === 'k') { var kv = (gauss(u, 0.16, 0.07) - 0.85 * gauss(u, 0.52, 0.17)) * o.a; trv.F4 += REG.F4.k * kv; trv.C4 += REG.C4.k * kv; trv.O2 += REG.O2.k * kv; }
+      else if (o.type === 'v') { var vv = (gauss(u, 0.12, 0.04) - 0.4 * gauss(u, 0.27, 0.06)) * o.a; trv.F4 += REG.F4.v * vv; trv.C4 += REG.C4.v * vv; trv.O2 += REG.O2.v * vv; }
+      else if (o.type === 'saw') { var ph = (u * 2.8) % 1, tri = ph < 0.75 ? ph / 0.75 : (1 - ph) / 0.25, se = Math.sin(Math.PI * u / d); var sv = (tri - 0.5) * 2 * se; trv.F4 += REG.F4.st * sv; trv.C4 += REG.C4.st * sv; trv.O2 += REG.O2.st * sv; }
+      else if (o.type === 'sac') { eyeH += o.a * Math.min(u / 0.05, 1) * Math.exp(-Math.max(0, u - 0.05) / 0.45); }
+      else if (o.type === 'blink') { eyeV += 170 * o.a * gauss(u, 0.15, 0.07); }
+      else if (o.type === 'twitch') { chinA += 22 * o.a * Math.sin(Math.PI * u / d); }
+      else if (o.type === 'leg') { var le = 40 * o.a * (u < 0.15 ? u / 0.15 : u > d - 0.2 ? (d - u) / 0.2 : 1); if (o.side === 'L') legL += le; else legR += le; }
+      else if (o.type === 'mov') { movA = Math.max(movA, Math.sin(Math.PI * u / d)); }
+    }
+    // 入眠期のゆっくりした目の動き（N1 で強い）
+    S.eye.semPh += 2 * Math.PI * (0.22 + 0.12 * Math.sin(t * 0.11)) * dt; S.eye.semA += ((m.N1 * 1 + m.W * 0.15) * 70 - S.eye.semA) * dt / 3;
+    eyeH += S.eye.semA * Math.sin(S.eye.semPh) * (0.7 + 0.3 * Math.sin(t * 0.37));
+    var movN = movA ? src.mov() * 140 * movA + randn() * 40 * movA : 0;
+    var out = {};
+    ['F4', 'C4', 'O2'].forEach(function (r, ri) {
+      var R = REG[r];
+      out[r] = R.al * wA * wane * al + R.be * (0.5 + wA) * be + R.th * thA * th + R.de * deA * de + 1.5 * src.ind[ri]() + trv[r] + movN;
+    });
+    // 目の線：目の動きは E1 と E2 で逆向き、前頭の脳波は同じ向きに写る
+    var contam = 0.45 * (REG.F4.de * deA * de + trv.F4 * 0.8);
+    out.E1 = eyeH - 0.35 * eyeV + contam + 4 * randn() * 0.3 + movN * 1.2;
+    out.E2 = -eyeH + eyeV + contam + 4 * randn() * 0.3 + movN * 1.2;
+    // あごの筋電図：覚醒で高く、レムで最も低い（RBD ではレムでも高い）
+    var chinBase = m.W * 16 + m.N1 * 11 + m.N2 * 8.5 + m.N3 * 7.5 + m.R * (p.rbd ? 9 : 1.5) + ar * 14;
+    out.CHIN = (chinBase + chinA + movA * 60) * src.emg() * 0.6;
+    out.LL = (2 + legL + movA * 25) * src.legn() * 0.7; out.RL = (2 + legR + movA * 25) * src.legn() * 0.7;
+    // ---- 呼吸 ----
+    var r = S.resp, tFlow = 1, tEff = 1, tPar = 0, tLim = 0, tSn = p.snore * (sleeping() ? 1 : 0) * (1 - m.N3 * 0.4), rateT = S.stage === 'W' ? 15 : S.stage === 'R' ? 15 + 2.5 * Math.sin(t * 0.21) : 13.5;
+    if (r) {
+      var pr = (t - r.t0) / (r.t1 - r.t0);
+      if (r.type === 'obs') { tFlow = 0.04; tEff = 1 + 0.6 * pr; tPar = 2.6; tSn = 0; }
+      else if (r.type === 'cen') { tFlow = 0.03; tEff = 0.04; tSn = 0; }
+      else if (r.type === 'hyp') { tFlow = 0.42; tEff = 0.75; tLim = 1; tPar = 0.6; tSn = Math.max(tSn, 0.5); }
+      else if (r.type === 'rec') { tFlow = 1.7; tEff = 1.6; rateT += 5; tSn = r.from === 'cen' ? 0.1 : Math.max(1.4, tSn * 2); }
+      if (t >= r.t1) { if (r.type === 'rec') S.resp = null; else endResp(t); }
+    }
+    S.rate += (rateT - S.rate) * dt / 3;
+    S.ph += 2 * Math.PI * S.rate / 60 * dt;
+    var tauF = tFlow < S.flow ? 0.7 : 0.5;
+    S.flow += (tFlow - S.flow) * dt / tauF; S.eff += (tEff - S.eff) * dt / 1.2; S.par += (tPar - S.par) * dt / 2.5; S.lim += (tLim - S.lim) * dt / 1.5; S.snore += (tSn - S.snore) * dt / 0.8;
+    var sb = Math.sin(S.ph);
+    var npShape = sb > 0 ? Math.min(sb, 1 - 0.55 * S.lim) : sb;
+    var thermal = S.flow < 0.5 ? S.flow * 1.25 : 0.3 + S.flow * 0.7;   // 温度の気流センサーは低呼吸では下がりにくい
+    out.FLOW = thermal * sb * 0.9 + 0.02 * randn() + movN * 0.004;
+    out.NP = S.flow * npShape + 0.02 * randn() + movN * 0.004;
+    out.THO = S.eff * sb + movN * 0.006;
+    out.ABD = S.eff * 1.1 * Math.sin(S.ph - S.par) + movN * 0.006;
+    out.SNORE = S.snore * Math.max(0, sb) * src.sn() * 0.5;
+    // SpO2：換気が足りないと体の中で下がり、指先の値は約18秒遅れて出る
+    var deficit = 1 - Math.min(S.flow, S.eff * 1.5);
+    if (deficit > 0.3) S.sat -= deficit * 0.36 * dt; else S.sat += (p.spo2 - S.sat) * 0.13 * dt;
+    S.sat = clamp(S.sat, 70, 100);
+    S.satBuf[i % BUF] = S.sat;
+    var lagI = i - 18 * FS, satShown = lagI >= 0 ? S.satBuf[lagI % BUF] : p.spo2;
+    out.SPO2 = Math.floor(satShown + 0.5);
+    if (r && r.type !== 'rec' && satShown < (S.resp.minSat || 100)) S.resp.minSat = satShown;
+    if (sleeping() && out.SPO2 < S.minSat) S.minSat = out.SPO2;
+    // ---- 心電図：無呼吸中はやや遅く、覚醒で速く ----
+    var hrT = { W: 72, N1: 66, N2: 61, N3: 58, R: 67 }[S.stage] + ar * 18 - (r && (r.type === 'obs' || r.type === 'cen') ? 7 : 0) + (S.stage === 'R' ? 4 * Math.sin(t * 0.13) : 0);
+    S.hr += (hrT - S.hr) * dt / 2;
+    if (t >= S.hb.next) { S.hb.last = S.hb.next; S.hb.next = t + 60 / S.hr; }
+    var tr = t - S.hb.last, tn = S.hb.next - t;
+    out.ECG = 1000 * gauss(tr, 0, 0.011) - 180 * gauss(tr, 0.028, 0.012) - 120 * gauss(tr, -0.022, 0.01) + 240 * gauss(tr, 0.26, 0.05) + 110 * gauss(tn, 0.16, 0.03) + 10 * randn() * 0.3 + movN * 0.5;
+    // 書きこむ
+    var bi = i % BUF;
+    for (var c = 0; c < CH.length; c++) CH[c].buf[bi] = out[CH[c].k];
+    STAGE_BUF[bi] = STG_I[S.stage];
+    // 30秒ごとの段階（その区切りでいちばん多かった段階）
+    S.epCount[STG_I[S.stage]]++;
+    if ((i + 1) % (30 * FS) === 0) { var best = 0; for (var e = 1; e < 5; e++) if (S.epCount[e] > S.epCount[best]) best = e; S.epochs.push(best); S.epCount = [0, 0, 0, 0, 0]; if (best !== 0) S.sleepSec += 30; }
+    S.wi++;
+  }
+
+  /* ====================== 描く ====================== */
+  var V = { win: 30, grp: 'all', speed: 1, paused: false, marks: true };
+  var trCv = document.getElementById('trCv'), hypCv = document.getElementById('hypCv');
+  function fitCanvas(cv) { var r = cv.getBoundingClientRect(), dpr = Math.min(2, window.devicePixelRatio || 1); var w = Math.max(10, Math.round(r.width * dpr)), h = Math.max(10, Math.round(r.height * dpr)); if (cv.width !== w || cv.height !== h) { cv.width = w; cv.height = h; } return { w: r.width, h: r.height, dpr: dpr }; }
+  function visibleCh() { return CH.filter(function (c) { return V.grp === 'all' || c.grp === V.grp || c.grp === 'both'; }); }
+
+  function drawTrace() {
+    var f = fitCanvas(trCv), ctx = trCv.getContext('2d'), W = f.w, H = f.h;
+    ctx.setTransform(f.dpr, 0, 0, f.dpr, 0, 0); ctx.clearRect(0, 0, W, H);
+    var LW = W < 560 ? 62 : 88, top = 18, plotW = W - LW - 6, chs = visibleCh();
+    var tot = chs.reduce(function (a, c) { return a + c.h; }, 0), unit = (H - top - 4) / tot;
+    var tEnd = S.wi / FS, tStart = tEnd - V.win, pxPerS = plotW / V.win;
+    var ink = css('--trace'), grid = css('--grid'), grid2 = css('--grid2'), muted = css('--muted'), mark = css('--mark'), ann = css('--ann');
+    var colOf = { eog: css('--accent'), resp: css('--resp'), leg: css('--leg') };
+    // 行の位置
+    var y = top, rows = {};
+    chs.forEach(function (c) { var hh = c.h * unit; rows[c.k] = { y0: y, y1: y + hh, mid: y + hh / 2, hh: hh }; y += hh; });
+    // 目印（黄色い帯）
+    if (V.marks || true) {
+      S.ann.forEach(function (a) {
+        if (a.t1 < tStart || a.t0 > tEnd) return; if (a.kind === 'micro' && (!V.marks || V.win > 30)) return;
+        if (a.kind === 'event' && !V.marks) return;
+        var x0 = LW + Math.max(0, a.t0 - tStart) * pxPerS, x1 = LW + Math.min(V.win, a.t1 - tStart) * pxPerS; if (x1 - x0 < 1) return;
+        ctx.fillStyle = color(mark, a.kind === 'event' ? 0.26 : 0.22);
+        var any = false, ly = 1e9;
+        a.chs.forEach(function (k) { var rw = rows[k]; if (!rw) return; any = true; ctx.fillRect(x0, rw.y0 + 1, x1 - x0, rw.hh - 2); if (rw.y0 < ly) ly = rw.y0; });
+        if (any && (x1 - x0 > ctx.measureText(a.label).width * 0.9 || V.win === 30)) { ctx.fillStyle = ann; ctx.font = '700 11px ' + css('--f-body'); var tx = Math.max(LW + 2, Math.min(x0 + 3, W - 8 - ctx.measureText(a.label).width)); ctx.fillText(a.label, tx, ly + 11); }
+      });
+    }
+    // 方眼：30秒表示は1秒ごと、2分・5分は10秒ごと。30秒の区切りは太く
+    ctx.font = '700 12px ' + css('--f-body'); var stLab = '本当の段階：' + STG_NAME[S.stage], stW = ctx.measureText(stLab).width;
+    ctx.fillStyle = css('--sheet'); ctx.fillRect(W - stW - 14, 0, stW + 14, 15); ctx.fillStyle = css('--accent'); ctx.fillText(stLab, W - stW - 8, 12);
+    var minor = V.win === 30 ? 1 : 10;
+    for (var s = Math.ceil(tStart / minor) * minor; s <= tEnd; s += minor) {
+      var x = LW + (s - tStart) * pxPerS, isEp = Math.abs(s % 30) < 1e-6;
+      ctx.strokeStyle = isEp ? grid2 : grid; ctx.lineWidth = isEp ? 1.4 : 1;
+      ctx.beginPath(); ctx.moveTo(x + 0.5, top - 2); ctx.lineTo(x + 0.5, H - 2); ctx.stroke();
+      if ((isEp || (V.win === 30 && s % 5 === 0)) && x < W - stW - 70) { ctx.fillStyle = muted; ctx.font = '10px ' + css('--f-mono'); ctx.fillText(clock(s), x + 3, 11); }
+    }
+    // 線
+    var n = Math.round(V.win * FS), i0 = S.wi - n;
+    chs.forEach(function (c) {
+      var rw = rows[c.k];
+      ctx.fillStyle = muted; ctx.font = (W < 560 ? '10px ' : '11px ') + css('--f-mono'); ctx.textBaseline = 'middle';
+      ctx.fillText(c.n, 4, rw.mid); ctx.textBaseline = 'alphabetic';
+      ctx.strokeStyle = c.col ? colOf[c.col] : ink; ctx.lineWidth = 1;
+      if (c.spo2) { drawSpo2(ctx, c, rw, LW, plotW, i0, n); return; }
+      var g = (rw.hh / 2) * 0.95 / c.sc, lim = rw.hh * 0.62;
+      ctx.beginPath();
+      var spp = n / plotW;
+      if (spp <= 2) {
+        for (var k = 0; k < n; k++) { var ii = i0 + k; if (ii < 0) continue; var v = c.buf[ii % BUF]; var yy = rw.mid - clamp(v * g, -lim, lim); var xx = LW + k / FS * pxPerS; if (k === 0 || ii === 0) ctx.moveTo(xx, yy); else ctx.lineTo(xx, yy); }
+      } else {
+        // 点が多いときは、1画素ごとの最大・最小を縦線で描く
+        for (var px = 0; px < plotW; px++) {
+          var a0 = Math.floor(px * spp), a1 = Math.floor((px + 1) * spp), mn = 1e9, mx = -1e9;
+          for (var q = a0; q < a1; q++) { var j = i0 + q; if (j < 0) continue; var w = c.buf[j % BUF]; if (w < mn) mn = w; if (w > mx) mx = w; }
+          if (mn > mx) continue;
+          ctx.moveTo(LW + px + 0.5, rw.mid - clamp(mx * g, -lim, lim)); ctx.lineTo(LW + px + 0.5, rw.mid - clamp(mn * g, -lim, lim) + 0.6);
+        }
+      }
+      ctx.stroke();
+    });
+    // 30秒表示：今の区切りの段階（本当の段階）
+
+  }
+  function drawSpo2(ctx, c, rw, LW, plotW, i0, n) {
+    var lo = 80, hi = 100, yOf = function (v) { return rw.y1 - 4 - (clamp(v, lo, hi) - lo) / (hi - lo) * (rw.hh - 8); };
+    ctx.strokeStyle = css('--grid2'); ctx.setLineDash([3, 3]);
+    [90].forEach(function (v) { ctx.beginPath(); ctx.moveTo(LW, yOf(v)); ctx.lineTo(LW + plotW, yOf(v)); ctx.stroke(); });
+    ctx.setLineDash([]); ctx.fillStyle = css('--muted'); ctx.font = '9px ' + css('--f-mono'); ctx.fillText('90%', LW + plotW - 26, yOf(90) - 2);
+    ctx.strokeStyle = css('--hot'); ctx.lineWidth = 1.6; ctx.beginPath();
+    var step = Math.max(1, Math.floor(n / plotW));
+    for (var k = 0; k < n; k += step) { var ii = i0 + k; if (ii < 0) continue; var x = LW + k / n * plotW, y = yOf(c.buf[ii % BUF]); if (k === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y); }
+    ctx.stroke(); ctx.lineWidth = 1;
+    var last = c.buf[(S.wi - 1 + BUF) % BUF]; ctx.fillStyle = css('--hot'); ctx.font = '700 12px ' + css('--f-mono'); ctx.fillText(Math.round(last) + '%', LW + 4, rw.y0 + 13);
+  }
+  function color(c, a) { if (c.charAt(0) === '#') { var h = c.slice(1); if (h.length === 3) h = h.replace(/./g, '$&$&'); var n = parseInt(h, 16); return 'rgba(' + (n >> 16 & 255) + ',' + (n >> 8 & 255) + ',' + (n & 255) + ',' + a + ')'; } return c; }
+
+  // 睡眠図：W が上、その下に R、N1、N2、N3。レムは赤い太線
+  function drawHyp() {
+    var f = fitCanvas(hypCv), ctx = hypCv.getContext('2d'), W = f.w, H = f.h;
+    ctx.setTransform(f.dpr, 0, 0, f.dpr, 0, 0); ctx.clearRect(0, 0, W, H);
+    var LW = 36, ep = S.epochs.slice(), cur = Math.floor(S.wi / FS / 30);
+    var nE = Math.max(60, cur + 1), x = function (e) { return LW + e / nE * (W - LW - 6); };
+    var levels = [0, 4, 1, 2, 3], yOfI = {}; var rowH = (H - 26) / 4.5;
+    levels.forEach(function (s, k) { yOfI[s] = 8 + k * rowH; });
+    ctx.font = '10px ' + css('--f-mono'); ctx.fillStyle = css('--muted');
+    ['W', 'R', 'N1', 'N2', 'N3'].forEach(function (nm, k) { ctx.fillText(nm, 6, 8 + k * rowH + 3); ctx.strokeStyle = css('--grid'); ctx.beginPath(); ctx.moveTo(LW, 8 + k * rowH); ctx.lineTo(W - 6, 8 + k * rowH); ctx.stroke(); });
+    ep.push(STG_I[S.stage]);
+    ctx.strokeStyle = css('--trace'); ctx.lineWidth = 1.4; ctx.beginPath();
+    for (var e = 0; e < ep.length; e++) { var yy = yOfI[ep[e]]; if (e === 0) ctx.moveTo(x(e), yy); else ctx.lineTo(x(e), yy); ctx.lineTo(x(e + 1), yy); }
+    ctx.stroke();
+    ctx.strokeStyle = css('--rem'); ctx.lineWidth = 4;
+    for (var e2 = 0; e2 < ep.length; e2++) if (ep[e2] === 4) { ctx.beginPath(); ctx.moveTo(x(e2), yOfI[4]); ctx.lineTo(x(e2 + 1), yOfI[4]); ctx.stroke(); }
+    ctx.lineWidth = 1;
+    // できごとの印
+    var yEv = H - 12;
+    S.evs.forEach(function (v) { var xx = x(v.t / 30); ctx.strokeStyle = v.type === 'plm' ? css('--leg') : v.type === 'aro' ? css('--muted') : v.type === 'rbd' ? css('--rem') : css('--resp'); ctx.beginPath(); ctx.moveTo(xx, v.type === 'aro' ? yEv + 4 : yEv - 5); ctx.lineTo(xx, yEv + 6); ctx.stroke(); });
+    // 今の位置（画面に出ている範囲）
+    ctx.fillStyle = color(css('--mark'), 0.35); var xa = x(Math.max(0, (S.wi / FS - V.win) / 30)), xb = x(S.wi / FS / 30); ctx.fillRect(xa, 4, Math.max(2, xb - xa), H - 10);
+    ctx.fillStyle = css('--muted'); ctx.font = '9px ' + css('--f-mono'); ctx.fillText(clock(0).slice(0, -3), LW, H - 1); var endT = nE * 30; var lab = clock(endT).slice(0, -3); ctx.fillText(lab, W - 6 - ctx.measureText(lab).width, H - 1);
+    // まとめの数字
+    var sh = S.sleepSec / 3600, n = { obs: 0, cen: 0, hyp: 0, plm: 0 };
+    S.evs.forEach(function (v) { if (n[v.type] !== undefined) n[v.type]++; });
+    var ahi = sh > 0.05 ? ((n.obs + n.cen + n.hyp) / sh) : 0, plmi = sh > 0.05 ? n.plm / sh : 0;
+    document.getElementById('hypStat').textContent = '睡眠 ' + hm(S.sleepSec) + '　AHI ' + (sh > 0.05 ? ahi.toFixed(0) : '–') + '　最低SpO2 ' + (S.minSat < 100 ? S.minSat + '%' : '–') + '　PLM指数 ' + (sh > 0.05 ? plmi.toFixed(0) : '–');
+  }
+
+  /* ====================== 人の絵 ====================== */
+  function drawPerson() {
+    var t = S.wi / FS, bi = (S.wi - 1 + BUF) % BUF;
+    var tho = CH[CI.THO].buf[bi], ll = Math.abs(CH[CI.LL].buf[bi]), lr = Math.abs(CH[CI.RL].buf[bi]);
+    document.getElementById('ptBody').setAttribute('transform', 'translate(0 ' + (-tho * 1.6).toFixed(2) + ')');
+    var legOn = function (id, v) { document.getElementById(id).style.transform = v > 14 ? 'rotate(-14deg)' : ''; };
+    legOn('ptLegL', ll); legOn('ptLegR', lr);
+    var mv = S.tr.some(function (o) { return o.type === 'mov' && t >= o.t0 && t < o.t1; });
+    document.getElementById('ptArm').style.transform = mv ? 'rotate(' + (Math.sin(t * 9) * 30 - 20).toFixed(0) + 'deg)' : '';
+    var awake = S.stage === 'W' && S.mix.W > 0.6;
+    document.getElementById('ptEyeO').hidden = !awake; document.getElementById('ptEyeC').hidden = awake;
+    var say = '';
+    if (S.say && t < S.say.t1) say = S.say.txt;
+    else if (S.resp && (S.resp.type === 'obs' || S.resp.type === 'cen')) say = S.resp.type === 'obs' ? '……（息が止まる）' : '……';
+    else if (S.snore > 0.25) say = Math.sin(S.ph) > 0 ? (S.snore > 1 ? 'ガーッ！' : 'ぐー') : '';
+    else if (!awake) say = 'z z';
+    document.getElementById('ptSay').textContent = say;
+    document.getElementById('ptMouth').setAttribute('ry', S.snore > 0.25 && Math.sin(S.ph) > 0 ? 2.4 : 1);
+    var p = S.p;
+    document.getElementById('nowLine').innerHTML = clock(t) + '　<b>' + S.stage + '</b>' + (S.auto ? '　一晩の流れ' : '');
+  }
+
+  /* ====================== 説明 ====================== */
+  var STG_EX = {
+    W: { h: '覚醒（W）', li: ['<span class="ch">O2</span> に α波（8〜13Hz）。目を閉じているとき', 'まばたき・速い目の動き（<span class="ch">E1</span>・<span class="ch">E2</span> が逆向き）', 'あごの筋電図は高め'] },
+    N1: { h: 'N1（うとうと）', li: ['α波が消えて、θ波（4〜7Hz）の低い波に', 'ゆっくりした目の動き（<span class="ch">E1</span>・<span class="ch">E2</span> が逆向きにゆっくり）', '頭蓋頂鋭波（<span class="ch">C4</span> のとがった波）'] },
+    N2: { h: 'N2（浅い睡眠）', li: ['紡錘波（12〜14Hz の波の束。<span class="ch">C4</span> で目立つ）', 'K複合（大きく上に振れてから下に振れる波。<span class="ch">F4</span> で大きい）', '目はほとんど動かない'] },
+    N3: { h: 'N3（深い睡眠）', li: ['0.5〜2Hz・75µV 以上の大きな徐波が、30秒の20％以上', '<span class="ch">F4</span>（前頭）でいちばん大きい', '<span class="ch">E1</span>・<span class="ch">E2</span> にも同じ向きで写る（目の動きではなく、脳波の混入）'] },
+    R: { h: 'レム睡眠（R）', li: ['低い振幅の混ざった波。鋸歯状波（<span class="ch">C4</span> のギザギザ）', '急速眼球運動（<span class="ch">E1</span>・<span class="ch">E2</span> が逆向きに鋭く）', 'あごの筋電図がいちばん低い（体の力が抜ける）', '呼吸と心拍が不規則'] }
+  };
+  var EV_EX = {
+    obs: '<b>閉塞性無呼吸</b>：のどがふさがり、<span class="ch">気流</span>が90％以上下がって10秒以上続く。でも<span class="ch">胸</span>と<span class="ch">腹</span>は動き続け、だんだん強く、逆向き（奇異呼吸）になる。終わりに覚醒反応と大きないびき。<span class="ch">SpO2</span> は20秒ほど遅れて下がる。',
+    cen: '<b>中枢性無呼吸</b>：脳からの「息をしろ」が止まる。<span class="ch">気流</span>も<span class="ch">胸</span>・<span class="ch">腹</span>もいっしょに平らになるのが、閉塞性との違い。オピオイド・心不全・高い場所などで増える。',
+    hyp: '<b>低呼吸</b>：<span class="ch">鼻圧</span>の振れが30％以上下がって10秒以上、そのうえ <span class="ch">SpO2</span> が3％以上下がるか覚醒反応。鼻圧の山の頭が平らになる（気流制限）。温度の気流センサーは下がりにくい。',
+    aro: '<b>覚醒反応</b>：10秒以上眠ったあと、脳波が3秒以上急に速くなる（α波・速い波）。レムでは、あごの筋電図も上がることが必要。',
+    plm: '<b>脚の動き（PLM）</b>：脚の筋電図が0.5〜10秒、4回以上続けて5〜90秒おきに出たら周期性四肢運動。1時間あたりの回数（PLM指数）が15を超えると多い。',
+    mov: '<b>寝返り・体動</b>：全部の線に大きな乱れ。脳波は読めないので、その区切りは前後から判断する。',
+    rbd: '<b>夢の行動化</b>：レム睡眠なのに、あごや脚の筋電図が高い（筋の脱力がない＝RWA）。夢の内容に合わせて体が動く。レビー小体型認知症やパーキンソン病の前ぶれのことがある。'
+  };
+  function showEx(evKey) {
+    if (evKey) S.lastEv = evKey;
+    var e = STG_EX[S.stage], h = '<h3>いまの段階：' + e.h + '</h3><ul>' + e.li.map(function (x) { return '<li>' + x + '</li>'; }).join('') + '</ul>';
+    if (S.lastEv && EV_EX[S.lastEv]) h += '<p class="ev">' + EV_EX[S.lastEv] + '</p>';
+    if (!lsGet('psg-tried')) h += '<p class="hint">まず「N2」を押して、紡錘波と K 複合を探してみてください。次に「閉塞性無呼吸」。</p>';
+    document.getElementById('exBox').innerHTML = h;
+  }
+  var lastExStage = '';
+
+  /* ====================== 操作 ====================== */
+  function setSeg(id, attr, val) { document.querySelectorAll('#' + id + ' button').forEach(function (b) { b.setAttribute('aria-pressed', String(b.getAttribute(attr) === String(val))); }); }
+  function syncCtl() {
+    setSeg('winSeg', 'data-w', V.win); setSeg('grpSeg', 'data-g', V.grp); setSeg('spdSeg', 'data-s', V.speed); setSeg('stgSeg', 'data-st', S.auto ? '' : S.stage);
+    document.getElementById('autoBtn').setAttribute('aria-pressed', String(S.auto));
+    document.getElementById('pauseBtn').setAttribute('aria-pressed', String(V.paused)); document.getElementById('pauseBtn').textContent = V.paused ? '再生' : '一時停止';
+    document.getElementById('markBtn').setAttribute('aria-pressed', String(V.marks));
+    document.getElementById('rbdBtn').hidden = !S.p.rbd;
+    document.getElementById('ptName').textContent = S.p.n; document.getElementById('ptDesc').textContent = S.p.d;
+  }
+  document.getElementById('winSeg').addEventListener('click', function (e) { var b = e.target.closest('button'); if (!b) return; V.win = +b.getAttribute('data-w'); syncCtl(); });
+  document.getElementById('grpSeg').addEventListener('click', function (e) { var b = e.target.closest('button'); if (!b) return; V.grp = b.getAttribute('data-g'); syncCtl(); });
+  document.getElementById('spdSeg').addEventListener('click', function (e) { var b = e.target.closest('button'); if (!b) return; V.speed = +b.getAttribute('data-s'); syncCtl(); });
+  document.getElementById('pauseBtn').addEventListener('click', function () { V.paused = !V.paused; syncCtl(); });
+  document.getElementById('markBtn').addEventListener('click', function () { V.marks = !V.marks; syncCtl(); });
+  document.getElementById('stgSeg').addEventListener('click', function (e) {
+    var b = e.target.closest('button'); if (!b) return; S.auto = false; setStageRaw(b.getAttribute('data-st'));
+    if (S.stage === 'W' && S.resp && S.resp.type !== 'rec') S.resp.t1 = S.wi / FS;
+    lsSet('psg-tried', '1'); syncCtl(); showEx();
+  });
+  document.getElementById('autoBtn').addEventListener('click', function () {
+    S.auto = !S.auto;
+    if (S.auto) { S.autoOff = S.wi / FS; if (V.speed < 10) V.speed = 60; if (V.win < 120) V.win = 300; toast('一晩の流れにまかせました。60倍の速さで、約8分で一晩が流れます。上の睡眠図に注目。'); }
+    syncCtl();
+  });
+  document.getElementById('personSel').innerHTML = Object.keys(PERSONS).map(function (k) { return '<option value="' + k + '">' + PERSONS[k].n + '</option>'; }).join('');
+  document.getElementById('personSel').addEventListener('change', function () { reset(this.value); LATER = []; syncCtl(); showEx(); });
+  document.getElementById('resetBtn').addEventListener('click', function () { reset(S.pk); LATER = []; V.speed = 1; V.win = 30; syncCtl(); showEx(); });
+  document.querySelectorAll('[data-ev]').forEach(function (b) {
+    b.addEventListener('click', function () {
+      var ev = b.getAttribute('data-ev'); lsSet('psg-tried', '1');
+      b.classList.remove('flash'); void b.offsetWidth; b.classList.add('flash');
+      if ((ev === 'obs' || ev === 'cen' || ev === 'hyp') ) {
+        if (!sleeping()) { S.auto = false; setStageRaw('N2'); toast('無呼吸・低呼吸は、眠っているときに数えます。先に N2 にしました。'); }
+        if (S.resp && S.resp.type !== 'rec') { toast('いまの呼吸のできごとが終わるまで待ってください。'); return; }
+        startResp(ev, ev === 'hyp' ? 22 : 24);
+        if (V.win === 30 && V.grp !== 'neuro') toast('呼吸は「2分」表示のほうが、始まりから終わりまで見えます。');
+      } else if (ev === 'aro') { startArousal(5, '覚醒反応'); showEx('aro'); }
+      else if (ev === 'plm') { if (!sleeping()) { S.auto = false; setStageRaw('N2'); } var k = 0; (function nx() { plmOne(false); k++; if (k < 4) setTimeout0(nx, 18 + rnd() * 10); })(); showEx('plm'); toast('脚のピクつきを、約20秒おきに4回起こします。'); }
+      else if (ev === 'mov') { var t = S.wi / FS; addTr('mov', 2.5, 1); addAnn(t, t + 2.5, ['F4', 'C4', 'O2', 'E1', 'E2', 'CHIN'], '体動', 'event'); showEx('mov'); }
+      else if (ev === 'rbd') { if (S.stage !== 'R') { S.auto = false; setStageRaw('R'); } rbdEpisode(); showEx('rbd'); }
+      syncCtl();
+    });
+  });
+
+  /* ====================== 回す ====================== */
+  var lastT = 0, accum = 0;
+  function frame(ts) {
+    requestAnimationFrame(frame);
+    var dt = lastT ? Math.min(0.1, (ts - lastT) / 1000) : 0; lastT = ts;
+    if (document.body.dataset.mode === 'lab') {
+      if (!V.paused) { accum += dt * V.speed * FS; var n = Math.floor(accum); accum -= n; for (var i = 0; i < n; i++) step(); }
+      drawTrace(); drawHyp(); drawPerson();
+      if (S.stage !== lastExStage) { lastExStage = S.stage; showEx(); syncCtl(); }
+    } else if (document.body.dataset.mode === 'home') { heroStep(dt); }
+  }
+
+  /* ====================== ホームの見本（閉塞性無呼吸が流れる） ====================== */
+  var HERO = null;
+  function heroStep(dt) {
+    var cv = document.getElementById('heroCv'); if (!cv) return;
+    if (!HERO) HERO = { t: 0 };
+    HERO.t += dt;
+    var f = fitCanvas(cv), ctx = cv.getContext('2d'), W = f.w, H = f.h; ctx.setTransform(f.dpr, 0, 0, f.dpr, 0, 0); ctx.clearRect(0, 0, W, H);
+    var rows = [['気流', css('--resp')], ['胸', css('--resp')], ['腹', css('--resp')], ['SpO2', css('--hot')]], LW = 52, rh = (H - 16) / 4, span = 90, t0 = HERO.t - span;
+    // 60秒周期：25秒の無呼吸 → 回復
+    function ph(t) { var c = ((t % 60) + 60) % 60; return c; }
+    rows.forEach(function (r, k) {
+      var mid = 10 + k * rh + rh / 2; ctx.fillStyle = css('--muted'); ctx.font = '11px ' + css('--f-mono'); ctx.fillText(r[0], 6, mid + 4);
+      ctx.strokeStyle = r[1]; ctx.lineWidth = k === 3 ? 1.8 : 1.2; ctx.beginPath();
+      for (var x = 0; x < W - LW - 6; x++) {
+        var t = t0 + x / (W - LW - 6) * span, c = ph(t), ap = c > 20 && c < 45, rec = c >= 45 && c < 53, br = Math.sin(t * 2 * Math.PI / 4.2), v;
+        if (k === 0) v = (ap ? 0.04 : rec ? 1.6 : 1) * br;
+        else if (k === 1) v = (ap ? 1 + (c - 20) / 25 * 0.6 : rec ? 1.5 : 1) * br;
+        else if (k === 2) v = (ap ? -(1 + (c - 20) / 25 * 0.6) : rec ? 1.5 : 1) * Math.sin(t * 2 * Math.PI / 4.2 - (ap ? 0.4 : 0));
+        else { var cd = ph(t - 18); v = cd > 20 && cd < 45 ? 1 - (cd - 20) / 25 * 2.2 : cd >= 45 && cd < 58 ? -1.2 + (cd - 45) / 13 * 2.2 : 1; v = v * 0.6; }
+        var y = mid - v * rh * 0.32; if (x === 0) ctx.moveTo(LW + x, y); else ctx.lineTo(LW + x, y);
+      }
+      ctx.stroke();
+    });
+    // 無呼吸の帯
+    ctx.fillStyle = color(css('--mark'), 0.25);
+    for (var a = Math.floor(t0 / 60) * 60; a < HERO.t; a += 60) { var xa = LW + (a + 20 - t0) / span * (W - LW - 6), xb = LW + (a + 45 - t0) / span * (W - LW - 6); if (xb > LW && xa < W) { ctx.fillRect(Math.max(LW, xa), 6, Math.min(W - 6, xb) - Math.max(LW, xa), rh * 3); ctx.fillStyle = css('--ann'); ctx.font = '700 11px ' + css('--f-body'); if (xa > LW) ctx.fillText('閉塞性無呼吸：気流は止まり、胸と腹は逆向き', xa + 4, 18); ctx.fillStyle = color(css('--mark'), 0.25); } }
+  }
+
+  /* ====================== 画面の切りかえ ====================== */
+  function fitDesk() { var d = document.getElementById('desk'); if (!d || document.body.dataset.mode !== 'lab') return; var top = d.getBoundingClientRect().top + window.scrollY; d.style.setProperty('--deskH', Math.max(420, window.innerHeight - top - 10) + 'px'); }
+  function setMode() {
+    var m = location.hash === '#lab' ? 'lab' : 'home';
+    document.body.dataset.mode = m;
+    document.getElementById('home').hidden = m !== 'home'; document.getElementById('lab').hidden = m !== 'lab';
+    if (m === 'lab') { fitDesk(); syncCtl(); showEx(); window.scrollTo(0, 0); }
+  }
+  window.addEventListener('hashchange', setMode);
+  window.addEventListener('resize', fitDesk);
+  reset('healthy');
+  setMode();
+  requestAnimationFrame(frame);
+  window.__psg = { S: function () { return S; }, V: V, step: step, reset: reset };
+})();
+</script>
+
+</body>
+</html>
