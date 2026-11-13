@@ -313,6 +313,16 @@ select{
 :is(#head,#elHead) .el:focus-visible circle{stroke:var(--accent); stroke-width:.04}
 .map-note{font-size:var(--fs-xs); color:var(--muted); text-align:center}
 .fsonly{display:none}
+/* 全画面の中から、ほかのモードへ移るボタン（スマホは下のタブがあるので出さない） */
+.fs-nav{gap:4px;flex-wrap:wrap}
+.fs-nav a.act{text-decoration:none;color:inherit;display:inline-flex;align-items:center}
+.fs-nav [aria-current="page"]{border-color:var(--accent);color:var(--accent)}
+body.phone .fs-nav{display:none!important}
+.fsnav-pop{position:fixed;z-index:60;background:var(--panel);border:2px solid var(--accent);border-radius:12px;box-shadow:0 10px 30px rgba(0,0,0,.25);padding:6px;display:grid;gap:4px;min-width:220px}
+.fsnav-pop[hidden]{display:none}
+.fsnav-pop a{display:flex;align-items:center;justify-content:space-between;gap:12px;text-decoration:none;color:var(--ink);font-weight:700;padding:9px 12px;border:1px solid var(--line);border-radius:8px;background:var(--paper);min-height:42px}
+.fsnav-pop a small{font-weight:400;color:var(--muted);font-size:var(--fs-xs)}
+.fsnav-pop a[aria-current="page"]{border-color:var(--accent)}
 /* 全画面（脳波計の前に座ったつもりで）：記録紙を画面いっぱいに、問題は左下に浮かせる */
 body.eegfs{overflow:hidden}
 body.eegfs .top,body.eegfs .appbar,body.eegfs #home,body.eegfs .primer,body.eegfs .modes,body.eegfs .mgrp-b,body.eegfs .modes-cap,body.eegfs .level,body.eegfs .foot{display:none}
@@ -527,7 +537,7 @@ body.eegfs .appbar,body.eegfs #home{display:none!important}
 @media (max-width:600px){.ab-title,.ab-lb,.ab-home span{display:none}}
 /* ホーム */
 .home{display:block}
-.hsec{min-height:62vh;display:grid;align-content:center;gap:14px;padding-block:56px;border-bottom:1px dashed var(--line)}
+.hsec{display:grid;align-content:start;gap:12px;padding-block:32px;border-bottom:1px dashed var(--line)}
 .hero{min-height:0;padding-block:20px 36px;align-content:start;gap:10px}
 .hero-go{display:flex;flex-wrap:wrap;align-items:center;gap:8px 16px;margin-top:6px}
 .hero-go-t{margin:0;font-size:var(--fs-s);color:var(--muted)}
@@ -1024,6 +1034,7 @@ body.eegfs #panel.qz-on .mihon-box,body.eegfs #panel.rp-on .mihon-box{display:no
         <button type="button" class="act" id="playBtn" hidden>一時停止</button>
         <span class="tb-item fsonly"><span class="lb">波</span><span class="seg" id="lvSeg2"><button type="button" data-lv="0">入門</button><button type="button" data-lv="1">実践</button></span></span>
         <button type="button" class="act" id="fsBtn" aria-pressed="false" data-bub="おすすめ！">全画面</button>
+        <span class="tb-item fsonly fs-nav" id="fsNav" aria-label="ほかのモードへ"><button type="button" class="act" data-fsnav="tpHon" aria-expanded="false">📖 症例 ▾</button><button type="button" class="act" data-fsnav="tpRen" aria-expanded="false">✏️ 練習 ▾</button><a class="act" href="#ichi" data-mode="ichi">📅 今日の一件</a><a class="act" href="#zukan" data-mode="zukan">🗂 図鑑</a><a class="act" href="#home" data-mode="home">⌂ ホーム</a></span>
       </div>
       <div class="trace-wrap"><canvas id="trace" role="img" aria-label="脳波の記録"></canvas><div class="shisa" id="shisa" hidden aria-hidden="true"><span class="shisa-say">ココ！</span><svg viewBox="0 0 140 136"><defs><radialGradient id="shB" cx="45%" cy="35%" r="70%"><stop offset="0" stop-color="#f6b46e"/><stop offset="1" stop-color="#c8662c"/></radialGradient><radialGradient id="shM" cx="40%" cy="35%" r="70%"><stop offset="0" stop-color="#d9773a"/><stop offset="1" stop-color="#9c4418"/></radialGradient><radialGradient id="shF" cx="50%" cy="40%" r="65%"><stop offset="0" stop-color="#ffd7a3"/><stop offset="1" stop-color="#eda15c"/></radialGradient></defs><path d="M108 98 C130 92 132 70 120 64 C112 60 106 70 114 74 C120 77 118 86 106 88 Z" fill="url(#shM)" stroke="#7d3313" stroke-width="1.4"/><circle cx="121.0" cy="66.0" r="7.0" fill="url(#shM)" stroke="#7d3313" stroke-width="1.2"/><path d="M122.0 66.0 a3.5 3.5 0 1 1 -4.2 0.1 a2.0 2.0 0 1 1 2.2 0.0" fill="none" stroke="#7d3313" stroke-width="1.3" stroke-linecap="round"/><path d="M50 96 C48 78 62 70 80 70 C100 70 112 82 110 102 C108 122 96 128 80 128 C62 128 52 116 50 96 Z" fill="url(#shB)" stroke="#7d3313" stroke-width="1.6"/><path d="M66 92 q14 10 28 0" fill="none" stroke="#a24b1d" stroke-width="2" opacity=".6"/><path d="M88 108 L90 128" stroke="url(#shB)" stroke-width="13" stroke-linecap="round"/><ellipse cx="91" cy="129" rx="9" ry="5" fill="#f3b26c" stroke="#7d3313" stroke-width="1.3"/><path d="M86 129 v-3 M91 130 v-3 M96 129 v-3" stroke="#7d3313" stroke-width="1"/><path d="M62 96 C48 92 34 88 22 84" stroke="#7d3313" stroke-width="15" stroke-linecap="round" fill="none"/><path d="M62 96 C48 92 34 88 22 84" stroke="#e98e48" stroke-width="12" stroke-linecap="round" fill="none"/><circle cx="18" cy="83" r="9" fill="#f6bd7a" stroke="#7d3313" stroke-width="1.4"/><ellipse cx="7" cy="80" rx="6.5" ry="3.2" fill="#f6bd7a" stroke="#7d3313" stroke-width="1.3" transform="rotate(-12 7 80)"/><circle cx="20" cy="86" r="2.6" fill="#e0866f"/><circle cx="70.0" cy="17.0" r="10.5" fill="url(#shM)" stroke="#7d3313" stroke-width="1.2"/><path d="M71.6 17.0 a5.2 5.2 0 1 1 -6.3 0.1 a2.9 2.9 0 1 1 3.4 0.0" fill="none" stroke="#7d3313" stroke-width="1.3" stroke-linecap="round"/><circle cx="87.5" cy="21.4" r="10.5" fill="url(#shM)" stroke="#7d3313" stroke-width="1.2"/><path d="M89.1 21.4 a5.2 5.2 0 1 1 -6.3 0.1 a2.9 2.9 0 1 1 3.4 0.0" fill="none" stroke="#7d3313" stroke-width="1.3" stroke-linecap="round"/><circle cx="100.3" cy="33.5" r="10.5" fill="url(#shM)" stroke="#7d3313" stroke-width="1.2"/><path d="M101.9 33.5 a5.2 5.2 0 1 1 -6.3 0.1 a2.9 2.9 0 1 1 3.4 0.0" fill="none" stroke="#7d3313" stroke-width="1.3" stroke-linecap="round"/><circle cx="105.0" cy="50.0" r="10.5" fill="url(#shM)" stroke="#7d3313" stroke-width="1.2"/><path d="M106.6 50.0 a5.2 5.2 0 1 1 -6.3 0.1 a2.9 2.9 0 1 1 3.4 0.0" fill="none" stroke="#7d3313" stroke-width="1.3" stroke-linecap="round"/><circle cx="100.3" cy="66.5" r="10.5" fill="url(#shM)" stroke="#7d3313" stroke-width="1.2"/><path d="M101.9 66.5 a5.2 5.2 0 1 1 -6.3 0.1 a2.9 2.9 0 1 1 3.4 0.0" fill="none" stroke="#7d3313" stroke-width="1.3" stroke-linecap="round"/><circle cx="87.5" cy="78.6" r="10.5" fill="url(#shM)" stroke="#7d3313" stroke-width="1.2"/><path d="M89.1 78.6 a5.2 5.2 0 1 1 -6.3 0.1 a2.9 2.9 0 1 1 3.4 0.0" fill="none" stroke="#7d3313" stroke-width="1.3" stroke-linecap="round"/><circle cx="70.0" cy="83.0" r="10.5" fill="url(#shM)" stroke="#7d3313" stroke-width="1.2"/><path d="M71.6 83.0 a5.2 5.2 0 1 1 -6.3 0.1 a2.9 2.9 0 1 1 3.4 0.0" fill="none" stroke="#7d3313" stroke-width="1.3" stroke-linecap="round"/><circle cx="52.5" cy="78.6" r="10.5" fill="url(#shM)" stroke="#7d3313" stroke-width="1.2"/><path d="M54.1 78.6 a5.2 5.2 0 1 1 -6.3 0.1 a2.9 2.9 0 1 1 3.4 0.0" fill="none" stroke="#7d3313" stroke-width="1.3" stroke-linecap="round"/><circle cx="39.7" cy="66.5" r="10.5" fill="url(#shM)" stroke="#7d3313" stroke-width="1.2"/><path d="M41.3 66.5 a5.2 5.2 0 1 1 -6.3 0.1 a2.9 2.9 0 1 1 3.4 0.0" fill="none" stroke="#7d3313" stroke-width="1.3" stroke-linecap="round"/><circle cx="35.0" cy="50.0" r="10.5" fill="url(#shM)" stroke="#7d3313" stroke-width="1.2"/><path d="M36.6 50.0 a5.2 5.2 0 1 1 -6.3 0.1 a2.9 2.9 0 1 1 3.4 0.0" fill="none" stroke="#7d3313" stroke-width="1.3" stroke-linecap="round"/><circle cx="39.7" cy="33.5" r="10.5" fill="url(#shM)" stroke="#7d3313" stroke-width="1.2"/><path d="M41.3 33.5 a5.2 5.2 0 1 1 -6.3 0.1 a2.9 2.9 0 1 1 3.4 0.0" fill="none" stroke="#7d3313" stroke-width="1.3" stroke-linecap="round"/><circle cx="52.5" cy="21.4" r="10.5" fill="url(#shM)" stroke="#7d3313" stroke-width="1.2"/><path d="M54.1 21.4 a5.2 5.2 0 1 1 -6.3 0.1 a2.9 2.9 0 1 1 3.4 0.0" fill="none" stroke="#7d3313" stroke-width="1.3" stroke-linecap="round"/><path d="M44 30 q-6 -14 8 -12 q4 6 0 14 Z M96 30 q6 -14 -8 -12 q-4 6 0 14 Z" fill="#c8662c" stroke="#7d3313" stroke-width="1.3"/><ellipse cx="70" cy="52" rx="27" ry="25" fill="url(#shF)" stroke="#7d3313" stroke-width="1.6"/><path d="M52 37 q4 -7 12 -3 q-5 1 -4 5" fill="none" stroke="#7d3313" stroke-width="2.6" stroke-linecap="round"/><path d="M88 37 q-4 -7 -12 -3 q5 1 4 5" fill="none" stroke="#7d3313" stroke-width="2.6" stroke-linecap="round"/><ellipse cx="60" cy="47" rx="8" ry="9" fill="#fff" stroke="#7d3313" stroke-width="1.3"/><ellipse cx="80" cy="47" rx="8" ry="9" fill="#fff" stroke="#7d3313" stroke-width="1.3"/><circle cx="57.5" cy="48.5" r="5.6" fill="#3a2111"/><circle cx="77.5" cy="48.5" r="5.6" fill="#3a2111"/><circle cx="55.6" cy="46" r="2.2" fill="#fff"/><circle cx="75.6" cy="46" r="2.2" fill="#fff"/><circle cx="59.5" cy="51" r="1" fill="#fff"/><circle cx="79.5" cy="51" r="1" fill="#fff"/><ellipse cx="70" cy="62" rx="15" ry="9" fill="#ffe2bd" opacity=".9"/><path d="M62 57 q8 -5 16 0 q-2 6 -8 6 q-6 0 -8 -6 Z" fill="#4a2412"/><ellipse cx="67" cy="57.5" rx="2.4" ry="1.3" fill="#fff" opacity=".6"/><path d="M56 64 Q70 82 84 64 Q70 70 56 64 Z" fill="#8a2420" stroke="#5a1a10" stroke-width="1.2"/><ellipse cx="70" cy="72" rx="6.5" ry="3.6" fill="#f17a86"/><path d="M59 65 l3 4 l2 -3 Z M81 65 l-3 4 l-2 -3 Z" fill="#fff"/><ellipse cx="49" cy="60" rx="4.5" ry="3" fill="#f48a7a" opacity=".55"/><ellipse cx="91" cy="60" rx="4.5" ry="3" fill="#f48a7a" opacity=".55"/></svg></div></div>
       <p class="chan-note" id="chanNote"></p>
@@ -1067,6 +1078,7 @@ body.eegfs #panel.qz-on .mihon-box,body.eegfs #panel.rp-on .mihon-box{display:no
   <div class="tb-pop" id="tpHon" hidden><a href="#story" data-mode="story">研修スタート<small>新人医師の1年</small></a><a href="#conf" data-mode="conf">脳波カンファ<small>精神科の症例</small></a><a href="#sen" data-mode="sen">専門医道場<small>てんかん専門医レベル</small></a></div>
   <div class="tb-pop" id="tpRen" hidden><a href="#elec" data-mode="elec">電極つけ練習</a><a href="#dojo" data-mode="dojo">波形道場</a><a href="#hunter" data-mode="hunter">位相逆転ハンター</a><a href="#flash" data-mode="flash">5秒チャレンジ</a><a href="#hossa" data-mode="hossa">発作当てクイズ</a><a href="#review" data-mode="review">まちがい復習</a><a href="#ichi" data-mode="ichi">今日の一件</a></div>
   <nav class="tabbar" id="tabbar" aria-label="タブ"><button type="button" data-tb="home"><i>⌂</i>ホーム</button><button type="button" data-tb="lab" class="tb-lab"><i>👆</i>触る</button><button type="button" data-tb="hon"><i>📖</i>本編</button><button type="button" data-tb="ren" class="tb-ren"><i>✏️</i>練習</button><button type="button" data-tb="zukan"><i>🗂</i>図鑑</button><button type="button" data-tb="set"><i>⚙</i>設定</button></nav>
+  <div class="fsnav-pop" id="fsNavPop" hidden></div>
   <div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
 </div>
 
@@ -4700,6 +4712,22 @@ body.eegfs #panel.qz-on .mihon-box,body.eegfs #panel.rp-on .mihon-box{display:no
     syncFs();
   }
   fsBtn.addEventListener('click', function () { setFs(!isFs()); });
+  // 全画面の中の「症例 ▾」「練習 ▾」：スマホのタブと同じ一覧を、ボタンの下に出す
+  var fsNavPop = document.getElementById('fsNavPop'), fsNavOpen = null;
+  function fsNavClose() { fsNavPop.hidden = true; if (fsNavOpen) fsNavOpen.setAttribute('aria-expanded', 'false'); fsNavOpen = null; }
+  document.getElementById('fsNav').addEventListener('click', function (e) {
+    var b = e.target.closest('[data-fsnav]'); if (!b) return;
+    if (fsNavOpen === b) { fsNavClose(); return; }
+    fsNavClose();
+    fsNavPop.innerHTML = document.getElementById(b.getAttribute('data-fsnav')).innerHTML;
+    fsNavPop.querySelectorAll('[data-mode]').forEach(function (a) { if (a.getAttribute('data-mode') === V.mode) a.setAttribute('aria-current', 'page'); else a.removeAttribute('aria-current'); });
+    fsNavPop.hidden = false; fsNavOpen = b; b.setAttribute('aria-expanded', 'true');
+    var r = b.getBoundingClientRect(), w = fsNavPop.offsetWidth;
+    fsNavPop.style.left = Math.max(8, Math.min(r.left, innerWidth - w - 8)) + 'px'; fsNavPop.style.top = (r.bottom + 6) + 'px';
+  });
+  fsNavPop.addEventListener('click', function (e) { if (e.target.closest('a')) fsNavClose(); });
+  document.addEventListener('pointerdown', function (e) { if (fsNavOpen && !fsNavPop.contains(e.target) && !e.target.closest('[data-fsnav]')) fsNavClose(); }, true);
+  window.addEventListener('hashchange', fsNavClose);
   fsPanelBtn.addEventListener('click', function () { document.body.classList.toggle('panelhide'); syncFs(); });
   // 全画面中は、標準の選択メニューの代わりにページの中のメニューを出す（iPad で全画面が解除されるのを防ぐ）
   var pickEl = null;
