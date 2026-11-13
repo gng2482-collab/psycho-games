@@ -424,14 +424,14 @@ body.stvig #panel .st-again{display:none}
 .shisa.flip svg{transform:scaleX(-1)}
 .shisa-say{position:absolute;left:-6px;top:-22px;background:#fff;border:2px solid #e0457b;color:#c02f63;font-weight:700;font-size:14px;border-radius:12px;padding:1px 8px;white-space:nowrap}
 .shisa.flip .shisa-say{left:auto;right:-6px}
-.shisa.pop{animation:shPop .55s cubic-bezier(.2,1.6,.4,1) 1}
+.shisa.shpop{animation:shPop .55s cubic-bezier(.2,1.6,.4,1) 1}
 @keyframes shPop{0%{transform:scale(0) rotate(-20deg)}100%{transform:scale(1) rotate(0)}}
 .trace-wrap{position:relative}
 .stamp{white-space:nowrap;position:fixed;z-index:50;pointer-events:none;font-family:var(--f-display);font-size:clamp(28px,4vw,46px);letter-spacing:.06em;padding:6px 22px;border:4px solid currentColor;border-radius:14px;background:color-mix(in srgb,var(--panel) 88%,transparent);transform:translate(-50%,-50%) rotate(-8deg)}
 .stamp.ok{color:var(--hot)} .stamp.ng{color:var(--accent)}
 .stamp.go{animation:stamp 1.1s ease-out 1 forwards}
 @keyframes stamp{0%{opacity:0;transform:translate(-50%,-50%) rotate(-8deg) scale(2.2)}18%{opacity:1;transform:translate(-50%,-50%) rotate(-8deg) scale(.95)}28%{transform:translate(-50%,-50%) rotate(-8deg) scale(1.05)}75%{opacity:1}100%{opacity:0;transform:translate(-50%,-50%) rotate(-8deg) scale(1)}}
-@media (prefers-reduced-motion:reduce){.stamp.go{animation-duration:.01s}.shisa.pop{animation:none}}
+@media (prefers-reduced-motion:reduce){.stamp.go{animation-duration:.01s}.shisa.shpop{animation:none}}
 .boss-tag{display:inline-block;margin-right:10px;padding:1px 10px;border-radius:999px;background:var(--hot);color:#fff;font-family:var(--f-body);font-size:var(--fs-s);font-weight:700;vertical-align:middle}
 .st-daily{font:inherit;text-align:left;cursor:pointer;display:grid;gap:2px;padding:10px 14px;border:2px dashed var(--accent);border-radius:var(--r);background:var(--accent-soft);color:var(--ink)}
 .st-daily .st-dh{font-size:var(--fs-xs);font-weight:700;color:var(--accent)} .st-daily .muted{font-size:var(--fs-xs)}
@@ -4313,7 +4313,7 @@ body.eegfs #panel.qz-on .mihon-box,body.eegfs #panel.rp-on .mihon-box{display:no
     if (left + w > W0 - 4) { left = mkPos.cx - mkPos.rx * 0.75 - w; flip = true; }
     if (top < 4) top = mkPos.cy + mkPos.ry - 10;
     el.style.left = Math.max(2, left) + 'px'; el.style.top = top + 'px'; el.classList.toggle('flip', flip);
-    if (el.hidden || shisaKey !== mkPos.t0) { shisaKey = mkPos.t0; el.hidden = false; el.classList.remove('pop'); void el.offsetWidth; el.classList.add('pop'); }
+    if (el.hidden || shisaKey !== mkPos.t0) { shisaKey = mkPos.t0; el.hidden = false; el.classList.remove('shpop'); void el.offsetWidth; el.classList.add('shpop'); }
   }
 
   if (document.getElementById('prToggle')) document.getElementById('prToggle').addEventListener('click', function () { var pr = document.querySelector('.primer'), o = pr.classList.toggle('open'); this.setAttribute('aria-expanded', String(o)); this.textContent = o ? 'とじる ▲' : 'ひらく ▼'; if (o) bandKey = ''; draw(); });
