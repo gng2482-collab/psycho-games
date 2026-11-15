@@ -152,6 +152,25 @@ h1{font-family:var(--f-display); font-weight:400; margin:0; font-size:clamp(2.1r
 .case .cn{font-weight:700; font-size:var(--fs-s)} .case .cs{font-size:var(--fs-xs); color:var(--muted)}
 .case .done{font-size:var(--fs-xs); color:var(--ok); font-weight:700}
 .story{max-width:42em}
+/* 読む順番（Radiopaedia の「Blood Can Be Very Bad」をもとに、精神科の目を足した6つ） */
+.steps-h{display:flex;flex-wrap:wrap;gap:4px 10px;align-items:baseline;margin:2px 0 0}
+.steps-h b{font-size:var(--fs-m)}
+.steps-h span{font-size:var(--fs-xs);color:var(--muted)}
+.steps{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px;list-style:none;margin:0;padding:0}
+.step{font:inherit;width:100%;text-align:left;cursor:pointer;color:var(--ink);background:var(--paper);border:1px solid var(--line);border-radius:var(--r);padding:6px 8px;display:grid;gap:0;line-height:1.35;min-height:48px}
+.step b{font-size:var(--fs-s)}
+.step small{font-size:var(--fs-xs);color:var(--muted)}
+.step[aria-pressed="true"]{border-color:var(--ok);background:color-mix(in srgb,var(--ok) 10%,var(--panel))}
+.step[aria-pressed="true"] b::after{content:" ✓";color:var(--ok)}
+.step.open{outline:2px solid var(--accent);outline-offset:1px}
+.step.key{border:2px solid var(--seal)!important}
+.step.key small::before{content:"この症例はここ　";color:var(--seal);font-weight:700}
+.step-how{font-size:var(--fs-s);background:var(--accent-soft);border-radius:var(--r);padding:6px 10px;margin:0}
+.step-key{font-size:var(--fs-s);border-left:3px solid var(--seal);padding:2px 0 2px 10px;margin:0}
+.quiz-row{display:flex;flex-wrap:wrap;gap:6px 10px;align-items:center;font-size:var(--fs-s)}
+.quiz-row .lb{color:var(--muted);font-size:var(--fs-xs)}
+.showopt{font:inherit;cursor:pointer;border:2px dashed var(--accent);background:var(--panel);color:var(--accent);border-radius:var(--r);padding:10px 14px;width:100%;font-weight:700}
+@media (max-width:640px){.steps{grid-template-columns:repeat(2,minmax(0,1fr))}}
 textarea{font:inherit; font-size:var(--fs-s); width:100%; min-height:190px; padding:10px 12px; border:1px solid var(--line); border-radius:var(--r); background:var(--paper); color:var(--ink); line-height:1.7; resize:vertical}
 .check{list-style:none; margin:0; padding:0; display:grid; gap:4px; font-size:var(--fs-s)}
 .check li{display:grid; grid-template-columns:1.6em minmax(0,1fr); gap:4px}
@@ -934,15 +953,53 @@ body.ctfs #panel .opts{grid-template-columns:minmax(0,1fr)}
       q: { q: 'MTA は何を見る尺度？', a: ['内側側頭葉（海馬のまわり）の萎縮', '前頭葉の皮質の萎縮', '脳室の大きさだけ', '白質病変'], why: '「萎縮あり」とだけ書くより、どこが、どの程度かを書くほうが、経過の比較や認知症の見立てに役立ちます。アルツハイマー型認知症では内側側頭葉の萎縮（MTA）が目立ちやすく、海馬を見るには横断像より冠状断が向いています。' } }
   ];
   var RD = { ci: null, picks: {}, opt: {}, text: {}, checked: {} };
+
+  /* ---------- 読む順番とクイズモード（Radiopaedia の作りを参考に） ----------
+     STEPS：系統的に読む順番。英語の覚え方「Blood Can Be Very Bad」（血・脳槽・脳・脳室・骨）に、精神科の目を足した。
+     STEP_KEY：その症例の大事な所見が、どの順番で見つかるか（答えたあとに赤枠で示す）。
+     QUIZ：病名を隠し、選択肢は「読む順番」を5つ以上確かめるか、ボタンを押すまで出さない。 */
+  var STEPS = [
+    { k: 'b', n: '① 血', t: '出血はないか', win: 'sub', how: '脳の中・脳の表面・頭蓋骨の内側（硬膜下・硬膜外）に、白い（高吸収の）ものはないか。古い血腫は脳と同じ灰色か黒っぽくなるので、頭蓋骨のそばは「硬膜下」ウィンドウでも見ます（いま切りかえました）。' },
+    { k: 'c', n: '② 脳槽', t: '脳槽は開いているか', win: 'brain', how: '中脳のまわり（迂回槽）と鞍上槽が黒く開いているか（図の症例では中脳の高さに移しました）。つぶれていれば脳ヘルニアの危険、白く埋まっていればくも膜下出血を考えます。' },
+    { k: 'br', n: '③ 脳', t: '左右差と吸収値', win: 'brain', how: '左右を比べます。灰白質と白質の境が消えていないか（新しい梗塞）、黒い部分（古い梗塞・白質病変）、白い点（石灰化）、萎縮の場所（前頭葉・側頭葉・小脳）。' },
+    { k: 'v', n: '④ 脳室', t: '大きさと正中', win: 'brain', how: '脳室が脳溝のわりに大きすぎないか（水頭症）、左右差や正中偏位はないか。脳室の大きさは「ものさし」で Evans index も測れます。' },
+    { k: 'bo', n: '⑤ 骨', t: '骨と頭の外', win: 'bone', how: '骨ウィンドウで骨折や骨の変化（いま切りかえました）。副鼻腔の液体、頭皮の腫れ（転んだ跡）も見ます。' },
+    { k: 'p', n: '⑥ 精神科の目', t: '年齢相応？治せるもの？', win: null, how: '萎縮は年齢相応か、場所に偏りはないか。治療で良くなりうるもの（慢性硬膜下血腫・正常圧水頭症・腫瘍など）を見落としていないか。' }
+  ];
+  var STEP_KEY = {
+    normal_young: ['p'], normal_old: ['br', 'v', 'p'], csdh: ['b', 'p'], nph: ['v', 'p'], infarct: ['br'], old_ich: ['br'], acute_ich: ['b'], alcohol: ['br'], ftd: ['br', 'p'], calc: ['br'],
+    r_nph: ['v', 'p'], r_hydro: ['v'], r_wml: ['br'], r_sdh: ['b'], r_infarct: ['br'], r_dense: ['br'], r_bgh: ['b'], r_csdh2: ['b', 'p'], r_elderly: ['br', 'v', 'p'], r_pineal: ['br'], r_fahr: ['br']
+  };
+  var CK = {}, CKO = {}, SHOWOPT = {};
+  var QUIZ = lsGet('ct-quiz') !== '0';
+  function stepsHTML(cid, answered) {
+    var done = CK[cid] || {}, nd = STEPS.filter(function (st) { return done[st.k]; }).length, keys = answered ? (STEP_KEY[cid] || []) : [], open = CKO[cid];
+    var h = '<div class="steps-h"><b>読む順番</b><span>押して確かめる（' + nd + ' / ' + STEPS.length + '）。英語の覚え方「Blood Can Be Very Bad」に、精神科の目を足した6つ</span></div><ul class="steps">' +
+      STEPS.map(function (st) { return '<li><button type="button" class="step' + (keys.indexOf(st.k) !== -1 ? ' key' : '') + (open === st.k ? ' open' : '') + '" data-step="' + st.k + '" aria-pressed="' + !!done[st.k] + '"><b>' + st.n + '</b><small>' + st.t + '</small></button></li>'; }).join('') + '</ul>';
+    if (open) { var so = STEPS.filter(function (st) { return st.k === open; })[0]; h += '<p class="step-how">' + esc(so.how) + '</p>'; }
+    if (keys.length) h += '<p class="step-key">この症例の大事な所見は <b>' + keys.map(function (k) { return STEPS.filter(function (st) { return st.k === k; })[0].n; }).join('・') + '</b> で見つかります。</p>';
+    return h;
+  }
+  function quizRow() { return '<div class="quiz-row"><span class="lb">クイズモード</span><span class="seg" role="group" aria-label="クイズモード"><button type="button" data-quiz="1" aria-pressed="' + QUIZ + '">病名を隠す</button><button type="button" data-quiz="0" aria-pressed="' + !QUIZ + '">見せる</button></span></div>'; }
+  // 選択肢を出してよいか：クイズモードでなければいつも。クイズモードでは、読む順番を5つ以上確かめたか、ボタンを押したとき
+  function optOpen(cid) { if (!QUIZ || SHOWOPT[cid]) return true; var d = CK[cid] || {}; return STEPS.filter(function (st) { return d[st.k]; }).length >= 5; }
+  function optGate(cid) { return '<button type="button" class="showopt" data-showopt="' + cid + '">まず自分で読む。読めたら押す → 選択肢を出す（読む順番を5つ確かめても出ます）</button>'; }
+  function stepClick(cid, k) {
+    CK[cid] = CK[cid] || {}; var st = STEPS.filter(function (x) { return x.k === k; })[0];
+    if (CKO[cid] === k) { CKO[cid] = null; } else { CK[cid][k] = true; CKO[cid] = k; if (st.win && V.win !== st.win) { V.win = st.win; syncWin(); draw(); }
+      if (k === 'c' && V.view === 'synth') { V.lv = 1; document.getElementById('lv').value = 1; draw(); } }
+  }
   function renderCases(focus) {
     if (!REAL) { panel.innerHTML = '<p>本物の画像が読み込めませんでした。</p>'; return; }
-    var html = '<div class="ph"><h2 id="panelH" tabindex="-1">本物の症例</h2><span class="sub">公開されている本物の CT。症例を選ぶ</span></div><ul class="cases">' +
-      RCASES.map(function (c, i) { var d = RD.checked[c.id]; return '<li><button type="button" class="case" data-rc="' + i + '" aria-current="' + (RD.ci === i) + '"><span class="cn">' + esc(c.name) + '</span><span class="cs">' + esc(c.cat.replace('（本物）', '')) + '</span>' + (d ? '<span class="done">所見 ' + d + '</span>' : '') + '</button></li>'; }).join('') + '</ul>';
+    var hide = function (c) { return QUIZ && !c.lesson && RD.picks[c.id] == null; };
+    var html = '<div class="ph"><h2 id="panelH" tabindex="-1">本物の症例</h2><span class="sub">公開されている本物の CT。症例を選ぶ</span></div>' + quizRow() + '<ul class="cases">' +
+      RCASES.map(function (c, i) { var d = RD.checked[c.id]; return '<li><button type="button" class="case" data-rc="' + i + '" aria-current="' + (RD.ci === i) + '"><span class="cn">' + (hide(c) ? '症例 ' + (i + 1) : esc(c.name)) + '</span><span class="cs">' + (hide(c) ? esc(c.who) : esc(c.cat.replace('（本物）', ''))) + '</span>' + (d ? '<span class="done">所見 ' + d + '</span>' : '') + '</button></li>'; }).join('') + '</ul>';
     if (RD.ci != null) {
       var c = RCASES[RD.ci], pick = RD.picks[c.id];
       if (!RD.opt[c.id]) RD.opt[c.id] = shuffled(c.q.a.length);
-      html += '<div class="ph"><h2 id="caseH" tabindex="-1">' + esc(c.name) + '<span class="real-badge">本物の画像</span></h2><span class="sub">' + esc(c.who) + '</span></div><p class="story">' + esc(c.story) + '</p>' +
-        '<h3 class="qh"><span class="qn">問</span><span>' + esc(c.q.q) + '</span></h3><ol class="opts">' + RD.opt[c.id].map(function (ai, pos) {
+      html += '<div class="ph"><h2 id="caseH" tabindex="-1">' + (hide(c) ? '症例 ' + (RD.ci + 1) : esc(c.name)) + '<span class="real-badge">本物の画像</span></h2><span class="sub">' + esc(c.who) + (hide(c) ? '' : '　' + esc(c.cat.replace('（本物）', ''))) + '</span></div><p class="story">' + esc(c.story) + '</p>' +
+        (c.lesson ? '' : stepsHTML(c.id, pick != null)) +
+        '<h3 class="qh"><span class="qn">問</span><span>' + esc(c.q.q) + '</span></h3>' + (pick == null && !c.lesson && !optOpen(c.id) ? optGate(c.id) + '<ol class="opts" hidden>' : '<ol class="opts">') + RD.opt[c.id].map(function (ai, pos) {
           var cls = '', tag = ''; if (pick != null) { if (ai === 0) { cls = ' right'; tag = '正解'; } else if (ai === pick) { cls = ' wrong'; tag = 'あなたの答え'; } else cls = ' dim'; }
           return '<li><button type="button" class="opt' + cls + '" data-ra="' + ai + '"' + (pick != null ? ' disabled' : '') + '><span class="k">' + (pos + 1) + '</span><span>' + esc(c.q.a[ai]) + '</span><span class="v">' + tag + '</span></button></li>';
         }).join('') + '</ol>';
@@ -1046,18 +1103,18 @@ body.ctfs #panel .opts{grid-template-columns:minmax(0,1fr)}
   // ---- 読影ドリル
   var D = { ci: null, picks: {}, opt: {}, text: {}, checked: {} };
   function renderDrill(focus) {
-    var html = '<div class="ph"><h2 id="panelH" tabindex="-1">読影ドリル</h2><span class="sub">症例を選ぶ</span></div><ul class="cases">' +
+    var html = '<div class="ph"><h2 id="panelH" tabindex="-1">読影ドリル</h2><span class="sub">症例を選ぶ</span></div>' + quizRow() + '<ul class="cases">' +
       CASES.map(function (c, i) { var done = D.checked[c.id]; return '<li><button type="button" class="case" data-ci="' + i + '" aria-current="' + (D.ci === i) + '"><span class="cn">' + esc(c.name) + '</span><span class="cs">' + esc(c.who) + '</span>' + (done ? '<span class="done">所見 ' + done + '</span>' : '') + '</button></li>'; }).join('') + '</ul>';
     if (D.ci != null) {
       var c = CASES[D.ci];
       html += '<div class="ph"><h2 id="caseH" tabindex="-1">' + esc(c.name) + '</h2><span class="sub">' + esc(c.who) + '</span></div><p class="story">' + esc(c.story) + '</p>' +
-        '<p class="muted" style="font-size:var(--fs-s)">左の CT を、断面を送ってすべて見てから答えてください。</p>';
+        '<p class="muted" style="font-size:var(--fs-s)">左の CT を、断面を送ってすべて見てから答えてください。</p>' + stepsHTML(c.id, D.picks[c.id + '0'] != null);
       var all = true;
       c.qs.forEach(function (q, qi) {
         if (!all) return;
         var key = c.id + qi, pick = D.picks[key];
         if (!D.opt[key]) D.opt[key] = shuffled(q.a.length);
-        html += '<h3 class="qh"><span class="qn">問' + (qi + 1) + '</span><span>' + esc(q.q) + '</span></h3><ol class="opts">' + D.opt[key].map(function (ai, pos) {
+        html += '<h3 class="qh"><span class="qn">問' + (qi + 1) + '</span><span>' + esc(q.q) + '</span></h3>' + (qi === 0 && pick == null && !optOpen(c.id) ? optGate(c.id) + '<ol class="opts" hidden>' : '<ol class="opts">') + D.opt[key].map(function (ai, pos) {
           var cls = '', tag = ''; if (pick != null) { if (ai === 0) { cls = ' right'; tag = '正解'; } else if (ai === pick) { cls = ' wrong'; tag = 'あなたの答え'; } else cls = ' dim'; }
           return '<li><button type="button" class="opt" data-key="' + key + '" data-a="' + ai + '"' + (pick != null ? ' disabled' : '') + '><span class="k">' + (pos + 1) + '</span><span>' + esc(q.a[ai]) + '</span><span class="v">' + tag + '</span></button></li>';
         }).join('').replace(/class="opt" data-key="([^"]+)" data-a="(\d+)"/g, function (m, k2, a2) { var pk = D.picks[k2]; if (pk == null) return m; var cl = +a2 === 0 ? ' right' : +a2 === pk ? ' wrong' : ' dim'; return 'class="opt' + cl + '" data-key="' + k2 + '" data-a="' + a2 + '"'; }) + '</ol>';
@@ -1109,6 +1166,18 @@ body.ctfs #panel .opts{grid-template-columns:minmax(0,1fr)}
     }
     if (b.classList.contains('chip')) { var cid0 = V.mode === 'cases' ? RCASES[RD.ci].id : CASES[D.ci].id; chipClick(cid0, b.getAttribute('data-sec'), b.getAttribute('data-code')); return; }
     if (b.hasAttribute('data-rm')) { RPT.mode = b.getAttribute('data-rm'); if (V.mode === 'cases') renderCases(); else renderDrill(); var rr = document.getElementById('rep'); if (rr) rr.scrollIntoView({ block: 'center' }); return; }
+    if (b.hasAttribute('data-step') || b.hasAttribute('data-quiz') || b.hasAttribute('data-showopt')) {
+      var cidS = V.mode === 'cases' ? (RD.ci != null ? RCASES[RD.ci].id : null) : (D.ci != null ? CASES[D.ci].id : null);
+      if (b.hasAttribute('data-quiz')) { QUIZ = b.getAttribute('data-quiz') === '1'; lsSet('ct-quiz', QUIZ ? '1' : '0'); }
+      else if (b.hasAttribute('data-showopt')) SHOWOPT[b.getAttribute('data-showopt')] = true;
+      else if (cidS) stepClick(cidS, b.getAttribute('data-step'));
+      var y0 = panel.scrollTop, wy = window.scrollY;
+      if (V.mode === 'cases') renderCases(); else renderDrill();
+      panel.scrollTop = y0; window.scrollTo(0, wy);
+      var again = panel.querySelector(b.hasAttribute('data-step') ? '[data-step="' + b.getAttribute('data-step') + '"]' : b.hasAttribute('data-quiz') ? '[data-quiz="' + b.getAttribute('data-quiz') + '"]' : '.opts');
+      if (again && again.focus) again.focus({ preventScroll: true });
+      return;
+    }
     if (V.mode === 'real') {
       if (b.id === 'rqStart') startRQ();
       else if (b.hasAttribute('data-rq')) { var rq = RQ.items[RQ.i]; if (rq.pick == null) { rq.pick = b.getAttribute('data-rq'); if (rq.pick === rq.name) RQ.right++; V.labels = true; draw(); renderReal(); } }
@@ -1116,8 +1185,8 @@ body.ctfs #panel .opts{grid-template-columns:minmax(0,1fr)}
       return;
     }
     if (V.mode === 'cases') {
-      if (b.hasAttribute('data-rc')) { RD.ci = +b.getAttribute('data-rc'); var rc = RCASES[RD.ci]; setReal(caseSet(rc)); unlock(rc.id, 1, rc.cat); renderCases('case'); }
-      else if (b.hasAttribute('data-ra')) { var c0 = RCASES[RD.ci]; if (RD.picks[c0.id] == null) { RD.picks[c0.id] = +b.getAttribute('data-ra'); if (c0.after != null) { V.ri = c0.after; draw(); } if (c0.lesson && RD.picks[c0.id] === 0) unlock(c0.id, 2, c0.cat); renderCases(); } }
+      if (b.hasAttribute('data-rc')) { RD.ci = +b.getAttribute('data-rc'); var rc = RCASES[RD.ci], hideRc = QUIZ && !rc.lesson && RD.picks[rc.id] == null, set0 = caseSet(rc); if (hideRc) set0.title = '症例 ' + (RD.ci + 1); setReal(set0); if (!hideRc) unlock(rc.id, 1, rc.cat); renderCases('case'); }
+      else if (b.hasAttribute('data-ra')) { var c0 = RCASES[RD.ci]; if (RD.picks[c0.id] == null) { RD.picks[c0.id] = +b.getAttribute('data-ra'); if (V.rset) V.rset.title = c0.name; unlock(c0.id, 1, c0.cat); draw(); if (c0.after != null) { V.ri = c0.after; draw(); } if (c0.lesson && RD.picks[c0.id] === 0) unlock(c0.id, 2, c0.cat); renderCases(); } }
       else if (b.id === 'tmpl') { var r0 = document.getElementById('rep'); r0.value = '【出血】\n【脳実質（梗塞・腫瘤・白質）】\n【脳室・脳溝（萎縮・水頭症）】\n【正中構造】\n【頭蓋骨・その他】\n【まとめ】\n' + r0.value; RPT.text[RCASES[RD.ci].id] = r0.value; r0.focus(); }
       else if (b.id === 'grade') { var c1 = RCASES[RD.ci], g1 = gradeAny(c1, true, c1.finds); RD.checked[c1.id] = g1.n + '/' + g1.total; if (g1.n >= g1.total - 1) unlock(c1.id, 2, c1.cat); }
       return;
@@ -1128,8 +1197,8 @@ body.ctfs #panel .opts{grid-template-columns:minmax(0,1fr)}
       else if (b.hasAttribute('data-qa')) { var q = atlasQ.items[atlasQ.i]; if (q.pick == null) { q.pick = b.getAttribute('data-qa'); if (q.pick === q.name) atlasQ.right++; V.labels = true; draw(); renderAtlas(); } }
       else if (b.id === 'qNext') { atlasQ.i++; V.labels = false; if (atlasQ.i < atlasQ.items.length) showAtlasQ(); else { V.arrow = null; draw(); renderAtlas(); } }
     } else if (V.mode === 'drill') {
-      if (b.hasAttribute('data-ci')) { D.ci = +b.getAttribute('data-ci'); var c = CASES[D.ci]; setVol(c.id, c.vol, 2); renderDrill('case'); unlock(c.cat === '正常' ? 'n25' : c.id, 1, c.cat === '正常' ? '25歳の正常' : c.cat); }
-      else if (b.classList.contains('opt')) { var key = b.getAttribute('data-key'); if (D.picks[key] == null) { D.picks[key] = +b.getAttribute('data-a'); renderDrill(); } }
+      if (b.hasAttribute('data-ci')) { D.ci = +b.getAttribute('data-ci'); var c = CASES[D.ci]; setVol(c.id, c.vol, 2); renderDrill('case'); if (!QUIZ || D.picks[c.id + '0'] != null) unlock(c.cat === '正常' ? 'n25' : c.id, 1, c.cat === '正常' ? '25歳の正常' : c.cat); }
+      else if (b.classList.contains('opt')) { var key = b.getAttribute('data-key'); if (D.picks[key] == null) { D.picks[key] = +b.getAttribute('data-a'); var cd = CASES[D.ci]; unlock(cd.cat === '正常' ? 'n25' : cd.id, 1, cd.cat === '正常' ? '25歳の正常' : cd.cat); renderDrill(); } }
       else if (b.id === 'tmpl') { var r = document.getElementById('rep'); r.value = '【出血】\n【脳実質（梗塞・腫瘤・白質）】\n【脳室・脳溝（萎縮・水頭症）】\n【正中構造】\n【頭蓋骨・その他】\n【まとめ】\n' + r.value; RPT.text[CASES[D.ci].id] = r.value; r.focus(); }
       else if (b.id === 'grade') { var c2 = CASES[D.ci], g2 = gradeAny(c2, false, FINDS[c2.id]); D.checked[c2.id] = g2.n + '/' + g2.total; if (g2.n >= g2.total - 1) unlock(c2.cat === '正常' ? 'n25' : c2.id, 2, c2.cat === '正常' ? '25歳の正常' : c2.cat); }
     } else if (V.mode === 'zukan') {
