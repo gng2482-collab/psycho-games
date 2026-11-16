@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="ja">
+<html lang="ja" data-page="index">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
@@ -44,6 +44,8 @@ section{margin-top:26px; display:grid; gap:10px}
 .seg button{font:inherit; font-size:1rem; min-height:48px; padding:6px 18px; border:1px solid var(--line); border-radius:6px; background:var(--paper); color:var(--ink); cursor:pointer}
 .seg button[aria-pressed="true"]{background:var(--accent); color:var(--accent-ink); border-color:var(--accent); font-weight:700}
 .note{font-size:.88rem; color:var(--muted)}
+.ver-line{margin:18px 0 0}
+.ver-btn{font:inherit; font-size:.85rem; min-height:36px; padding:4px 12px; border:1px solid var(--line); border-radius:6px; background:var(--panel); color:var(--ink); cursor:pointer}
 .danger{font:inherit; font-size:.9rem; min-height:44px; padding:6px 14px; border:1px solid var(--seal); color:var(--seal); background:transparent; border-radius:6px; cursor:pointer; justify-self:start}
 .danger.armed{background:var(--seal); color:#fff}
 .shelf{list-style:none; margin:0; padding:0; display:grid; grid-template-columns:repeat(auto-fill, minmax(260px, 1fr)); gap:10px}
@@ -59,6 +61,8 @@ section{margin-top:26px; display:grid; gap:10px}
 .how ol{margin:0; padding-left:1.4em; display:grid; gap:4px}
 .how b{color:var(--accent)}
 </style>
+<meta name="app-version" content="20261116183939">
+<script src="ipad-update.js" defer></script>
 </head>
 <body>
 <div class="wrap">
@@ -94,6 +98,7 @@ section{margin-top:26px; display:grid; gap:10px}
     <h2 id="lendh">人に貸すとき</h2>
     <p>「いま遊ぶ人」をゲストにしてから渡すと、自分の記録と混ざりません。ほかのアプリを触られたくないときは、iPad の<b>アクセスガイド</b>を使うと、このアプリだけに固定できます（設定 → アクセシビリティ → アクセスガイド をオンにし、アプリを開いてトップボタンかホームボタンを3回押す）。</p>
   </section>
+  <p class="note ver-line">この版：<span id="ipadVer"></span>　<button type="button" class="ver-btn" data-upd="manual">↻ 新しい版を確かめる</button><br>新しい版が出ると、この一覧を開いたときに自動で入れ替わります。ゲームの途中なら右上に「新しい版あり」が出ます。</p>
 </div>
 <script>
 (function () {

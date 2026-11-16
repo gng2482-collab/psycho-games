@@ -4,6 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="robots" content="noindex, nofollow">
+<meta name="app-version" content="20261116183939">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
@@ -20,6 +21,8 @@ img{max-width:100%}
   font:600 14px system-ui,-apple-system,"Hiragino Sans",sans-serif; background:#1d2a33; color:#f3f6f8}
 .ipad-bar a{color:#f3f6f8; text-decoration:none; padding:6px 10px; border:1px solid #4a5d6a; border-radius:6px}
 .ipad-bar span{opacity:.85; font-weight:400}
+.ipad-bar .upd{font:inherit; color:#f3f6f8; background:transparent; border:1px solid #4a5d6a; border-radius:6px; padding:6px 10px; cursor:pointer}
+.ipad-bar .right{display:flex; gap:10px; align-items:center}
 </style>
 <script>
 /* プレイヤーごとに記録を分ける（自分は今までどおり、ゲストは頭に印をつける） */
@@ -37,9 +40,10 @@ img{max-width:100%}
 })();
 if ('serviceWorker' in navigator) { window.addEventListener('load', function () { navigator.serviceWorker.register('sw.js').catch(function () {}); }); }
 </script>
+<script src="ipad-update.js" defer></script>
 </head>
 <body>
-<nav class="ipad-bar" aria-label="アプリ"><a href="index.html">← ゲーム一覧</a><span id="ipadWho"></span></nav>
+<nav class="ipad-bar" aria-label="アプリ"><a href="index.html">← ゲーム一覧</a><span class="right"><span id="ipadWho"></span><button type="button" class="upd" data-upd="manual" aria-label="新しい版を確かめて更新">↻ 更新</button></span></nav>
 <script>(function(){var P=window.__ipadPlayer||'me';document.getElementById('ipadWho').textContent='プレイヤー：'+(P==='me'?'自分':P);})();</script>
 <title>当直の入院判定</title>
 <meta name="claude:viewport-fit-sides" content="cover">
