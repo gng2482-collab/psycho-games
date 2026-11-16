@@ -320,19 +320,19 @@ body.ectfs #panel .opts{grid-template-columns:minmax(0,1fr)}
       sessions: [
         { title: '第1回：閾値を測る', memo: [['前の確認', '絶食できている。上の歯は総入れ歯'], ['血圧', '148/86'], ['麻酔', 'プロポフォール・スキサメトニウム（右足にカフ）'], ['電極', '両側']],
           steps: [
-            { q: '刺激の前に、総入れ歯はどうする？', a: ['外して、バイトブロック（マウスピース）を入れる', '入れたままにする（歯を守るため）', '下の歯だけ外す', '入れたまま、ガーゼをかませる'],
+            { q: '刺激の前に、総入れ歯はどうする？', a: ['外して、バイトブロック（マウスピース）を入れる', '入れたままにする（自分の歯を守るため）', '下の入れ歯だけ外し、上は入れたままにする', '入れたまま、厚いガーゼをかませて刺激する'],
               why: '入れ歯は割れたり、のどに落ちたりするので外します。刺激のときは歯と舌を守るため、バイトブロックを入れます。', card: null },
             { stim: { fixed: 10, note: '滴定：まず弱い 10% から刺激します。' } },
-            { q: '10% では発作が出ず、心拍が一時 40台に下がりました。次は？', a: ['少し待って遅れて始まる発作がないことを確かめ、強さを上げてもう一度刺激する', 'その日はやめて、次回に強くする', '同じ 10% でもう一度刺激する', 'すぐにアトロピンを打ってから 100% で刺激する'],
+            { q: '10% では発作が出ず、心拍が一時 40台に下がりました。次は？', a: ['少し待ってから、強さを上げてもう一度刺激する', '今日はここでやめて、次回に強さを上げて刺激する', '少し待ってから、同じ 10% のままでもう一度刺激する', 'すぐにアトロピンを打ち、最大の 100% で刺激する'],
               why: '閾値に届かない刺激です。遅れて始まる発作がないかを少し待ち、強さを上げて再刺激します（滴定）。閾値以下の刺激では迷走神経が刺激されて、徐脈や短い心停止が起きやすくなります。', card: 'missed' },
             { stim: { fixed: 20, note: '強さを 20% に上げて、もう一度刺激します。' } },
             { stim: { fixed: 30, note: '20% でも出ませんでした。30% で刺激します。' } },
-            { q: 'この患者さんの閾値はおよそ何%？ 次回からの両側の強さの目安は？', a: ['閾値は 30% 弱。次回からは閾値の1.5〜2.5倍、およそ 45〜70%', '閾値は 10%。次回は 10%', '閾値は 30%。次回も 30% のまま', '閾値は 30%。次回は6倍の 100% 以上'],
+            { q: 'この患者さんの閾値はおよそ何%？ 次回からの両側の強さの目安は？', a: ['閾値は 30% 弱。次回からは、およそ 45〜70% で刺激する', '閾値は 10%。次回からも 10% のままで刺激する', '閾値は 30%。次回からも 30% ちょうどで刺激する', '閾値は 30%。次回からは6倍の 100% 以上で刺激する'],
               why: '20% では出ず 30% で出たので、閾値は 20〜30% の間です。両側の ECT では、閾値の1.5〜2.5倍を目安にします。6倍が目安なのは右片側です。', card: null }
           ] },
-        { title: '第2回', memo: [['前の確認', '昨夜、眠れず看護師がロラゼパム 1mg を渡していた'], ['血圧', '142/84'], ['前回の閾値', '約 28%']],
+        { title: '第2回', memo: [['前の確認', '昨夜、眠れず看護師がロラゼパム 1mg を渡していた'], ['血圧', '142/84'], ['前回の滴定', '20% では出ず、30% で出た']],
           steps: [
-            { q: '前の晩のロラゼパムについて、正しいのは？', a: ['発作が出にくく短くなりやすい。前の晩のベンゾジアゼピンは避けるよう病棟と決めておく', '発作が長くなりやすいので、強さを下げる', 'ECT には関係ない', '危険なので、今日の ECT は必ず中止する'],
+            { q: '前の晩のロラゼパムについて、正しいのは？', a: ['発作が出にくくなる。前の晩は避けるよう病棟と決めておく', '発作が長くなりやすいので、今日は強さを下げて刺激する', 'ECT には関係ないので、病棟には何も伝えなくてよい', '危険なので、飲んだ翌日の ECT は必ず中止すると決めておく'],
               why: 'ベンゾジアゼピンは発作の閾値を上げ、発作を短く弱くします。前の晩は使わないように、病棟と決めておきます。今日は、強さを少し上げ、刺激の前に十分に過換気して補います。', card: null },
             { stim: { choose: true, mod: 1.15, hv: true } },
             { evalq: true },
@@ -341,12 +341,12 @@ body.ectfs #panel .opts{grid-template-columns:minmax(0,1fr)}
         { title: '第3回', memo: [['前の確認', '問題なし'], ['経過', '少しずつ食事がとれ始めた'], ['血圧', '138/80']],
           steps: [
             { stim: { choose: true, mod: 1.0, prolong: true } },
-            { q: '発作が3分を超えても止まりません。どうする？', a: ['静脈麻酔薬やベンゾジアゼピンを静注して止め、酸素化を保つ', '自然に止まるまで待つ', 'もう一度刺激して止める', '筋弛緩薬を追加する'],
+            { q: '発作が3分を超えても止まりません。どうする？', a: ['静脈麻酔薬やベンゾジアゼピンを静注して止める', '脳に害はないので、自然に止まるまで待つ', 'もう一度、強めに刺激して発作を終わらせる', '筋弛緩薬を追加して、体の動きを止める'],
               why: '目安として3分を超える発作は、遷延発作として薬で止めます。筋弛緩薬は体の動きを止めるだけで、脳の発作は止めません。高齢、初回に近い回、テオフィリンなどの薬は遷延発作の危険を高めます。', card: 'prolonged' }
           ] },
         { title: '第4回', memo: [['前の確認', 'ECT のあと半日ほど、日付と場所がわからなくなる'], ['経過', 'うつはかなり改善。食事は半分以上'], ['看護師', '「昨日のことを覚えていないことがある」']],
           steps: [
-            { q: '記憶と見当識の副作用が目立ってきました。コースの組み立てをどうする？', a: ['右片側に切り替えるか、間隔をあける（週3回→週2回など）', '効いているので、強さを上げて続ける', '副作用は必ず出るので、そのまま続ける', 'すぐに ECT をやめ、二度と行わない'],
+            { q: '記憶と見当識の副作用が目立ってきました。コースの組み立てをどうする？', a: ['右片側に切り替えるか、間隔をあける（週3回→週2回など）', '効いているので、強さを上げてそのまま続ける', '副作用は必ず出るものなので、何も変えずに続ける', 'すぐに ECT をやめ、今後も二度と行わない'],
               why: '両側は記憶への影響が大きめです。効果を保ちながら副作用を減らすには、右片側への切り替えや、間隔をあける方法があります。副作用の多くは時間とともに回復しますが、記録して本人と家族に説明します。', card: null },
             { q: '右片側に切り替えます。右片側での閾値は約 9% でした。強さの目安は？', a: ['閾値の約6倍、およそ 50〜60%', '閾値の1.5倍、およそ 15%', '両側と同じ 50% 前後なら何倍でもよい', '閾値ちょうどの 9%'],
               why: '右片側は、閾値ぎりぎりの強さでは発作が出ても効きが弱いことがわかっています。閾値の約6倍（5〜8倍）を目安にします。', card: null },
@@ -355,14 +355,14 @@ body.ectfs #panel .opts{grid-template-columns:minmax(0,1fr)}
           ] },
         { title: '第5回', memo: [['前の確認', '本人が「おなかがすいた」と、朝7時にパンを半分食べていた'], ['ECT の予定', '9時'], ['経過', 'よく話すようになった']],
           steps: [
-            { q: 'どうする？', a: ['誤嚥の危険があるので、今日は延期するか、絶食の時間がとれるまで遅らせる', '少しだけなので予定どおり行う', '胃管を入れて吸引してから予定どおり行う', '筋弛緩薬を減らして行う'],
+            { q: 'どうする？', a: ['誤嚥の危険があるので、絶食の時間がとれるまで延期する', '食べたのは半分だけなので、予定どおり9時に行う', '胃管を入れて吸引してから、予定どおり9時に行う', '誤嚥しにくいよう、筋弛緩薬を減らして行う'],
               why: '全身麻酔をかけるので、食後は胃の内容物を吸い込む危険があります。施設の決まりの絶食時間がとれるまで延期します。食べられるようになったのは回復のよい知らせでもあります。', card: null }
           ] },
         { title: '第6回', memo: [['前の確認', '問題なし'], ['経過', '妄想はほとんどなくなり、食事も全量'], ['電極', '右片側']],
           steps: [
             { stim: { choose: true, rul: true, mod: 1.05 } },
             { evalq: true },
-            { q: 'コースの終わりが見えてきました。このあと大切なのは？', a: ['再発しやすいので、薬物療法を続け、必要なら継続・維持 ECT を考える', '良くなったので薬もすべてやめる', '再発したら、また最初から同じ強さで ECT をする', '退院したら経過は見なくてよい'],
+            { q: 'コースの終わりが見えてきました。このあと大切なのは？', a: ['再発しやすいので薬を続け、必要なら維持 ECT を考える', '良くなったので、抗うつ薬などの薬もすべてやめる', '再発したら、また最初から同じ強さで ECT をする', '退院したら、通院や経過の確認はしなくてよい'],
               why: 'ECT で寛解しても、その後の数か月は再発しやすい時期です。薬物療法を続け、再発をくり返す人では継続 ECT や維持 ECT を考えます。', card: null }
           ] }
       ] },
@@ -371,29 +371,29 @@ body.ectfs #panel .opts{grid-template-columns:minmax(0,1fr)}
       sessions: [
         { title: '第1回', memo: [['前の確認', '2週間ほぼ寝たきり。ロラゼパム 1日6mg を内服中'], ['血圧', '128/76'], ['麻酔', 'プロポフォール・筋弛緩薬はこれから決める']],
           steps: [
-            { q: '筋弛緩薬について、気をつけることは？', a: ['長く寝たきりの人はスキサメトニウムで高カリウム血症の危険がある。ロクロニウム（スガマデクスで拮抗）を麻酔科と検討する', '寝たきりでも、スキサメトニウムに特別な危険はない', '筋弛緩薬は使わずに行う', '量を倍にして確実に効かせる'],
+            { q: '筋弛緩薬について、気をつけることは？', a: ['スキサメトニウムで高カリウム血症の危険。別の筋弛緩薬を麻酔科と検討する', '寝たきりでも、スキサメトニウムに特別な危険はないので、いつもどおり使う', '若くてけいれんに耐えられるので、筋弛緩薬は使わずに行う', '確実に効かせるため、スキサメトニウムを通常の倍量にする'],
               why: '長い臥床、熱傷、神経筋疾患などでは、スキサメトニウムで急に高カリウム血症になり、不整脈を起こすことがあります。麻酔科と相談して、ロクロニウムとスガマデクスの組み合わせなどを考えます。', card: null },
-            { q: 'ロラゼパム 6mg/日を飲んでいます。ECT の前にどうする？', a: ['急にやめず、麻酔科と相談して、刺激の直前にフルマゼニルで作用を打ち消す方法などを考える', 'ECT の前の日にすべて中止する', 'ECT には関係ないのでそのまま', '発作が長くなるので、ロラゼパムを増やす'],
+            { q: 'ロラゼパム 6mg/日を飲んでいます。ECT の前にどうする？', a: ['急にはやめず、刺激の直前にフルマゼニルで打ち消す方法などを考える', '発作が出にくくなるので、ECT の前の日にすべて中止する', 'ECT には関係ないので、何も考えずにそのまま続ける', '発作が長くなりすぎるのを防ぐため、ロラゼパムを増やす'],
               why: 'ベンゾジアゼピンは発作を出にくくしますが、緊張病では急な中止で悪化することがあります。刺激の直前にフルマゼニルで拮抗する方法が使われることがあります。', card: null },
             { stim: { fixed: 15, note: '滴定：15% で刺激します。' } },
             { evalq: true }
           ] },
-        { title: '第2回', memo: [['前の確認', '問題なし'], ['経過', '少し目で追うようになった'], ['前回の閾値', '約 15%']],
+        { title: '第2回', memo: [['前の確認', '問題なし'], ['経過', '少し目で追うようになった'], ['前回の滴定', '15% で発作が出た']],
           steps: [
             { stim: { choose: true, mod: 1.0, asys: true } },
-            { q: '刺激の直後に、心拍が数秒止まりました（そのあと発作が起き、頻脈になった）。次回からどうする？', a: ['アトロピンなどの抗コリン薬を刺激の前に使うことを麻酔科と検討する', 'ECT を中止する', '強さを下げる', '発作が起きたので気にしなくてよい'],
+            { q: '刺激の直後に、心拍が数秒止まりました（そのあと発作が起き、頻脈になった）。次回からどうする？', a: ['アトロピンなどを刺激の前に使うことを麻酔科と検討する', '心臓に危険なので、ECT のコースをここで中止する', '刺激が強すぎたので、次回は強さを半分に下げる', '発作は起きたので、次回も何も変えなくてよい'],
               why: '刺激で迷走神経が強く刺激されると、刺激の直後に徐脈や短い心停止が起きることがあります。特に閾値以下の刺激や若い人で起きやすく、抗コリン薬の前投与で防ぎます。', card: 'asystole' }
           ] },
         { title: '第3回', memo: [['前の確認', '問題なし'], ['麻酔科から', '「前回、体動が出たのでプロポフォールを多めにした」']],
           steps: [
             { stim: { choose: true, mod: 1.3, weak: true } },
             { evalq: true },
-            { q: '発作が短く弱くなりました。考えられることと、次回の工夫は？', a: ['麻酔薬が多いと発作が短くなる。麻酔薬を必要最小限にし、十分に過換気し、強さを上げる', '閾値が下がったので、強さを下げる', '発作の長さは効き目に関係ないので、何もしない', '緊張病には ECT が効かないので中止する'],
+            { q: '発作が短く弱くなりました。考えられることと、次回の工夫は？', a: ['麻酔薬が多いと発作が短くなる。麻酔薬を減らし、十分に過換気する', '閾値が下がったしるしなので、次回は強さを下げる', '発作の長さは効き目に関係ないので、何も変えなくてよい', '緊張病には ECT が効かないしるしなので、中止する'],
               why: 'プロポフォールなどの麻酔薬は抗けいれん作用があり、量が多いと発作が短くなります。麻酔薬を必要最小限にし、刺激の前に十分に過換気して、強さも見直します。', card: null }
           ] },
         { title: '第4回', memo: [['前の確認', '問題なし'], ['経過', '自分で座れる。短く返事をする'], ['筋電図', '右足にカフ']],
           steps: [
-            { q: '右足にカフを巻くのはなぜ？', a: ['筋弛緩薬が右足に届かないようにして、その足のけいれんで運動発作を確かめるため', '血圧を測るため', '点滴の漏れを防ぐため', '静脈血栓を防ぐため'],
+            { q: '右足にカフを巻くのはなぜ？', a: ['その足のけいれんで、運動発作を確かめるため', '麻酔のあいだの血圧を、右足でくり返し測るため', '点滴が漏れたときに、薬が広がるのを防ぐため', '長く寝ている人の、足の静脈血栓を防ぐため'],
               why: 'カフ法です。筋弛緩薬を入れる前に片足のカフを収縮期血圧より高くふくらませ、その足だけはけいれんが見えるようにします。', card: null },
             { stim: { choose: true, mod: 1.0, hv: true } },
             { evalq: true }
@@ -401,14 +401,14 @@ body.ectfs #panel .opts{grid-template-columns:minmax(0,1fr)}
         { title: '第5回', memo: [['前の確認', '問題なし'], ['経過', '食事を自分でとる']],
           steps: [
             { stim: { choose: true, mod: 1.0, fade: true } },
-            { q: 'この記録の発作の終わり方について、正しいのは？', a: ['発作がだらだらと弱まり、発作後抑制がはっきりしない。質が十分でない可能性がある', '終わりがはっきりしているので理想的', '発作後抑制がないほうが脳にやさしく、よい', '終わり方は評価に関係ない'],
+            { q: 'この記録の発作の終わり方について、正しいのは？', a: ['発作がだらだらと弱まり、発作後抑制がはっきりしない', '大きな波のあと急に終わっていて、理想的な終わり方である', '発作後抑制がないほうが脳にやさしく、質のよい発作である', '終わり方は評価に関係なく、長さだけを見ればよい'],
               why: '質のよい発作では、大きな波のあとで急に終わり、脳波が平らに近くなります（発作後抑制）。だらだら終わるときは、強さや麻酔の条件を見直します。', card: 'fade' }
           ] },
         { title: '第6回', memo: [['前の確認', '問題なし'], ['経過', '会話ができ、病棟を歩ける']],
           steps: [
             { stim: { choose: true, mod: 1.05, hv: true } },
             { evalq: true },
-            { q: '緊張病が改善しました。このあと気をつけることは？', a: ['原因になった病気（気分障害・統合失調症など）を見立て直し、その治療と再発予防を続ける', '緊張病は一度治れば再発しない', 'ロラゼパムをすぐ全部やめる', '退院後はフォローしなくてよい'],
+            { q: '緊張病が改善しました。このあと気をつけることは？', a: ['背景の病気を見立て直し、その治療と再発予防を続ける', '緊張病は一度治れば再発しないので、治療は終わりにする', '症状が消えたので、ロラゼパムをその日に全部やめる', '退院したあとは、本人が困ったときだけ受診してもらう'],
               why: '緊張病は症状のまとまりで、背景に気分障害や統合失調症、体の病気があります。背景の病気を見立て直し、薬物療法や必要なら継続 ECT で再発を防ぎます。', card: null }
           ] }
       ] }
@@ -518,7 +518,7 @@ body.ectfs #panel .opts{grid-template-columns:minmax(0,1fr)}
       if (!small) {
         x.fillStyle = TOK['--hr']; x.textAlign = 'left'; x.font = '10px "BIZ UDGothic", monospace';
         var hrMax = 0, hrMin = 999; for (var q = iH; q < iH + nH; q++) { if (rec.H[q] > hrMax) hrMax = rec.H[q]; if (rec.H[q] < hrMin) hrMin = rec.H[q]; }
-        x.fillText('最高 ' + Math.round(hrMax) + ' / 最低 ' + Math.round(hrMin), LW + 4, yh + 10);
+        x.fillText('最高 ' + Math.round(hrMax) + ' / 最低 ' + Math.round(hrMin), LW + 4, rec.H[iH] > 105 ? yh + tk - 3 : yh + 10);
       }
       // 刺激の帯と、答えたあとの発作の終わりの印
       var stA = T0, stB = rec.ts;
@@ -532,7 +532,7 @@ body.ectfs #panel .opts{grid-template-columns:minmax(0,1fr)}
         if (te >= t0 && te < t0 + secs) {
           var xe = LW + (te - t0) * pps;
           x.strokeStyle = TOK['--gold']; x.lineWidth = 2; x.setLineDash([5, 3]); x.beginPath(); x.moveTo(xe, y0); x.lineTo(xe, y0 + tk * 3); x.stroke(); x.setLineDash([]);
-          if (!small) { x.fillStyle = TOK['--gold']; x.font = '700 11px "BIZ UDPGothic", sans-serif'; x.textAlign = 'left'; x.fillText('発作の終わり（' + Math.round(rec.sz.D) + '秒）', xe + 3, y0 + tk * 3 - 4); }
+          if (!small) { x.fillStyle = TOK['--gold']; x.font = '700 11px "BIZ UDPGothic", sans-serif'; var rightEdge = xe > LW + plotW - 110; x.textAlign = rightEdge ? 'right' : 'left'; x.fillText('発作の終わり（' + Math.round(rec.sz.D) + '秒）', xe + (rightEdge ? -4 : 3), y0 + tk * 3 - 4); }
         }
       }
     }
@@ -632,7 +632,7 @@ body.ectfs #panel .opts{grid-template-columns:minmax(0,1fr)}
             var w = doseWindow(st.stim), hint = st.stim.rul ? '右片側。閾値は約 ' + Math.round(S.stR) + '%（前回まで）。' : '両側。閾値は約 ' + Math.round(S.st) + '%（前回まで）。';
             h += '<div class="dose"><div class="dose-row"><label for="dose"><b>刺激の強さ</b></label><output id="doseOut" for="dose">' + S.dose + '%</output>' +
               '<input type="range" id="dose" min="5" max="100" step="5" value="' + S.dose + '"></div>' +
-              '<p class="hint">' + hint + (st.stim.hv ? '刺激の前に十分に過換気しています。' : '') + '　閾値は回を追うごとに少しずつ上がります。</p>' +
+              '<p class="hint">' + (st.stim.re ? '<b>発作が出ませんでした。</b>遅れて始まる発作がないことを確かめ、強さを上げて再刺激します。' : '') + hint + (st.stim.hv ? '刺激の前に十分に過換気しています。' : '') + '　閾値は回を追うごとに少しずつ上がります。</p>' +
               '<button type="button" class="btn stim" id="stimBtn">この強さで刺激する</button></div>';
           } else {
             h += '<p class="result-line">' + esc(st.stim.note || '') + '</p><button type="button" class="btn stim" id="stimBtn">' + st.stim.fixed + '% で刺激する</button>';
@@ -640,9 +640,9 @@ body.ectfs #panel .opts{grid-template-columns:minmax(0,1fr)}
           waiting = true; break;
         } else {
           var rTxt = o.kind === 'missed' ? '発作は出ませんでした' : o.kind === 'prolonged' ? '発作が止まりません' : '発作が出ました';
-          var win = st.stim.choose ? doseWindow(st.stim) : null;
+          var win = o.win;
           h += '<p class="result-line"><b>' + o.dose + '%</b>（' + (st.stim.rul ? '右片側' : '両側') + '）で刺激 → ' + rTxt + '。' +
-            (st.stim.choose && S.picks[key + 'e'] ? ' この回の閾値は約 ' + Math.round(o.st) + '% で、刺激は閾値の <b>' + o.r.toFixed(1) + '倍</b>。目安は ' + Math.round(win[0]) + '〜' + Math.round(win[1]) + '%' + (o.dose >= win[0] && o.dose <= win[1] + 5 ? '（目安どおり）' : o.dose < win[0] ? '（弱め）' : '（強め：記憶への影響が増える）') + '。' : '') + '</p>';
+            (st.stim.choose && S.picks[key + 'e'] ? ' この回の閾値は約 ' + Math.round(o.st) + '% で、刺激は閾値の <b>' + o.r.toFixed(1) + '倍</b>。目安は ' + Math.round(win[0]) + '〜' + Math.round(win[1]) + '%' + (o.dose >= win[0] - 3 && o.dose <= win[1] + 5 ? '（目安どおり）' : o.dose < win[0] ? '（弱め）' : '（強め：記憶への影響が増える）') + '。' : '') + '</p>';
         }
       } else {
         var q = st.evalq ? (S.picks[key + 'q'] = S.picks[key + 'q'] || evalQ(S.last)) : st.durq ? (S.picks[key + 'q'] = S.picks[key + 'q'] || durQ(S.last)) : st;
@@ -663,14 +663,20 @@ body.ectfs #panel .opts{grid-template-columns:minmax(0,1fr)}
     var c = CASES[S.ci], st = c.sessions[S.si].steps[S.step], key = S.si + '-' + S.step;
     var dose = st.stim.choose ? S.dose : st.stim.fixed;
     var o = outcome(st.stim, dose);
+    o.win = st.stim.choose ? doseWindow(st.stim) : null;
     S.picks[key + 'o'] = o; S.picks[key + 'e'] = true; S.last = o;
     if (st.stim.rul) S.rul = true;
     effect(o, st.stim);
-    if (st.stim.choose) { S.max += 1; var w = doseWindow(st.stim); if (dose >= w[0] && dose <= w[1] + 5) S.pts += 1; else S.log.push('第' + (S.si + 1) + '回の強さ：' + dose + '%（目安 ' + Math.round(w[0]) + '〜' + Math.round(w[1]) + '%）'); }
+    if (st.stim.choose) { S.max += 1; var w = doseWindow(st.stim); if (dose > w[1] + 5) S.strong = (S.strong || 0) + 1;
+      if (dose >= w[0] - 3 && dose <= w[1] + 5) S.pts += 1; else S.log.push('第' + (S.si + 1) + '回の強さ：' + dose + '%（目安 ' + Math.round(w[0]) + '〜' + Math.round(w[1]) + '%）'); }
     if (o.kind !== 'missed') {
       // 閾値の更新（滴定で出たときは、その強さを閾値の目安にする）
       if (!st.stim.choose) S.st = Math.max(S.st, dose * 0.92);
       if (st.stim.rul) S.stR *= 1.08; else S.st *= 1.08;
+    }
+    if (o.kind === 'missed' && st.stim.choose) {
+      var stepsAll = c.sessions[S.si].steps, nx = stepsAll[S.step + 1];
+      if (!(nx && nx.evalq)) stepsAll.splice(S.step + 1, 0, { stim: Object.assign({}, st.stim, { hv: true, re: true }), _added: true });
     }
     CUR_REC = { rec: o.rec, label: '第' + (S.si + 1) + '回 ・ ' + dose + '% ・ ' + (st.stim.rul ? '右片側' : '両側'), showEnd: false };
     S.res[S.si] = o.kind === 'good' ? '十分' : o.kind === 'missed' ? (S.res[S.si] || 'なし') : o.kind === 'short' ? '短い' : o.kind === 'prolonged' ? '遷延' : '弱い';
@@ -693,7 +699,8 @@ body.ectfs #panel .opts{grid-template-columns:minmax(0,1fr)}
     // 発作が出なかったときは、次に再刺激の段を足す（滴定の回は台本どおり）
     if (st.evalq && S.last.kind === 'missed') {
       var steps = CASES[S.ci].sessions[si].steps;
-      steps.splice(k + 1, 0, { stim: { choose: true, mod: (steps.filter(function (x) { return x.stim; })[0].stim.mod || 1), rul: S.rul, hv: true }, _added: true }, { evalq: true, _added: true });
+      var prev = null; for (var j = k - 1; j >= 0; j--) if (steps[j].stim) { prev = steps[j].stim; break; }
+      steps.splice(k + 1, 0, { stim: Object.assign({}, prev || {}, { choose: true, fixed: undefined, rul: S.rul, hv: true, re: true }), _added: true }, { evalq: true, _added: true });
     }
     if (st.q && st.card === 'missed' && CUR_REC) CUR_REC.showEnd = true;
     S.step++;
@@ -705,7 +712,7 @@ body.ectfs #panel .opts{grid-template-columns:minmax(0,1fr)}
     var c = CASES[S.ci];
     if (!S.res[S.si]) S.res[S.si] = '延期';
     S.si++; S.step = 0; CUR_REC = null;
-    if (S.si < c.sessions.length) { S.st *= 1.04; S.stR *= 1.04; }
+    if (S.si < c.sessions.length) { S.st *= 1.04; if (S.rul) S.stR *= 1.04; }
     render(true);
     window.scrollTo({ top: document.querySelector('.course').offsetTop - 10, behavior: 'smooth' });
   }
@@ -717,7 +724,7 @@ body.ectfs #panel .opts{grid-template-columns:minmax(0,1fr)}
     if (!best[c.id] || pct > best[c.id]) { best[c.id] = pct; lsSet(BESTKEY, JSON.stringify(best)); }
     panel.innerHTML = '<div class="ph"><h2 id="panelH" tabindex="-1">コースの記録 ・ ' + esc(c.name) + '</h2></div>' +
       '<div class="rank"><span class="big">' + rank + '</span><span class="pts2">' + pct + '<small class="muted"> ／100</small></span><span class="muted" style="font-size:var(--fs-s)">判断 ' + S.pts + ' / ' + S.max + '　自己ベスト ' + best[c.id] + '点</span></div>' +
-      '<p>' + (remit ? '<b>' + c.scale.word + '</b>しました。' : '改善しましたが、まだ症状が残っています。') + ' ' + c.scale.name + ' ' + c.ham + ' → ' + S.ham + '、記憶・見当識 ' + S.cog.toFixed(1) + ' / 10。' + (S.cog < 6 ? '記憶への影響が大きめでした。強さが閾値に対して強すぎなかったか、電極の位置や間隔を振り返りましょう。' : '') + '</p>' +
+      '<p>' + (remit ? '<b>' + c.scale.word + '</b>しました。' : '改善しましたが、まだ症状が残っています。') + ' ' + c.scale.name + ' ' + c.ham + ' → ' + S.ham + '、記憶・見当識 ' + S.cog.toFixed(1) + ' / 10。' + (S.cog < 6 ? (S.strong ? '記憶への影響が大きめでした。強さが閾値に対して強すぎなかったか、電極の位置や間隔を振り返りましょう。' : '両側の ECT を続けたぶん、記憶への影響が出ています。多くは数週間で回復しますが、記録して、本人と家族に説明します。') : '') + '</p>' +
       (S.log.length ? '<ol class="log">' + S.log.map(function (l) { return '<li class="x">✗ ' + esc(l) + '</li>'; }).join('') + '</ol>' : '<p class="muted">すべての判断が目安どおりでした。</p>') +
       '<div class="row" style="display:flex;gap:10px;flex-wrap:wrap"><button type="button" class="btn" id="againBtn">もう一度この患者さん</button>' +
       '<button type="button" class="ghost" id="otherBtn">ほかの患者さんへ</button></div>';

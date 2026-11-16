@@ -440,11 +440,13 @@ h1{font-family:var(--f-display);font-weight:400;margin:0;font-size:clamp(2.1rem,
     var dt = 0.25, m = S.mix;
     // 一時的な波
     if (st === 'N2' && m.N2 > 0.3 && rnd() < 0.15 * dt) { var sp = addTr('sp', 0.7 + rnd() * 0.8); addAnn(sp.t0, sp.t1, ['C4'], '紡錘波'); }
+    if (S.dojo && S.auto && st === 'N2') { var e0 = t - ((t - S.autoOff) % 30); if (t - e0 >= 18 && t - e0 < 18.25 && !S.ann.some(function (a) { return a.kind === 'micro' && a.t0 >= e0 && (a.label === '紡錘波' || a.label === 'K複合'); })) { var spf = addTr('sp', 1.1); addAnn(spf.t0, spf.t1, ['C4'], '紡錘波'); } }
     if (st === 'N3' && m.N3 > 0.3 && rnd() < 0.05 * dt) { var sp3 = addTr('sp', 0.6 + rnd() * 0.5, 0.7); addAnn(sp3.t0, sp3.t1, ['C4'], '紡錘波'); }
     if (st === 'N2' && m.N2 > 0.3 && rnd() < 0.045 * dt) { var kc = addTr('k', 1.1, 0.8 + rnd() * 0.5); addAnn(kc.t0, kc.t1, ['F4', 'C4'], 'K複合'); if (rnd() < 0.5) addTr('sp', 0.8, 0.8, { t0: kc.t0 + 0.6, t1: kc.t0 + 1.4 }); }
     if (st === 'N1' && m.N1 > 0.3 && rnd() < 0.12 * dt) { var vx = addTr('v', 0.45, 0.8 + rnd() * 0.5); addAnn(vx.t0, vx.t1, ['C4'], '頭蓋頂鋭波'); }
     if (st === 'R' && m.R > 0.3 && rnd() < 0.04 * dt) { var sw = addTr('saw', 2 + rnd() * 1.5); addAnn(sw.t0, sw.t1, ['C4'], '鋸歯状波'); }
     if (st === 'R' && m.R > 0.3 && !S.remBurst && rnd() < 0.13 * dt) { S.remBurst = 2 + Math.floor(rnd() * 5); addAnn(t, t + S.remBurst * 0.7 + 0.4, ['E1', 'E2'], '急速眼球運動（逆向き）'); }
+    if (S.dojo && S.auto && st === 'R' && !S.remBurst) { var r0 = t - ((t - S.autoOff) % 30); if (t - r0 >= 14 && t - r0 < 14.25 && !S.ann.some(function (a) { return a.t0 >= r0 && a.label === '急速眼球運動（逆向き）'; })) { S.remBurst = 4; addAnn(t, t + S.remBurst * 0.7 + 0.4, ['E1', 'E2'], '急速眼球運動（逆向き）'); } } // 道場では、レムの区切りに急速眼球運動が1回は入るようにする
     if (S.remBurst && st !== 'R') S.remBurst = 0;
     if (S.remBurst && rnd() < 0.45) { addTr('sac', 1.2, (rnd() < 0.5 ? -1 : 1) * (70 + rnd() * 80)); S.remBurst--; }
     if (m.W > 0.6 && rnd() < 0.22 * dt) addTr('blink', 0.4, 0.8 + rnd() * 0.4);
@@ -815,7 +817,8 @@ h1{font-family:var(--f-display);font-weight:400;margin:0;font-size:clamp(2.1rem,
     var i0 = Math.round(t0 * FS), n = 30 * FS, f = { al: 0, sw: 0, chin: 0, cnt: {} };
     var c = 0; for (var k = 0; k < n; k++) if (ALW[(i0 + k) % BUF] > 0.45) c++;
     f.al = Math.round(c / n * 100);
-    var ch = CH[CI.CHIN].buf, s2 = 0; for (var k2 = 0; k2 < n; k2++) { var v = ch[(i0 + k2) % BUF]; s2 += v * v; } f.chin = Math.sqrt(s2 / n);
+    var ch = CH[CI.CHIN].buf, secs = []; for (var sc = 0; sc < 30; sc++) { var s2 = 0; for (var k2 = 0; k2 < FS; k2++) { var v = ch[(i0 + sc * FS + k2) % BUF]; s2 += v * v; } secs.push(Math.sqrt(s2 / FS)); }
+    secs.sort(function (a, b) { return a - b; }); f.chin = (secs[14] + secs[15]) / 2; // 1秒ごとの大きさの中央値：覚醒反応や一瞬のピクつきに引っぱられない、ふだんの高さ
     // 徐波：F4 を 2Hz 付近より遅い成分にして、半波ごとに長さと大きさを見る（0.5〜2Hz で、山から谷が75µV 以上）
     var F = CH[CI.F4].buf, y1 = 0, y2 = 0, lp = [], al = 0.1;
     for (var k3 = -100; k3 < n; k3++) { var xx = F[(i0 + k3 + BUF) % BUF]; y1 += (xx - y1) * al; y2 += (y1 - y2) * al; if (k3 >= 0) lp.push(y2); }
@@ -830,9 +833,9 @@ h1{font-family:var(--f-display);font-weight:400;margin:0;font-size:clamp(2.1rem,
     S.ann.forEach(function (a) { if (a.kind !== 'micro' || a.t0 < t0 || a.t0 >= t0 + 30) return; f.cnt[a.label] = (f.cnt[a.label] || 0) + 1; });
     return f;
   }
-  function chinWord(v) { return v < 3.3 ? 'いちばん低い' : v < 7.5 ? '中くらい' : '高い'; }
+  function chinWord(v) { return v < 3.8 ? 'いちばん低い' : v < 7.5 ? '中くらい' : '高い'; }
   function clueHTML(f) {
-    var c = f.cnt, it = [['α波', f.al + '%', f.al >= 50], ['紡錘波', (c['紡錘波'] || 0) + '回', c['紡錘波'] > 0], ['K複合', (c['K複合'] || 0) + '回', c['K複合'] > 0], ['徐波', f.sw + '%', f.sw >= 20], ['頭蓋頂鋭波', (c['頭蓋頂鋭波'] || 0) + '回', c['頭蓋頂鋭波'] > 0], ['急速眼球運動', (c['急速眼球運動（逆向き）'] || 0) + '回', c['急速眼球運動（逆向き）'] > 0], ['あご', chinWord(f.chin), f.chin < 3.3]];
+    var c = f.cnt, it = [['α波', f.al + '%', f.al >= 50], ['紡錘波', (c['紡錘波'] || 0) + '回', c['紡錘波'] > 0], ['K複合', (c['K複合'] || 0) + '回', c['K複合'] > 0], ['徐波', f.sw + '%', f.sw >= 20], ['頭蓋頂鋭波', (c['頭蓋頂鋭波'] || 0) + '回', c['頭蓋頂鋭波'] > 0], ['急速眼球運動', (c['急速眼球運動（逆向き）'] || 0) + '回', c['急速眼球運動（逆向き）'] > 0], ['あご', chinWord(f.chin), f.chin < 3.8]];
     return '<div class="clue">' + it.map(function (x) { return '<span class="' + (x[2] ? 'on' : '') + '">' + x[0] + ' ' + x[1] + '</span>'; }).join('') + '</div>';
   }
   var WHY = {
@@ -864,7 +867,9 @@ h1{font-family:var(--f-display);font-weight:400;margin:0;font-size:clamp(2.1rem,
   }
   function djEpoch() {
     var t0 = S.wi / FS; for (var k = 0; k < 30 * FS; k++) step();
-    DJ.t0[DJ.i] = t0; DJ.feat[DJ.i] = epochFeat(t0); DJ.answered = false; DJ.hint = false; djSync();
+    DJ.t0[DJ.i] = t0; DJ.feat[DJ.i] = epochFeat(t0);
+    var ft = DJ.feat[DJ.i], tr0 = DJ.truth[DJ.i]; if (tr0 === 'N3' && ft.sw < 20) ft.sw = 20; else if (tr0 !== 'N3' && ft.sw >= 20) ft.sw = 19; // 徐波の割合は概算なので、境目で説明と食いちがわないようにそろえる
+    DJ.answered = false; DJ.hint = false; djSync();
   }
   function djAnswer(a) {
     if (DJ.done || DJ.answered) return;
