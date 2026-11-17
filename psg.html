@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="robots" content="noindex, nofollow">
-<meta name="app-version" content="20261116183939">
+<meta name="app-version" content="20261118002028">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
@@ -196,6 +196,25 @@ h1{font-family:var(--f-display);font-weight:400;margin:0;font-size:clamp(2.1rem,
 .row-btn{display:flex;flex-wrap:wrap;gap:8px}
 .kbd{font-size:var(--fs-xs);color:var(--muted)}
 #djHyp{cursor:pointer}
+/* イベント判定 */
+.ev-main{grid-template-rows:auto minmax(0,1fr)}
+.ev-trace canvas{touch-action:none;cursor:crosshair}
+.ev-no{font-family:var(--f-mono);font-size:var(--fs-s);color:var(--muted);margin-left:auto}
+.ev-no b{font-family:var(--f-display);font-weight:400;font-size:1.4rem;color:var(--ink)}
+.ev-task{font-weight:700}
+.ev-types{display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:6px}
+.ev-types button{min-height:48px;border-radius:10px;border:2px solid var(--accent);background:var(--panel);color:var(--accent);font-weight:700;cursor:pointer}
+.ev-types button:hover{background:var(--accent-soft)}
+.ev-types button.cancel{border-color:var(--line);color:var(--muted)}
+.ev-list{list-style:none;margin:0;padding:0;display:grid;gap:4px}
+.ev-list li{display:flex;align-items:center;gap:8px;font-size:var(--fs-s);border:1px solid var(--line);border-radius:8px;padding:4px 8px;background:var(--sheet)}
+.ev-list li .sw{width:12px;height:12px;border-radius:3px;flex:none}
+.ev-list li .del{margin-left:auto;border:1px solid var(--line);background:var(--panel);border-radius:6px;min-height:32px;padding:0 10px;cursor:pointer}
+.ev-res{list-style:none;margin:0;padding:0;display:grid;gap:6px}
+.ev-res li{border-radius:8px;padding:6px 10px;font-size:var(--fs-s);line-height:1.55;border-left:4px solid var(--line);background:var(--sheet)}
+.ev-res li.ok{border-left-color:var(--ok)} .ev-res li.ng{border-left-color:var(--hot)} .ev-res li.skip{border-left-color:var(--muted)}
+.ev-res li b{display:block}
+.ev-rule{font-size:var(--fs-xs);color:var(--muted)}
 /* 人の絵の動き */
 .pt-leg{transform-box:fill-box;transform-origin:0% 50%;transition:transform .15s}
 .pt-arm{transform-box:fill-box;transform-origin:100% 50%;transition:transform .2s}
@@ -203,6 +222,7 @@ h1{font-family:var(--f-display);font-weight:400;margin:0;font-size:clamp(2.1rem,
 /* スマホ・細い画面：脳波を上、操作を下に */
 @media (max-width:900px){
   #djDesk .d-main{grid-template-rows:auto auto 56svh}
+  #evDesk .ev-main{grid-template-rows:auto 60svh}
   .desk{grid-template-columns:minmax(0,1fr);height:auto}
   .d-main{grid-template-rows:auto auto 62svh}
   .d-side{overflow:visible}
@@ -239,7 +259,7 @@ h1{font-family:var(--f-display);font-weight:400;margin:0;font-size:clamp(2.1rem,
       <h2>練習する</h2>
       <div class="soon">
         <a class="go" href="#stage"><span class="lv new">NEW</span><b>ステージ判定道場 ▶</b><small>30秒を見て W・N1・N2・N3・R を当てる。続けると睡眠図ができる</small></a>
-        <div><span class="lv">準備中</span><b>イベント判定</b><small>無呼吸・低呼吸・覚醒・脚の動きを、なぞって付ける</small></div>
+        <a class="go" href="#event"><span class="lv new">NEW</span><b>イベント判定 ▶</b><small>無呼吸・低呼吸・覚醒・脚の動きを、なぞって付ける</small></a>
         <div><span class="lv">準備中</span><b>睡眠図あてクイズ</b><small>一晩の睡眠図だけで、どの人の夜かを当てる</small></div>
         <div><span class="lv">準備中</span><b>症例で読む</b><small>治らない不眠・夜中に暴れる・授業中に眠る…精神科の症例</small></div>
       </div>
@@ -317,6 +337,22 @@ h1{font-family:var(--f-display);font-weight:400;margin:0;font-size:clamp(2.1rem,
       </aside>
     </div>
   </section>
+  <!-- イベント判定 -->
+  <section id="event" hidden aria-label="イベント判定">
+    <div class="appbar"><a href="#home">← ホーム</a><b>睡眠よみ道場</b><span>／イベント判定</span></div>
+    <div class="desk" id="evDesk">
+      <div class="d-main ev-main">
+        <div class="tbar">
+          <span class="tb-item"><span class="lb">表示</span><span class="seg" id="evGrp"><button type="button" data-g="auto">おすすめ</button><button type="button" data-g="all">全部</button></span></span>
+          <span class="ev-no" id="evNo"></span>
+        </div>
+        <div class="trace ev-trace"><canvas id="evCv" role="img" aria-label="判定する記録。横になぞって範囲を付ける"></canvas></div>
+      </div>
+      <aside class="d-side">
+        <div class="card ex" id="evEx" aria-live="polite"></div>
+      </aside>
+    </div>
+  </section>
   <div class="toast" id="toast" role="status" hidden></div>
 </div>
 
@@ -337,6 +373,7 @@ h1{font-family:var(--f-display);font-weight:400;margin:0;font-size:clamp(2.1rem,
   function hm(sec) { sec = Math.max(0, Math.round(sec)); var h = Math.floor(sec / 3600), m = Math.floor(sec / 60) % 60; return h + '時間' + (m < 10 ? '0' : '') + m + '分'; }
   var toastT = 0;
   function toast(html) { var el = document.getElementById('toast'); el.innerHTML = html; el.hidden = false; clearTimeout(toastT); toastT = setTimeout(function () { el.hidden = true; }, 3600); }
+  function esc(v) { return String(v).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); }
   function css(v) { return getComputedStyle(document.documentElement).getPropertyValue(v).trim(); }
 
   // 帯域を通した雑音（2次の帯域通過フィルタ）。最初に強さをそろえておく
@@ -379,6 +416,8 @@ h1{font-family:var(--f-display);font-weight:400;margin:0;font-size:clamp(2.1rem,
     healthy: { n: '健康な人', d: '30代。いびきなし。夜中に何度か短く目が覚めるのは正常の範囲。', spo2: 97.5, snore: 0, osa: 0, rbd: false, plm: 0, age: 'young' },
     osa: { n: 'いびきと無呼吸の人', d: '50代男性、太りぎみ。家族に「いびきが止まる」と言われた。閉塞性睡眠時無呼吸（のどがふさがって呼吸が止まる）。', spo2: 95.5, snore: 0.7, osa: 1, rbd: false, plm: 0, age: 'mid' },
     rbd: { n: '夜中に暴れる人', d: '70代男性。夢の中でけんかをして、隣の妻をたたいてしまう。レム睡眠行動障害（RBD）。', spo2: 95.5, snore: 0.15, osa: 0, rbd: true, plm: 0, age: 'old' },
+    // イベント判定用：いびきはあるが、勝手に無呼吸・自然な覚醒反応を起こさない（出来事は台本どおりに起こす）
+    evt: { n: '判定用の記録', d: '', spo2: 96.5, snore: 0.45, osa: 0, rbd: false, plm: 0, age: 'mid', quiet: true },
     plm: { n: '脚がピクつく人', d: '60代女性。夕方から脚がむずむずする（むずむず脚症候群）。眠ると脚が周期的にピクつく（周期性四肢運動）。', spo2: 96.5, snore: 0.1, osa: 0, rbd: false, plm: 1, age: 'mid' }
   };
 
@@ -443,10 +482,10 @@ h1{font-family:var(--f-display);font-weight:400;margin:0;font-size:clamp(2.1rem,
     if (S.auto) { var ei = Math.floor((t - S.autoOff) / 30); var ns = S.night[Math.min(ei, S.night.length - 1)]; if (ns !== S.stage) setStageRaw(ns); st = S.stage; }
     var dt = 0.25, m = S.mix;
     // 一時的な波
-    if (st === 'N2' && m.N2 > 0.3 && rnd() < 0.15 * dt) { var sp = addTr('sp', 0.7 + rnd() * 0.8); addAnn(sp.t0, sp.t1, ['C4'], '紡錘波'); }
+    if (st === 'N2' && m.N2 > 0.3 && arousalLevel(t) < 0.05 && rnd() < 0.15 * dt) { var sp = addTr('sp', 0.7 + rnd() * 0.8); addAnn(sp.t0, sp.t1, ['C4'], '紡錘波'); }
     if (S.dojo && S.auto && st === 'N2') { var e0 = t - ((t - S.autoOff) % 30); if (t - e0 >= 18 && t - e0 < 18.25 && !S.ann.some(function (a) { return a.kind === 'micro' && a.t0 >= e0 && (a.label === '紡錘波' || a.label === 'K複合'); })) { var spf = addTr('sp', 1.1); addAnn(spf.t0, spf.t1, ['C4'], '紡錘波'); } }
     if (st === 'N3' && m.N3 > 0.3 && rnd() < 0.05 * dt) { var sp3 = addTr('sp', 0.6 + rnd() * 0.5, 0.7); addAnn(sp3.t0, sp3.t1, ['C4'], '紡錘波'); }
-    if (st === 'N2' && m.N2 > 0.3 && rnd() < 0.045 * dt) { var kc = addTr('k', 1.1, 0.8 + rnd() * 0.5); addAnn(kc.t0, kc.t1, ['F4', 'C4'], 'K複合'); if (rnd() < 0.5) addTr('sp', 0.8, 0.8, { t0: kc.t0 + 0.6, t1: kc.t0 + 1.4 }); }
+    if (st === 'N2' && m.N2 > 0.3 && arousalLevel(t) < 0.05 && arousalLevel(t + 1.2) < 0.05 && rnd() < 0.045 * dt) { var kc = addTr('k', 1.1, 0.8 + rnd() * 0.5); addAnn(kc.t0, kc.t1, ['F4', 'C4'], 'K複合'); if (rnd() < 0.5) addTr('sp', 0.8, 0.8, { t0: kc.t0 + 0.6, t1: kc.t0 + 1.4 }); }
     if (st === 'N1' && m.N1 > 0.3 && rnd() < 0.12 * dt) { var vx = addTr('v', 0.45, 0.8 + rnd() * 0.5); addAnn(vx.t0, vx.t1, ['C4'], '頭蓋頂鋭波'); }
     if (st === 'R' && m.R > 0.3 && rnd() < 0.04 * dt) { var sw = addTr('saw', 2 + rnd() * 1.5); addAnn(sw.t0, sw.t1, ['C4'], '鋸歯状波'); }
     if (st === 'R' && m.R > 0.3 && !S.remBurst && rnd() < 0.13 * dt) { S.remBurst = 2 + Math.floor(rnd() * 5); addAnn(t, t + S.remBurst * 0.7 + 0.4, ['E1', 'E2'], '急速眼球運動（逆向き）'); }
@@ -466,7 +505,7 @@ h1{font-family:var(--f-display);font-weight:400;margin:0;font-size:clamp(2.1rem,
       else { var hyp = rnd() < 0.38; startResp(hyp ? 'hyp' : 'obs', (st === 'R' ? 22 : 14) + rnd() * 16); }
     }
     // 健康な人も、たまに自然な覚醒反応
-    if (!p.osa && sleeping() && rnd() < 0.004 * dt) startArousal(3 + rnd() * 6, '覚醒反応（自然）');
+    if (!p.osa && !p.quiet && sleeping() && rnd() < 0.004 * dt) startArousal(3 + rnd() * 6, '覚醒反応（自然）');
     // 古いものを捨てる
     if (S.tr.length > 60) S.tr = S.tr.filter(function (o) { return o.t1 > t - 2; });
   }
@@ -488,16 +527,17 @@ h1{font-family:var(--f-display);font-weight:400;margin:0;font-size:clamp(2.1rem,
   var LATER = [];
   function setTimeout0(fn, sec) { LATER.push({ t: S.wi / FS + sec, fn: fn }); }
 
-  function startResp(type, dur) {
+  // opts.noArousal：終わりに覚醒反応を起こさない（判定の練習で「数えないもの」を作るため）
+  function startResp(type, dur, opts) {
     var t = S.wi / FS;
-    S.resp = { type: type, t0: t, t1: t + dur, minSat: S.sat };
-    var lab = { obs: '閉塞性無呼吸', cen: '中枢性無呼吸', hyp: '低呼吸' }[type];
+    S.resp = { type: type, t0: t, t1: t + dur, minSat: S.sat, opts: opts || {} };
+    var lab = { obs: '閉塞性無呼吸', cen: '中枢性無呼吸', hyp: '低呼吸', dip: '呼吸が少し浅い' }[type];
     addAnn(t, t + dur, type === 'hyp' ? ['NP', 'THO', 'ABD'] : ['FLOW', 'NP', 'THO', 'ABD'], lab, 'event');
     S.lastEv = type; countEv(type); showEx();
   }
   function endResp(t) {
     var r = S.resp; S.resp = { type: 'rec', t0: t, t1: t + (r.type === 'cen' ? 6 : 9), from: r.type };
-    if (r.type !== 'cen' || rnd() < 0.4) startArousal(r.type === 'hyp' ? 3.5 + rnd() * 3 : 5 + rnd() * 6, r.type === 'cen' ? '覚醒反応' : '呼吸再開時の覚醒反応');
+    if (!(r.opts && r.opts.noArousal) && (r.type !== 'cen' || rnd() < 0.4)) startArousal(r.type === 'hyp' ? 3.5 + rnd() * 3 : 5 + rnd() * 6, r.type === 'cen' ? '覚醒反応' : '呼吸再開時の覚醒反応');
     // SpO2 の低下は遅れて出る：その場所にも目印
     var lag = 18;
     addAnn(r.t0 + lag + (r.t1 - r.t0) * 0.5, t + lag + 6, ['SPO2'], 'SpO2 が遅れて下がる', 'event');
@@ -553,7 +593,9 @@ h1{font-family:var(--f-display);font-weight:400;margin:0;font-size:clamp(2.1rem,
       var pr = (t - r.t0) / (r.t1 - r.t0);
       if (r.type === 'obs') { tFlow = 0.04; tEff = 1 + 0.6 * pr; tPar = 2.6; tSn = 0; }
       else if (r.type === 'cen') { tFlow = 0.03; tEff = 0.04; tSn = 0; }
-      else if (r.type === 'hyp') { tFlow = 0.42; tEff = 0.75; tLim = 1; tPar = 0.6; tSn = Math.max(tSn, 0.5); }
+      else if (r.type === 'hyp') { tFlow = 0.4; tEff = 0.75; tLim = 1; tPar = 0.6; tSn = Math.max(tSn, 0.5); }
+      else if (r.type === 'dip') { tFlow = 0.68; tEff = 0.9; tLim = 0.4; tSn = Math.max(tSn, 0.4); }
+      else if (r.type === 'rec' && r.from === 'dip') { tFlow = 1.05; tEff = 1.05; }
       else if (r.type === 'rec') { tFlow = 1.7; tEff = 1.6; rateT += 5; tSn = r.from === 'cen' ? 0.1 : Math.max(1.4, tSn * 2); }
       if (t >= r.t1) { if (r.type === 'rec') S.resp = null; else endResp(t); }
     }
@@ -571,7 +613,7 @@ h1{font-family:var(--f-display);font-weight:400;margin:0;font-size:clamp(2.1rem,
     out.SNORE = S.snore * Math.max(0, sb) * src.sn() * 0.5;
     // SpO2：換気が足りないと体の中で下がり、指先の値は約18秒遅れて出る
     var deficit = 1 - Math.min(S.flow, S.eff * 1.5);
-    if (deficit > 0.3) S.sat -= deficit * 0.36 * dt; else S.sat += (p.spo2 - S.sat) * 0.13 * dt;
+    if (deficit > 0.3) S.sat -= deficit * 0.44 * dt; else S.sat += (p.spo2 - S.sat) * 0.13 * dt;
     S.sat = clamp(S.sat, 70, 100);
     S.satBuf[i % BUF] = S.sat;
     var lagI = i - 18 * FS, satShown = lagI >= 0 ? S.satBuf[lagI % BUF] : p.spo2;
@@ -659,7 +701,8 @@ h1{font-family:var(--f-display);font-weight:400;margin:0;font-size:clamp(2.1rem,
       }
       ctx.stroke();
     });
-    // 30秒表示：今の区切りの段階（本当の段階）
+    // イベント判定で、画面の位置を時刻に直すために、描いた枠組みを残しておく
+    drawTrace.last = { cv: cv, LW: LW, plotW: plotW, tStart: tStart, win: win, top: top, H: H, W: W, rows: rows };
 
   }
   function drawSpo2(ctx, c, rw, LW, plotW, i0, n, iEnd) {
@@ -961,6 +1004,166 @@ h1{font-family:var(--f-display);font-weight:400;margin:0;font-size:clamp(2.1rem,
     if (m) { djAnswer(m); e.preventDefault(); } else if (e.key === 'Enter' || e.key === ' ') { if (DJ.answered || DJ.done) { djNext(); e.preventDefault(); } }
   });
 
+  /* ====================== イベント判定 ======================
+     場面（SCENES）ごとに台本どおりの出来事を起こして記録を作り、利用者が横になぞって付けた範囲と、本当の出来事を比べる。
+     本当の出来事は2種類：数えるもの（type が obs・cen・hyp・leg・aro）と、数えないもの（none。数えない理由 why つき）。 */
+  var EV_TYPES = {
+    obs: { n: '閉塞性無呼吸', col: '#c0404a' }, cen: { n: '中枢性無呼吸', col: '#6a4bb0' }, hyp: { n: '低呼吸', col: '#1f5fa8' },
+    leg: { n: '脚の動き', col: '#2a7a55' }, aro: { n: '覚醒反応', col: '#b0700f' }
+  };
+  var EV_WHY = {
+    obs: '気流（温度）が90％以上下がって（ほぼ平ら）10秒以上。胸と腹は動き続け、逆向きになっている → 閉塞性無呼吸。',
+    cen: '気流も、胸と腹の動きも、いっしょに止まった（息をしようとする動きがない） → 中枢性無呼吸。',
+    hyp: '鼻圧の振れが30％以上下がって10秒以上。そのうえ SpO2 が3％以上下がった（または覚醒反応） → 低呼吸。',
+    leg: '脚の筋電図が0.5〜10秒、はっきり上がった → 脚の動き（LM）。5〜90秒おきに4回以上続けば周期性四肢運動（PLM）。',
+    aro: '10秒以上眠ったあと、脳波が3秒以上、急に速くなった（α波・速い波。あごの筋電図も上がる） → 覚醒反応。'
+  };
+  // 場面の台本。at は場面の始まりからの秒、dur は長さ（秒）。j は少しずらす幅（毎回すこし変わる）
+  var SCENES = [
+    { kind: 'resp', win: 120, title: '呼吸の出来事を付ける（1）', acts: [{ at: 10, dur: 22, ev: 'obs', j: 3 }, { at: 74, dur: 20, ev: 'hyp', j: 3 }] },
+    { kind: 'resp', win: 120, title: '呼吸の出来事を付ける（2）', acts: [{ at: 12, dur: 18, ev: 'cen', j: 4 }, { at: 58, dur: 26, ev: 'obs', j: 4 }] },
+    { kind: 'resp', win: 120, title: '数えるもの・数えないもの（呼吸）', acts: [
+      { at: 10, dur: 7, ev: 'obs', none: true, noAro: true, j: 2, why: '気流は止まったが、10秒未満。無呼吸として数えない。' },
+      { at: 42, dur: 18, ev: 'dip', none: true, noAro: true, j: 2, why: '鼻圧の振れは3割ほど下がったが、SpO2 の低下が3％未満で、覚醒反応もない → 低呼吸として数えない（推奨ルール）。' },
+      { at: 80, dur: 18, ev: 'hyp', j: 2 }] },
+    { kind: 'resp', win: 120, title: '呼吸の出来事を付ける（3）', acts: [{ at: 10, dur: 20, ev: 'hyp', j: 3 }, { at: 50, dur: 15, ev: 'cen', j: 3 }, { at: 84, dur: 15, ev: 'obs', j: 3 }] },
+    { kind: 'plm', win: 120, title: '脚の動きを付ける', acts: [
+      { at: 10, dur: 2, ev: 'leg', j: 2 }, { at: 34, dur: 2.5, ev: 'leg', j: 2 }, { at: 57, dur: 1.5, ev: 'leg', j: 2 }, { at: 80, dur: 3, ev: 'leg', j: 2 },
+      { at: 100, dur: 13, ev: 'leg', none: true, j: 1, why: '10秒を超える筋活動は、脚の動き（LM）として数えない（寝返りなどの体の動き）。' }] },
+    { kind: 'aro', win: 30, title: '覚醒反応を付ける（30秒）', acts: [
+      { at: 5, dur: 6, ev: 'aro', j: 1.5 },
+      { at: 21, dur: 2, ev: 'aro', none: true, j: 1.5, why: '速い波は出たが、3秒未満。覚醒反応として数えない。' }] }
+  ];
+  var KIND_TYPES = { resp: ['obs', 'cen', 'hyp'], plm: ['leg'], aro: ['aro'] };
+  var KIND_TASK = {
+    resp: '無呼吸と低呼吸を、記録の上を横になぞって付けてください。付けたら種類を選びます。数えないものもまぎれています。',
+    plm: '脚の動き（LM）を、左右の脚の筋電図の上を横になぞって付けてください。数えないものもまぎれています。',
+    aro: '覚醒反応を、脳波の上を横になぞって付けてください。数えないものもまぎれています。'
+  };
+  var KIND_RULE = {
+    resp: '無呼吸：気流（温度）が90％以上下がって10秒以上。胸・腹が動いていれば閉塞性、止まっていれば中枢性。　低呼吸：鼻圧が30％以上下がって10秒以上、そのうえ SpO2 が3％以上下がるか覚醒反応。',
+    plm: '脚の動き（LM）：脚の筋電図が0.5〜10秒、はっきり上がる。',
+    aro: '覚醒反応：10秒以上眠ったあと、脳波が3秒以上急に速くなる（α波・速い波）。'
+  };
+  var EV = { i: 0, scene: null, marks: [], pending: null, checked: false, res: null, tot: { ok: 0, n: 0 }, grp: 'auto', done: false, drag: null };
+
+  function evBuild(k) {
+    var tpl = SCENES[k];
+    reset('evt'); S.dojo = true; S.auto = false; setStageRaw('N2');
+    for (var q = 0; q < 40 * FS; q++) step();
+    var t0 = S.wi / FS, acts = tpl.acts.map(function (a) { var j = (rnd() * 2 - 1) * (a.j || 0); return { a: a, at: a.at + j, dur: a.dur }; });
+    acts.sort(function (x, y) { return x.at - y.at; });
+    var truth = [];
+    acts.forEach(function (x) {
+      while (S.wi / FS < t0 + x.at) step();
+      var a = x.a, ts = S.wi / FS;
+      if (a.ev === 'obs' || a.ev === 'cen' || a.ev === 'hyp' || a.ev === 'dip') startResp(a.ev, x.dur, { noArousal: !!a.noAro });
+      else if (a.ev === 'leg') { var side = rnd() < 0.5 ? 'L' : 'R'; addTr('leg', x.dur, 1.1, { side: side }); if (rnd() < 0.4 && !a.none) addTr('leg', x.dur * 0.9, 0.9, { side: side === 'L' ? 'R' : 'L' }); }
+      else if (a.ev === 'aro') { S.arou.push({ t0: ts, t1: ts + x.dur }); }
+      truth.push({ type: a.none ? 'none' : a.ev, shown: a.ev === 'dip' ? 'hyp' : a.ev, t0: ts, t1: ts + x.dur, why: a.why || EV_WHY[a.ev] });
+    });
+    while (S.wi / FS < t0 + tpl.win + 1) step();
+    EV.scene = { k: k, tpl: tpl, t0: t0, win: tpl.win, truth: truth };
+    EV.marks = []; EV.pending = null; EV.checked = false; EV.res = null;
+    evSync();
+  }
+  function evStart() { EV.i = 0; EV.tot = { ok: 0, n: 0 }; EV.done = false; evBuild(0); }
+  function evGrp() { if (EV.grp === 'all') return 'all'; return EV.scene && EV.scene.tpl.kind === 'resp' ? 'resp' : 'neuro'; }
+  // 比べる：本当の出来事の長さの半分以上（または付けた範囲の半分以上）が重なれば「同じ出来事を付けた」とみなす
+  function ovl(a, b) { return Math.max(0, Math.min(a.t1, b.t1) - Math.max(a.t0, b.t0)); }
+  function evCheck() {
+    var sc = EV.scene, used = {}, res = [], ok = 0, n = 0;
+    sc.truth.forEach(function (tr) {
+      var best = -1, bo = 0;
+      EV.marks.forEach(function (m, mi) { if (used[mi]) return; var o = ovl(m, tr); if (o > bo && (o >= 0.5 * (tr.t1 - tr.t0) || o >= 0.5 * (m.t1 - m.t0))) { bo = o; best = mi; } });
+      if (tr.type === 'none') {
+        if (best >= 0) { used[best] = true; res.push({ cls: 'ng', h: '数えないものを付けた', why: tr.why, tr: tr }); n++; }
+        else res.push({ cls: 'skip', h: '数えないもの（付けなくて正解）', why: tr.why, tr: tr });
+        return;
+      }
+      n++;
+      if (best < 0) { res.push({ cls: 'ng', h: '見落とし：' + EV_TYPES[tr.type].n, why: tr.why, tr: tr }); return; }
+      used[best] = true; var m = EV.marks[best];
+      if (m.type === tr.type) { ok++; res.push({ cls: 'ok', h: '正解：' + EV_TYPES[tr.type].n, why: tr.why, tr: tr }); }
+      else res.push({ cls: 'ng', h: '種類ちがい：' + EV_TYPES[m.type].n + ' と付けた → 正しくは ' + EV_TYPES[tr.type].n, why: tr.why, tr: tr });
+    });
+    EV.marks.forEach(function (m, mi) { if (!used[mi]) { n++; res.push({ cls: 'ng', h: '余分：' + EV_TYPES[m.type].n + '（ここには数える出来事はない）', why: 'なにも起きていないところか、出来事の一部だけを付けています。始まりから終わりまでを1つの範囲で付けます。', tr: m }); } });
+    res.sort(function (a, b) { return a.tr.t0 - b.tr.t0; });
+    EV.res = { list: res, ok: ok, n: n }; EV.checked = true; EV.tot.ok += ok; EV.tot.n += n;
+    evSync();
+  }
+  function evNext() {
+    if (EV.done) { evStart(); return; }
+    if (EV.i + 1 >= SCENES.length) { EV.done = true; var pct = EV.tot.n ? Math.round(EV.tot.ok / EV.tot.n * 100) : 0; var best = +(lsGet('psg-ev-best') || 0); EV.pct = pct; EV.newBest = pct > best; if (pct > best) lsSet('psg-ev-best', String(pct)); EV.best = Math.max(best, pct); evSync(); return; }
+    EV.i++; evBuild(EV.i);
+  }
+  function fmtT(t) { return (t - EV.scene.t0).toFixed(1) + '秒'; }
+  function evSync() {
+    var sc = EV.scene, ex = document.getElementById('evEx'), h = '';
+    setSeg('evGrp', 'data-g', EV.grp);
+    document.getElementById('evNo').innerHTML = EV.done ? 'おしまい' : '場面 <b>' + (EV.i + 1) + '</b> / ' + SCENES.length;
+    if (EV.done) {
+      h = '<h3>結果</h3><p class="big">' + EV.pct + '%</p><p>' + EV.tot.n + ' 個中 ' + EV.tot.ok + ' 個が正解（自己ベスト ' + EV.best + '%' + (EV.newBest ? '　更新！' : '') + '）。数えないものを付けたり、余分に付けたりすると、分母が増えます。</p>' +
+        '<p>' + (EV.pct >= 85 ? '判定のルールが身についています。' : EV.pct >= 60 ? 'あと一歩。「数えないもの」の理由を読み直してみましょう。' : 'まずは「触ってみる」で、無呼吸・低呼吸・脚の動き・覚醒反応を起こして見比べましょう。') + '</p>' +
+        '<div class="row-btn"><button type="button" class="btn" data-ev2="again">もう1回（少しずつ変わる）</button><a class="act" href="#lab" style="text-decoration:none;display:inline-flex;align-items:center;color:inherit">触ってみるへ</a></div>';
+      ex.innerHTML = h; return;
+    }
+    h = '<h3>' + esc(sc.tpl.title) + '</h3><p class="ev-task">' + KIND_TASK[sc.tpl.kind] + '</p><p class="ev-rule">' + KIND_RULE[sc.tpl.kind] + '</p>';
+    if (EV.pending && !EV.checked) {
+      h += '<p><b>この範囲（' + fmtT(EV.pending.t0) + '〜' + fmtT(EV.pending.t1) + '）は？</b></p><div class="ev-types">' + KIND_TYPES[sc.tpl.kind].map(function (k) { return '<button type="button" data-evt="' + k + '" style="border-color:' + EV_TYPES[k].col + ';color:' + EV_TYPES[k].col + '">' + EV_TYPES[k].n + '</button>'; }).join('') + '<button type="button" class="cancel" data-evt="cancel">取り消す</button></div>';
+    }
+    if (EV.marks.length) h += '<p><b>付けた範囲</b></p><ul class="ev-list">' + EV.marks.map(function (m, i) { return '<li><span class="sw" style="background:' + EV_TYPES[m.type].col + '"></span>' + EV_TYPES[m.type].n + '　' + fmtT(m.t0) + '〜' + fmtT(m.t1) + (EV.checked ? '' : '<button type="button" class="del" data-evdel="' + i + '">消す</button>') + '</li>'; }).join('') + '</ul>';
+    else if (!EV.pending) h += '<p class="ev-rule">まだ付けていません。出来事がないと思えば、付けずに「答え合わせ」でもかまいません。</p>';
+    if (!EV.checked) h += '<div class="row-btn"><button type="button" class="btn" data-ev2="check"' + (EV.pending ? ' disabled' : '') + '>答え合わせ</button></div>';
+    else {
+      h += '<p class="verdict ' + (EV.res.ok === EV.res.n ? 'ok' : 'ng') + '">' + EV.res.ok + ' / ' + EV.res.n + '</p><ul class="ev-res">' + EV.res.list.map(function (r) { return '<li class="' + r.cls + '"><b>' + esc(r.h) + '（' + fmtT(r.tr.t0) + '〜）</b>' + esc(r.why) + '</li>'; }).join('') + '</ul>' +
+        '<p class="ev-rule">記録の上：実線の枠が本当の出来事、点線の枠は数えないもの。色の帯があなたの付けた範囲です。</p>' +
+        '<div class="row-btn"><button type="button" class="btn" data-ev2="next">' + (EV.i + 1 >= SCENES.length ? '結果を見る' : '次の場面へ ▶') + '</button></div>';
+    }
+    ex.innerHTML = h;
+  }
+  function evDraw() {
+    if (!EV.scene) return;
+    var sc = EV.scene, cv = document.getElementById('evCv');
+    drawTrace({ cv: cv, tEnd: sc.t0 + sc.win, win: sc.win, grp: evGrp(), marks: false, label: '' });
+    var L = drawTrace.last, ctx = cv.getContext('2d'), px = function (t) { return L.LW + (t - L.tStart) / L.win * L.plotW; };
+    var top = L.top, bot = L.H - 2;
+    // あなたの付けた範囲
+    EV.marks.forEach(function (m) { var x0 = px(m.t0), x1 = px(m.t1); ctx.fillStyle = color(EV_TYPES[m.type].col, 0.18); ctx.fillRect(x0, top, x1 - x0, bot - top); ctx.fillStyle = EV_TYPES[m.type].col; ctx.font = '700 11px ' + css('--f-body'); ctx.fillText(EV_TYPES[m.type].n, x0 + 3, bot - 6); });
+    var pd = EV.drag || EV.pending; if (pd) { var a0 = px(Math.min(pd.t0, pd.t1)), a1 = px(Math.max(pd.t0, pd.t1)); ctx.fillStyle = color(css('--mark'), 0.3); ctx.fillRect(a0, top, a1 - a0, bot - top); }
+    // 答え合わせのあと：本当の出来事の枠
+    if (EV.checked) sc.truth.forEach(function (tr) {
+      var x0 = px(tr.t0), x1 = px(tr.t1); ctx.lineWidth = 2; ctx.setLineDash(tr.type === 'none' ? [5, 4] : []);
+      ctx.strokeStyle = tr.type === 'none' ? css('--muted') : EV_TYPES[tr.type].col; ctx.strokeRect(x0, top + 1, x1 - x0, bot - top - 2); ctx.setLineDash([]); ctx.lineWidth = 1;
+      ctx.fillStyle = ctx.strokeStyle; ctx.font = '700 11px ' + css('--f-body'); ctx.fillText(tr.type === 'none' ? '数えない' : '正解：' + EV_TYPES[tr.type].n, x0 + 3, top + 13);
+    });
+  }
+  (function () {
+    var cv = document.getElementById('evCv');
+    function tAt(e) { var L = drawTrace.last, r = cv.getBoundingClientRect(); if (!L || L.cv !== cv) return null; var x = e.clientX - r.left; return L.tStart + clamp((x - L.LW) / L.plotW, 0, 1) * L.win; }
+    cv.addEventListener('pointerdown', function (e) { if (EV.checked || EV.done || EV.pending) return; var t = tAt(e); if (t == null) return; e.preventDefault(); if (cv.setPointerCapture) cv.setPointerCapture(e.pointerId); EV.drag = { t0: t, t1: t }; });
+    cv.addEventListener('pointermove', function (e) { if (!EV.drag) return; var t = tAt(e); if (t != null) EV.drag.t1 = t; });
+    cv.addEventListener('pointerup', function () {
+      if (!EV.drag) return; var d = EV.drag; EV.drag = null; var a = Math.min(d.t0, d.t1), b = Math.max(d.t0, d.t1);
+      if (b - a < 0.4) { toast('記録の上を、出来事の始まりから終わりまで横になぞってください。'); return; }
+      var types = KIND_TYPES[EV.scene.tpl.kind];
+      if (types.length === 1) { EV.marks.push({ t0: a, t1: b, type: types[0] }); EV.marks.sort(function (x, y) { return x.t0 - y.t0; }); }
+      else EV.pending = { t0: a, t1: b };
+      evSync();
+      // 細い画面では、種類を選ぶボタンが記録の下にあるので、見えるところまで送る
+      if (window.innerWidth <= 900) document.getElementById('evEx').scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+    });
+  })();
+  document.getElementById('evEx').addEventListener('click', function (e) {
+    var b = e.target.closest('button'); if (!b) return;
+    if (b.hasAttribute('data-evt')) { var k = b.getAttribute('data-evt'); if (k !== 'cancel' && EV.pending) { EV.marks.push({ t0: EV.pending.t0, t1: EV.pending.t1, type: k }); EV.marks.sort(function (x, y) { return x.t0 - y.t0; }); } EV.pending = null; evSync(); }
+    else if (b.hasAttribute('data-evdel')) { EV.marks.splice(+b.getAttribute('data-evdel'), 1); evSync(); }
+    else if (b.getAttribute('data-ev2') === 'check') evCheck();
+    else if (b.getAttribute('data-ev2') === 'next') evNext();
+    else if (b.getAttribute('data-ev2') === 'again') evStart();
+  });
+  document.getElementById('evGrp').addEventListener('click', function (e) { var b = e.target.closest('button'); if (!b) return; EV.grp = b.getAttribute('data-g'); evSync(); });
+
   /* ====================== 回す ====================== */
   var lastT = 0, accum = 0;
   function frame(ts) {
@@ -971,6 +1174,7 @@ h1{font-family:var(--f-display);font-weight:400;margin:0;font-size:clamp(2.1rem,
       drawTrace(); drawHyp(); drawPerson();
       if (S.stage !== lastExStage) { lastExStage = S.stage; showEx(); syncCtl(); }
     } else if (document.body.dataset.mode === 'stage') { djDraw(); }
+    else if (document.body.dataset.mode === 'event') { evDraw(); }
     else if (document.body.dataset.mode === 'home') { heroStep(dt); }
   }
 
@@ -1003,20 +1207,21 @@ h1{font-family:var(--f-display);font-weight:400;margin:0;font-size:clamp(2.1rem,
   }
 
   /* ====================== 画面の切りかえ ====================== */
-  function fitDesk() { var m = document.body.dataset.mode, d = document.getElementById(m === 'stage' ? 'djDesk' : 'desk'); if (!d || (m !== 'lab' && m !== 'stage')) return; var top = d.getBoundingClientRect().top + window.scrollY; d.style.setProperty('--deskH', Math.max(420, window.innerHeight - top - 10) + 'px'); }
+  function fitDesk() { var m = document.body.dataset.mode, d = document.getElementById(m === 'stage' ? 'djDesk' : m === 'event' ? 'evDesk' : 'desk'); if (!d || (m !== 'lab' && m !== 'stage' && m !== 'event')) return; var top = d.getBoundingClientRect().top + window.scrollY; d.style.setProperty('--deskH', Math.max(420, window.innerHeight - top - 10) + 'px'); }
   function setMode() {
-    var m = location.hash === '#lab' ? 'lab' : location.hash === '#stage' ? 'stage' : 'home';
+    var m = location.hash === '#lab' ? 'lab' : location.hash === '#stage' ? 'stage' : location.hash === '#event' ? 'event' : 'home';
     document.body.dataset.mode = m;
-    document.getElementById('home').hidden = m !== 'home'; document.getElementById('lab').hidden = m !== 'lab'; document.getElementById('stage').hidden = m !== 'stage';
+    document.getElementById('home').hidden = m !== 'home'; document.getElementById('lab').hidden = m !== 'lab'; document.getElementById('stage').hidden = m !== 'stage'; document.getElementById('event').hidden = m !== 'event';
     if (m === 'lab') { if (S.dojo) { reset(document.getElementById('personSel').value || 'healthy'); } fitDesk(); syncCtl(); showEx(); window.scrollTo(0, 0); }
-    if (m === 'stage') { fitDesk(); window.scrollTo(0, 0); if (!S.dojo || !DJ.truth.length) djStart(); else djSync(); }
+    if (m === 'stage') { fitDesk(); window.scrollTo(0, 0); if (!S.dojo || !DJ.truth.length || EV.scene) { EV.scene = null; djStart(); } else djSync(); }
+    if (m === 'event') { fitDesk(); window.scrollTo(0, 0); DJ.truth = []; if (!EV.scene) evStart(); else evSync(); }
   }
   window.addEventListener('hashchange', setMode);
   window.addEventListener('resize', fitDesk);
   reset('healthy');
   setMode();
   requestAnimationFrame(frame);
-  window.__psg = { S: function () { return S; }, V: V, step: step, reset: reset, DJ: DJ };
+  window.__psg = { S: function () { return S; }, V: V, step: step, reset: reset, DJ: DJ, EV: EV, CH: CH, evBuild: evBuild };
 })();
 </script>
 
