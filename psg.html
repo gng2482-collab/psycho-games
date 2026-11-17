@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="robots" content="noindex, nofollow">
-<meta name="app-version" content="20261118003145">
+<meta name="app-version" content="20261118081044">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
@@ -196,6 +196,23 @@ h1{font-family:var(--f-display);font-weight:400;margin:0;font-size:clamp(2.1rem,
 .row-btn{display:flex;flex-wrap:wrap;gap:8px}
 .kbd{font-size:var(--fs-xs);color:var(--muted)}
 #djHyp{cursor:pointer}
+/* 症例で読む */
+.cs-list{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:8px;list-style:none;margin:8px 0 0;padding:0}
+.cs-card{font:inherit;width:100%;height:100%;text-align:left;cursor:pointer;color:var(--ink);background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:10px 12px;display:grid;gap:2px}
+.cs-card:hover{border-color:var(--accent)}
+.cs-card[aria-current="true"]{border:2px solid var(--accent)}
+.cs-card b{font-size:var(--fs-m)} .cs-card small{color:var(--muted);font-size:var(--fs-xs)}
+.cs-card .done{font-size:var(--fs-xs);color:var(--ok);font-weight:700}
+.cs-vig{background:var(--panel);border:1px solid var(--line);border-left:4px solid var(--accent);border-radius:8px;padding:10px 14px;font-size:var(--fs-s);line-height:1.75}
+.cs-cap{font-size:var(--fs-xs);color:var(--muted);margin:2px 0 0}
+.cs-clip{width:100%;height:clamp(320px,50vh,460px);display:block;background:var(--sheet);border:1px solid var(--line);border-radius:6px}
+.cs-hyp{width:100%;height:300px;display:block;background:var(--sheet);border:1px solid var(--line);border-radius:6px}
+.cs-tbl{border-collapse:collapse;font-size:var(--fs-s);background:var(--panel)}
+.cs-tbl th,.cs-tbl td{border:1px solid var(--line);padding:4px 10px;text-align:center}
+.cs-tbl th{background:var(--accent-soft);font-weight:400;font-size:var(--fs-xs)}
+.cs-q{display:grid;gap:6px;border-top:1px solid var(--line);padding-top:8px}
+.cs-q h4{margin:0;font-size:var(--fs-m)}
+.cs-why{font-size:var(--fs-s);line-height:1.65;border-left:3px solid var(--accent);padding:2px 0 2px 10px}
 /* 睡眠図あてクイズ */
 .hq-wrap{display:grid;grid-template-columns:minmax(0,1fr) 360px;gap:12px;padding-top:8px;align-items:start}
 .hq-main{display:grid;gap:8px;min-width:0}
@@ -215,6 +232,7 @@ h1{font-family:var(--f-display);font-weight:400;margin:0;font-size:clamp(2.1rem,
 .hq-opt.dim{opacity:.6}
 .hq-pts{margin:0;padding-left:1.2em;font-size:var(--fs-s);line-height:1.6}
 @media (max-width:900px){.hq-wrap{grid-template-columns:minmax(0,1fr)}}
+@media (max-width:560px){.cs-list{grid-template-columns:repeat(2,minmax(0,1fr))}.cs-card{padding:8px 10px}.cs-card b{font-size:var(--fs-s)}}
 /* イベント判定 */
 .ev-main{grid-template-rows:auto minmax(0,1fr)}
 .ev-trace canvas{touch-action:none;cursor:crosshair}
@@ -280,7 +298,7 @@ h1{font-family:var(--f-display);font-weight:400;margin:0;font-size:clamp(2.1rem,
         <a class="go" href="#stage"><span class="lv new">NEW</span><b>ステージ判定道場 ▶</b><small>30秒を見て W・N1・N2・N3・R を当てる。続けると睡眠図ができる</small></a>
         <a class="go" href="#event"><span class="lv new">NEW</span><b>イベント判定 ▶</b><small>無呼吸・低呼吸・覚醒・脚の動きを、なぞって付ける</small></a>
         <a class="go" href="#hypq"><span class="lv new">NEW</span><b>睡眠図あてクイズ ▶</b><small>一晩の睡眠図から、どの人の夜かを当てる</small></a>
-        <div><span class="lv">準備中</span><b>症例で読む</b><small>治らない不眠・夜中に暴れる・授業中に眠る…精神科の症例</small></div>
+        <a class="go" href="#cases"><span class="lv new">NEW</span><b>症例で読む ▶</b><small>治らない不眠・夜中に暴れる・授業中に眠る…精神科の6症例</small></a>
       </div>
     </section>
     <p class="foot">波形と呼吸の記録は、このページの中で合成した学習用のもので、実在の患者さんの記録ではありません。形や数値は学習用に単純化しています。判定のルールは米国睡眠医学会（AASM）の判定マニュアルの考え方に沿っています（低呼吸は「呼吸の振幅が30％以上下がり、SpO2 が3％以上下がるか覚醒反応を伴う」）。実際の判読は、記録の条件や臨床経過と合わせて専門の医師が行ってください。内容は専門医の確認の途中です（試作版）。<br>姉妹版：<a href="eeg.html">脳波よみ道場</a></p>
@@ -354,6 +372,15 @@ h1{font-family:var(--f-display);font-weight:400;margin:0;font-size:clamp(2.1rem,
         </div>
         <div class="card ex" id="djEx" aria-live="polite"></div>
       </aside>
+    </div>
+  </section>
+  <!-- 症例で読む -->
+  <section id="cases" hidden aria-label="症例で読む">
+    <div class="appbar"><a href="#home">← ホーム</a><b>睡眠よみ道場</b><span>／症例で読む</span></div>
+    <ul class="cs-list" id="csList"></ul>
+    <div class="hq-wrap" id="csBody" hidden>
+      <div class="hq-main" id="csMat"></div>
+      <aside class="card ex" id="csEx" aria-live="polite"></aside>
     </div>
   </section>
   <!-- 睡眠図あてクイズ -->
@@ -1325,15 +1352,17 @@ h1{font-family:var(--f-display);font-weight:400;margin:0;font-size:clamp(2.1rem,
     else h += '<p class="ev-rule">見るところ：寝つくまでの長さ、レムが来るまでの長さ、N3 の量、夜中や明け方の目覚め' + (HQ.lv ? '' : '、呼吸の出来事・SpO2・脚の動き') + '。</p>';
     ex.innerHTML = h;
   }
-  function hqDraw() {
-    var q = HQ.qs[HQ.i] || HQ.qs[HQ.qs.length - 1]; if (!q) return;
-    var cv = document.getElementById('hqCv'), f = fitCanvas(cv), ctx = cv.getContext('2d'), W = f.w, H = f.h, r = q.r;
+  // 睡眠図を描く。症例で読むからも使う（cvArg・rArg・rowsArg：下の段を出すか、mkArg：黄色い目印を出すか）
+  function hqDraw(cvArg, rArg, rowsArg, mkArg) {
+    var q = HQ.qs[HQ.i] || HQ.qs[HQ.qs.length - 1]; if (!cvArg && !q) return;
+    var cv = cvArg || document.getElementById('hqCv'), f = fitCanvas(cv), ctx = cv.getContext('2d'), W = f.w, H = f.h, r = rArg || q.r;
+    var showMk = cvArg ? !!mkArg : !!q.pick;
     ctx.setTransform(f.dpr, 0, 0, f.dpr, 0, 0); ctx.clearRect(0, 0, W, H);
-    var LW = W < 560 ? 52 : 70, x = function (e) { return LW + e / HQ_N * (W - LW - 10); }, rows = !HQ.lv || q.pick;
+    var LW = W < 560 ? 52 : 70, x = function (e) { return LW + e / HQ_N * (W - LW - 10); }, rows = cvArg ? rowsArg : (!HQ.lv || q.pick);
     var hypH = rows ? H * 0.52 : H - 30, y0 = 10, rh = (hypH - 10) / 4, order = { W: 0, R: 1, N1: 2, N2: 3, N3: 4 };
     var yOf = function (s0) { return y0 + order[s0] * rh; };
     // 目印（答えたあと）
-    if (q.pick) r.marks.forEach(function (mk) { ctx.fillStyle = color(css('--mark'), 0.3); ctx.fillRect(x(mk.i0), 2, x(mk.i1) - x(mk.i0), H - 22); ctx.fillStyle = css('--ann'); ctx.font = '700 12px ' + css('--f-body'); var tw = ctx.measureText(mk.label).width; ctx.fillText(mk.label, Math.min(Math.max(LW + 2, x(mk.i0) + 3), W - tw - 8), H - 26); });
+    if (showMk) r.marks.forEach(function (mk) { ctx.fillStyle = color(css('--mark'), 0.3); ctx.fillRect(x(mk.i0), 2, x(mk.i1) - x(mk.i0), H - 22); ctx.fillStyle = css('--ann'); ctx.font = '700 12px ' + css('--f-body'); var tw = ctx.measureText(mk.label).width; ctx.fillText(mk.label, Math.min(Math.max(LW + 2, x(mk.i0) + 3), W - tw - 8), H - 26); });
     ctx.font = '11px ' + css('--f-mono'); ctx.fillStyle = css('--muted');
     ['W', 'R', 'N1', 'N2', 'N3'].forEach(function (nm) { var yy = yOf(nm); ctx.fillText(nm === 'R' ? 'レム' : nm, 6, yy + 4); ctx.strokeStyle = css('--grid'); ctx.beginPath(); ctx.moveTo(LW, yy); ctx.lineTo(W - 10, yy); ctx.stroke(); });
     // 1時間ごとの線と時刻
@@ -1366,6 +1395,151 @@ h1{font-family:var(--f-display);font-weight:400;margin:0;font-size:clamp(2.1rem,
     else if (q.pick && e.key === 'Enter') { if (HQ.i + 1 >= HQ.qs.length) HQ.done = true; else HQ.i++; hqSync(); e.preventDefault(); }
   });
 
+  /* ====================== 症例で読む ======================
+     症例ごとに、国試の形の病歴、資料（一晩の睡眠図・記録の切り出し・表）、3つの問い。
+     記録の切り出し（clip）は、記録の仕組みで台本どおりに作る。資料の黄色い目印は、最初の問いに答えると出る。
+     各問いの a[0] が正解（表示するときに並べ替える）。 */
+  function hqNight(k, tweak) { var r = HQP[k].make(); if (tweak) tweak(r); return r; }
+  var CASES = [
+    { id: 'osa', name: '治らない不眠と、日中の眠気', who: '52歳・男性・会社員', cat: '閉塞性睡眠時無呼吸',
+      vig: '1年前からうつ病で通院し、SSRI で気分は少し上向いた。しかし「夜中に何度も目が覚めて、朝から頭が重い。会議中にも眠ってしまう」と訴える。睡眠薬を増やしても良くならない。BMI 31、高血圧で内服中。妻によると「いびきが大きく、ときどき止まる」。終夜睡眠ポリグラフ検査（PSG）を行った。',
+      hyp: 'osa', clip: { person: 'evt', stage: 'N2', win: 120, grp: 'resp', acts: [{ at: 12, ev: 'obs', dur: 24 }, { at: 68, ev: 'obs', dur: 26 }] }, clipCap: '明け方の2分間（呼吸の線）',
+      qs: [
+        { q: '2分の記録で、くり返し起きているのは？', a: ['閉塞性無呼吸（気流が止まっても、胸と腹は動き続ける）', '中枢性無呼吸（気流も胸・腹の動きもいっしょに止まる）', '低呼吸だけ（気流は3割ほど下がるが、止まらない）', '周期性四肢運動（脚の筋電図が周期的に上がる）'],
+          why: '気流（温度）がほぼ平らになって10秒以上続くのに、胸と腹は動き続け、だんだん強く、逆向きになっています。のどがふさがって起こる閉塞性無呼吸です。終わりに大きないびきと覚醒反応があり、SpO2 は約20秒遅れて下がります。' },
+        { q: '一晩の AHI（1時間あたりの無呼吸と低呼吸の回数）は 52 だった。重症度は？', a: ['重症（30以上）', '中等症（15以上30未満）', '軽症（5以上15未満）', '正常（5未満）'],
+          why: 'AHI 5以上15未満が軽症、15以上30未満が中等症、30以上が重症です。睡眠図では眠りが細切れで、N3 とレムが少なく、SpO2 がのこぎりの歯のようにくり返し下がっています。日中の眠気・抑うつ・高血圧の悪化にもつながります。' },
+        { q: '対応として最も適切なのは？', a: ['CPAP（持続陽圧呼吸療法）を始め、ベンゾジアゼピン系睡眠薬は少しずつ減らす', 'ベンゾジアゼピン系睡眠薬をさらに増やす', '抗うつ薬を別の SSRI に替えるだけにする', '日中に眠いので、昼寝を長くとるよう勧める'],
+          why: '中等症以上の閉塞性睡眠時無呼吸には CPAP が第一の治療です（日本の保険では PSG で AHI 20以上が目安）。ベンゾジアゼピン系はのどの筋をゆるめ、呼吸を抑えて無呼吸を悪化させえます。減量、寝酒をやめる、横向きで寝ることも助けになります。「治らない不眠・うつ」の陰に無呼吸があることは少なくありません。' }
+      ] },
+    { id: 'rbd', name: '夜中に叫んで、妻をたたく', who: '71歳・男性', cat: 'レム睡眠行動障害',
+      vig: '妻と受診。「1年ほど前から、夜中に大声で叫んだり、手足を振り回したりする。昨夜は隣で寝ていた私をたたいた」。本人は「追いかけられて、けんかをする夢を見ていた」と、夢の内容をよく覚えている。動くのは明け方に多い。数年前からにおいがわかりにくく、便秘もある。PSG を行った。',
+      clip: { person: 'rbd', stage: 'R', win: 30, grp: 'neuro', acts: [{ at: 14, ev: 'rbd' }] }, clipCap: '明け方の30秒（脳・目・筋の線）',
+      qs: [
+        { q: 'この30秒の段階と、目立つ所見は？', a: ['レム睡眠なのに、あごの筋電図が下がらず、手足が動いている（筋の脱力のないレム睡眠）', 'N3 で、大きな徐波が続いている', '覚醒していて、まばたきと速い目の動きが多い', 'N2 で、紡錘波と K 複合が出ている'],
+          why: '低い振幅の混ざった脳波と、E1・E2 が逆向きに鋭く振れる急速眼球運動はレム睡眠です。ふつうレムでは、あごの筋電図が一晩でいちばん低くなります（筋の脱力）。ここでは高いままで、途中で脚の筋電図も大きく動いています。これを「筋の脱力のないレム睡眠（RWA）」と呼びます。' },
+        { q: '似た病気との見分けで正しいのは？', a: ['レム睡眠行動障害は、夢の内容に合った行動が、一晩の後半（レムの多い明け方）に起きやすい', '睡眠時遊行症も、一晩の後半のレムから起きる', '夜驚症では、夢の内容をはっきり覚えていることが多い', 'てんかん発作とは、PSG では見分けられない'],
+          why: '睡眠時遊行症・夜驚症（NREM パラソムニア）は一晩の前半の N3 から起き、本人はほとんど覚えていません。レム睡眠行動障害はレムから起き、夢を覚えていて、行動が夢の内容と一致します。てんかんとの見分けには、ビデオつきの PSG と脳波が役立ちます。' },
+        { q: '本人と家族への説明・対応で適切なのは？', a: ['寝室の安全を整える。パーキンソン病やレビー小体型認知症の前ぶれのことがあるので、経過を見ていく', '悪夢を減らすために、抗うつ薬を追加する', '若い人に多い病気で、年齢とともに自然に治ると説明する', '抗精神病薬で夜の行動を抑える'],
+          why: 'ほかの原因のないレム睡眠行動障害の多くは、年月をへてパーキンソン病・レビー小体型認知症・多系統萎縮症を発症します。嗅覚の低下や便秘も前ぶれの症状です。まず寝室の安全（ベッドの位置、危ない物を片付ける、別の寝床）。薬はクロナゼパム（適応外）などが使われます。SSRI などの抗うつ薬は、レム睡眠行動障害を悪化・誘発させることがあります。' }
+      ] },
+    { id: 'narco', name: '授業中に眠ってしまう', who: '17歳・男性・高校2年生', cat: 'ナルコレプシー',
+      vig: '「授業中にどうしても眠ってしまう。15分ほど眠るとすっきりする」。友だちと大笑いすると、膝の力が抜けてしゃがみこむことがある。寝入りばなに、誰かが部屋にいるような生々しい体験をし、体が動かなくなることもある。夜は7時間半寝ている。PSG と、翌日に反復睡眠潜時検査（MSLT）を行った。',
+      hyp: 'narco', table: '<table class="cs-tbl"><tr><th>翌日の昼寝</th><th>9:00</th><th>11:00</th><th>13:00</th><th>15:00</th><th>17:00</th></tr><tr><th>眠るまで</th><td>3.5分</td><td>2.0分</td><td>6.5分</td><td>4.0分</td><td>3.0分</td></tr><tr><th>レム</th><td>あり</td><td>あり</td><td>なし</td><td>あり</td><td>なし</td></tr></table>', tableCap: '反復睡眠潜時検査（MSLT）：2時間おきに、20分の昼寝の機会をつくる',
+      qs: [
+        { q: '前夜の PSG の睡眠図で目立つのは？', a: ['寝ついてすぐ（15分以内）にレムが来ている（入眠時レム期：SOREMP）', 'N3 がまったく出ていない', '明け方に早く目が覚めて、そのまま眠れない', '呼吸の出来事がくり返し、SpO2 が下がっている'],
+          why: 'ふつう、寝ついてから最初のレムまでは60〜100分ほどかかります。15分以内にレムが来るのを入眠時レム期（SOREMP）と呼び、ナルコレプシーで特徴的です。夜の眠りも、途中でたびたび目覚めて分断されています。' },
+        { q: 'MSLT の結果の読み方で正しいのは？', a: ['平均睡眠潜時は約4分（8分以下）、SOREMP は3回（2回以上）で、ナルコレプシーの基準を満たす', '平均睡眠潜時は10分以上で、正常の範囲', 'SOREMP が5回中3回なので、多すぎて判定できない', 'MSLT は、前夜の睡眠不足や飲んでいる薬に関係なく評価できる'],
+          why: '眠るまでの平均は（3.5＋2.0＋6.5＋4.0＋3.0）÷5＝3.8分です。平均睡眠潜時が8分以下で、SOREMP が2回以上（前夜の PSG の SOREMP も1回に数える）ならナルコレプシーです。前夜の睡眠不足や、レムを抑える薬（抗うつ薬など）をやめた直後は結果がゆがむので、そうした影響を除いてから行います。' },
+        { q: '笑うと膝の力が抜ける症状について正しいのは？', a: ['情動脱力発作。これがあればナルコレプシー1型で、髄液のオレキシン（ヒポクレチン）が低い', 'てんかんの脱力発作で、脳波に棘徐波が出る', '解離症状で、心理的な理由で起こる', '起立性低血圧で、急に立ち上がると起こる'],
+          why: '笑い・驚きなどの強い感情で、意識は保たれたまま筋の力が抜けます。情動脱力発作があればナルコレプシー1型で、髄液のオレキシン値が低くなります。寝入りばなの幻覚（入眠時幻覚）と金縛り（睡眠麻痺）も特徴です。治療は規則正しい睡眠と計画的な昼寝、モダフィニルなどの日中の眠気を抑える薬。学校への説明も大切です。' }
+      ] },
+    { id: 'rls', name: '夕方から脚がむずむずする', who: '58歳・女性', cat: 'むずむず脚症候群・周期性四肢運動',
+      vig: 'うつ病でミルタザピンを飲み始めてから、「夕方から夜に、脚の奥がむずむずして、じっとしていられない。歩くと楽になる」と訴える。寝つけず、夫からは「寝ているとき、脚がピクピク動いている」と言われる。PSG を行った。',
+      hyp: 'plm', clip: { person: 'evt', stage: 'N2', win: 120, grp: 'neuro', acts: [{ at: 8, ev: 'leg', dur: 2 }, { at: 33, ev: 'leg', dur: 1.5 }, { at: 57, ev: 'leg', dur: 2.5 }, { at: 82, ev: 'leg', dur: 2 }, { at: 106, ev: 'leg', dur: 1.8 }] }, clipCap: '浅い眠りの2分間（脳・目・筋の線）',
+      qs: [
+        { q: '2分の記録の所見は？', a: ['脚の筋電図に、20〜30秒おきの周期的な動きがくり返している（周期性四肢運動）', 'レムなのに、あごの筋電図が高いまま', '呼吸が止まり、SpO2 が下がっている', '脳波に、くり返す棘徐波がある'],
+          why: '0.5〜10秒の脚の動きが、5〜90秒おきに4回以上続いています。周期性四肢運動（PLM）です。睡眠図では寝つきが悪く、浅い眠りで脚の動きが続き、1時間あたりの回数（PLM 指数）は15を超えています。' },
+        { q: 'まず確かめる検査は？', a: ['血清フェリチン（体の鉄の蓄え）', '甲状腺の自己抗体', '髄液のオレキシン', '頭部 MRI'],
+          why: 'むずむず脚症候群は、体の鉄の不足で悪化します。フェリチンが低ければ（目安 75 µg/L 未満）鉄を補います。腎不全、妊娠、末梢神経障害も原因になります。' },
+        { q: '対応として適切なのは？', a: ['悪化させうる薬（ミルタザピンなど）を見直し、鉄が少なければ補う。ドパミン作動薬を使うなら少量で、症状が早い時間から強まる「症状促進現象」に注意する', '睡眠薬を増やし、むずむずを感じる前に眠らせる', '抗精神病薬を加える', '夕方の眠気を防ぐため、コーヒーを飲むよう勧める'],
+          why: '抗うつ薬（ミルタザピン・SSRI など）、抗ヒスタミン薬、ドパミンを遮断する薬（抗精神病薬・一部の吐き気止め）は、むずむず脚を悪化させます。カフェインと飲酒も悪化の原因です。治療薬はドパミン作動薬（プラミペキソール・ロチゴチン）やガバペンチン エナカルビル。ドパミン作動薬を長く使うと、症状が早い時間から強く出る症状促進現象（augmentation）が起こりえます。' }
+      ] },
+    { id: 'para', name: '「毎晩、一睡もできない」', who: '44歳・女性', cat: '逆説性不眠（睡眠状態の誤認）',
+      vig: '「この半年、毎晩ほとんど一睡もできない」と訴える。睡眠薬を3種類飲んでいるが「全然効かない」。日中は仕事をこなせていて、居眠りはしない。PSG の翌朝、「昨夜も2時間くらいしか眠れなかった」と言った。',
+      hyp: 'para',
+      qs: [
+        { q: 'PSG の結果は？', a: ['眠っていた時間は約7時間、睡眠効率も90％以上で、ほぼ正常', '寝つくまでに2時間以上かかっている', '呼吸の出来事が多く、眠りが細切れになっている', 'レムがひと晩じゅう、まったく出ていない'],
+          why: '寝つくまで十数分、途中の目覚めも少なく、N3 とレムも保たれています。本人の「2時間しか眠れなかった」という感じ方と、記録が大きく食い違っています。' },
+        { q: 'この状態の考え方は？', a: ['逆説性不眠（睡眠状態の誤認）。本人は本当に眠れていないと感じている', 'うそをついている（詐病）', '記録の機械の不具合', '重い睡眠不足なので、睡眠薬をもう1種類足す必要がある'],
+          why: '眠っていても「起きていた」と感じてしまう状態で、わざとではありません。不眠への不安や、寝床での考えごとが関わります。記録と感じ方の差を、責めずに伝えることが出発点です。' },
+        { q: '対応として適切なのは？', a: ['記録を一緒に見て、不眠の認知行動療法（CBT-I）を行い、睡眠薬はゆっくり減らす', '睡眠薬をさらに増やす', '毎月 PSG をくり返して、眠れていることを確かめる', '「異常なし」とだけ伝えて、通院を終える'],
+          why: '不眠の認知行動療法（睡眠についての考え方の見直し、睡眠制限法、刺激統制法など）が第一の治療です。何種類もの睡眠薬は、依存・転倒・日中の眠気のもとになります。急にやめず、ゆっくり減らします。' }
+      ] },
+    { id: 'walk', name: '寝ついてから家の中を歩く', who: '9歳・男の子', cat: '睡眠時遊行症',
+      vig: '月に数回、寝ついて1時間ほどすると起き上がり、家の中を歩き回る。話しかけても反応が鈍く、翌朝は何も覚えていない。父親にも子どものころ同じことがあった。PSG を行うと、寝ついて約1時間後に起き上がって歩き出した。',
+      hyp: 'walk',
+      qs: [
+        { q: '起き上がったのは、どの段階から？', a: ['N3（深い睡眠）から', 'レム睡眠から', '覚醒（W）から', 'N1（うとうと）から'],
+          why: '一晩の最初の深い睡眠（N3）の途中で、急に目覚めの段階に移っています。黄色い帯のところです。' },
+        { q: '考えられる診断は？', a: ['睡眠時遊行症（ノンレム睡眠からの覚醒障害）', 'レム睡眠行動障害', 'ナルコレプシー', '睡眠関連過運動てんかん（前頭葉てんかん）'],
+          why: '一晩の前半の N3 から起き、本人は覚えておらず、家族にも同じことがあった——睡眠時遊行症の特徴です。子どもに多く、成長とともに減ることが多い病気です。レム睡眠行動障害はレムから・明け方・夢を覚えている・高齢の男性に多い。睡眠関連過運動てんかんは、どの時間にも起き、短く（数十秒〜2分）、毎回同じ形の激しい動きをくり返します。' },
+        { q: '家族への助言として適切なのは？', a: ['寝不足やストレスを避け、窓・玄関の鍵や階段など寝室まわりの安全を整える。歩いていたら無理に起こさず、静かにベッドへ戻す', '歩き出したら、大声で起こして叱る', 'すぐに抗てんかん薬を始める', '成長しても治らないので、毎晩寝ずに見張る'],
+          why: '睡眠不足・発熱・ストレス・騒音は、きっかけになります。けがを防ぐ工夫が第一です。無理に起こすと混乱して暴れることがあります。けがの危険が高い、回数が多いときは、薬（ベンゾジアゼピン系など）を考えることもあります。' }
+      ] }
+  ];
+  var CS = { ci: null, picks: {}, opt: {}, r: null, clip: null };
+  var CS_KEY = 'psg-cases-v1', CSDONE = {}; try { CSDONE = JSON.parse(lsGet(CS_KEY) || '{}') || {}; } catch (e) { CSDONE = {}; }
+  function walkNight() {
+    var r = HQP.healthy.make(), a = r.a, i = a.indexOf('N3'); if (i < 0) i = 60;
+    var e = i + 22; for (var k = 0; k < 4; k++) a[e + k] = 'W'; a[e + 4] = 'N1';
+    r.marks = [{ i0: e - 4, i1: e + 6, label: '起き上がって歩き出した（N3 から）' }];
+    return r;
+  }
+  // 記録の切り出しを作る（台本どおり）
+  function csClip(sp) {
+    reset(sp.person); S.dojo = true; S.auto = false; setStageRaw(sp.stage);
+    for (var q = 0; q < 40 * FS; q++) step();
+    var t0 = S.wi / FS;
+    sp.acts.slice().sort(function (x, y) { return x.at - y.at; }).forEach(function (a) {
+      while (S.wi / FS < t0 + a.at) step();
+      var t = S.wi / FS;
+      if (a.ev === 'obs' || a.ev === 'cen' || a.ev === 'hyp') startResp(a.ev, a.dur);
+      else if (a.ev === 'leg') { addTr('leg', a.dur, 1.1, { side: 'L' }); if (rnd() < 0.5) addTr('leg', a.dur * 0.9, 0.9, { side: 'R' }); addAnn(t, t + a.dur, ['LL', 'RL'], '脚の動き（PLM）', 'event'); }
+      else if (a.ev === 'rbd') { rbdEpisode(); addAnn(t - 10, t + 8, ['CHIN'], 'レムなのにあごの筋活動', 'event'); }
+    });
+    while (S.wi / FS < t0 + sp.win + 1) step();
+    return { t0: t0, win: sp.win, grp: sp.grp };
+  }
+  function csOpen(i) {
+    CS.ci = i; var c = CASES[i];
+    CS.r = c.hyp ? (c.hyp === 'walk' ? walkNight() : HQP[c.hyp].make()) : null;
+    CS.clip = c.clip ? csClip(c.clip) : null;
+    if (!CS.picks[c.id]) { CS.picks[c.id] = []; CS.opt[c.id] = c.qs.map(function (q) { return q.a.map(function (_, k) { return k; }).sort(function () { return rnd() - 0.5; }); }); }
+    csRender(); var b = document.getElementById('csBody'); if (b) b.scrollIntoView({ block: 'start', behavior: 'smooth' });
+  }
+  function csRender() {
+    document.getElementById('csList').innerHTML = CASES.map(function (c, i) { var d = CSDONE[c.id]; return '<li><button type="button" class="cs-card" data-cs="' + i + '" aria-current="' + (CS.ci === i) + '"><b>' + esc(c.name) + '</b><small>' + esc(c.who) + '</small>' + (d != null ? '<span class="done">' + esc(c.cat) + '　' + d + ' / 3</span>' : '') + '</button></li>'; }).join('');
+    var body = document.getElementById('csBody'); body.hidden = CS.ci == null; if (CS.ci == null) return;
+    var c = CASES[CS.ci], pk = CS.picks[c.id], m = '';
+    m += '<div class="cs-vig"><b>' + esc(c.who) + '</b>　' + esc(c.vig) + '</div>';
+    if (CS.r) m += '<canvas class="cs-hyp" id="csHyp" role="img" aria-label="一晩の睡眠図"></canvas><p class="cs-cap">一晩の睡眠図（23:00 消灯〜6:30）と、呼吸・SpO2・脚・レム中の体動</p>';
+    if (CS.clip) m += '<canvas class="cs-clip" id="csClip" role="img" aria-label="記録の切り出し"></canvas><p class="cs-cap">' + esc(c.clipCap) + '</p>';
+    if (c.table) m += '<div style="overflow-x:auto">' + c.table + '</div><p class="cs-cap">' + esc(c.tableCap) + '</p>';
+    document.getElementById('csMat').innerHTML = m;
+    var h = '<h3>' + (pk.length >= c.qs.length ? esc(c.cat) : '症例 ' + (CS.ci + 1)) + '</h3>';
+    c.qs.forEach(function (q, qi) {
+      if (qi > pk.length) return;
+      var pick = pk[qi];
+      h += '<div class="cs-q"><h4>問' + (qi + 1) + '　' + esc(q.q) + '</h4><ol class="hq-opts">' + CS.opt[c.id][qi].map(function (ai, pos) {
+        var cls = '', tag = ''; if (pick != null) { if (ai === 0) { cls = ' right'; tag = '正解'; } else if (ai === pick) { cls = ' wrong'; tag = 'あなた'; } else cls = ' dim'; }
+        return '<li><button type="button" class="hq-opt' + cls + '" data-csa="' + qi + ':' + ai + '"' + (pick != null ? ' disabled' : '') + '><span class="k">' + (pos + 1) + '</span><span>' + esc(q.a[ai]) + '</span><span class="v">' + tag + '</span></button></li>';
+      }).join('') + '</ol>';
+      if (pick != null) h += '<p class="cs-why"><b>' + (pick === 0 ? '正解。' : '正解は「' + esc(q.a[0]) + '」。') + '</b>' + esc(q.why) + '</p>';
+      h += '</div>';
+    });
+    if (pk.length >= c.qs.length) {
+      var ok = pk.filter(function (x) { return x === 0; }).length;
+      h += '<p class="verdict ' + (ok === 3 ? 'ok' : 'ng') + '">' + ok + ' / 3</p>' + (CS.ci + 1 < CASES.length ? '<div class="row-btn"><button type="button" class="btn" data-csn="1">次の症例へ ▶</button></div>' : '<p class="ev-rule">6症例おしまい。上の一覧から、もう一度選べます。</p>');
+    } else if (pk.length === 0) h += '<p class="ev-rule">資料の黄色い目印は、問1に答えると出ます。</p>';
+    document.getElementById('csEx').innerHTML = h;
+  }
+  function csDraw() {
+    if (CS.ci == null) return; var c = CASES[CS.ci], shown = (CS.picks[c.id] || []).length > 0;
+    var hc = document.getElementById('csHyp'); if (hc && CS.r) hqDraw(hc, CS.r, true, shown);
+    var cc = document.getElementById('csClip'); if (cc && CS.clip) drawTrace({ cv: cc, tEnd: CS.clip.t0 + CS.clip.win, win: CS.clip.win, grp: CS.clip.grp, marks: shown, label: '' });
+  }
+  document.getElementById('cases').addEventListener('click', function (e) {
+    var b = e.target.closest('button'); if (!b) return;
+    if (b.hasAttribute('data-cs')) csOpen(+b.getAttribute('data-cs'));
+    else if (b.hasAttribute('data-csa')) {
+      var c = CASES[CS.ci], pk = CS.picks[c.id], v = b.getAttribute('data-csa').split(':'), qi = +v[0];
+      if (pk[qi] != null || qi !== pk.length) return; pk[qi] = +v[1]; lsSet('psg-tried', '1');
+      if (pk.length === c.qs.length) { var ok = pk.filter(function (x) { return x === 0; }).length; if (CSDONE[c.id] == null || ok > CSDONE[c.id]) { CSDONE[c.id] = ok; lsSet(CS_KEY, JSON.stringify(CSDONE)); } }
+      csRender();
+    } else if (b.hasAttribute('data-csn')) csOpen(CS.ci + 1);
+  });
+
   /* ====================== 回す ====================== */
   var lastT = 0, accum = 0;
   function frame(ts) {
@@ -1378,6 +1552,7 @@ h1{font-family:var(--f-display);font-weight:400;margin:0;font-size:clamp(2.1rem,
     } else if (document.body.dataset.mode === 'stage') { djDraw(); }
     else if (document.body.dataset.mode === 'event') { evDraw(); }
     else if (document.body.dataset.mode === 'hypq') { hqDraw(); }
+    else if (document.body.dataset.mode === 'cases') { csDraw(); }
     else if (document.body.dataset.mode === 'home') { heroStep(dt); }
   }
 
@@ -1412,11 +1587,12 @@ h1{font-family:var(--f-display);font-weight:400;margin:0;font-size:clamp(2.1rem,
   /* ====================== 画面の切りかえ ====================== */
   function fitDesk() { var m = document.body.dataset.mode, d = document.getElementById(m === 'stage' ? 'djDesk' : m === 'event' ? 'evDesk' : 'desk'); if (!d || (m !== 'lab' && m !== 'stage' && m !== 'event')) return; var top = d.getBoundingClientRect().top + window.scrollY; d.style.setProperty('--deskH', Math.max(420, window.innerHeight - top - 10) + 'px'); }
   function setMode() {
-    var m = location.hash === '#lab' ? 'lab' : location.hash === '#stage' ? 'stage' : location.hash === '#event' ? 'event' : location.hash === '#hypq' ? 'hypq' : 'home';
+    var m = location.hash === '#lab' ? 'lab' : location.hash === '#stage' ? 'stage' : location.hash === '#event' ? 'event' : location.hash === '#hypq' ? 'hypq' : location.hash === '#cases' ? 'cases' : 'home';
     document.body.dataset.mode = m;
-    document.getElementById('home').hidden = m !== 'home'; document.getElementById('lab').hidden = m !== 'lab'; document.getElementById('stage').hidden = m !== 'stage'; document.getElementById('event').hidden = m !== 'event'; document.getElementById('hypq').hidden = m !== 'hypq';
+    document.getElementById('home').hidden = m !== 'home'; document.getElementById('lab').hidden = m !== 'lab'; document.getElementById('stage').hidden = m !== 'stage'; document.getElementById('event').hidden = m !== 'event'; document.getElementById('hypq').hidden = m !== 'hypq'; document.getElementById('cases').hidden = m !== 'cases';
     if (m === 'lab') { if (S.dojo) { reset(document.getElementById('personSel').value || 'healthy'); } fitDesk(); syncCtl(); showEx(); window.scrollTo(0, 0); }
     if (m === 'stage') { fitDesk(); window.scrollTo(0, 0); if (!S.dojo || !DJ.truth.length || EV.scene) { EV.scene = null; djStart(); } else djSync(); }
+    if (m === 'cases') { window.scrollTo(0, 0); DJ.truth = []; EV.scene = null; if (CS.ci != null) { CS.ci = null; } csRender(); }
     if (m === 'hypq') { window.scrollTo(0, 0); if (!HQ.qs.length) hqStart(); else hqSync(); }
     if (m === 'event') { fitDesk(); window.scrollTo(0, 0); DJ.truth = []; if (!EV.scene) evStart(); else evSync(); }
   }
@@ -1425,7 +1601,7 @@ h1{font-family:var(--f-display);font-weight:400;margin:0;font-size:clamp(2.1rem,
   reset('healthy');
   setMode();
   requestAnimationFrame(frame);
-  window.__psg = { S: function () { return S; }, V: V, step: step, reset: reset, DJ: DJ, EV: EV, CH: CH, evBuild: evBuild, HQ: HQ, HQP: HQP, hqMetrics: hqMetrics };
+  window.__psg = { S: function () { return S; }, V: V, step: step, reset: reset, DJ: DJ, EV: EV, CH: CH, evBuild: evBuild, HQ: HQ, HQP: HQP, hqMetrics: hqMetrics, CS: CS, CASES: CASES };
 })();
 </script>
 
