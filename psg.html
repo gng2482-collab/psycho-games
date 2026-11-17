@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="robots" content="noindex, nofollow">
-<meta name="app-version" content="20261118002028">
+<meta name="app-version" content="20261118003145">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
@@ -196,6 +196,25 @@ h1{font-family:var(--f-display);font-weight:400;margin:0;font-size:clamp(2.1rem,
 .row-btn{display:flex;flex-wrap:wrap;gap:8px}
 .kbd{font-size:var(--fs-xs);color:var(--muted)}
 #djHyp{cursor:pointer}
+/* 睡眠図あてクイズ */
+.hq-wrap{display:grid;grid-template-columns:minmax(0,1fr) 360px;gap:12px;padding-top:8px;align-items:start}
+.hq-main{display:grid;gap:8px;min-width:0}
+.hq-cv{width:100%;height:clamp(300px,52vh,460px);display:block;background:var(--sheet);border:1px solid var(--line);border-radius:6px}
+.hq-met{display:grid;grid-template-columns:repeat(auto-fill,minmax(118px,1fr));gap:6px}
+.hq-met div{background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:4px 8px;font-size:var(--fs-xs);color:var(--muted);line-height:1.4}
+.hq-met b{display:block;font-family:var(--f-mono);font-size:1.05rem;color:var(--ink)}
+.hq-met div.hot{border-color:var(--hot)} .hq-met div.hot b{color:var(--hot)}
+.hq-opts{list-style:none;margin:0;padding:0;display:grid;gap:6px}
+.hq-opt{font:inherit;width:100%;text-align:left;cursor:pointer;color:var(--ink);background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:8px 10px;min-height:48px;display:grid;grid-template-columns:1.4em minmax(0,1fr) auto;gap:6px;line-height:1.5;font-size:var(--fs-s)}
+.hq-opt:hover:not(:disabled){border-color:var(--accent);background:var(--accent-soft)}
+.hq-opt:disabled{cursor:default}
+.hq-opt .k{font-family:var(--f-display);color:var(--muted)}
+.hq-opt .v{font-weight:700;font-size:var(--fs-xs);white-space:nowrap}
+.hq-opt.right{border-color:var(--ok);background:color-mix(in srgb,var(--ok) 10%,var(--panel))} .hq-opt.right .v{color:var(--ok)}
+.hq-opt.wrong{border-color:var(--hot);background:color-mix(in srgb,var(--hot) 9%,var(--panel))} .hq-opt.wrong .v{color:var(--hot)}
+.hq-opt.dim{opacity:.6}
+.hq-pts{margin:0;padding-left:1.2em;font-size:var(--fs-s);line-height:1.6}
+@media (max-width:900px){.hq-wrap{grid-template-columns:minmax(0,1fr)}}
 /* イベント判定 */
 .ev-main{grid-template-rows:auto minmax(0,1fr)}
 .ev-trace canvas{touch-action:none;cursor:crosshair}
@@ -260,7 +279,7 @@ h1{font-family:var(--f-display);font-weight:400;margin:0;font-size:clamp(2.1rem,
       <div class="soon">
         <a class="go" href="#stage"><span class="lv new">NEW</span><b>ステージ判定道場 ▶</b><small>30秒を見て W・N1・N2・N3・R を当てる。続けると睡眠図ができる</small></a>
         <a class="go" href="#event"><span class="lv new">NEW</span><b>イベント判定 ▶</b><small>無呼吸・低呼吸・覚醒・脚の動きを、なぞって付ける</small></a>
-        <div><span class="lv">準備中</span><b>睡眠図あてクイズ</b><small>一晩の睡眠図だけで、どの人の夜かを当てる</small></div>
+        <a class="go" href="#hypq"><span class="lv new">NEW</span><b>睡眠図あてクイズ ▶</b><small>一晩の睡眠図から、どの人の夜かを当てる</small></a>
         <div><span class="lv">準備中</span><b>症例で読む</b><small>治らない不眠・夜中に暴れる・授業中に眠る…精神科の症例</small></div>
       </div>
     </section>
@@ -335,6 +354,21 @@ h1{font-family:var(--f-display);font-weight:400;margin:0;font-size:clamp(2.1rem,
         </div>
         <div class="card ex" id="djEx" aria-live="polite"></div>
       </aside>
+    </div>
+  </section>
+  <!-- 睡眠図あてクイズ -->
+  <section id="hypq" hidden aria-label="睡眠図あてクイズ">
+    <div class="appbar"><a href="#home">← ホーム</a><b>睡眠よみ道場</b><span>／睡眠図あてクイズ</span></div>
+    <div class="tbar" style="padding-top:8px">
+      <span class="tb-item"><span class="lb">見せるもの</span><span class="seg" id="hqLv"><button type="button" data-lv="0">入門（数字も）</button><button type="button" data-lv="1">上級（図だけ）</button></span></span>
+      <span class="ev-no" id="hqNo"></span>
+    </div>
+    <div class="hq-wrap">
+      <div class="hq-main">
+        <canvas class="hq-cv" id="hqCv" role="img" aria-label="一晩の睡眠図"></canvas>
+        <div class="hq-met" id="hqMet"></div>
+      </div>
+      <aside class="card ex" id="hqEx" aria-live="polite"></aside>
     </div>
   </section>
   <!-- イベント判定 -->
@@ -1164,6 +1198,174 @@ h1{font-family:var(--f-display);font-weight:400;margin:0;font-size:clamp(2.1rem,
   });
   document.getElementById('evGrp').addEventListener('click', function (e) { var b = e.target.closest('button'); if (!b) return; EV.grp = b.getAttribute('data-g'); evSync(); });
 
+  /* ====================== 睡眠図あてクイズ ======================
+     一晩（23:00 消灯〜6:30、30秒×900区切り）の睡眠図を、人ごとの特徴を入れて作る（HQP の make）。
+     make は、段階の並び a、呼吸の出来事・脚の動き・レム中の体動の区切り番号、SpO2（区切りごと）、目印 marks（答えたあとに黄色で示す）を返す。 */
+  var HQ_N = 900, HQ_START = 23 * 60;   // 区切りの数、消灯の時刻（分）
+  function hqBuilder() {
+    var B = { a: [], marks: [] };
+    B.push = function (st, min, label) { var n = Math.max(1, Math.round(min * 2)), i0 = B.a.length; for (var i = 0; i < n; i++) B.a.push(st); if (label) B.marks.push({ i0: i0, i1: B.a.length, label: label }); return B; };
+    B.j = function (min, r) { return min * (1 - (r || 0.2) + rnd() * 2 * (r || 0.2)); };
+    // ふつうの周期：n3・rem は周期ごとの分。n2 は周期の前半の N2 の分
+    B.cycles = function (n3, rem, n2, opt) {
+      opt = opt || {};
+      for (var c = 0; c < rem.length && B.a.length < HQ_N; c++) {
+        if (c > 0 && opt.wake) B.push('W', B.j(opt.wake, 0.5));
+        B.push('N1', B.j(c === 0 ? 4 : 2)); B.push('N2', B.j(n2[c] || 20));
+        if (n3[c]) { B.push('N3', B.j(n3[c])); B.push('N2', B.j(8)); }
+        if (rem[c]) B.push('R', B.j(rem[c]), opt.remLabel && c === 0 ? opt.remLabel : null);
+      }
+      return B;
+    };
+    // 短い目覚めを散らす（p：眠っている区切りごとの確率）
+    B.sprinkle = function (p, allow) { for (var i = 1; i < B.a.length - 2; i++) if (B.a[i] !== 'W' && (!allow || allow.indexOf(B.a[i]) !== -1) && rnd() < p) { B.a[i] = 'W'; if (B.a[i + 1] !== 'W') B.a[i + 1] = 'N1'; i += 2; } return B; };
+    // 朝まで、N2 とレムの周期で埋める（tailMin：最後に起きている分）
+    B.fill = function (n2, rem, tailMin, wake) { var end = HQ_N - Math.round((tailMin || 0) * 2); while (B.a.length < end) { if (wake) B.push('W', B.j(wake, 0.5)); B.push('N1', 1.5); B.push('N2', B.j(n2)); if (rem) B.push('R', B.j(rem)); } B.a.length = Math.min(B.a.length, end); return B; };
+    B.fit = function (tail) { while (B.a.length < HQ_N) B.a.push(tail || 'W'); B.a.length = HQ_N; B.marks = B.marks.filter(function (m) { return m.i0 < HQ_N; }).map(function (m) { return { i0: m.i0, i1: Math.min(m.i1, HQ_N), label: m.label }; }); return B; };
+    return B;
+  }
+  // 呼吸の出来事・SpO2 などを足す
+  function hqExtras(B, o) {
+    var a = B.a, resp = [], leg = [], rbd = [], sp = [], base = o.spo2 || 96.5;
+    for (var i = 0; i < a.length; i++) {
+      var st = a[i], sl = st !== 'W';
+      if (sl && o.resp && rnd() < o.resp * (st === 'R' ? (o.remX || 1.6) : st === 'N3' ? 0.3 : 1)) resp.push(i);
+      else if (sl && !o.resp && rnd() < 0.003) resp.push(i);
+      if (o.leg && (st === 'N1' || st === 'N2') && B.legOn && B.legOn[i]) leg.push(i);
+      else if (sl && rnd() < 0.004) leg.push(i);
+      if (o.rbd && st === 'R' && rnd() < o.rbd) rbd.push(i);
+    }
+    var cur = base;
+    for (var k = 0; k < a.length; k++) {
+      var hit = resp.indexOf(k) !== -1, d = 0;
+      if (hit) d = (o.resp ? (a[k] === 'R' ? 9 + rnd() * 6 : 4 + rnd() * 6) : 1.5);
+      cur = hit ? Math.min(cur, base - d) : cur + (base - cur) * 0.5;
+      sp.push(Math.round(cur + (rnd() - 0.5) * 0.6));
+    }
+    return { a: a, marks: B.marks, resp: resp, leg: leg, rbd: rbd, sp: sp };
+  }
+  var HQP = {
+    healthy: { who: '25歳・男性。健康な会社員。眠りに不満はない（比べるための記録）',
+      pts: ['10〜15分で眠り、途中で目覚めることがほとんどない（睡眠効率は90％以上）。', '前半に N3（深い睡眠）がまとまり、レムは約90分ごとに来て、朝に向かって長くなる。'],
+      make: function () { var B = hqBuilder(); B.push('W', B.j(12), '寝つき 10〜15分'); var i0 = B.a.length; B.cycles([30, 22, 8, 0, 0], [8, 16, 20, 24, 26], [30, 30, 40, 45, 40]); B.marks.push({ i0: i0, i1: i0 + 200, label: '前半に深い睡眠（N3）' }); B.fill(35, 22, 6); B.sprinkle(0.003); B.fit('W'); return hqExtras(B, {}); } },
+    para: { who: '42歳・女性。「一晩中まったく眠れなかった」と言うが、日中の眠気はほとんどない',
+      pts: ['睡眠図はほぼ正常（眠っている時間も睡眠効率も保たれている）なのに、本人は「眠れなかった」と感じている。', '逆説性不眠（睡眠状態の誤認）。記録と本人の感じ方の食い違いを、責めずに伝えることが治療の一歩（認知行動療法）。'],
+      make: function () { var B = hqBuilder(); B.push('W', B.j(14)); B.cycles([20, 14, 5, 0, 0], [10, 16, 20, 22, 24], [30, 32, 40, 45, 40]); B.fill(35, 20, 8); B.sprinkle(0.006); B.fit('W'); var r = hqExtras(B, {}); r.marks.push({ i0: 40, i1: 860, label: '記録上は、よく眠れている' }); return r; } },
+    dep: { who: '48歳・女性。2か月前から気分が落ち込み、明け方4時に目が覚めて眠れない',
+      pts: ['レムが早く来る（レム潜時が短い。60分未満）。最初のレムも長い。', 'N3（深い睡眠）が少ない。', '明け方に早く目が覚めて、そのまま眠れない（早朝覚醒）。うつ病で典型的な睡眠図。', '高齢者の早起きと比べると、レムが来るまでが短い点がちがう。'],
+      make: function () { var B = hqBuilder(); B.push('W', B.j(25)); B.push('N1', 4); B.push('N2', B.j(32)); B.push('R', B.j(24), 'レムが早い（レム潜時が短い）'); B.cycles([6, 0, 0], [24, 28, 26], [28, 30, 30], { wake: 4 }); B.fill(30, 25, 0, 3); var e = 330 * 2; B.a.length = Math.min(B.a.length, e); while (B.a.length < e) B.a.push('N2'); B.push('W', 120, '早朝覚醒（4時半から眠れない）'); B.sprinkle(0.008); B.fit('W'); return hqExtras(B, {}); } },
+    osa: { who: '55歳・男性。肥満。大きないびきと、日中の強い眠気',
+      pts: ['数分ごとに短く目が覚め、眠りが細切れ（睡眠の分断）。N3 とレムが少ない。', '呼吸の出来事が一晩中くり返し、SpO2 がのこぎりの歯のように下がる。レムでとくに深く下がる。', '閉塞性睡眠時無呼吸。AHI 30以上は重症。'],
+      make: function () { var B = hqBuilder(); B.push('W', B.j(8)); B.cycles([4, 2, 0, 0, 0], [6, 10, 12, 14, 12], [30, 35, 40, 40, 30]); B.fill(40, 10, 5); for (var w = 1; w < B.a.length - 3; w++) if (B.a[w] !== 'W' && rnd() < 0.09) { var len = 1 + Math.floor(rnd() * 3); for (var z = 0; z < len; z++) B.a[w + z] = 'W'; B.a[w + len] = 'N1'; w += len + 2; } B.fit('W'); var r = hqExtras(B, { resp: 0.42, remX: 1.6, spo2: 94.5 + rnd() }); r.marks.push({ i0: 30, i1: 880, label: '細切れの眠りと、くり返す呼吸の出来事' }); return r; } },
+    narco: { who: '19歳・男性。授業中に耐えられない眠気。笑うと膝の力が抜ける',
+      pts: ['寝ついてすぐ（15分以内）にレムが来る（入眠時レム期：SOREMP）。', '夜の眠りも、途中でたびたび目が覚めて分断される。', 'ナルコレプシー。診断には翌日の反復睡眠潜時検査（MSLT：平均睡眠潜時8分以下、SOREMP 2回以上）を行う。'],
+      make: function () { var B = hqBuilder(); B.push('W', 3); B.push('N1', 2); B.push('R', B.j(12), '寝てすぐのレム（SOREMP）'); B.push('W', B.j(6)); B.cycles([20, 14, 6, 0, 0], [14, 16, 18, 20, 18], [20, 22, 25, 25, 20], { wake: 8 }); B.fill(25, 18, 5, 8); B.sprinkle(0.015); B.fit('W'); return hqExtras(B, {}); } },
+    insom: { who: '35歳・女性。布団に入っても1時間以上眠れず、「眠れなかったらどうしよう」と考えてしまう',
+      pts: ['寝つくまでに長くかかる（入眠潜時 30分以上）。', '途中で長く目覚める時間もあり、睡眠効率が低い（85％未満）。', '精神生理性不眠（不眠症）。睡眠薬より先に、不眠の認知行動療法（CBT-I）が勧められる。'],
+      make: function () { var B = hqBuilder(); B.push('W', B.j(75, 0.15), '寝つくまで 1時間以上'); B.cycles([16, 10, 0, 0], [10, 18, 22, 20], [25, 30, 35, 35]); B.fill(35, 20, 20); var mid = 330; var w = []; for (var i = 0; i < 50; i++) w.push('W'); Array.prototype.splice.apply(B.a, [mid, 0].concat(w)); B.marks.push({ i0: mid, i1: mid + 50, label: '夜中に長く目覚める' }); B.a.length = Math.min(B.a.length, HQ_N); B.sprinkle(0.006); B.fit('W'); return hqExtras(B, {}); } },
+    elder: { who: '82歳・女性。夜中に何度もトイレに起き、朝は5時前に目が覚める',
+      pts: ['N3（深い睡眠）がほとんどない。', '夜中に何度も目覚める（中途覚醒）。', '朝早く目が覚める。加齢による変化として、ある程度は正常の範囲。', 'うつ病の早朝覚醒と比べると、レムが来るまでの長さ（レム潜時）はふつう（60分以上）。'],
+      make: function () { var B = hqBuilder(); B.push('W', B.j(20)); B.cycles([5, 0, 0, 0], [12, 16, 18, 16], [52, 30, 30, 30], { wake: 9 }); B.fill(30, 15, 0, 9); B.a.length = Math.min(B.a.length, 350 * 2); while (B.a.length < 350 * 2) B.a.push('N2'); B.push('W', 100, '早く目が覚める'); B.sprinkle(0.01); B.fit('W'); var r = hqExtras(B, { spo2: 95 }); r.marks.push({ i0: 40, i1: 130, label: 'N3 がほとんどない' }); return r; } },
+    plm: { who: '63歳・女性。夕方になると脚がむずむずして、じっとしていられず眠れない', rows: true,
+      pts: ['寝つきが悪く、浅い眠り（N1・N2）で脚の動きが周期的に続く（PLM 指数 15 以上）。', 'そのたびに短く目覚め、眠りが浅く分断される。', 'むずむず脚症候群に伴う周期性四肢運動。鉄（フェリチン）の不足を確かめる。'],
+      make: function () { var B = hqBuilder(); B.push('W', B.j(45), '脚のむずむずで寝つけない'); B.cycles([10, 6, 0, 0, 0], [10, 16, 18, 20, 16], [45, 30, 35, 35, 25]); B.fill(35, 16, 8); B.sprinkle(0.03, ['N1', 'N2']); B.fit('W'); B.legOn = []; var on = false, n = 0; for (var i = 0; i < HQ_N; i++) { if (n <= 0) { on = rnd() < 0.75; n = 30 + Math.floor(rnd() * 60); } n--; B.legOn[i] = on && rnd() < 0.85; } var r = hqExtras(B, { leg: true }); r.marks.push({ i0: 120, i1: 820, label: '浅い眠りで脚の動きが続く' }); return r; } },
+    rbd: { who: '72歳・男性。夢の中でけんかをして、隣で寝ている妻をたたいてしまう', rows: true,
+      pts: ['睡眠図の形はほぼ年齢相応だが、レムのたびに体の動き（レム中の筋活動・体動）が記録される。', 'レム睡眠行動障害（RBD）。パーキンソン病やレビー小体型認知症の前ぶれのことがある。'],
+      make: function () { var B = hqBuilder(); B.push('W', B.j(18)); B.cycles([8, 4, 0, 0, 0], [12, 18, 22, 24, 20], [48, 28, 32, 35, 25], { wake: 3, remLabel: 'レムのたびに体の動き' }); B.fill(35, 20, 10, 4); B.sprinkle(0.006); B.fit('W'); return hqExtras(B, { rbd: 0.45, spo2: 95.5 }); } },
+    alc: { who: '50歳・男性。毎晩、寝る前に日本酒を3合飲む',
+      pts: ['すぐに寝つき、前半は深い睡眠が多く、レムが抑えられる。', '後半はアルコールが抜けて、レムが増え（はね返り）、何度も目が覚める。', '寝酒は眠りの後半を悪くする。いびき・無呼吸も悪化させる。'],
+      make: function () { var B = hqBuilder(); B.push('W', 4); B.push('N1', 2); var i0 = B.a.length; B.push('N2', 15); B.push('N3', 45); B.push('N2', 20); B.push('N3', 30); B.push('N2', 30); B.push('N3', 10); B.push('N2', 25); B.marks.push({ i0: i0, i1: B.a.length, label: '前半：深い睡眠が多く、レムがない' }); var i1 = B.a.length; B.push('R', 25); B.push('W', 8); B.push('N1', 3); B.push('R', 30); B.push('W', 10); B.push('N2', 15); B.push('R', 30); B.push('W', 12); B.push('N2', 10); B.push('R', 25); B.fill(12, 22, 5, 8); B.marks.push({ i0: i1, i1: B.a.length, label: '後半：レムのはね返りと目覚め' }); B.sprinkle(0.01); B.fit('W'); return hqExtras(B, { resp: 0.05 }); } },
+    ssri: { who: '30歳・女性。うつ病で、SSRI（抗うつ薬）を飲み始めて1か月',
+      pts: ['レムがなかなか来ない（レム潜時が長い）。レムの合計も少ない。', '多くの抗うつ薬はレムを抑える。うつ病の睡眠図（レムが早い）と逆になる点に注意。', '浅い眠り（N1）と短い目覚めがやや多い。'],
+      make: function () { var B = hqBuilder(); B.push('W', B.j(18)); var i0 = B.a.length; B.push('N1', 5); B.push('N2', 30); B.push('N3', 20); B.push('N2', 30); B.push('N1', 4); B.push('N2', 30); B.push('N3', 10); B.push('N2', 30); B.marks.push({ i0: i0, i1: B.a.length, label: 'レムがなかなか来ない' }); B.push('R', 8); B.cycles([0, 0, 0], [10, 12, 10], [35, 35, 30], { wake: 3 }); B.fill(40, 10, 6, 3); B.sprinkle(0.012); B.fit('W'); return hqExtras(B, {}); } }
+  };
+  var HQ_KEYS = Object.keys(HQP), HQ_CONFLICT = { healthy: ['para'], para: ['healthy'], dep: [], ssri: [] };
+  var HQ = { lv: +(lsGet('psg-hq-lv') || 0), qs: [], i: 0, n: 8, done: false };
+  function hqMetrics(r) {
+    var a = r.a, n = a.length, onset = a.findIndex(function (x) { return x !== 'W'; }), last = n - 1;
+    while (last > 0 && a[last] === 'W') last--;
+    var cnt = { W: 0, N1: 0, N2: 0, N3: 0, R: 0 }, waso = 0, wakes = 0;
+    for (var i = 0; i < n; i++) { cnt[a[i]]++; if (i > onset && i <= last && a[i] === 'W') { waso++; if (a[i - 1] !== 'W') wakes++; } }
+    var tst = n - cnt.W, rl = -1; for (var k = onset; k < n; k++) if (a[k] === 'R') { rl = k - onset; break; }
+    var h = tst / 120, minSp = Math.min.apply(null, r.sp.filter(function (v, i) { return a[i] !== 'W'; }).concat([100]));
+    return { tst: tst / 2, se: Math.round(tst / n * 100), sol: onset / 2, rl: rl < 0 ? null : rl / 2, waso: waso / 2, wakes: wakes, n3: Math.round(cnt.N3 / tst * 100), rem: Math.round(cnt.R / tst * 100), n1: Math.round(cnt.N1 / tst * 100), ahi: h ? r.resp.length / h : 0, plmi: h ? r.leg.length / h : 0, minSp: minSp };
+  }
+  function hqStart() {
+    var pool = HQ_KEYS.filter(function (k) { return !(HQ.lv && HQP[k].rows); });
+    pool.sort(function () { return rnd() - 0.5; });
+    HQ.qs = pool.slice(0, HQ.n).map(function (k) {
+      var others = pool.filter(function (x) { return x !== k && (HQ_CONFLICT[k] || []).indexOf(x) === -1; }).sort(function () { return rnd() - 0.5; }).slice(0, 4);
+      var opts = others.concat([k]).sort(function () { return rnd() - 0.5; });
+      var r = HQP[k].make(); return { k: k, r: r, m: hqMetrics(r), opts: opts, pick: null };
+    });
+    HQ.i = 0; HQ.done = false; hqSync();
+  }
+  function hm2(min) { var h = Math.floor(min / 60), m = Math.round(min % 60); return h + '時間' + (m < 10 ? '0' : '') + m + '分'; }
+  function hqSync() {
+    setSeg('hqLv', 'data-lv', HQ.lv);
+    var q = HQ.qs[HQ.i], ex = document.getElementById('hqEx'), met = document.getElementById('hqMet');
+    document.getElementById('hqNo').innerHTML = HQ.done ? 'おしまい' : '問 <b>' + (HQ.i + 1) + '</b> / ' + HQ.qs.length;
+    if (HQ.done) {
+      var ok = HQ.qs.filter(function (x) { return x.pick === x.k; }).length, pct = Math.round(ok / HQ.qs.length * 100), key = 'psg-hq-best-' + HQ.lv, best = +(lsGet(key) || 0);
+      if (pct > best) lsSet(key, String(pct));
+      ex.innerHTML = '<h3>結果</h3><p class="big">' + ok + ' / ' + HQ.qs.length + '</p><p>' + (HQ.lv ? '上級' : '入門') + 'の自己ベスト ' + Math.max(best, pct) + '%' + (pct > best ? '　更新！' : '') + '</p><ul class="hq-pts">' +
+        HQ.qs.map(function (x) { return '<li>' + (x.pick === x.k ? '○ ' : '× ') + esc(HQP[x.k].who) + '</li>'; }).join('') + '</ul><div class="row-btn"><button type="button" class="btn" data-hq="again">もう1回（新しい夜）</button></div>';
+      met.innerHTML = ''; return;
+    }
+    var m = q.m, show = !HQ.lv || q.pick;
+    var items = [['眠っていた時間', hm2(m.tst), m.tst < 360], ['睡眠効率', m.se + '%', m.se < 85], ['寝つくまで', Math.round(m.sol) + '分', m.sol >= 30], ['レム潜時', m.rl == null ? 'なし' : Math.round(m.rl) + '分', m.rl != null && (m.rl < 60 || m.rl > 150)], ['中途覚醒', Math.round(m.waso) + '分', m.waso >= 45], ['N3', m.n3 + '%', m.n3 < 8], ['レム', m.rem + '%', m.rem > 28 || m.rem < 15], ['AHI', m.ahi.toFixed(0), m.ahi >= 15], ['最低SpO2', m.minSp + '%', m.minSp < 88], ['PLM指数', m.plmi.toFixed(0), m.plmi >= 15]];
+    met.innerHTML = show ? items.map(function (x) { return '<div class="' + (x[2] && q.pick ? 'hot' : '') + '">' + x[0] + '<b>' + x[1] + '</b></div>'; }).join('') : '<div style="grid-column:1/-1">上級：数字は答えたあとに出ます。</div>';
+    var h = '<h3>この一晩は、どの人？</h3><ol class="hq-opts">' + q.opts.map(function (k, i) {
+      var cls = '', tag = ''; if (q.pick) { if (k === q.k) { cls = ' right'; tag = '正解'; } else if (k === q.pick) { cls = ' wrong'; tag = 'あなた'; } else cls = ' dim'; }
+      return '<li><button type="button" class="hq-opt' + cls + '" data-hqa="' + k + '"' + (q.pick ? ' disabled' : '') + '><span class="k">' + (i + 1) + '</span><span>' + esc(HQP[k].who) + '</span><span class="v">' + tag + '</span></button></li>';
+    }).join('') + '</ol>';
+    if (q.pick) h += '<p class="verdict ' + (q.pick === q.k ? 'ok' : 'ng') + '">' + (q.pick === q.k ? '正解！' : 'ざんねん') + '</p><ul class="hq-pts">' + HQP[q.k].pts.map(function (t) { return '<li>' + esc(t) + '</li>'; }).join('') + '</ul>' +
+      (q.pick !== q.k ? '<p class="ev-rule">あなたの選んだ人なら：' + esc(HQP[q.pick].pts[0]) + '</p>' : '') +
+      '<p class="ev-rule">睡眠図の黄色い帯が、見るところです。赤い枠の数字が、目立つ値です。</p><div class="row-btn"><button type="button" class="btn" data-hq="next">' + (HQ.i + 1 >= HQ.qs.length ? '結果を見る' : '次の問へ ▶') + '</button></div>';
+    else h += '<p class="ev-rule">見るところ：寝つくまでの長さ、レムが来るまでの長さ、N3 の量、夜中や明け方の目覚め' + (HQ.lv ? '' : '、呼吸の出来事・SpO2・脚の動き') + '。</p>';
+    ex.innerHTML = h;
+  }
+  function hqDraw() {
+    var q = HQ.qs[HQ.i] || HQ.qs[HQ.qs.length - 1]; if (!q) return;
+    var cv = document.getElementById('hqCv'), f = fitCanvas(cv), ctx = cv.getContext('2d'), W = f.w, H = f.h, r = q.r;
+    ctx.setTransform(f.dpr, 0, 0, f.dpr, 0, 0); ctx.clearRect(0, 0, W, H);
+    var LW = W < 560 ? 52 : 70, x = function (e) { return LW + e / HQ_N * (W - LW - 10); }, rows = !HQ.lv || q.pick;
+    var hypH = rows ? H * 0.52 : H - 30, y0 = 10, rh = (hypH - 10) / 4, order = { W: 0, R: 1, N1: 2, N2: 3, N3: 4 };
+    var yOf = function (s0) { return y0 + order[s0] * rh; };
+    // 目印（答えたあと）
+    if (q.pick) r.marks.forEach(function (mk) { ctx.fillStyle = color(css('--mark'), 0.3); ctx.fillRect(x(mk.i0), 2, x(mk.i1) - x(mk.i0), H - 22); ctx.fillStyle = css('--ann'); ctx.font = '700 12px ' + css('--f-body'); var tw = ctx.measureText(mk.label).width; ctx.fillText(mk.label, Math.min(Math.max(LW + 2, x(mk.i0) + 3), W - tw - 8), H - 26); });
+    ctx.font = '11px ' + css('--f-mono'); ctx.fillStyle = css('--muted');
+    ['W', 'R', 'N1', 'N2', 'N3'].forEach(function (nm) { var yy = yOf(nm); ctx.fillText(nm === 'R' ? 'レム' : nm, 6, yy + 4); ctx.strokeStyle = css('--grid'); ctx.beginPath(); ctx.moveTo(LW, yy); ctx.lineTo(W - 10, yy); ctx.stroke(); });
+    // 1時間ごとの線と時刻
+    for (var hr = 0; hr <= 7.5; hr += 1) { var xe = x(hr * 120); ctx.strokeStyle = css('--grid2'); ctx.beginPath(); ctx.moveTo(xe, 4); ctx.lineTo(xe, H - 18); ctx.stroke(); var mm = HQ_START + hr * 60; ctx.fillStyle = css('--muted'); ctx.fillText((Math.floor(mm / 60) % 24) + ':00', xe - 12, H - 4); }
+    ctx.strokeStyle = css('--trace'); ctx.lineWidth = 1.4; ctx.beginPath();
+    for (var e = 0; e < r.a.length; e++) { var yy2 = yOf(r.a[e]); if (e === 0) ctx.moveTo(x(e), yy2); else ctx.lineTo(x(e), yy2); ctx.lineTo(x(e + 1), yy2); }
+    ctx.stroke(); ctx.strokeStyle = css('--rem'); ctx.lineWidth = 4;
+    for (var e2 = 0; e2 < r.a.length; e2++) if (r.a[e2] === 'R') { ctx.beginPath(); ctx.moveTo(x(e2), yOf('R')); ctx.lineTo(x(e2 + 1), yOf('R')); ctx.stroke(); }
+    ctx.lineWidth = 1;
+    if (!rows) return;
+    // 下の段：呼吸の出来事、SpO2、脚の動き、レム中の体動
+    var top = hypH + 16, band = (H - 24 - top) / 4.4, lab = [['呼吸', r.resp, css('--resp')], ['SpO2', null, css('--hot')], ['脚', r.leg, css('--leg')], ['レム中の体動', r.rbd, css('--rem')]];
+    lab.forEach(function (L, k) {
+      var yb = top + k * band * 1.1, yc = yb + band / 2; ctx.fillStyle = css('--muted'); ctx.font = '10px ' + css('--f-body'); ctx.fillText(L[0], 4, yc + 4);
+      ctx.strokeStyle = css('--grid'); ctx.beginPath(); ctx.moveTo(LW, yb + band); ctx.lineTo(W - 10, yb + band); ctx.stroke();
+      if (L[1]) { ctx.strokeStyle = L[2]; L[1].forEach(function (e3) { var xx = x(e3) + 0.5; ctx.beginPath(); ctx.moveTo(xx, yb + 2); ctx.lineTo(xx, yb + band - 1); ctx.stroke(); }); }
+      else { ctx.strokeStyle = L[2]; ctx.lineWidth = 1.3; ctx.beginPath(); r.sp.forEach(function (v, e4) { var yy3 = yb + band - (clamp(v, 75, 100) - 75) / 25 * band; if (e4 === 0) ctx.moveTo(x(e4), yy3); else ctx.lineTo(x(e4), yy3); }); ctx.stroke(); ctx.lineWidth = 1; ctx.fillStyle = css('--muted'); ctx.fillText('90%', W - 34, yb + band - (15 / 25) * band - 2); }
+    });
+  }
+  document.getElementById('hqEx').addEventListener('click', function (e) {
+    var b = e.target.closest('button'); if (!b) return; var q = HQ.qs[HQ.i];
+    if (b.hasAttribute('data-hqa') && q && !q.pick) { q.pick = b.getAttribute('data-hqa'); lsSet('psg-tried', '1'); hqSync(); }
+    else if (b.getAttribute('data-hq') === 'next') { if (HQ.i + 1 >= HQ.qs.length) HQ.done = true; else HQ.i++; hqSync(); window.scrollTo({ top: 0, behavior: 'smooth' }); }
+    else if (b.getAttribute('data-hq') === 'again') hqStart();
+  });
+  document.getElementById('hqLv').addEventListener('click', function (e) { var b = e.target.closest('button'); if (!b) return; var lv = +b.getAttribute('data-lv'); if (lv === HQ.lv) return; HQ.lv = lv; lsSet('psg-hq-lv', String(lv)); hqStart(); });
+  document.addEventListener('keydown', function (e) {
+    if (document.body.dataset.mode !== 'hypq' || e.metaKey || e.ctrlKey || e.altKey) return; var q = HQ.qs[HQ.i]; if (!q || HQ.done) return;
+    if (!q.pick && /^[1-5]$/.test(e.key)) { var k = q.opts[+e.key - 1]; if (k) { q.pick = k; hqSync(); e.preventDefault(); } }
+    else if (q.pick && e.key === 'Enter') { if (HQ.i + 1 >= HQ.qs.length) HQ.done = true; else HQ.i++; hqSync(); e.preventDefault(); }
+  });
+
   /* ====================== 回す ====================== */
   var lastT = 0, accum = 0;
   function frame(ts) {
@@ -1175,6 +1377,7 @@ h1{font-family:var(--f-display);font-weight:400;margin:0;font-size:clamp(2.1rem,
       if (S.stage !== lastExStage) { lastExStage = S.stage; showEx(); syncCtl(); }
     } else if (document.body.dataset.mode === 'stage') { djDraw(); }
     else if (document.body.dataset.mode === 'event') { evDraw(); }
+    else if (document.body.dataset.mode === 'hypq') { hqDraw(); }
     else if (document.body.dataset.mode === 'home') { heroStep(dt); }
   }
 
@@ -1209,11 +1412,12 @@ h1{font-family:var(--f-display);font-weight:400;margin:0;font-size:clamp(2.1rem,
   /* ====================== 画面の切りかえ ====================== */
   function fitDesk() { var m = document.body.dataset.mode, d = document.getElementById(m === 'stage' ? 'djDesk' : m === 'event' ? 'evDesk' : 'desk'); if (!d || (m !== 'lab' && m !== 'stage' && m !== 'event')) return; var top = d.getBoundingClientRect().top + window.scrollY; d.style.setProperty('--deskH', Math.max(420, window.innerHeight - top - 10) + 'px'); }
   function setMode() {
-    var m = location.hash === '#lab' ? 'lab' : location.hash === '#stage' ? 'stage' : location.hash === '#event' ? 'event' : 'home';
+    var m = location.hash === '#lab' ? 'lab' : location.hash === '#stage' ? 'stage' : location.hash === '#event' ? 'event' : location.hash === '#hypq' ? 'hypq' : 'home';
     document.body.dataset.mode = m;
-    document.getElementById('home').hidden = m !== 'home'; document.getElementById('lab').hidden = m !== 'lab'; document.getElementById('stage').hidden = m !== 'stage'; document.getElementById('event').hidden = m !== 'event';
+    document.getElementById('home').hidden = m !== 'home'; document.getElementById('lab').hidden = m !== 'lab'; document.getElementById('stage').hidden = m !== 'stage'; document.getElementById('event').hidden = m !== 'event'; document.getElementById('hypq').hidden = m !== 'hypq';
     if (m === 'lab') { if (S.dojo) { reset(document.getElementById('personSel').value || 'healthy'); } fitDesk(); syncCtl(); showEx(); window.scrollTo(0, 0); }
     if (m === 'stage') { fitDesk(); window.scrollTo(0, 0); if (!S.dojo || !DJ.truth.length || EV.scene) { EV.scene = null; djStart(); } else djSync(); }
+    if (m === 'hypq') { window.scrollTo(0, 0); if (!HQ.qs.length) hqStart(); else hqSync(); }
     if (m === 'event') { fitDesk(); window.scrollTo(0, 0); DJ.truth = []; if (!EV.scene) evStart(); else evSync(); }
   }
   window.addEventListener('hashchange', setMode);
@@ -1221,7 +1425,7 @@ h1{font-family:var(--f-display);font-weight:400;margin:0;font-size:clamp(2.1rem,
   reset('healthy');
   setMode();
   requestAnimationFrame(frame);
-  window.__psg = { S: function () { return S; }, V: V, step: step, reset: reset, DJ: DJ, EV: EV, CH: CH, evBuild: evBuild };
+  window.__psg = { S: function () { return S; }, V: V, step: step, reset: reset, DJ: DJ, EV: EV, CH: CH, evBuild: evBuild, HQ: HQ, HQP: HQP, hqMetrics: hqMetrics };
 })();
 </script>
 
