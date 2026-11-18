@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="robots" content="noindex, nofollow">
-<meta name="app-version" content="20261118155814">
+<meta name="app-version" content="20261118160250">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
@@ -77,12 +77,13 @@ h1{font-family:var(--f-display);font-weight:400;margin:0;font-size:clamp(2rem,7.
 h2{font-family:var(--f-display);font-weight:400;font-size:var(--fs-xl);margin:0}
 h3{margin:0;font-size:var(--fs-m)}
 .note{font-size:var(--fs-xs);color:var(--muted)}
-.modes{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:8px}
+.modes{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:8px}
 .mode{font:inherit;text-align:left;cursor:pointer;border:1px solid var(--line);background:var(--panel);color:var(--ink);border-radius:var(--r);padding:8px 12px;min-height:52px;display:grid;gap:1px}
 .mode b{font-family:var(--f-display);font-weight:400;font-size:var(--fs-l)}
 .mode small{font-size:var(--fs-xs);color:var(--muted)}
 .mode[aria-pressed="true"]{border:2px solid var(--accent);background:var(--accent-soft)}
-@media (max-width:700px){.modes{grid-template-columns:repeat(2,minmax(0,1fr))}.modes .mode:last-child{grid-column:1/-1}}
+@media (max-width:900px){.modes{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media (max-width:560px){.modes{grid-template-columns:repeat(2,minmax(0,1fr))}}
 .pane{margin-top:20px;display:grid;gap:14px}
 .card{background:var(--panel);border:1px solid var(--line);border-radius:var(--r);padding:12px 14px;display:grid;gap:8px}
 .btn{font:inherit;font-weight:700;min-height:44px;padding:6px 16px;border:0;border-radius:var(--r);background:var(--accent);color:var(--accent-ink);cursor:pointer}
@@ -197,6 +198,7 @@ select{font:inherit;padding:6px 8px;border:1px solid var(--line);border-radius:v
     <div class="modes" role="group" aria-label="モード">
       <button type="button" class="mode" data-m="lab" aria-pressed="true"><b>ラボ</b><small>受容体を組み合わせて薬を作る</small></button>
       <button type="button" class="mode" data-m="anim" aria-pressed="false"><b>しくみアニメ</b><small>シナプスで薬が働く様子を動画で</small></button>
+      <button type="button" class="mode" data-m="ddi" aria-pressed="false"><b>のみ合わせ</b><small>CYPと血中濃度を動画で</small></button>
       <button type="button" class="mode" data-m="rush" aria-pressed="false"><b>受容体ラッシュ</b><small>60秒で、副作用から受容体を当てる</small></button>
       <button type="button" class="mode" data-m="who" aria-pressed="false"><b>この薬だれ？</b><small>受容体の形から薬を当てる</small></button>
       <button type="button" class="mode" data-m="zukan" aria-pressed="false"><b>薬の図鑑</b><small>受容体の形と、試験に出るポイント</small></button>
@@ -237,6 +239,19 @@ select{font:inherit;padding:6px 8px;border:1px solid var(--line);border-radius:v
       </figcaption>
     </figure>
     <p class="note">わかりやすくするための模式図です。粒の数や速さ、受容体の数は実際とは違います。</p>
+  </section>
+
+  <section class="pane" id="ddi" hidden aria-label="のみ合わせ">
+    <div class="mis" id="dscn"></div>
+    <figure class="anim">
+      <canvas id="dcv" aria-label="のみ合わせで血中濃度が変わる様子のグラフ"></canvas>
+      <figcaption>
+        <div class="row"><span class="asteps" id="dsteps"></span><button type="button" class="btn ghost" id="dplay">⏸ 一時停止</button></div>
+        <p class="acap" id="dcap" aria-live="polite"></p>
+      </figcaption>
+    </figure>
+    <div class="card" id="dquiz"></div>
+    <p class="note">同じ量を毎日飲み続けた場合の、1日の平均の血中濃度を、いつもの値を1として描いた模式図です。変化の大きさは文献でよく示される目安で、実際は個人差が大きく、血中濃度の測定と添付文書で確かめてください。</p>
   </section>
 
   <section class="pane" id="rush" hidden aria-label="受容体ラッシュ">
@@ -825,9 +840,118 @@ select{font:inherit;padding:6px 8px;border:1px solid var(--line);border-radius:v
     document.getElementById('arestart').addEventListener('click', function () { AN.play = true; document.getElementById('aplay').textContent = '⏸ 一時停止'; simReset(); applyPhase(0, false); });
   })();
 
+  /* ---------- のみ合わせ（血中濃度の動く図） ---------- */
+  /* t12: 半減期（時間）、fk: 片づける力（クリアランス）の倍率、on: 変化にかかる日数、ev: 7日目の出来事 */
+  var DDI = [
+    { id: 'smk', nm: '禁煙とクロザピン', drug: 'クロザピン', org: '肝臓のCYP1A2', t12: 12, fk: 1 / 1.6, on: 8, ev: '入院して禁煙',
+      cap: ['たばこの煙に含まれる成分（多環芳香族炭化水素）は、肝臓のCYP1A2を誘導します。喫煙者では、クロザピンが早く片づけられ、その量でちょうどよい濃度に保たれています。', '入院で禁煙すると、誘導がだんだん外れ、片づける力が1〜2週かけて下がります。同じ量のままだと、濃度が上がっていきます。', '濃度が上がると、鎮静・流涎・けいれんのリスクが増えます。禁煙・再喫煙のときは血中濃度を測り、量の調整を考えます（オランザピンも同じ）。ニコチンパッチでは誘導は起きません。誘導するのはニコチンではなく煙の成分だからです。'],
+      q: ['クロザピンを飲んでいる人が禁煙すると、血中濃度はどうなる？', ['上がる（CYP1A2の誘導が外れるため）', '下がる（ニコチンが体からなくなるため）', '変わらない（腎臓から排泄されるため）', '一時的に下がり、そのあともとに戻る']] },
+    { id: 'flv', nm: 'フルボキサミンとクロザピン', drug: 'クロザピン', org: '肝臓のCYP1A2', t12: 12, fk: 1 / 3, on: 3, ev: 'フルボキサミンを追加',
+      cap: ['クロザピンは主にCYP1A2で片づけられ、濃度がちょうどよい範囲に保たれています。', 'フルボキサミンはCYP1A2を強く阻害します。阻害は数日で効いてきて、片づける力が大きく落ちます。', 'クロザピンの濃度が数倍になり、中毒の範囲へ。フルボキサミンは、同じCYP1A2で代謝されるラメルテオン（濃度がきわめて高くなる）やチザニジンとは併用禁忌です。'],
+      q: ['フルボキサミンと併用禁忌の睡眠薬は？', ['ラメルテオン', 'スボレキサント', 'ゾルピデム', 'トラゾドン']] },
+    { id: 'cbz', nm: 'カルバマゼピンとクエチアピン', drug: 'クエチアピン', org: '肝臓のCYP3A4', t12: 7, fk: 5, on: 14, ev: 'カルバマゼピンを追加',
+      cap: ['クエチアピンは主にCYP3A4で片づけられます。', 'カルバマゼピンはCYP3A4を誘導します。酵素そのものが増えるので、2〜3週かけてゆっくり効いてきて、片づける力が何倍にもなります。', 'クエチアピンの濃度が大きく下がり、効かなくなって再燃することがあります。カルバマゼピンは自分自身の代謝も誘導し（自己誘導）、経口避妊薬など多くの薬の濃度を下げます。やめるときは、逆に併用薬の濃度が上がります。'],
+      q: ['カルバマゼピンを追加して2〜3週後に起きやすいことは？', ['併用薬の濃度が下がり、効果が落ちる', '併用薬の濃度が急に上がり、中毒になる', '誘導は起きず、併用薬の効果は変わらない', 'カルバマゼピン自身の濃度が上がり続ける']] },
+    { id: 'par', nm: 'パロキセチンとアリピプラゾール', drug: 'アリピプラゾール', org: '肝臓のCYP2D6', t12: 75, fk: 0.5, on: 5, ev: 'パロキセチンを追加',
+      cap: ['アリピプラゾールはCYP2D6と3A4で片づけられます。半減期が約3日と長いのが特徴です。', 'パロキセチンはCYP2D6を強く阻害します。片づける力が半分ほどに下がります。', '濃度はおよそ2倍に向かいますが、半減期が長いので、上がりきるまで2週間以上かかります。強いCYP2D6阻害薬と併用するときは、アリピプラゾールを減らします（添付文書では半量が目安）。アカシジアなどに注意。'],
+      q: ['半減期が長い薬に阻害薬を追加したとき、濃度の変化の特徴は？', ['ゆっくり上がり、上がりきるまで時間がかかる', 'すぐに上がって、翌日には最大になる', '一度上がって、すぐにもとに戻る', '半減期は、濃度が変わる速さに関係しない']] },
+    { id: 'vpa', nm: 'バルプロ酸とラモトリギン', drug: 'ラモトリギン', org: '肝臓のグルクロン酸抱合', t12: 30, fk: 0.5, on: 2, ev: 'バルプロ酸を追加',
+      cap: ['ラモトリギンは主にグルクロン酸抱合（UGT）で片づけられます。', 'バルプロ酸はこの抱合を阻害し、ラモトリギンの半減期がおよそ2倍にのびます。', '濃度がおよそ2倍になり、重い皮膚障害（スティーブンス・ジョンソン症候群など）のリスクが上がります。だからバルプロ酸と一緒のときは、ラモトリギンの開始量を少なくし、増量もさらにゆっくりにします。'],
+      q: ['バルプロ酸と併用するとき、ラモトリギンはどうする？', ['開始量を少なくし、増量をよりゆっくりにする', '通常より多めに始めて、早めに増量する', '併用中は濃度が下がるので、量を倍にする', '相互作用はないので、通常どおりに使う']] },
+    { id: 'li', nm: 'リチウムとNSAIDs', drug: 'リチウム', org: '腎臓：リチウムを出す力', t12: 24, fk: 0.65, on: 3, ev: 'NSAIDsを追加（腰痛で）',
+      cap: ['リチウムは代謝されず、ほぼすべて腎臓から出ていきます。治療域が狭い薬です。', 'NSAIDs（ロキソプロフェンなど）を飲み始めると、腎臓からリチウムを出す力が下がります。ACE阻害薬・ARB、サイアザイド系利尿薬、脱水（下痢・発熱・食事がとれない）でも同じです。', '濃度が上がり、手のふるえの悪化、下痢・嘔吐、ふらつき、意識障害（リチウム中毒）へ。併用を始めたら血中濃度を測ります。痛み止めならアセトアミノフェンは影響が少なめです。'],
+      q: ['リチウムの濃度を上げやすい組み合わせは？', ['NSAIDs・ACE阻害薬・サイアザイド系利尿薬・脱水', 'アセトアミノフェン・カフェイン・十分な水分', 'カルバマゼピンの追加と、喫煙を始めること', '食後に飲むことと、朝にまとめて飲むこと']] }
+  ];
+  var DX = { i: 0, day: 0, play: true, raf: 0, last: 0, pick: null, ord: null };
+  var DW = 640, DH = 340, DAYS = 21, EVD = 7;
+  function ddiCurve(d) {
+    /* 1時間ごとに計算。毎日同じ時刻に飲む。基準の1日の平均濃度を1とする */
+    var k0 = Math.log(2) / d.t12, C = 0, out = [], hist = [], base = 1 / (k0 * 24);
+    for (var h = -40 * 24; h <= DAYS * 24; h++) {
+      var day = h / 24, f = 1;
+      if (day > EVD) f = 1 + (d.fk - 1) * Math.min(1, (day - EVD) / d.on);
+      if (((h % 24) + 24) % 24 === 0) C += 1;
+      C *= Math.exp(-k0 * f);
+      hist.push(C); if (hist.length > 24) hist.shift();
+      if (h >= 0) out.push({ day: day, c: hist.reduce(function (a, b) { return a + b; }, 0) / hist.length / base, f: f });
+    }
+    return out;
+  }
+  function ddiDraw() {
+    var c = DX.cx, d = DDI[DX.i], cur = DX.curve, cw = document.getElementById('dcv').clientWidth || DW, K = Math.min(1.9, Math.max(1, DW / cw));
+    function F(n, b) { return (b ? '700 ' : '') + Math.round(n * K) + 'px "BIZ UDPGothic",sans-serif'; }
+    c.clearRect(0, 0, DW, DH); c.fillStyle = '#fbf9fe'; c.fillRect(0, 0, DW, DH);
+    var x0 = 56, x1 = DW - 20, y0 = 80, y1 = DH - 36, ymax = 3.5;
+    function X(day) { return x0 + (x1 - x0) * day / DAYS; } function Y(v) { return y1 - (y1 - y0) * Math.min(v, ymax) / ymax; }
+    /* 片づける力のゲージ */
+    var nowI = Math.min(cur.length - 1, Math.round(DX.day * 24)), f = cur[nowI].f;
+    c.fillStyle = '#4b4558'; c.font = F(12, 1); c.textAlign = 'left'; c.fillText(d.org + '：薬を片づける力', 16, 22);
+    c.fillStyle = '#ece8f3'; c.fillRect(16, 32, DW - 32, 16); c.fillStyle = f > 1.05 ? '#2f8a3b' : f < 0.95 ? '#c2392f' : '#6b3fa8';
+    var fmax = Math.max(1.25, d.fk * 1.1); c.fillRect(16, 32, (DW - 32) * Math.min(1, f / fmax), 16);
+    var bx = 16 + (DW - 32) / fmax; c.strokeStyle = '#1f1a29'; c.lineWidth = 2; c.beginPath(); c.moveTo(bx, 28); c.lineTo(bx, 52); c.stroke(); c.fillStyle = '#1f1a29'; c.font = F(10); c.textAlign = 'center'; c.fillText('いつも', bx, 64);
+    c.fillStyle = '#4b4558'; c.font = F(11, 1); c.textAlign = 'right'; c.fillText('いつもの ' + Math.round(f * 100) + '%', DW - 20, 22);
+    /* 帯 */
+    c.fillStyle = 'rgba(194,57,47,.10)'; c.fillRect(x0, Y(ymax), x1 - x0, Y(1.8) - Y(ymax));
+    c.fillStyle = 'rgba(35,132,90,.13)'; c.fillRect(x0, Y(1.4), x1 - x0, Y(0.6) - Y(1.4));
+    c.fillStyle = 'rgba(120,120,130,.10)'; c.fillRect(x0, Y(0.5), x1 - x0, y1 - Y(0.5));
+    c.font = F(10); c.textAlign = 'left';
+    c.fillStyle = '#c2392f'; c.fillText('副作用・中毒が出やすい', x0 + 6, Y(ymax) + 14 * K);
+    c.fillStyle = '#23845a'; c.fillText('ちょうどよい範囲', x0 + 6, Y(1.4) + 14 * K);
+    c.fillStyle = '#7a7f88'; c.fillText('効きにくい', x0 + 6, y1 - 6);
+    /* 軸 */
+    c.strokeStyle = '#a49cb3'; c.lineWidth = 1; c.beginPath(); c.moveTo(x0, y0 - 6); c.lineTo(x0, y1); c.lineTo(x1, y1); c.stroke();
+    c.fillStyle = '#615a70'; c.font = F(10); c.textAlign = 'center';
+    for (var dd = 0; dd <= DAYS; dd += 7) c.fillText(dd + '日', X(dd), y1 + 14 * K);
+    c.save(); c.translate(16, (y0 + y1) / 2); c.rotate(-Math.PI / 2); c.fillText('血中濃度（いつも＝1）', 0, 0); c.restore();
+    /* 出来事 */
+    c.strokeStyle = '#6b3fa8'; c.setLineDash([4, 4]); c.beginPath(); c.moveTo(X(EVD), y0 - 6); c.lineTo(X(EVD), y1); c.stroke(); c.setLineDash([]);
+    c.fillStyle = '#6b3fa8'; c.font = F(11, 1); c.textAlign = 'left'; c.fillText('▼ ' + d.ev, X(EVD) + 4, y0 + 4);
+    /* 曲線 */
+    c.strokeStyle = '#1f1a29'; c.lineWidth = 2.5; c.beginPath();
+    for (var i = 0; i <= nowI; i += 2) { var p = cur[i]; c[i ? 'lineTo' : 'moveTo'](X(p.day), Y(p.c)); }
+    c.stroke();
+    var pn = cur[nowI]; c.fillStyle = pn.c > 1.8 ? '#c2392f' : pn.c < 0.5 ? '#7a7f88' : '#23845a'; c.beginPath(); c.arc(X(pn.day), Y(pn.c), 6, 0, 7); c.fill();
+    c.fillStyle = '#1f1a29'; c.font = F(12, 1); c.textAlign = 'left'; c.fillText(d.drug + ' ×' + pn.c.toFixed(1), Math.min(X(pn.day) + 10, x1 - 120 * K), Math.max(y0 + 16, Y(pn.c) - 8));
+  }
+  function ddiFrame(ts) {
+    DX.raf = 0; if (document.getElementById('ddi').hidden) return;
+    var dt = DX.last ? Math.min(0.05, (ts - DX.last) / 1000) : 0.016; DX.last = ts;
+    if (DX.play && DX.day < DAYS) { DX.day = Math.min(DAYS, DX.day + dt * DAYS / 18); ddiCapSync(); }
+    ddiDraw();
+    DX.raf = requestAnimationFrame(ddiFrame);
+  }
+  function ddiKick() { if (!DX.raf) { DX.last = 0; DX.raf = requestAnimationFrame(ddiFrame); } }
+  function ddiPh() { return DX.day < EVD ? 0 : DX.day < EVD + Math.max(3, Math.min(8, DDI[DX.i].on)) ? 1 : 2; }
+  function ddiCapSync() {
+    var ph = ddiPh(); if (ph === DX.ph) return; DX.ph = ph;
+    document.getElementById('dcap').textContent = DDI[DX.i].cap[ph];
+    document.querySelectorAll('[data-dp]').forEach(function (b) { b.setAttribute('aria-pressed', String(+b.getAttribute('data-dp') === ph)); });
+  }
+  function ddiQuiz() {
+    var d = DDI[DX.i], q = d.q, el = document.getElementById('dquiz');
+    el.innerHTML = '<h3>' + esc(q[0]) + '</h3><div class="qopts">' + DX.ord.map(function (j, k) { var cl = 'qopt'; if (DX.pick != null) { if (j === 0) cl += ' ok'; else if (k === DX.pick) cl += ' ng'; } return '<button type="button" class="' + cl + '" data-dq="' + k + '"' + (DX.pick != null ? ' disabled' : '') + '>' + esc(q[1][j]) + '</button>'; }).join('') + '</div>' +
+      (DX.pick != null ? '<p class="note" style="margin-top:6px">' + (DX.ord[DX.pick] === 0 ? '正解！' : 'ちがいます。正解は「' + esc(q[1][0]) + '」。') + '</p>' : '');
+  }
+  function ddiOpen(i) {
+    DX.i = i; DX.day = 0; DX.ph = -1; DX.play = true; DX.pick = null; DX.ord = shuf([0, 1, 2, 3]); DX.curve = ddiCurve(DDI[i]);
+    document.getElementById('dscn').innerHTML = DDI.map(function (d, k) { return '<button type="button" class="mchip" data-di="' + k + '" aria-pressed="' + (k === i) + '">' + (ST.ddi && ST.ddi[d.id] ? '<span class="ok">✓ </span>' : '') + esc(d.nm) + '</button>'; }).join('');
+    document.getElementById('dsteps').innerHTML = [0, 1, 2].map(function (j) { return '<button type="button" class="astep" data-dp="' + j + '">' + (j + 1) + '</button>'; }).join('');
+    document.getElementById('dplay').textContent = '⏸ 一時停止';
+    ddiCapSync(); ddiQuiz(); ddiKick();
+  }
+  (function () {
+    var cv = document.getElementById('dcv'), dpr = Math.min(2, window.devicePixelRatio || 1);
+    cv.width = DW * dpr; cv.height = DH * dpr; DX.cx = cv.getContext('2d'); DX.cx.scale(dpr, dpr);
+    document.getElementById('dscn').addEventListener('click', function (e) { var b = e.target.closest('[data-di]'); if (b) ddiOpen(+b.getAttribute('data-di')); });
+    document.getElementById('dsteps').addEventListener('click', function (e) { var b = e.target.closest('[data-dp]'); if (!b) return; var j = +b.getAttribute('data-dp'); DX.day = [0, EVD + 0.01, Math.min(DAYS, EVD + Math.max(3, Math.min(8, DDI[DX.i].on)) + 0.01)][j]; DX.ph = -1; ddiCapSync(); ddiKick(); });
+    document.getElementById('dplay').addEventListener('click', function () { if (DX.day >= DAYS) { DX.day = 0; DX.ph = -1; DX.play = true; } else DX.play = !DX.play; this.textContent = DX.play ? '⏸ 一時停止' : '▶ 再生'; ddiCapSync(); ddiKick(); });
+    document.getElementById('dquiz').addEventListener('click', function (e) { var b = e.target.closest('[data-dq]'); if (!b || DX.pick != null) return; DX.pick = +b.getAttribute('data-dq'); if (DX.ord[DX.pick] === 0) { if (!ST.ddi) ST.ddi = {}; ST.ddi[DDI[DX.i].id] = 1; save(); } ddiQuiz(); });
+  })();
+
   /* ---------- モード ---------- */
   function setMode(m) {
-    ['lab', 'anim', 'rush', 'who', 'zukan'].forEach(function (id) { document.getElementById(id).hidden = id !== m; });
+    ['lab', 'anim', 'ddi', 'rush', 'who', 'zukan'].forEach(function (id) { document.getElementById(id).hidden = id !== m; });
+    if (m === 'ddi') { if (!document.getElementById('dscn').innerHTML) ddiOpen(0); else ddiKick(); }
     if (m === 'anim') { if (!document.getElementById('ascn').innerHTML) animOpen(AN.sc); else animKick(); }
     document.querySelectorAll('.mode').forEach(function (b) { b.setAttribute('aria-pressed', String(b.getAttribute('data-m') === m)); });
     document.body.classList.toggle('labmode', m === 'lab');
@@ -836,8 +960,8 @@ select{font:inherit;padding:6px 8px;border:1px solid var(--line);border-radius:v
   document.querySelector('.modes').addEventListener('click', function (e) { var b = e.target.closest('[data-m]'); if (b) setMode(b.getAttribute('data-m')); });
   document.body.classList.add('labmode');
   renderLab(); renderRush(); whoStart(); renderZukan();
-  var h = (location.hash || '').slice(1); if (['anim', 'rush', 'who', 'zukan'].indexOf(h) >= 0) setMode(h);
-  window.__ph = { AN: AN, SCN: SCN, animOpen: animOpen, T: T, E: E, DR: DR, MIS: MIS, RQ: RQ, effects: effects, L: L, renderLab: renderLab };
+  var h = (location.hash || '').slice(1); if (['anim', 'ddi', 'rush', 'who', 'zukan'].indexOf(h) >= 0) setMode(h);
+  window.__ph = { DX: DX, DDI: DDI, ddiCurve: ddiCurve, AN: AN, SCN: SCN, animOpen: animOpen, T: T, E: E, DR: DR, MIS: MIS, RQ: RQ, effects: effects, L: L, renderLab: renderLab };
 })();
 </script>
 
