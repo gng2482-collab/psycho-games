@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="robots" content="noindex, nofollow">
-<meta name="app-version" content="20261118141534">
+<meta name="app-version" content="20261118152444">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
@@ -393,6 +393,106 @@ h1{
 @media (prefers-reduced-motion: reduce){
   *,*::before,*::after{animation:none!important; transition:none!important; scroll-behavior:auto!important}
 }
+/* ROOM-CSS */
+/* モード切替 */
+.modebar{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.mode-b{font:inherit;text-align:left;cursor:pointer;color:var(--ink);background:var(--panel);border:1px solid var(--line);border-radius:var(--r);padding:10px 14px;min-height:52px;display:grid;gap:2px}
+.mode-b b{font-family:var(--f-display);font-weight:400;font-size:var(--fs-l);letter-spacing:.04em}
+.mode-b small{font-size:var(--fs-xs);color:var(--muted)}
+.mode-b[aria-pressed="true"]{border:2px solid var(--accent);background:var(--accent-soft)}
+body.room-mode .order-only{display:none!important}
+@media (max-width:600px){.modebar{grid-template-columns:1fr}}
+
+/* 検査室 */
+.room{margin-top:26px;display:grid;gap:30px}
+.room h2{font-family:var(--f-display);font-weight:400;font-size:var(--fs-xl);margin:0;letter-spacing:.04em}
+.room-lead{font-size:var(--fs-s);max-width:46em}
+.flow{list-style:none;padding:0;display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:6px;counter-reset:fl}
+.flow li{position:relative;background:var(--panel);border:1px solid var(--line);border-top:4px solid var(--accent);border-radius:var(--r);padding:8px 10px;font-size:var(--fs-xs);display:grid;gap:3px;align-content:start}
+.flow li b{font-size:var(--fs-s)}
+.flow li .who{color:var(--accent);font-weight:700}
+.flow li .when{color:var(--muted)}
+@media (max-width:900px){.flow{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.prep{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+@media (max-width:700px){.prep{grid-template-columns:1fr}}
+.prep-box{background:var(--panel);border:1px solid var(--line);border-radius:var(--r);padding:12px 14px;display:grid;gap:6px;font-size:var(--fs-s);align-content:start}
+.prep-box h3{margin:0;font-size:var(--fs-m)}
+.prep-box ul{padding-left:1.2em;display:grid;gap:4px}
+.say{background:var(--accent-soft);border-left:4px solid var(--accent);padding:8px 12px;border-radius:3px;font-size:var(--fs-s)}
+
+.tpick{display:grid;gap:10px}
+.tpick-cat{font-size:var(--fs-xs);color:var(--muted);letter-spacing:.08em;font-weight:700;display:flex;align-items:center;gap:6px}
+.tchips{display:flex;flex-wrap:wrap;gap:6px}
+.tchip{font:inherit;font-size:var(--fs-s);padding:5px 12px;min-height:40px;border-radius:999px;cursor:pointer;border:1px solid var(--line);background:var(--panel);color:var(--ink)}
+.tchip[aria-pressed="true"]{border:2px solid var(--accent);background:var(--accent-soft);font-weight:700}
+.tchip .ex{color:var(--warn);font-size:var(--fs-xs);margin-left:4px}
+
+.tview{background:var(--panel);border:1px solid var(--line);box-shadow:0 12px 26px -20px var(--shadow);padding:18px clamp(14px,3vw,28px);display:grid;grid-template-columns:200px minmax(0,1fr);gap:16px 22px}
+.tview h3{grid-column:1/-1;margin:0;font-size:var(--fs-xl);font-family:var(--f-display);font-weight:400;letter-spacing:.04em;display:flex;flex-wrap:wrap;gap:4px 12px;align-items:baseline}
+.tview h3 small{font-family:var(--f-body);font-size:var(--fs-xs);color:var(--muted);letter-spacing:0}
+.seat{display:grid;gap:6px;align-content:start}
+.seat svg{width:100%;height:auto;max-width:200px}
+.seat p{font-size:var(--fs-xs);color:var(--muted)}
+.trows{display:grid;gap:0;margin:0}
+.trows > div{display:grid;grid-template-columns:8.5em minmax(0,1fr);gap:10px;padding:8px 0;border-bottom:1px solid var(--line);font-size:var(--fs-s)}
+.trows dt{font-size:var(--fs-xs);color:var(--muted);letter-spacing:.06em;padding-top:2px}
+.trows dd{margin:0}
+.trows .myth dd{background:var(--warn-soft);padding:4px 8px;border-radius:3px}
+.tview .exlink{grid-column:1/-1}
+@media (max-width:640px){.tview{grid-template-columns:1fr}.seat{grid-template-columns:120px minmax(0,1fr);align-items:center}.trows > div{grid-template-columns:1fr;gap:0}}
+
+.exgrid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+@media (max-width:800px){.exgrid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.excard{font:inherit;text-align:left;cursor:pointer;background:var(--panel);color:var(--ink);border:1px solid var(--line);border-radius:var(--r);padding:10px 12px;display:grid;gap:3px;min-height:44px}
+.excard b{font-size:var(--fs-m)}
+.excard small{font-size:var(--fs-xs);color:var(--muted)}
+.excard[aria-pressed="true"]{border:2px solid var(--accent);background:var(--accent-soft)}
+.exbox{background:var(--panel);border:1px solid var(--ink);border-radius:var(--r);padding:16px clamp(12px,3vw,24px);display:grid;gap:12px}
+.exbox h3{margin:0;font-size:var(--fs-l)}
+.exbox .like{font-size:var(--fs-xs);color:var(--warn);font-weight:700}
+.exstage{display:grid;gap:10px;justify-items:start}
+.exnote{font-size:var(--fs-s);border-top:1px dashed var(--line);padding-top:10px;display:grid;gap:6px}
+.exnote b{color:var(--accent)}
+.bigdigit{font-family:var(--f-display);font-size:clamp(3rem,16vw,5rem);line-height:1;min-height:1.1em;color:var(--accent);letter-spacing:.1em}
+.pad{display:grid;grid-template-columns:repeat(5,52px);gap:6px}
+.pad button{font:inherit;font-size:1.2rem;font-weight:700;height:48px;border:1px solid var(--line);border-radius:var(--r);background:var(--panel);color:var(--ink);cursor:pointer}
+.pad button:disabled{opacity:.4}
+.typed{font-family:var(--f-display);font-size:1.6rem;letter-spacing:.2em;min-height:1.5em;border-bottom:2px solid var(--line);min-width:8em}
+.exlog{font-size:var(--fs-s);display:grid;gap:2px;font-variant-numeric:tabular-nums}
+.exlog .ok{color:var(--accent)} .exlog .ng{color:var(--seal)}
+.tmtwrap{width:100%;max-width:560px}
+.tmtwrap canvas{width:100%;height:auto;display:block;background:#fff;border:1px solid var(--line);border-radius:3px;touch-action:manipulation}
+.exmsg{font-size:var(--fs-s);min-height:1.6em;font-weight:700}
+.exmsg.ng{color:var(--seal)}
+.code-key{display:grid;grid-template-columns:repeat(9,minmax(0,1fr));border:1px solid var(--ink);max-width:420px;width:100%}
+.code-key div{display:grid;justify-items:center;border-right:1px solid var(--line);padding:2px 0}
+.code-key div:last-child{border-right:0}
+.code-key span{font-weight:700;border-bottom:1px solid var(--line);width:100%;text-align:center}
+.code-row{display:flex;flex-wrap:wrap;gap:4px}
+.code-cell{display:grid;justify-items:center;width:36px;border:1px solid var(--line);background:#fff;color:#222}
+.code-cell span{font-weight:700;border-bottom:1px solid var(--line);width:100%;text-align:center}
+.code-cell.cur{border:2px solid var(--accent)}
+.code-cell.ng{background:#fde4e2}
+.code-cell svg,.code-key svg,.code-btns svg{width:22px;height:22px;display:block}
+.code-btns{display:grid;grid-template-columns:repeat(9,minmax(0,1fr));gap:4px;max-width:420px;width:100%}
+.code-btns button{border:1px solid var(--line);background:var(--panel);border-radius:var(--r);height:44px;display:grid;place-items:center;cursor:pointer;color:var(--ink)}
+.code-btns button:disabled{opacity:.4}
+.blot canvas{width:100%;max-width:420px;height:auto;display:block;background:#fff;border:1px solid var(--line);border-radius:3px}
+.exbox textarea,.exbox input[type=text]{font:inherit;width:100%;max-width:420px;padding:8px 10px;border:1px solid var(--line);border-radius:var(--r);background:var(--panel);color:var(--ink)}
+.picks{display:flex;flex-wrap:wrap;gap:6px}
+.picks button{font:inherit;font-size:var(--fs-s);padding:4px 12px;min-height:38px;border-radius:999px;border:1px solid var(--line);background:var(--panel);color:var(--ink);cursor:pointer}
+.picks button[aria-pressed="true"]{border:2px solid var(--accent);background:var(--accent-soft);font-weight:700}
+.rec{font-family:ui-monospace,Menlo,Consolas,monospace;background:var(--strip);border:1px solid var(--line);padding:8px 12px;border-radius:3px;font-size:var(--fs-s);white-space:pre-wrap}
+.sct{display:grid;gap:8px;width:100%;max-width:560px}
+.sct label{display:grid;gap:2px;font-size:var(--fs-s)}
+.sct label b{font-family:var(--f-display);font-weight:400}
+.sort-keys{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;max-width:440px;width:100%}
+.sort-keys button{border:1px solid var(--ink);background:#fff;border-radius:6px;aspect-ratio:3/4;cursor:pointer;display:grid;place-items:center;padding:4px}
+.sort-keys button:disabled{cursor:default;opacity:.6}
+.sort-cur{border:2px dashed var(--ink);background:#fff;border-radius:6px;width:96px;aspect-ratio:3/4;display:grid;place-items:center;padding:4px}
+.sort-keys svg,.sort-cur svg{width:100%;height:100%}
+
+/* /ROOM-CSS */
 </style>
 
 <div class="wrap">
@@ -400,6 +500,10 @@ h1{
     <p class="eyebrow">精神科専門医試験の勉強に・心理検査に慣れていない医師の練習に</p>
     <h1>心理検査オーダー</h1>
     <p class="lead">心理検査は、頼み方しだいで返ってくる答えが変わります。主治医になったつもりで依頼票を書き、検査を組み、届いた報告書を読みます。</p>
+  <!-- MODEBAR --><div class="modebar" role="group" aria-label="モード">
+    <button type="button" class="mode-b" data-mode="order" aria-pressed="true"><b>依頼を出す</b><small>依頼票・検査の組み合わせ・報告書（ゲーム）</small></button>
+    <button type="button" class="mode-b" data-mode="room" aria-pressed="false"><b>検査室をのぞく</b><small>検査の一日、検査ごとの実際、体験コーナー</small></button>
+  </div><!-- /MODEBAR -->
     <ol class="how">
       <li><b><span class="n">その1</span> 依頼票を書く</b>検査で何を知りたいか、結果を何に使うかを書きます。</li>
       <li><b><span class="n">その2</span> 検査を組む</b>年齢と体力（時間と負担の上限）に合わせて、検査カードを組み合わせます。</li>
@@ -421,6 +525,70 @@ h1{
     <p class="muted" style="font-size:var(--fs-s)">組み合わせに入れて依頼を出した検査が載ります。</p>
     <div id="zkBody"></div>
   </section>
+
+
+
+
+
+<!-- ROOM-HTML -->
+  <section class="room" id="room" hidden aria-label="検査室をのぞく">
+    <p class="room-lead">依頼票の向こうで、本人は何をしているのか。心理検査の一日の流れ、検査ごとの部屋のようす、本人がすること、検査者が見ていることをまとめました。いくつかの検査は、似た形の課題を体験できます（本物の問題・図版ではありません）。</p>
+
+    <div>
+      <h2>心理検査の一日</h2>
+      <ol class="flow">
+        <li><b>依頼</b><span class="who">主治医</span>知りたいことと使い道を依頼票に書く。本人に目的を説明し、同意を得る。<span class="when">外来・病棟で</span></li>
+        <li><b>予約</b><span class="who">心理士</span>検査の組み合わせと日程を決める。長い検査は2回以上に分ける。<span class="when">数日〜数週先のことが多い</span></li>
+        <li><b>導入</b><span class="who">心理士と本人</span>あいさつ、検査の目的と流れの説明、体調の確認。緊張をほぐす時間も検査の一部。<span class="when">約5〜15分</span></li>
+        <li><b>実施</b><span class="who">本人</span>決まった手順・ことばで課題を出し、答えと様子を記録する。途中で休憩を入れる。<span class="when">1回 1〜2時間が目安</span></li>
+        <li><b>採点と解釈</b><span class="who">心理士</span>採点・換算・記号化、行動観察と合わせて解釈する。投影法は特に時間がかかる。<span class="when">数日〜2週ほど</span></li>
+        <li><b>報告書</b><span class="who">心理士 → 主治医</span>依頼の問いへの答え、数字、観察、支援の提案。<span class="when">カルテや文書で</span></li>
+        <li><b>結果を伝える</b><span class="who">主治医・心理士 → 本人</span>数字だけでなく、得意・不得意と生活での工夫として伝える（フィードバック面接）。<span class="when">次の外来など</span></li>
+      </ol>
+    </div>
+
+    <div class="prep">
+      <div class="prep-box">
+        <h3>依頼する前に、本人に伝えておくこと</h3>
+        <ul>
+          <li>何のための検査か、結果を何に使うか。</li>
+          <li>合格・不合格はないこと。知能検査は、誰でも答えられない問題まで進む作りになっている。</li>
+          <li>前の晩はよく眠ること。眼鏡・補聴器を持ってくること。</li>
+          <li>時間の目安と、疲れたら休憩してよいこと。</li>
+          <li>結果をいつ、誰から聞けるか。</li>
+        </ul>
+        <p class="say">（例）「得意なことと苦手なことを知って、仕事の工夫を一緒に考えるための検査です。点数で合否が決まるものではありません。難しい問題も出てきますが、それで当たり前です。」</p>
+      </div>
+      <div class="prep-box">
+        <h3>延期や工夫を考えるとき</h3>
+        <ul>
+          <li>急性期で症状が強い、強い不安・焦燥、希死念慮が強いとき。結果が本来の力を表さず、負担も大きい。</li>
+          <li>眠気の出る薬を始めた・増やした直後。せん妄や身体の不調があるとき。</li>
+          <li>同じ知能検査のくり返し。練習効果（問題に慣れて点が上がる）があるので、間隔をあける（少なくとも1年程度が目安とされることが多い）。</li>
+          <li>子どもは、体調・空腹・眠い時間帯を避ける。保護者は別室で待つことが多い。</li>
+          <li>母語が日本語でない人、視覚・聴覚に障害のある人は、検査の選び方と解釈に配慮がいる。</li>
+        </ul>
+        <p class="say">検査の問題・図版は公開しないのが原則です（検査の安全性）。本人が事前に問題を見てしまうと、結果が使えなくなります。このアプリでも本物の問題は載せていません。</p>
+      </div>
+    </div>
+
+    <div>
+      <h2>検査室をのぞく</h2>
+      <p class="room-lead">検査を選ぶと、部屋のようす（上から見た席の配置）、道具、本人がすること、検査者が見ていることが出ます。<span style="color:var(--warn);font-weight:700">体験あり</span> の印がある検査は、似た形の課題を試せます。</p>
+      <div class="tpick" id="tpick"></div>
+    </div>
+    <article class="tview" id="tview" aria-live="polite"></article>
+
+    <div>
+      <h2>体験コーナー</h2>
+      <p class="room-lead">本物の検査に「似た形」の課題です。問題・図版・数・採点のしかたは本物とは違い、点数に意味はありません。本人がどんな体験をしているかを知るためのものです。</p>
+      <div class="exgrid" id="exgrid"></div>
+    </div>
+    <section class="exbox" id="exbox" hidden tabindex="-1" aria-live="polite"></section>
+    <p class="room-lead">医師や本人がつける評価尺度（HAM-D、PANSS、PHQ-9 など）は、<a href="scale.html" target="_blank" rel="noopener">評価尺度の道場</a> で練習できます。</p>
+  </section>
+
+<!-- /ROOM-HTML -->
 
   <p class="foot">登場する患者、点数、報告書はすべて架空です。実在の検査の問題・図版・採点表・基準値は載せていません。所要時間は目安で、施設や本人の状態によって変わります。実際の実施と解釈は、それぞれの手引きと研修に従ってください。</p>
 </div>
@@ -1632,6 +1800,456 @@ h1{
   render(false);
 })();
 </script>
+<!-- ROOM-JS -->
+<script>
+(function () {
+  'use strict';
+  /* ---------- モード切替（依頼を出す／検査室をのぞく） ---------- */
+  var MODE_KEY = 'kensa-mode';
+  ['.lead', '.how', '.score-rule', '.toolbar', 'nav[aria-label="依頼の一覧"]', '#case', '#zukan'].forEach(function (q) {
+    var el = document.querySelector(q); if (el) el.classList.add('order-only');
+  });
+  var roomEl = document.getElementById('room');
+  function lsG(k) { try { return localStorage.getItem(k); } catch (e) { return null; } }
+  function lsS(k, v) { try { localStorage.setItem(k, v); } catch (e) {} }
+  function setMode(m, scroll) {
+    var room = m === 'room';
+    document.body.classList.toggle('room-mode', room);
+    roomEl.hidden = !room;
+    document.querySelectorAll('.mode-b').forEach(function (b) { b.setAttribute('aria-pressed', String(b.getAttribute('data-mode') === m)); });
+    lsS(MODE_KEY, m);
+    if (!room) stopEx();
+    if (scroll) document.querySelector('.modebar').scrollIntoView({ block: 'start' });
+  }
+  document.querySelectorAll('.mode-b').forEach(function (b) { b.addEventListener('click', function () { setMode(b.getAttribute('data-mode'), false); }); });
+
+  function esc(s) { return String(s).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); }
+
+  /* ---------- 席の配置（上から見た図） ---------- */
+  function seatSVG(type) {
+    var P = { k: ['検', 'var(--accent)'], h: ['本', 'var(--seal)'], g: ['保', 'var(--warn)'] };
+    function ch(x, y, who) { return '<circle cx="' + x + '" cy="' + y + '" r="15" style="fill:' + P[who][1] + '"/><text x="' + x + '" y="' + (y + 5) + '" text-anchor="middle" font-size="14" font-weight="700" fill="#fff">' + P[who][0] + '</text>'; }
+    var table = '<rect x="50" y="50" width="100" height="56" rx="4" style="fill:var(--strip);stroke:var(--muted)"/>';
+    var g = '';
+    if (type === 'face') g = table + ch(100, 30, 'k') + ch(100, 126, 'h');
+    else if (type === 'corner') g = table + ch(170, 78, 'k') + ch(100, 126, 'h');
+    else if (type === 'side') g = table + ch(130, 128, 'k') + ch(84, 126, 'h');
+    else if (type === 'self') g = table + ch(100, 126, 'h') + ch(180, 22, 'k') + '<text x="150" y="18" text-anchor="end" font-size="10" style="fill:var(--muted)">見守る</text>';
+    else if (type === 'play') g = '<rect x="20" y="20" width="70" height="56" rx="4" style="fill:var(--strip);stroke:var(--muted)"/><rect x="110" y="14" width="76" height="76" rx="10" style="fill:none;stroke:var(--muted);stroke-dasharray:4 3"/><text x="148" y="56" text-anchor="middle" font-size="10" style="fill:var(--muted)">遊びの場</text>' + ch(55, 98, 'k') + ch(140, 112, 'h') + ch(30, 132, 'g');
+    else if (type === 'lap') g = table + ch(100, 30, 'k') + ch(100, 130, 'g') + '<circle cx="100" cy="112" r="10" style="fill:var(--seal)"/><text x="100" y="116" text-anchor="middle" font-size="10" font-weight="700" fill="#fff">本</text>';
+    else if (type === 'parent') g = table + ch(100, 30, 'k') + ch(100, 126, 'g');
+    return '<svg viewBox="0 0 200 150" role="img" aria-label="席の配置の図">' + g + '</svg>';
+  }
+  var SEATTXT = {
+    face: '机をはさんで向かい合う。記録用紙は本人から見えないように置く。',
+    corner: '机の角をはさんで斜めに座る。',
+    side: '横並びか斜め後ろに座ることが多い（流派で違う）。検査者の表情が本人の答えに影響しにくい。',
+    self: '本人が自分で書く。検査者は近くで見守るか、別室で記入することもある。',
+    play: '机の課題と、床やマットでの遊びを行き来する。保護者が同席することもある。',
+    lap: '乳幼児は保護者のひざの上で受けることもある。',
+    parent: '保護者と面接する。本人は別室で遊んで待つか、同席する。'
+  };
+
+  /* ---------- 検査ごとの実際 ---------- */
+  var TESTS = [
+    { id: 'wais', cat: '知能・発達', name: 'WAIS-IV', sub: '成人の知能検査（16歳0か月〜90歳11か月）', seat: 'face',
+      tools: '刺激図版の冊子（机の上に立てて見せる）、赤と白の積木、ストップウォッチ、記録用紙、反応用紙と鉛筆（消しゴムは使わない）。',
+      does: '10の基本検査（必要なら補助検査も）を順に受ける。ことばの意味を説明する、2つのことばの似ている点を言う、聞いた数字をくり返す、見本と同じ模様を積木で作る、記号を書き写す、など。問題はやさしいものから難しいものへ進み、決まった数だけ続けて間違えるとその検査は終わる（中止条件）。',
+      watch: '正誤だけでなく、取りかかり方、ことばの言い直し、時間を気にする様子、あきらめ方、疲れ、集中の続き方。時間を計る検査では、速さと正確さのどちらを優先するか。',
+      time: '約60〜90分。疲れやすい人は2回に分ける。', after: '粗点を年齢ごとの評価点（平均10）に換算し、合成得点（平均100）を出す。数日以上かかることが多い。',
+      myth: '「IQテストには合格点がある」→ ない。誰でも答えられない問題まで進む作りなので、全問できないのが普通。', ex: ['span', 'code'] },
+    { id: 'wisc', cat: '知能・発達', name: 'WISC-V', sub: '子どもの知能検査（5歳0か月〜16歳11か月）', seat: 'face',
+      tools: 'WAIS-IVに似た道具（図版、積木、記録用紙、反応用紙、ストップウォッチ）。',
+      does: '成人と同じように、ことば・図形・記憶・作業の課題を順に受ける。絵を使う課題が多い。途中で休憩をはさむ。',
+      watch: '席を立つ、答えを急ぐ、間違いに気づいたときの反応、励ましへの反応、課題による集中の差。',
+      time: '約60〜80分。年齢が低い子や疲れやすい子は2回に分ける。', after: '5つの主要指標と全検査IQ。保護者と学校向けに、得意・不得意と支援の工夫を書く。',
+      myth: '「保護者が横にいたほうが安心」→ 保護者が同席すると答え方が変わることがあり、別室で待ってもらうことが多い。', ex: ['span', 'code'] },
+    { id: 'binet', cat: '知能・発達', name: '田中ビネー知能検査V', sub: '2歳〜成人', seat: 'face',
+      tools: '問題用の絵カードや小さな道具、記録用紙。',
+      does: '年齢ごとの級に問題が並ぶ。実際の年齢の級から始め、全部できる級まで下がり、全部できなくなる級まで上がる。',
+      watch: 'どの年齢の級まで解けるか。ことばの理解、手先、注意の向け方。',
+      time: '約60分。', after: '精神年齢とIQ。14歳以上は偏差IQ（同じ年齢の人の中での位置）。療育手帳の判定で使われることも多い。',
+      myth: '「精神年齢＝心の幼さ」→ どの年齢の級の問題まで解けたかを表す数字で、人柄の成熟とは別。', ex: [] },
+    { id: 'kshiki', cat: '知能・発達', name: '新版K式発達検査2020', sub: '0歳〜成人', seat: 'lap',
+      tools: '積木、はめ板、絵カードなど、遊びに近い道具。',
+      does: '遊ぶように課題を出してもらい、できたこと・できなかったことを記録する。子どもの様子に合わせて、課題の順番を変えられる。',
+      watch: '姿勢・運動、認知・適応、言語・社会の3つの領域。物の扱い方、人とのやりとり、指さし。',
+      time: '約30〜60分。', after: '領域ごとと全体の発達年齢・発達指数。乳幼児健診や療育の相談で使われる。',
+      myth: '「家ではできるのに」→ 検査場面でできなかったことと、家でできることの両方が大切な情報。保護者の話も聞いて合わせて考える。', ex: [] },
+    { id: 'hdsr', cat: '神経心理・認知症', name: 'HDS-R（改訂長谷川式簡易知能評価スケール）', sub: '主に高齢者・30点満点', seat: 'face',
+      tools: '記録用紙、見せて隠すための5つの身近な品物。',
+      does: '年齢、今日の日付、今いる場所、3つのことばを覚えて後で思い出す、引き算、数字を逆から言う、品物を覚える、野菜の名前をできるだけ多く言う、の9つの問い。',
+      watch: '点数だけでなく、答え方。言いつくろう、付き添いの家族のほうを振り返る（振り返り徴候）、すぐに「わからない」と言う、ヒントで思い出せるか。',
+      time: '約10分。', after: 'その場で点が出る。20点以下で認知症の疑い。',
+      myth: '「20点以下なら認知症と確定」→ スクリーニング（ふるいわけ）。教育歴、難聴、抑うつ、せん妄で点は下がる。', ex: ['span'] },
+    { id: 'mmse', cat: '神経心理・認知症', name: 'MMSE', sub: '主に高齢者・30点満点', seat: 'face',
+      tools: '正式な記録用紙、紙と鉛筆。',
+      does: '時と場所の見当識、ことばを覚えて思い出す、計算、物の名前を言う、文をくり返す、3段階の指示に従う、文を読んで従う、文を書く、図形を写す。',
+      watch: '失点した領域の偏り（記憶か、注意か、言語か、図形か）。書字や図形の模写の様子。',
+      time: '約10分。', after: 'その場で点が出る。23点以下で認知症の疑い。',
+      myth: '「HDS-Rと同じ」→ MMSEは図形の模写や書字など動作の課題を含む。版権があり、正式な用紙を使う。', ex: [] },
+    { id: 'tmt', cat: '神経心理・認知症', name: 'TMT（Trail Making Test）', sub: '主に成人', seat: 'face',
+      tools: '検査用紙（丸がちらばっている）、鉛筆、ストップウォッチ。',
+      does: 'Part Aは数字を1から順に線でつなぐ。Part Bは数字とひらがなを交互につなぐ（1→あ→2→い…、日本版）。間違えるとその場で指摘され、正しいところから続ける。時間は止めない。',
+      watch: 'かかった時間、誤りの数、Bでどれだけ遅くなるか（注意の切り替え）、線のていねいさ。',
+      time: '約10分。', after: '年齢の基準と比べる。AとBの差が大きいと、切り替えの苦手さを考える。',
+      myth: '「速さだけの検査」→ 手の動き、視覚的な探索、注意の切り替えのどこでつまずくかを見る。', ex: ['tmt'] },
+    { id: 'wcst', cat: '神経心理・認知症', name: 'WCST（ウィスコンシンカード分類検査）', sub: '主に成人', seat: 'face',
+      tools: '見本のカード4枚と、分けていく反応カード（日本では枚数を減らした慶應版がよく使われる）。パソコン版もある。',
+      does: 'カードを見本のどれかの下に置く。検査者は「正しい」「違う」としか言わない。分け方の決まり（色・形・数）は教えられず、途中で黙って変わる。',
+      watch: '決まりを見つけるまでの速さ、達成できた分類の数、保続（決まりが変わったのに前の決まりで分け続ける誤り）。',
+      time: '約20分。', after: '達成カテゴリー数、保続による誤りの数など。',
+      myth: '「頭の良さの検査」→ 知能が高くても前頭葉の働き（切り替え）が苦手な人がいる。その差を見る検査。', ex: ['sort'] },
+    { id: 'rorsch', cat: '人格・投影法', name: 'ロールシャッハ・テスト', sub: '子ども〜成人', seat: 'side',
+      tools: '10枚の図版（白黒5枚、赤の入ったもの2枚、多色3枚）、記録用紙（ことばをそのまま書き取る）、反応の場所を書きこむ図。',
+      does: '1枚ずつ渡され「何に見えるか」を自由に答える（自由反応段階）。全部終わると、もう一度図版を見ながら「どこに」「どこからそう見えたか」を説明する（質疑段階）。',
+      watch: '反応の数と時間、図版のどこを使ったか（領域）、形・動き・色・濃淡のどれに反応したか（決定因）、見たものの内容、形の合い方、よくある反応（平凡反応）をどのくらい答えるか、図版の回し方や表情。',
+      time: '実施に約60〜120分、記号化と集計・解釈にさらに数時間。', after: '日本では片口法と包括システムが多い。記号を集計し、考え方・感情・対人関係・現実検討の特徴を読む。',
+      myth: '「インクのしみで性格を言い当てる占い」→ 決まった手順で記号化して集計し、解釈する。図版は公開しないのが原則。', ex: ['blot'] },
+    { id: 'sct', cat: '人格・投影法', name: 'SCT（文章完成法）', sub: '年齢別の版がある', seat: 'self',
+      tools: '書きかけの文が並んだ用紙、筆記具。',
+      does: '「子どもの頃、私は……」のような書き出しに続けて、思いついた文を書く（日本でよく使う精研式は60項目）。家で書いてきてもらう施設もある。',
+      watch: '家族・対人関係・自己像・将来についての内容、文の長さ、空欄、字の乱れ、くり返し出てくるテーマ。',
+      time: '約30〜60分。', after: '面接で聞けなかった本人の考えや、困りごとの手がかり。面接での話題にもなる。',
+      myth: '「書いたことをそのまま信じる」→ 本人がどう見せたいかも表れる。面接や他の検査と合わせて読む。', ex: ['sct'] },
+    { id: 'baum', cat: '人格・投影法', name: 'バウムテスト', sub: '幼児〜成人', seat: 'face',
+      tools: 'A4の白い紙、鉛筆、消しゴム。',
+      does: '「実のなる木を1本描いてください」と言われて、木を描く。時間の制限はない。',
+      watch: '描く順番、消し方、時間。できあがった絵の全体の印象、大きさ、紙の中の位置、幹・枝・根・実の描き方。',
+      time: '約10分。', after: '全体の印象から読み、一つの特徴だけで意味を決めつけない。他の検査と組み合わせることが多い。',
+      myth: '「根を描かないと不安定」のような一対一の読み方 → しない。発達や絵の得意・不得意でも絵は変わる。', ex: [] },
+    { id: 'mmpi', cat: '人格・投影法', name: 'MMPI', sub: '15歳以上', seat: 'self',
+      tools: '質問冊子と回答用紙（またはパソコン）。',
+      does: '文章が自分に当てはまるかを答えていく。日本で長く使われてきた版は550問。新しい版（MMPI-3）も出ている。',
+      watch: '妥当性尺度（答えない項目が多い、良く見せようとする、わざと悪く答える、などの答え方の偏り）と、臨床尺度の組み合わせ（プロフィール）。',
+      time: '約60〜90分。読む力と集中が必要。', after: 'コンピュータで採点することもある。プロフィールの形から読む。',
+      myth: '「うそを見抜く検査」→ 答え方の偏りを数字で確かめるだけ。偏りがあれば、その理由も考える。', ex: [] },
+    { id: 'pf', cat: '人格・投影法', name: 'P-Fスタディ', sub: '児童・青年・成人の版', seat: 'self',
+      tools: '24の場面が描かれた冊子。',
+      does: '誰かに困らされた場面の絵を見て、言われた人の吹き出しに入るせりふを書く。',
+      watch: '攻撃の向き（他人を責める・自分を責める・誰も責めない）と型、集団の多くの人の答えとの一致度。',
+      time: '約20分。', after: '欲求不満の場面での反応の傾向。子どもの対人トラブルの理解に使われる。',
+      myth: '「攻撃的な答えが多い＝問題」→ 年齢や場面で普通の反応は違う。基準と比べて読む。', ex: [] },
+    { id: 'ados', cat: '知能・発達', name: 'ADOS-2', sub: '12か月〜成人', seat: 'play',
+      tools: 'おもちゃ、絵本、パズルなど決まった道具。年齢と言葉の発達でモジュールを選ぶ。',
+      does: '決まった遊びや課題、会話をする。成人では、絵本の話をする、出来事を説明する、気持ちや人間関係について話す、などの課題が中心。',
+      watch: '視線、身ぶり、やりとりの始め方と応じ方、想像、こだわりや感覚の特徴。',
+      time: '約40〜60分。', after: 'アルゴリズムで点を出す。実施と採点には研修が必要。',
+      myth: '「ADOS-2だけで診断」→ 発達歴（ADI-RやPARS-TR）、日常の様子と合わせて主治医が判断する。', ex: [] },
+    { id: 'pars', cat: '知能・発達', name: 'PARS-TR', sub: '3歳以上（保護者面接）', seat: 'parent',
+      tools: '面接用の記録用紙（57項目）。',
+      does: '保護者が、本人の幼い頃（いちばん目立った時期）と今の様子を答える。',
+      watch: '対人、コミュニケーション、こだわり、感覚などの特性。幼児期と現在の両方の得点。',
+      time: '約60分（保護者から）。', after: '自閉スペクトラム症の特性の強さの目安。支援の手がかりにもなる。',
+      myth: '「本人がいなくても診断できる」→ 保護者の記憶に頼る。本人の観察や他の情報と合わせる。', ex: [] }
+  ];
+  var EX = [
+    { id: 'span', name: '数字を覚えて言う', like: '数唱（WAIS-IV・WISC-V）、HDS-Rの数字の逆唱に似た課題' },
+    { id: 'tmt', name: '線でつなぐ', like: 'TMTに似た課題' },
+    { id: 'code', name: '記号を写す', like: '符号（WAIS-IV・WISC-V）に似た課題' },
+    { id: 'sort', name: 'カードを分ける', like: 'WCSTに似た課題' },
+    { id: 'blot', name: 'インクのしみ', like: 'ロールシャッハ・テストに似た課題' },
+    { id: 'sct', name: '書き出しの続き', like: 'SCT（文章完成法）に似た課題' }
+  ];
+
+  var tpick = document.getElementById('tpick'), tview = document.getElementById('tview');
+  var exgrid = document.getElementById('exgrid'), exbox = document.getElementById('exbox');
+  var curT = 'wais', curEx = null;
+  function renderPick() {
+    var cats = [];
+    TESTS.forEach(function (t) { if (cats.indexOf(t.cat) < 0) cats.push(t.cat); });
+    tpick.innerHTML = cats.map(function (c) {
+      return '<div><p class="tpick-cat">' + esc(c) + '</p><div class="tchips">' + TESTS.filter(function (t) { return t.cat === c; }).map(function (t) {
+        return '<button type="button" class="tchip" data-t="' + t.id + '" aria-pressed="' + (t.id === curT) + '">' + esc(t.name.replace(/（.*）/, '')) + (t.ex.length ? '<span class="ex">体験あり</span>' : '') + '</button>';
+      }).join('') + '</div></div>';
+    }).join('');
+  }
+  function renderView() {
+    var t = TESTS.filter(function (x) { return x.id === curT; })[0];
+    function row(k, v, cls) { return '<div' + (cls ? ' class="' + cls + '"' : '') + '><dt>' + k + '</dt><dd>' + esc(v) + '</dd></div>'; }
+    tview.innerHTML = '<h3>' + esc(t.name) + '<small>' + esc(t.sub) + '</small></h3>' +
+      '<div class="seat">' + seatSVG(t.seat) + '<p>' + esc(SEATTXT[t.seat]) + '<br>検＝検査者　本＝本人' + (/play|lap|parent/.test(t.seat) ? '　保＝保護者' : '') + '</p></div>' +
+      '<dl class="trows">' + row('道具', t.tools) + row('本人がすること', t.does) + row('検査者が見ていること', t.watch) + row('時間', t.time) + row('結果が出るまで', t.after) + row('よくある誤解', t.myth, 'myth') + '</dl>' +
+      (t.ex.length ? '<p class="exlink">' + t.ex.map(function (e) { var x = EX.filter(function (y) { return y.id === e; })[0]; return '<button type="button" class="btn" data-goex="' + e + '">体験：' + esc(x.name) + '</button>'; }).join(' ') + '</p>' : '');
+  }
+  function renderExGrid() {
+    exgrid.innerHTML = EX.map(function (e) { return '<button type="button" class="excard" data-ex="' + e.id + '" aria-pressed="' + (e.id === curEx) + '"><b>' + esc(e.name) + '</b><small>' + esc(e.like) + '</small></button>'; }).join('');
+  }
+  tpick.addEventListener('click', function (ev) { var b = ev.target.closest('[data-t]'); if (!b) return; curT = b.getAttribute('data-t'); renderPick(); renderView(); });
+  tview.addEventListener('click', function (ev) { var b = ev.target.closest('[data-goex]'); if (!b) return; openEx(b.getAttribute('data-goex')); });
+  exgrid.addEventListener('click', function (ev) { var b = ev.target.closest('[data-ex]'); if (!b) return; openEx(b.getAttribute('data-ex')); });
+
+  /* ---------- 体験コーナー ---------- */
+  var timers = [], cleanup = null;
+  function later(fn, ms) { var id = setTimeout(fn, ms); timers.push(id); return id; }
+  function stopEx() { timers.forEach(clearTimeout); timers = []; if (cleanup) { cleanup(); cleanup = null; } try { if (window.speechSynthesis) speechSynthesis.cancel(); } catch (e) {} }
+  function openEx(id) {
+    stopEx(); curEx = id; renderExGrid();
+    var e = EX.filter(function (x) { return x.id === id; })[0];
+    exbox.hidden = false;
+    exbox.innerHTML = '<h3>' + esc(e.name) + '</h3><p class="like">' + esc(e.like) + '。本物の問題・図版・数・採点とは違います。</p><div class="exstage" id="exstage"></div><div class="exnote" id="exnote"></div>';
+    var st = document.getElementById('exstage'), nt = document.getElementById('exnote');
+    ({ span: exSpan, tmt: exTmt, code: exCode, sort: exSort, blot: exBlot, sct: exSct })[id](st, nt);
+    exbox.focus({ preventScroll: true });
+    exbox.scrollIntoView({ block: 'start', behavior: 'smooth' });
+  }
+  function rnd(n) { return Math.floor(Math.random() * n); }
+
+  /* 数字を覚えて言う */
+  function exSpan(st, nt) {
+    var canSpeak = !!(window.speechSynthesis && window.SpeechSynthesisUtterance);
+    var S = { dir: 'fwd', len: 3, trial: 0, seq: [], typed: '', best: 0, log: [], busy: false, over: false };
+    nt.innerHTML = '<p><b>何をみる課題か</b>：聞いたことを少しのあいだ覚えておく力（注意・ワーキングメモリー）。逆から言うときは、覚えながら頭の中で並べ替える。</p><p><b>本物では</b>：検査者が1秒に1つずつ数字を読み上げ、本人は声で答える。同じ長さで2回とも間違えると終わる。緊張や不安、眠気でも下がりやすいので、検査者は様子もあわせて記録する。</p>';
+    function ui() {
+      st.innerHTML = '<div class="picks" role="group" aria-label="やり方"><button type="button" data-dir="fwd" aria-pressed="' + (S.dir === 'fwd') + '">そのまま（順唱）</button><button type="button" data-dir="bwd" aria-pressed="' + (S.dir === 'bwd') + '">逆から（逆唱）</button>' + (canSpeak ? '<label style="display:flex;align-items:center;gap:6px;font-size:var(--fs-s)"><input type="checkbox" id="spk"' + (S.speak ? ' checked' : '') + '> 読み上げる</label>' : '') + '</div>' +
+        '<div class="bigdigit" id="bd" aria-live="off"></div><p class="exmsg" id="sm">' + (S.over ? 'おしまい。いちばん長く正しく言えたのは <b>' + S.best + '桁</b>。' : S.busy ? '' : '「はじめる」を押すと数字が1つずつ出ます。覚えて、終わったら下のボタンで入力します。') + '</p>' +
+        '<div class="typed" id="ty">' + esc(S.typed) + '</div><div class="pad" id="pad">' + [1, 2, 3, 4, 5, 6, 7, 8, 9, 0].map(function (d) { return '<button type="button" data-d="' + d + '"' + (S.busy || !S.seq.length || S.over ? ' disabled' : '') + '>' + d + '</button>'; }).join('') + '</div>' +
+        '<div class="actions"><button type="button" class="btn" data-act="del">1つ消す</button><button type="button" class="btn primary" data-act="ok">答える</button><button type="button" class="btn" data-act="start">' + (S.over || !S.log.length ? 'はじめる' : '次の問題') + '</button></div>' +
+        '<div class="exlog">' + S.log.map(function (l) { return '<span class="' + (l.ok ? 'ok' : 'ng') + '">' + l.len + '桁：' + l.seq + ' → ' + (l.ans || '（なし）') + '　' + (l.ok ? '○' : '×') + '</span>'; }).join('') + '</div>';
+    }
+    function present() {
+      var seq = [], d; for (var i = 0; i < S.len; i++) { do { d = rnd(10); } while (seq.length && d === seq[seq.length - 1]); seq.push(d); }
+      S.seq = seq; S.typed = ''; S.busy = true; ui();
+      var bd = document.getElementById('bd'), i2 = 0;
+      (function step() {
+        if (i2 >= seq.length) { bd.textContent = '？'; S.busy = false; later(function () { ui(); document.getElementById('bd').textContent = '？'; document.getElementById('sm').textContent = S.dir === 'fwd' ? '出てきた順に入力してください。' : '逆の順に入力してください。'; }, 400); return; }
+        bd.textContent = seq[i2];
+        if (S.speak) { try { var u = new SpeechSynthesisUtterance(String(seq[i2])); u.lang = 'ja-JP'; speechSynthesis.speak(u); } catch (e) {} }
+        i2++; later(function () { bd.textContent = ''; later(step, 250); }, 750);
+      })();
+    }
+    st.onclick = function (ev) {
+      var b = ev.target.closest('button'); if (!b) return;
+      if (b.hasAttribute('data-dir')) { if (S.busy) return; S = { dir: b.getAttribute('data-dir'), len: b.getAttribute('data-dir') === 'fwd' ? 3 : 2, trial: 0, seq: [], typed: '', best: 0, log: [], busy: false, over: false, speak: S.speak }; ui(); return; }
+      if (b.hasAttribute('data-d')) { if (S.typed.length < 12) S.typed += b.getAttribute('data-d'); document.getElementById('ty').textContent = S.typed; return; }
+      var a = b.getAttribute('data-act');
+      if (a === 'del') { S.typed = S.typed.slice(0, -1); document.getElementById('ty').textContent = S.typed; }
+      else if (a === 'start') { if (S.busy) return; if (S.over) { S.len = S.dir === 'fwd' ? 3 : 2; S.trial = 0; S.best = 0; S.log = []; S.over = false; } present(); }
+      else if (a === 'ok') {
+        if (S.busy || !S.seq.length || S.over) return;
+        var want = (S.dir === 'fwd' ? S.seq : S.seq.slice().reverse()).join(''), ok = S.typed === want;
+        S.log.push({ len: S.len, seq: S.seq.join('-'), ans: S.typed, ok: ok });
+        if (ok) { S.best = Math.max(S.best, S.len); S.len++; S.trial = 0; if (S.len > 9) S.over = true; }
+        else if (S.trial === 0) S.trial = 1; else S.over = true;
+        S.seq = []; S.typed = ''; ui();
+      }
+    };
+    st.onchange = function (ev) { if (ev.target.id === 'spk') S.speak = ev.target.checked; };
+    ui();
+  }
+
+  /* 線でつなぐ */
+  function exTmt(st, nt) {
+    nt.innerHTML = '<p><b>何をみる課題か</b>：Aは目で探して順に追う速さ。Bは2つの並び（数字とひらがな）を行き来する、注意の切り替え。AとBの時間の差が大きいと、切り替えの苦手さを考える。</p><p><b>本物では</b>：紙と鉛筆で、丸の数はもっと多い（日本版のAは25個）。間違えると検査者がすぐに指摘し、正しい丸から続ける。年齢とともに時間は長くなるので、年齢の基準と比べる。</p>';
+    var W = 560, H = 400, R = 19, items = [], next = 0, t0 = 0, err = 0, part = 'A', res = {}, flash = -1, run = false, tick = null;
+    st.innerHTML = '<div class="actions"><button type="button" class="btn primary" data-p="A">Aをはじめる</button><button type="button" class="btn" data-p="B">Bをはじめる</button><span class="exmsg" id="tm"></span></div><div class="tmtwrap"><canvas id="tc" width="' + W + '" height="' + H + '" aria-label="線つなぎの課題"></canvas></div><p class="exmsg" id="tmsg">ボタンを押すと丸が出ます。順番にタップしてください。</p><div class="exlog" id="tres"></div>';
+    var cv = document.getElementById('tc'), cx = cv.getContext('2d'), dpr = Math.min(2, window.devicePixelRatio || 1);
+    cv.width = W * dpr; cv.height = H * dpr; cx.scale(dpr, dpr);
+    function labels(p) { if (p === 'A') { var a = []; for (var i = 1; i <= 15; i++) a.push(String(i)); return a; } return ['1', 'あ', '2', 'い', '3', 'う', '4', 'え', '5', 'お', '6', 'か', '7', 'き', '8']; }
+    function layout(p) {
+      var L = labels(p), pts = [];
+      L.forEach(function (lb) {
+        for (var tries = 0; tries < 500; tries++) {
+          var x = 30 + Math.random() * (W - 60), y = 30 + Math.random() * (H - 60), ok = true;
+          for (var j = 0; j < pts.length; j++) { var dx = pts[j].x - x, dy = pts[j].y - y; if (dx * dx + dy * dy < 72 * 72) { ok = false; break; } }
+          if (ok || tries === 499) { pts.push({ x: x, y: y, lb: lb }); break; }
+        }
+      });
+      return pts;
+    }
+    function draw() {
+      cx.clearRect(0, 0, W, H); cx.fillStyle = '#fff'; cx.fillRect(0, 0, W, H);
+      cx.strokeStyle = '#333'; cx.lineWidth = 2; cx.beginPath();
+      for (var i = 1; i < next; i++) { cx.moveTo(items[i - 1].x, items[i - 1].y); cx.lineTo(items[i].x, items[i].y); }
+      cx.stroke();
+      items.forEach(function (p, i) {
+        cx.beginPath(); cx.arc(p.x, p.y, R, 0, Math.PI * 2);
+        cx.fillStyle = i === flash ? '#f6c9c4' : i < next ? '#d7ece6' : '#fff'; cx.fill();
+        cx.strokeStyle = i === flash ? '#c0392b' : '#222'; cx.lineWidth = 1.6; cx.stroke();
+        cx.fillStyle = '#111'; cx.font = '700 17px "BIZ UDPGothic",sans-serif'; cx.textAlign = 'center'; cx.textBaseline = 'middle'; cx.fillText(p.lb, p.x, p.y + 1);
+      });
+    }
+    function start(p) {
+      part = p; items = layout(p); next = 0; err = 0; flash = -1; run = true; t0 = performance.now(); draw();
+      document.getElementById('tmsg').textContent = p === 'A' ? '1から順に、15までタップ。' : '1→あ→2→い…と交互に、8までタップ。';
+      document.getElementById('tmsg').className = 'exmsg';
+      clearInterval(tick); tick = setInterval(function () { if (run) document.getElementById('tm').textContent = ((performance.now() - t0) / 1000).toFixed(1) + '秒'; }, 100);
+    }
+    cleanup = function () { clearInterval(tick); };
+    st.onclick = function (ev) { var b = ev.target.closest('[data-p]'); if (b) start(b.getAttribute('data-p')); };
+    cv.addEventListener('pointerdown', function (ev) {
+      if (!run) return;
+      var r = cv.getBoundingClientRect(), x = (ev.clientX - r.left) * W / r.width, y = (ev.clientY - r.top) * H / r.height, hit = -1;
+      items.forEach(function (p, i) { var dx = p.x - x, dy = p.y - y; if (dx * dx + dy * dy < (R + 10) * (R + 10)) hit = i; });
+      if (hit < 0 || hit < next) return;
+      var m = document.getElementById('tmsg');
+      if (hit === next) { next++; flash = -1; m.className = 'exmsg'; m.textContent = next < items.length ? '次は「' + items[next].lb + '」' : ''; }
+      else { err++; flash = hit; m.className = 'exmsg ng'; m.textContent = 'ちがいます。「' + (next ? items[next - 1].lb : '最初') + '」から続けてください（時間は止まりません）。'; later(function () { flash = -1; draw(); }, 500); }
+      draw();
+      if (next === items.length) {
+        run = false; clearInterval(tick);
+        var sec = (performance.now() - t0) / 1000; res[part] = { sec: sec, err: err };
+        document.getElementById('tm').textContent = sec.toFixed(1) + '秒';
+        m.className = 'exmsg'; m.textContent = part + ' 終わり：' + sec.toFixed(1) + '秒、誤り ' + err + '回。' + (part === 'A' && !res.B ? '次はBを試してください。' : '');
+        var h = ['A', 'B'].filter(function (k) { return res[k]; }).map(function (k) { return '<span>' + k + '：' + res[k].sec.toFixed(1) + '秒（誤り ' + res[k].err + '）</span>'; });
+        if (res.A && res.B) h.push('<span>B − A ＝ <b>' + (res.B.sec - res.A.sec).toFixed(1) + '秒</b>、B ÷ A ＝ <b>' + (res.B.sec / res.A.sec).toFixed(2) + '</b>。切り替えのぶん、Bは長くなるのが普通です。</span>');
+        document.getElementById('tres').innerHTML = h.join('');
+      }
+    });
+    items = layout('A'); next = 0; run = false; draw();
+  }
+
+  /* 記号を写す */
+  var GLY = ['M4 16 L10 4 L16 16', 'M4 4 L16 4 M10 4 L10 16', 'M4 10 L16 10 M10 4 L10 16', 'M4 4 L16 16 M16 4 L4 16', 'M5 4 L5 16 L16 16', 'M4 5 Q10 21 16 5', 'M4 4 L16 4 L16 16 L4 16 Z', 'M4 8 L16 8 M4 13 L16 13', 'M10 3 L17 10 L10 17 L3 10 Z'];
+  function gsvg(i) { return i == null ? '<svg viewBox="0 0 20 20"></svg>' : '<svg viewBox="0 0 20 20" aria-hidden="true"><path d="' + GLY[i] + '" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>'; }
+  function exCode(st, nt) {
+    nt.innerHTML = '<p><b>何をみる課題か</b>：見本を見て、覚えて、書き写す速さと正確さ（処理速度）。目と手の協応、注意の続き方。</p><p><b>本物では</b>：鉛筆で記号を書き写し、制限時間内にいくつ正しく書けたかを数える。手のふるえ、運動の遅さ、ていねいに書きすぎる完璧主義、見本を何度も見返すことでも点は下がる。だから検査者は「なぜ遅いか」を観察する。</p>';
+    var N = 40, digits = [], ans = [], pos = 0, run = false, left = 60, tick = null, order = [];
+    function newRun() { digits = []; for (var i = 0; i < N; i++) digits.push(rnd(9)); ans = []; pos = 0; left = 60; order = [0, 1, 2, 3, 4, 5, 6, 7, 8].sort(function () { return Math.random() - 0.5; }); }
+    function ui(msg) {
+      var ok = ans.filter(function (a, i) { return a === digits[i]; }).length, ng = ans.length - ok;
+      st.innerHTML = '<div class="code-key" aria-label="見本">' + GLY.map(function (g, i) { return '<div><span>' + (i + 1) + '</span>' + gsvg(i) + '</div>'; }).join('') + '</div>' +
+        '<div class="actions"><button type="button" class="btn primary" data-act="go">' + (run ? 'やり直す' : 'はじめる（60秒）') + '</button><span class="exmsg">残り ' + left + '秒　正しく写せた ' + ok + '</span></div>' +
+        '<div class="code-row">' + digits.map(function (d, i) { return '<div class="code-cell' + (i === pos && run ? ' cur' : '') + (ans[i] != null && ans[i] !== d ? ' ng' : '') + '"><span>' + (d + 1) + '</span>' + gsvg(ans[i]) + '</div>'; }).join('') + '</div>' +
+        '<p style="font-size:var(--fs-s)">下のボタンから、数字に対応する記号を選んでいきます（ボタンの並びは見本と違います）。</p>' +
+        '<div class="code-btns">' + order.map(function (g) { return '<button type="button" data-g="' + g + '"' + (run ? '' : ' disabled') + ' aria-label="記号' + (g + 1) + '">' + gsvg(g) + '</button>'; }).join('') + '</div>' +
+        (msg ? '<p class="exmsg">' + msg + '</p>' : '');
+    }
+    function end() { run = false; clearInterval(tick); var ok = ans.filter(function (a, i) { return a === digits[i]; }).length; ui('時間です。正しく写せたのは ' + ok + '個、まちがい ' + (ans.length - ok) + '個。'); }
+    cleanup = function () { clearInterval(tick); };
+    st.onclick = function (ev) {
+      var b = ev.target.closest('button'); if (!b) return;
+      if (b.getAttribute('data-act') === 'go') { newRun(); run = true; ui(); clearInterval(tick); tick = setInterval(function () { left--; if (left <= 0) { left = 0; end(); } else { var m = st.querySelector('.actions .exmsg'); if (m) m.textContent = '残り ' + left + '秒　正しく写せた ' + ans.filter(function (a, i) { return a === digits[i]; }).length; } }, 1000); return; }
+      if (b.hasAttribute('data-g') && run) { ans[pos] = +b.getAttribute('data-g'); pos++; if (pos >= N) end(); else ui(); }
+    };
+    newRun(); ui();
+  }
+
+  /* カードを分ける */
+  var COLS = [['青', '#2f64c8'], ['赤', '#d23b30'], ['緑', '#2b9a4a'], ['黄', '#e0ad0c']], SHP = ['四角', '丸', '三角', '星'];
+  var KEYS = [{ n: 0, c: 0, s: 0 }, { n: 1, c: 1, s: 1 }, { n: 2, c: 2, s: 2 }, { n: 3, c: 3, s: 3 }];
+  function shapeAt(s, x, y, col) {
+    var f = 'fill="' + col + '" stroke="#222" stroke-width=".8"';
+    if (s === 0) return '<rect x="' + (x - 8) + '" y="' + (y - 8) + '" width="16" height="16" ' + f + '/>';
+    if (s === 1) return '<circle cx="' + x + '" cy="' + y + '" r="8.5" ' + f + '/>';
+    if (s === 2) return '<polygon points="' + x + ',' + (y - 9) + ' ' + (x + 9) + ',' + (y + 8) + ' ' + (x - 9) + ',' + (y + 8) + '" ' + f + '/>';
+    var p = []; for (var i = 0; i < 10; i++) { var a = -Math.PI / 2 + i * Math.PI / 5, r = i % 2 ? 4 : 10; p.push((x + r * Math.cos(a)).toFixed(1) + ',' + (y + r * Math.sin(a)).toFixed(1)); }
+    return '<polygon points="' + p.join(' ') + '" ' + f + '/>';
+  }
+  function cardSVG(k) {
+    var pos = [[[30, 40]], [[30, 24], [30, 56]], [[30, 18], [18, 58], [42, 58]], [[18, 26], [42, 26], [18, 56], [42, 56]]][k.n];
+    return '<svg viewBox="0 0 60 80" aria-label="' + (k.n + 1) + 'つの' + COLS[k.c][0] + 'い' + SHP[k.s] + '">' + pos.map(function (p) { return shapeAt(k.s, p[0], p[1], COLS[k.c][1]); }).join('') + '</svg>';
+  }
+  function exSort(st, nt) {
+    nt.innerHTML = '<p><b>何をみる課題か</b>：「正しい」「違う」という返事だけから分け方の決まりを見つけ、決まりが変わったら切り替える力（遂行機能・前頭葉の働き）。</p><p><b>本物では</b>：カードの図柄・枚数・切り替えの決まりはこれと違う。前の決まりにこだわって分け続ける誤り（保続）が多いと、切り替えの苦手さを考える。前頭葉の損傷や統合失調症などで目立つことがある。</p>';
+    var RULES = ['c', 's', 'n', 'c', 's', 'n'], MAXC = 36, S;
+    function newCard() { var k; do { k = { n: rnd(4), c: rnd(4), s: rnd(4) }; } while (k.n === k.c && k.c === k.s); return k; }
+    function reset() { S = { ri: 0, cons: 0, cat: 0, done: 0, err: 0, pers: 0, card: newCard(), fb: '', over: false }; }
+    function ui() {
+      st.innerHTML = '<p style="font-size:var(--fs-s)">下のカードを、上の4枚のどれかの下に置きます（タップ）。返事は「正しい」「違う」だけです。</p>' +
+        '<div class="sort-keys">' + KEYS.map(function (k, i) { return '<button type="button" data-k="' + i + '"' + (S.over ? ' disabled' : '') + '>' + cardSVG(k) + '</button>'; }).join('') + '</div>' +
+        '<div style="display:flex;gap:16px;align-items:center">' + (S.over ? '' : '<div class="sort-cur">' + cardSVG(S.card) + '</div>') + '<p class="exmsg' + (S.fb === '違う' ? ' ng' : '') + '" style="font-size:1.4rem">' + S.fb + '</p></div>' +
+        '<p class="exlog">' + S.done + ' / ' + MAXC + '枚</p>' +
+        (S.over ? '<div class="exlog"><span>達成できた分類：<b>' + S.cat + '</b></span><span>誤り：' + S.err + '、うち前の決まりにこだわった誤り（保続）：' + S.pers + '</span><span>決まりは「' + RULES.slice(0, Math.min(S.cat + 1, RULES.length)).map(function (r) { return { c: '色', s: '形', n: '数' }[r]; }).join('→') + '」の順に、6回続けて正しいと黙って変わっていました。</span></div><button type="button" class="btn" data-act="re">もう一度</button>' : '');
+    }
+    st.onclick = function (ev) {
+      var b = ev.target.closest('button'); if (!b) return;
+      if (b.getAttribute('data-act') === 're') { reset(); ui(); return; }
+      if (!b.hasAttribute('data-k') || S.over) return;
+      var key = KEYS[+b.getAttribute('data-k')], rule = RULES[S.ri], ok = S.card[rule] === key[rule];
+      S.done++;
+      if (ok) { S.fb = '正しい'; S.cons++; if (S.cons >= 6) { S.cat++; S.ri++; S.cons = 0; } }
+      else { S.fb = '違う'; S.err++; S.cons = 0; if (S.ri > 0) { var prev = RULES[S.ri - 1]; if (S.card[prev] === key[prev]) S.pers++; } }
+      if (S.done >= MAXC || S.ri >= RULES.length) S.over = true; else S.card = newCard();
+      ui();
+    };
+    reset(); ui();
+  }
+
+  /* インクのしみ */
+  function exBlot(st, nt) {
+    nt.innerHTML = '<p><b>本物では</b>：10枚の図版で同じことをし、反応の数、領域・決定因・内容の割合、形の合い方、よくある反応（平凡反応）をどのくらい答えるかなどを集計して解釈する。一つの反応だけで何かを決めることはない。図版は公開しないのが原則で、このしみは毎回コンピュータで作ったもの。</p>';
+    var seed = 1, S = {};
+    function srand() { seed = (seed * 16807) % 2147483647; return seed / 2147483647; }
+    function makeBlot(cv) {
+      var W = 420, H = 300, cx = cv.getContext('2d');
+      cv.width = W; cv.height = H; cx.fillStyle = '#fff'; cx.fillRect(0, 0, W, H);
+      var red = srand() < 0.35, centers = [];
+      for (var i = 0; i < 4 + Math.floor(srand() * 3); i++) centers.push([110 + srand() * 100, 50 + srand() * 200, 18 + srand() * 34]);
+      var half = document.createElement('canvas'); half.width = W / 2; half.height = H; var hx = half.getContext('2d');
+      var rc = document.createElement('canvas'); rc.width = W / 2; rc.height = H; var rx = rc.getContext('2d');
+      /* やわらかい丸を重ねて濃さの場を作り、しきい値で切ってインクの輪郭にする */
+      centers.forEach(function (c, ci) {
+        var n = 26 + Math.floor(srand() * 20);
+        for (var j = 0; j < n; j++) {
+          var a = srand() * Math.PI * 2, r = Math.pow(srand(), 0.7) * c[2] * 1.3, x = Math.min(W / 2 + 6, c[0] + Math.cos(a) * r), y = c[1] + Math.sin(a) * r * (0.7 + srand() * 0.7), rr = 6 + srand() * c[2] * 0.7;
+          var g = hx.createRadialGradient(x, y, 0, x, y, rr); g.addColorStop(0, 'rgba(0,0,0,' + (0.5 + srand() * 0.4).toFixed(2) + ')'); g.addColorStop(1, 'rgba(0,0,0,0)');
+          hx.fillStyle = g; hx.beginPath(); hx.arc(x, y, rr, 0, Math.PI * 2); hx.fill();
+          if (red && ci === centers.length - 1) { rx.fillStyle = g; rx.beginPath(); rx.arc(x, y, rr, 0, Math.PI * 2); rx.fill(); }
+        }
+        if (srand() < 0.6) { hx.strokeStyle = 'rgba(0,0,0,.9)'; hx.lineWidth = 3 + srand() * 4; hx.lineCap = 'round'; hx.beginPath(); hx.moveTo(c[0], c[1]); hx.quadraticCurveTo(c[0] + (srand() - .5) * 90, c[1] + 30, c[0] + (srand() - .5) * 70, c[1] + 50 + srand() * 50); hx.stroke(); }
+      });
+      var id = hx.getImageData(0, 0, W / 2, H), d = id.data, rd = red ? rx.getImageData(0, 0, W / 2, H).data : null;
+      for (var q = 0; q < d.length; q += 4) {
+        var al = d[q + 3] / 255;
+        if (al < 0.42) { d[q] = d[q + 1] = d[q + 2] = 255; d[q + 3] = 255; continue; }
+        var shade = Math.max(0, Math.min(1, (al - 0.42) / 0.5)), v = Math.round(95 - shade * 80);
+        var isRed = rd && rd[q + 3] / 255 > 0.38;
+        if (isRed) { d[q] = 200 - shade * 60; d[q + 1] = 40 - shade * 20; d[q + 2] = 38 - shade * 20; }
+        else { d[q] = v; d[q + 1] = v; d[q + 2] = v + 4; }
+        d[q + 3] = 255;
+      }
+      hx.putImageData(id, 0, 0);
+      cx.drawImage(half, 0, 0); cx.save(); cx.translate(W, 0); cx.scale(-1, 1); cx.drawImage(half, 0, 0); cx.restore();
+    }
+    var LOC = [['W', '全体'], ['D', '大きな部分'], ['Dd', '小さな部分'], ['S', '白いすき間']];
+    var DET = [['F', '形'], ['M', '動き（人）'], ['FM', '動き（動物）'], ['C', '色'], ['Y', '濃淡・質感']];
+    var CON = [['H', '人'], ['Hd', '人の一部'], ['A', '動物'], ['Ad', '動物の一部'], ['Obj', '物'], ['Na', '植物・自然'], ['At', '体の中（解剖）'], ['他', 'その他']];
+    function picks(name, list, sel, multi) { return '<div class="picks" role="group" aria-label="' + name + '">' + list.map(function (x) { return '<button type="button" data-pk="' + name + '" data-v="' + x[0] + '" aria-pressed="' + (multi ? sel.indexOf(x[0]) >= 0 : sel === x[0]) + '">' + x[1] + '</button>'; }).join('') + '</div>'; }
+    function ui() {
+      var h = '<div class="blot"><canvas id="bc" aria-label="左右対称のインクのしみ（本物の図版ではありません）"></canvas></div>';
+      if (S.step === 0) h += '<p><b>自由反応</b>：これは何に見えますか？ 思ったとおりに答えてください（正解はありません）。</p><input type="text" id="bans" maxlength="80" placeholder="例：〜に見える"><div class="actions"><button type="button" class="btn primary" data-act="ans">答えた</button><button type="button" class="btn" data-act="new">別のしみ</button></div>';
+      else if (S.step === 1) h += '<p><b>質疑</b>：「' + esc(S.ans) + '」は、</p><p style="font-size:var(--fs-s)">どこに見えましたか？</p>' + picks('loc', LOC, S.loc, false) + '<p style="font-size:var(--fs-s)">どこからそう見えましたか？（いくつでも）</p>' + picks('det', DET, S.det, true) + '<p style="font-size:var(--fs-s)">見えたものは？</p>' + picks('con', CON, S.con, false) + '<div class="actions"><button type="button" class="btn primary" data-act="rec"' + (S.loc && S.det.length && S.con ? '' : ' disabled') + '>記録を見る</button></div>';
+      else h += '<p><b>検査者の記録（例）</b></p><div class="rec">反応　「' + esc(S.ans) + '」\n領域　' + S.loc + '（' + LOC.filter(function (x) { return x[0] === S.loc; })[0][1] + '）\n決定因 ' + S.det.join('・') + '\n内容　' + S.con + '\n形の合い方　しみの形にどのくらい合っているかも評価する</div><p style="font-size:var(--fs-s)">記号は流派（片口法・包括システムなど）で少しずつ違います。動きは人なら M、動物なら FM のように分けます。本物では、本人のことばをそのまま書き取り、反応までの時間や図版の回し方も記録します。</p><div class="actions"><button type="button" class="btn" data-act="new">別のしみで</button></div>';
+      st.innerHTML = h; makeBlot(document.getElementById('bc'));
+    }
+    function fresh() { seed = 1 + Math.floor(Math.random() * 2147483000); S = { step: 0, seed: seed, ans: '', loc: null, det: [], con: null }; }
+    st.onclick = function (ev) {
+      var b = ev.target.closest('button'); if (!b) return; seed = S.seed;
+      var a = b.getAttribute('data-act');
+      if (a === 'new') { fresh(); ui(); return; }
+      if (a === 'ans') { var v = (document.getElementById('bans').value || '').trim(); if (!v) { document.getElementById('bans').focus(); return; } S.ans = v; S.step = 1; ui(); return; }
+      if (a === 'rec') { S.step = 2; ui(); return; }
+      var pk = b.getAttribute('data-pk'), val = b.getAttribute('data-v');
+      if (pk === 'det') { var i = S.det.indexOf(val); if (i >= 0) S.det.splice(i, 1); else S.det.push(val); }
+      else if (pk) S[pk] = val;
+      ui();
+    };
+    st.onkeydown = function (ev) { if (ev.key === 'Enter' && ev.target.id === 'bans') { ev.preventDefault(); st.querySelector('[data-act="ans"]').click(); } };
+    fresh(); ui();
+  }
+
+  /* 書き出しの続き */
+  function exSct(st, nt) {
+    var STEMS = ['小さい頃、私は', '家の人は', '私がいちばん心配なのは', '人と話すとき', '十年後の私は'];
+    nt.innerHTML = '<p><b>本物では</b>：書き出しはもっと多く（精研式は60項目）、ここにある文は本物ではありません。書いたものは本人の大切な情報なので、扱いに注意します（このページは書いた内容を保存しません）。</p>';
+    st.innerHTML = '<p style="font-size:var(--fs-s)">書き出しに続けて、思いついたことを書いてください。</p><div class="sct">' + STEMS.map(function (s, i) { return '<label><b>' + (i + 1) + '．' + s + '</b><input type="text" maxlength="80" data-i="' + i + '"></label>'; }).join('') + '</div><div class="actions"><button type="button" class="btn primary" data-act="done">書き終えた</button></div><div id="sctres"></div>';
+    st.onclick = function (ev) {
+      var b = ev.target.closest('[data-act="done"]'); if (!b) return;
+      var v = [].map.call(st.querySelectorAll('[data-i]'), function (x) { return x.value.trim(); });
+      var empty = v.filter(function (x) { return !x; }).length, avg = v.length ? Math.round(v.join('').length / Math.max(1, v.length - empty)) : 0;
+      document.getElementById('sctres').innerHTML = '<div class="exlog"><span>空欄 ' + empty + '、1文の長さの平均 約' + (isFinite(avg) ? avg : 0) + '字</span></div><p style="font-size:var(--fs-s);margin-top:8px"><b>検査者が読むところ</b>：家族・対人関係・自分のこと・将来についての内容、くり返し出てくるテーマ、文の長さや空欄（書けなかった、書きたくなかった項目）、字の乱れ、全体の感情の色合い。面接で聞けなかったことが書かれていれば、次の面接で話題にできます。書いたことをそのまま事実とせず、本人がどう見せたいかも含めて読みます。</p>';
+    };
+  }
+
+  renderPick(); renderView(); renderExGrid();
+  var start = location.hash === '#room' ? 'room' : (lsG(MODE_KEY) || 'order');
+  setMode(start, false);
+  window.__room = { TESTS: TESTS, EX: EX, openEx: openEx, setMode: setMode };
+})();
+
+</script>
+<!-- /ROOM-JS -->
 
 </body>
 </html>

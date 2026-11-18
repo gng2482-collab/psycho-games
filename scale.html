@@ -1,0 +1,356 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<meta name="app-version" content="20261118152444">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="精神科試験ゲーム">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icon-180.png">
+<style>
+:root{color-scheme:light; padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px)}
+body{margin:0; font:14px system-ui,-apple-system,sans-serif}
+img{max-width:100%}
+[hidden]{display:none!important}
+.ipad-bar{display:flex; flex-wrap:wrap; gap:6px 14px; align-items:center; justify-content:space-between;
+  padding:8px max(16px, env(safe-area-inset-right,0px)) 8px max(16px, env(safe-area-inset-left,0px));
+  font:600 14px system-ui,-apple-system,"Hiragino Sans",sans-serif; background:#1d2a33; color:#f3f6f8}
+.ipad-bar a{color:#f3f6f8; text-decoration:none; padding:6px 10px; border:1px solid #4a5d6a; border-radius:6px}
+.ipad-bar span{opacity:.85; font-weight:400}
+.ipad-bar .upd{font:inherit; color:#f3f6f8; background:transparent; border:1px solid #4a5d6a; border-radius:6px; padding:6px 10px; cursor:pointer}
+.ipad-bar .right{display:flex; gap:10px; align-items:center}
+</style>
+<script>
+/* プレイヤーごとに記録を分ける（自分は今までどおり、ゲストは頭に印をつける） */
+(function () {
+  try {
+    var P = window.localStorage.getItem('ipad-player') || 'me';
+    window.__ipadPlayer = P;
+    if (P === 'me') return;
+    var pre = 'p:' + P + ':', S = Storage.prototype, g = S.getItem, s = S.setItem, r = S.removeItem;
+    var map = function (k) { return k === 'ipad-player' ? k : pre + k; };
+    S.getItem = function (k) { return g.call(this, map(k)); };
+    S.setItem = function (k, v) { return s.call(this, map(k), v); };
+    S.removeItem = function (k) { return r.call(this, map(k)); };
+  } catch (e) { /* 保存できない環境 */ }
+})();
+if ('serviceWorker' in navigator) { window.addEventListener('load', function () { navigator.serviceWorker.register('sw.js').catch(function () {}); }); }
+</script>
+<script src="ipad-update.js" defer></script>
+</head>
+<body>
+<nav class="ipad-bar" aria-label="アプリ"><a href="index.html">← ゲーム一覧</a><span class="right"><span id="ipadWho"></span><button type="button" class="upd" data-upd="manual" aria-label="新しい版を確かめて更新">↻ 更新</button></span></nav>
+<script>(function(){var P=window.__ipadPlayer||'me';document.getElementById('ipadWho').textContent='プレイヤー：'+(P==='me'?'自分':P);})();</script>
+<title>評価尺度の道場</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=BIZ+UDPGothic:wght@400;700&family=DotGothic16&display=swap">
+<style>
+/* Layout: 見出しとモード（図鑑・採点してみる・クイズ）のタブ。図鑑は領域の絞り込み＋カードの格子。採点は症例の紙＋問い。クイズは1問ずつ。最大幅1040px */
+:root{
+  --paper:#eef0f4; --panel:#fafbfd; --ink:#1b1f29; --muted:#5b6272; --line:#c9cfdb;
+  --accent:#3b55a5; --accent-ink:#fff; --ok:#2a7a55; --ng:#bf3a2f; --warn:#a8680c;
+  --accent-soft:color-mix(in srgb, var(--accent) 10%, var(--panel));
+  --strip:color-mix(in srgb, var(--line) 30%, var(--panel));
+  --f-display:"DotGothic16","BIZ UDPGothic",system-ui,sans-serif;
+  --f-body:"BIZ UDPGothic","Hiragino Sans","Yu Gothic",Meiryo,system-ui,sans-serif;
+  --fs-xs:.78rem; --fs-s:.875rem; --fs-m:1rem; --fs-l:1.12rem; --fs-xl:1.4rem; --r:6px;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){ --paper:#12141a; --panel:#1a1d25; --ink:#e3e6ee; --muted:#9aa1b2; --line:#323848; --accent:#93abf0; --accent-ink:#12141a; --ok:#63c993; --ng:#f07a6e; --warn:#e2a54b; color-scheme:dark; }
+}
+:root[data-theme="dark"]{ --paper:#12141a; --panel:#1a1d25; --ink:#e3e6ee; --muted:#9aa1b2; --line:#323848; --accent:#93abf0; --accent-ink:#12141a; --ok:#63c993; --ng:#f07a6e; --warn:#e2a54b; color-scheme:dark; }
+[hidden]{display:none!important}
+*,*::before,*::after{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--f-body);font-size:var(--fs-m);line-height:1.75;padding-left:max(16px, env(safe-area-inset-left, 0px));padding-right:max(16px, env(safe-area-inset-right, 0px));padding-block:0 56px;overflow-wrap:anywhere}
+:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+p{margin:0}
+.wrap{max-width:1040px;margin:0 auto}
+.top{padding-block:30px 6px;display:grid;gap:10px}
+.eyebrow{font-size:var(--fs-xs);letter-spacing:.16em;color:var(--muted)}
+h1{font-family:var(--f-display);font-weight:400;margin:0;font-size:clamp(2rem,7.5vw,3rem);letter-spacing:.08em;line-height:1.15;text-shadow:3px 3px 0 var(--line)}
+.note{font-size:var(--fs-xs);color:var(--muted)}
+.modes{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin-top:6px}
+.mode{font:inherit;text-align:left;cursor:pointer;border:1px solid var(--line);background:var(--panel);color:var(--ink);border-radius:var(--r);padding:8px 12px;min-height:52px;display:grid;gap:1px}
+.mode b{font-family:var(--f-display);font-weight:400;font-size:var(--fs-l)}
+.mode small{font-size:var(--fs-xs);color:var(--muted)}
+.mode[aria-pressed="true"]{border:2px solid var(--accent);background:var(--accent-soft)}
+@media (max-width:560px){.modes{grid-template-columns:1fr}.mode{min-height:44px}}
+section.pane{margin-top:22px;display:grid;gap:14px}
+h2{font-family:var(--f-display);font-weight:400;font-size:var(--fs-xl);margin:0;letter-spacing:.04em}
+/* 図鑑 */
+.filters{display:flex;flex-wrap:wrap;gap:6px}
+.fchip{font:inherit;font-size:var(--fs-s);padding:4px 12px;min-height:38px;border-radius:999px;border:1px solid var(--line);background:var(--panel);color:var(--ink);cursor:pointer}
+.fchip[aria-pressed="true"]{border:2px solid var(--accent);background:var(--accent-soft);font-weight:700}
+.search{font:inherit;padding:8px 12px;border:1px solid var(--line);border-radius:var(--r);background:var(--panel);color:var(--ink);width:100%;max-width:360px}
+.zgrid{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,300px),1fr));gap:10px}
+.sc{background:var(--panel);border:1px solid var(--line);border-radius:var(--r);padding:12px 14px;display:grid;gap:6px;align-content:start;font-size:var(--fs-s)}
+.sc-h{display:flex;justify-content:space-between;align-items:baseline;gap:8px;flex-wrap:wrap}
+.sc-h b{font-size:var(--fs-l)}
+.sc-full{font-size:var(--fs-xs);color:var(--muted)}
+.tag{font-size:var(--fs-xs);border:1px solid currentColor;border-radius:3px;padding:0 6px;white-space:nowrap}
+.t-self{color:var(--accent)} .t-int{color:var(--ok)} .t-obs{color:var(--warn)} .t-inf{color:var(--ng)}
+.sc dl{margin:0;display:grid;gap:3px}
+.sc dl>div{display:grid;grid-template-columns:4.8em minmax(0,1fr);gap:8px;border-top:1px dotted var(--line);padding-top:3px}
+.sc dt{font-size:var(--fs-xs);color:var(--muted);padding-top:1px}
+.sc dd{margin:0}
+.cut{font-weight:700}
+.legend{display:flex;flex-wrap:wrap;gap:6px 14px;font-size:var(--fs-xs);color:var(--muted)}
+/* 採点・クイズ */
+.plist{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+@media (max-width:760px){.plist{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.pbtn{font:inherit;text-align:left;cursor:pointer;border:1px solid var(--line);background:var(--panel);color:var(--ink);border-radius:var(--r);padding:8px 12px;display:grid;gap:1px;min-height:44px}
+.pbtn b{font-size:var(--fs-s)} .pbtn small{font-size:var(--fs-xs);color:var(--muted)}
+.pbtn[aria-pressed="true"]{border:2px solid var(--accent);background:var(--accent-soft)}
+.pbtn .done{color:var(--ok);font-weight:700}
+.sheet{background:var(--panel);border:1px solid var(--line);box-shadow:0 10px 26px -18px rgba(0,0,0,.25);padding:16px clamp(14px,3vw,28px);display:grid;gap:10px}
+.sheet h3{margin:0;font-size:var(--fs-l)}
+.vig{font-size:var(--fs-s);display:grid;gap:6px}
+.vig .say{border-left:3px solid var(--line);padding-left:10px}
+.vig table{border-collapse:collapse;font-size:var(--fs-s);width:100%}
+.vig td,.vig th{border-bottom:1px solid var(--line);padding:4px 6px;text-align:left;vertical-align:top}
+.vig th{font-size:var(--fs-xs);color:var(--muted);font-weight:400}
+.q{display:grid;gap:8px;border-top:1px solid var(--line);padding-top:12px}
+.qh{font-weight:700}
+.qh .n{font-family:var(--f-display);font-weight:400;color:var(--accent);margin-right:6px}
+.opts{display:grid;gap:6px}
+.opt{font:inherit;text-align:left;width:100%;padding:9px 12px;min-height:44px;border:1px solid var(--line);border-radius:var(--r);background:var(--panel);color:var(--ink);cursor:pointer;line-height:1.6}
+.opt:hover:not(:disabled){border-color:var(--accent)}
+.opt:disabled{cursor:default}
+.opt.ok{border:2px solid var(--ok);background:color-mix(in srgb,var(--ok) 10%,var(--panel))}
+.opt.ng{border:2px solid var(--ng);background:color-mix(in srgb,var(--ng) 8%,var(--panel))}
+.opt.dim{color:var(--muted)}
+.why{font-size:var(--fs-s);background:var(--strip);border-radius:var(--r);padding:8px 12px}
+.why b.okc{color:var(--ok)} .why b.ngc{color:var(--ng)}
+.btn{font:inherit;font-weight:700;min-height:44px;padding:6px 18px;border:0;border-radius:var(--r);background:var(--accent);color:var(--accent-ink);cursor:pointer}
+.btn.ghost{background:var(--panel);color:var(--accent);border:1.5px solid var(--accent)}
+.row{display:flex;flex-wrap:wrap;gap:8px 14px;align-items:center}
+.big{font-family:var(--f-display);font-size:2.4rem;line-height:1;color:var(--accent)}
+.prog{font-size:var(--fs-s);color:var(--muted)}
+.foot{margin-top:28px;font-size:var(--fs-xs);color:var(--muted);max-width:60em}
+</style>
+
+<div class="wrap">
+  <header class="top">
+    <p class="eyebrow">精神科試験ゲーム ・ 評価尺度</p>
+    <h1>評価尺度の道場</h1>
+    <p>HAM-D、PANSS、YMRS、PHQ-9……。名前は知っていても、誰がつけるのか、何点からが目安か、何に使うのかがあいまいになりがちな評価尺度を、図鑑・採点の練習・クイズで身につけます。</p>
+    <div class="modes" role="group" aria-label="モード">
+      <button type="button" class="mode" data-m="zukan" aria-pressed="true"><b>尺度図鑑</b><small>何をみる・誰がつける・点の目安</small></button>
+      <button type="button" class="mode" data-m="prac" aria-pressed="false"><b>採点してみる</b><small>症例の紙から点をつけ、数字を読む</small></button>
+      <button type="button" class="mode" data-m="quiz" aria-pressed="false"><b>クイズ</b><small>どの尺度を使う？ この点数の意味は？</small></button>
+    </div>
+  </header>
+
+  <section class="pane" id="zukan" aria-label="尺度図鑑">
+    <div class="row"><input class="search" id="q" type="search" placeholder="名前で探す（例：HAM、うつ、アルコール）" aria-label="尺度を探す"></div>
+    <div class="filters" id="filters"></div>
+    <p class="legend"><span><span class="tag t-self">自記式</span> 本人が書く</span><span><span class="tag t-int">面接</span> 評価者が面接してつける</span><span><span class="tag t-obs">観察</span> 診察で観察してつける</span><span><span class="tag t-inf">家族など</span> 周りの人から聞く</span></p>
+    <ul class="zgrid" id="zgrid"></ul>
+  </section>
+
+  <section class="pane" id="prac" hidden aria-label="採点してみる">
+    <div class="plist" id="plist"></div>
+    <article class="sheet" id="psheet"></article>
+  </section>
+
+  <section class="pane" id="quiz" hidden aria-label="クイズ">
+    <article class="sheet" id="qsheet"></article>
+  </section>
+
+  <p class="foot">知能検査・人格検査など、心理士に依頼する心理検査は <a href="kensa.html" target="_blank" rel="noopener">心理検査オーダー</a> で練習できます（「検査室をのぞく」で実際のようすも見られます）。</p>
+  <p class="foot">症例はすべて架空です。多くの尺度には著作権があり、このアプリでは質問文や評価の基準文をそのまま載せていません。点の目安（カットオフ）は版や文献で違うことがあります。実際に使うときは、正式な日本語版と手引きに従い、必要な研修を受けてください（試作版）。</p>
+</div>
+
+<script>
+(function () {
+  'use strict';
+  function esc(s) { return String(s).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); }
+  /* ---------- 尺度 ---------- */
+  /* how: self 自記式 / int 面接 / obs 観察 / inf 家族など */
+  function S(id, area, name, full, how, items, cut, use, care) { return { id: id, area: area, name: name, full: full, how: how, items: items, cut: cut, use: use, care: care }; }
+  var SC = [
+    S('hamd', 'うつ', 'HAM-D（HDRS）', 'ハミルトンうつ病評価尺度', ['int'], '17項目版がよく使われる。項目ごとに0〜4点または0〜2点、合計0〜52点。', '7点以下を寛解とすることが多い。重症度の区切りは文献で違う。', '抗うつ薬の治験や、うつ病の重さの経過を追うときの標準。', '不眠・不安・身体症状の項目が多く、身体疾患や副作用でも点が上がる。構造化面接（SIGH-D など）で評価者の差を減らす。'),
+    S('madrs', 'うつ', 'MADRS', 'モンゴメリー・アスベルグうつ病評価尺度', ['int'], '10項目、それぞれ0〜6点、合計0〜60点。', '寛解は10点以下（または12点以下）とすることが多い。', '治療による変化をとらえやすいとされ、治験でよく使われる。', '身体症状の項目が少ない。項目と項目の間の点（奇数点）も使う。'),
+    S('phq9', 'うつ', 'PHQ-9', 'こころとからだの質問票', ['self'], '9項目、それぞれ0〜3点（この2週間にどのくらいあったか）、合計0〜27点。', '5・10・15・20点で、軽度・中等度・中等度から重度・重度の目安。10点以上でうつ病の疑い。', '外来や内科でのふるいわけと、重さの経過。短く、誰でも答えやすい。', '9番目の項目（死や自分を傷つける考え）は、合計点に関係なく、あれば必ず詳しく聞く。'),
+    S('bdi', 'うつ', 'BDI-II', 'ベック抑うつ質問票 第2版', ['self'], '21項目、それぞれ0〜3点、合計0〜63点。', '0〜13 ほぼなし、14〜19 軽度、20〜28 中等度、29以上 重度。', '抑うつの重さの自己評価。認知行動療法の経過でもよく使う。', '自記式なので、病識の乏しい人や重い人では実際とずれることがある。'),
+    S('qids', 'うつ', 'QIDS-J', '簡易抑うつ症状尺度（日本語版）', ['self', 'int'], '16項目を9つの症状にまとめて採点、合計0〜27点。自記式と面接版がある。', '0〜5 正常、6〜10 軽度、11〜15 中等度、16〜20 重度、21以上 きわめて重度。', 'DSM の大うつ病の9症状にそって重さをみる。経過を追いやすい。', '睡眠・食欲・体重などは、いくつかの項目のうち最も高い点だけを数える。'),
+    S('sds', 'うつ', 'SDS', 'ツングうつ性自己評価尺度', ['self'], '20項目、それぞれ1〜4点、合計20〜80点。', '目安は文献で違う。日本ではおおむね40点以上で抑うつ傾向とされることが多い。', '健診や職場などでの抑うつのふるいわけ。', '逆の向きに採点する項目が混じっている。'),
+    S('gds', 'うつ', 'GDS-15', '高齢者抑うつ尺度 短縮版', ['self'], '15項目、はい・いいえで答える。合計0〜15点。', '5点以上で抑うつの疑い、10点以上でうつ病の可能性が高い。', '高齢者の抑うつのふるいわけ。身体症状の項目を除いてある。', '認知症が進むと答えの信頼性が下がる。'),
+    S('epds', 'うつ', 'EPDS', 'エジンバラ産後うつ病自己評価票', ['self'], '10項目、それぞれ0〜3点、合計0〜30点。', '日本では9点以上で産後うつ病の疑い。', '産後の健診（産後2週・1か月など）でのふるいわけ。妊娠中にも使われる。', '10番目の項目（自分を傷つける考え）は、合計点に関係なく確かめる。'),
+    S('ymrs', '躁', 'YMRS', 'ヤング躁病評価尺度', ['int'], '11項目。易怒性・会話の速さと量・思考の内容・破壊的攻撃的行動の4項目は0〜8点（重みが2倍）、ほかは0〜4点。合計0〜60点。', '12点以下を寛解とすることが多い。治験の組み入れは20点以上などが多い。', '躁症状の重さと経過。双極症の治験の標準。', '重い患者ほど面接に協力しにくいので、観察でつけられる4項目の重みを大きくしてある。'),
+    S('panss', '精神病', 'PANSS', '陽性・陰性症状評価尺度', ['int'], '30項目（陽性7・陰性7・総合精神病理16）、それぞれ1〜7点（1は「なし」）。合計30〜210点。', '寛解の基準（8項目がすべて3点以下で6か月続く）がよく使われる。', '統合失調症の症状の重さと経過。治験の標準。', '約40分の面接と、病棟スタッフや家族からの情報が必要。評価者の研修が大切。'),
+    S('bprs', '精神病', 'BPRS', '簡易精神症状評価尺度', ['int'], '18項目、それぞれ1〜7点（版により0〜6点）。', '決まった区切りより、経過の変化をみることが多い。', '精神病症状を中心に、幅広い症状を短時間で評価。', 'PANSS の多くの項目はこの尺度がもとになっている。'),
+    S('cgi', '全般・機能', 'CGI（S・I）', '臨床全般印象度', ['int'], 'CGI-S（重症度）1〜7点、CGI-I（改善度）1〜7点。', 'CGI-I は 1＝非常に改善、4＝変化なし、7＝非常に悪化。1か2を「反応あり」とすることが多い。', '病気を問わず、医師の全体の印象を1つの数字で表す。治験でほぼ必ず使う。', '評価者の経験に左右される。同じ病気の患者たちと比べてつける。'),
+    S('gaf', '全般・機能', 'GAF', '機能の全体的評定尺度', ['int'], '1〜100点（症状の重さと社会的な機能の低いほうでつける）。', '点が低いほど重い。', '症状と生活機能を1つの数字で表す。', 'DSM-5 では外れ、代わりに WHODAS 2.0 が示された。'),
+    S('whodas', '全般・機能', 'WHODAS 2.0', 'WHO 障害評価面接基準', ['self', 'int', 'inf'], '36項目版と12項目版。理解・移動・セルフケア・人との交流・日常の活動・社会参加の6領域。', '点が高いほど生活の困難が大きい。', '病気の種類を問わず、生活の困難さを評価。DSM-5 で紹介されている。', '本人用・面接用・代理人用がある。'),
+    S('gad7', '不安・強迫', 'GAD-7', '全般性不安障害の尺度', ['self'], '7項目、それぞれ0〜3点、合計0〜21点。', '5・10・15点で、軽度・中等度・重度の目安。10点以上で全般不安症の疑い。', '不安のふるいわけと重さの経過。PHQ-9 と一緒に使われることが多い。', 'パニック症や社交不安症でも点が上がる。'),
+    S('hama', '不安・強迫', 'HAM-A', 'ハミルトン不安評価尺度', ['int'], '14項目、それぞれ0〜4点、合計0〜56点。', '重症度の区切りは文献で違う。', '不安の重さを面接で評価する。不安症の治験で使われる。', '身体症状の項目が多く、身体疾患でも点が上がる。'),
+    S('ybocs', '不安・強迫', 'Y-BOCS', 'エール・ブラウン強迫尺度', ['int'], '強迫観念5項目・強迫行為5項目、それぞれ0〜4点、合計0〜40点。', '0〜7 ほぼなし、8〜15 軽度、16〜23 中等度、24〜31 重度、32以上 きわめて重度。', '強迫症の重さと治療の経過。最初に症状のチェックリストで中身を確かめる。', '中身（どんな強迫か）ではなく、時間・生活への支障・苦痛・抵抗・コントロールの程度でつける。'),
+    S('lsas', '不安・強迫', 'LSAS-J', 'リーボウィッツ社交不安尺度', ['self', 'int'], '24の場面について、恐怖と回避をそれぞれ0〜3点、合計0〜144点。', '点が高いほど重い。区切りの値は文献で違う。', '社交不安症の重さと経過。', '人前で話す場面と、人と交流する場面の両方を含む。'),
+    S('cssrs', '自殺', 'C-SSRS', 'コロンビア自殺重症度評価尺度', ['int'], '死にたい気持ちの強さ（受け身の願望から、計画と意図まで）と、自殺に関する行動（実行・中断・準備）を順に聞く。', '計画や意図がある、最近の行動がある場合は、危険が高いと考えて対応する。', '自殺の危険を、聞きもらしなく系統的に評価する。', '点数で安全を保証するものではない。保護因子や状況と合わせて判断する。'),
+    S('hdsr', '認知', 'HDS-R', '改訂長谷川式簡易知能評価スケール', ['int'], '9問、合計0〜30点。', '20点以下で認知症の疑い。', '認知症のふるいわけ。日本でよく使われる。', '教育歴、難聴、抑うつ、せん妄でも点は下がる。診断ではない。'),
+    S('mmse', '認知', 'MMSE', 'ミニメンタルステート検査', ['int'], '11問、合計0〜30点。図形の模写と書字を含む。', '23点以下で認知症の疑い。', '認知症のふるいわけ。世界で広く使われる。', '版権があり、正式な用紙を使う。軽い認知障害はとらえにくい。'),
+    S('moca', '認知', 'MoCA-J', 'モントリオール認知評価 日本語版', ['int'], '合計0〜30点。教育歴が12年以下なら1点を加える。', '25点以下で軽度認知障害（MCI）の疑い。', 'MMSE では見つけにくい軽い認知障害のふるいわけ。遂行機能の課題を含む。', '実施と採点に決まりがある。'),
+    S('cdr', '認知', 'CDR', '臨床認知症評価法', ['int', 'inf'], '記憶・見当識・判断力・社会での活動・家庭生活と趣味・身の回りの6領域から総合判定。', '0＝健常、0.5＝認知症の疑い、1＝軽度、2＝中等度、3＝重度。', '認知症の重さの段階づけ。治験でよく使う。', '本人の面接と、本人をよく知る人からの情報の両方が必要。'),
+    S('npi', '認知', 'NPI', '神経精神症状評価', ['inf'], '妄想・幻覚・興奮・うつ・不安・多幸・無関心・脱抑制・易刺激性・異常行動など、各症状の頻度×重さ。介護者の負担も聞く。', '点が高いほど BPSD が強い。', '認知症の行動・心理症状（BPSD）の評価と、治療の効果。', '介護者から聞くので、介護者の見方や疲れにも左右される。'),
+    S('aims', '副作用', 'AIMS', '異常不随意運動評価尺度', ['obs'], '顔・口・舌・手足・体幹など7部位をそれぞれ0〜4点、全体の評価と歯の状態も確かめる。', '1部位で中等度（3点）以上、または2部位で軽度（2点）以上が、遅発性ジスキネジアの基準としてよく使われる。', '抗精神病薬による遅発性ジスキネジアの評価と経過。', '決まった手順（座る、口を開ける、舌を出す、手を動かす、歩く）で観察する。'),
+    S('diepss', '副作用', 'DIEPSS', '薬原性錐体外路症状評価尺度', ['obs'], '歩行・動作緩慢・流涎・筋強剛・振戦・アカシジア・ジストニア・ジスキネジアの8項目と概括重症度、それぞれ0〜4点。', '点が高いほど錐体外路症状が強い。', '抗精神病薬の錐体外路症状をまとめて評価。日本で作られ、よく使われる。', '診察の中で観察と簡単な診察（筋強剛など）をしてつける。'),
+    S('bars', '副作用', 'BARS', 'バーンズ・アカシジア評価尺度', ['obs', 'int'], '客観的な落ち着きのなさ0〜3、本人の自覚0〜3、本人の苦痛0〜3、全体の評価0〜5。', '全体の評価が2点以上で、はっきりしたアカシジアとすることが多い。', 'アカシジアの評価。座った姿勢と立った姿勢で観察する。', 'アカシジアは不安や焦燥と見誤りやすい。本人の「じっとしていられない」感覚を聞く。'),
+    S('audit', '物質', 'AUDIT', 'アルコール使用障害同定テスト', ['self', 'int'], 'WHO が作った10項目、合計0〜40点。', '8点以上で危険な飲酒（WHO）。日本では15点以上でアルコール依存症の疑いとすることが多い。', '問題のある飲酒のふるいわけと、減酒の支援。', '飲酒量の項目は、1ドリンク（純アルコール10g）で数える。'),
+    S('cage', '物質', 'CAGE', 'CAGE 質問', ['int'], '4つの はい・いいえ の質問（減らそうと思ったか、人に責められたか、罪悪感、迎え酒）。', '2つ以上「はい」で問題飲酒の疑い。', '短時間でのふるいわけ。', '今の飲酒より、これまでの経過を拾いやすい。'),
+    S('ciwa', '物質', 'CIWA-Ar', 'アルコール離脱評価尺度', ['int', 'obs'], '10項目（吐き気・振戦・発汗・不安・焦燥・触覚／聴覚／視覚の障害・頭痛・見当識）、合計0〜67点。', 'おおよそ8〜10点未満は軽い、15点以上（施設によっては20点以上）は重い離脱。', '入院中の離脱症状の重さをくり返し測り、ベンゾジアゼピン系薬の量を決める。', '会話ができない重い人や、ほかの病気が重なる人では使いにくい。'),
+    S('tds', '物質', 'TDS', 'ニコチン依存度テスト', ['self'], '10項目、はい・いいえ、合計0〜10点。', '5点以上でニコチン依存症。', '禁煙治療を保険で行うときの条件の一つ（35歳以上は喫煙指数200以上も必要）。', '依存の程度の評価には FTND（ファガストローム）も使われる。'),
+    S('ais', '睡眠', 'AIS', 'アテネ不眠尺度', ['self'], '8項目（寝つき・中途覚醒・早朝覚醒・睡眠時間・質・日中の気分・活動・眠気）、それぞれ0〜3点、合計0〜24点。', '6点以上で不眠症の疑い、4〜5点は不眠症の疑いが少しある。', '不眠の重さのふるいわけと経過。', '最近1か月で、週3回以上あったことについて答える。'),
+    S('ess', '睡眠', 'ESS（JESS）', 'エプワース眠気尺度', ['self'], '8つの場面でうとうとする可能性を0〜3点、合計0〜24点。', '11点以上で日中の過度な眠気。', '閉塞性睡眠時無呼吸やナルコレプシーなどの日中の眠気。', '本人が眠気を軽く見積もることがある。家族の話も聞く。'),
+    S('psqi', '睡眠', 'PSQI', 'ピッツバーグ睡眠質問票', ['self'], '7つの要素（質・寝つくまでの時間・睡眠時間・効率・障害・睡眠薬・日中の機能）、合計0〜21点。', '6点以上（5.5点を超える）で睡眠の質が悪い。', '最近1か月の睡眠の質の評価。', '寝床にいた時間などを書いてもらい計算する。'),
+    S('asrs', '発達', 'ASRS-v1.1', '成人期 ADHD 自己記入式症状チェックリスト', ['self'], '18項目。最初の6項目（パートA）がスクリーニング。', 'パートAで、決められた濃い欄に4つ以上当てはまるとADHDの可能性。', '成人ADHDのふるいわけ。', 'これだけで診断しない。子どもの頃からの経過を必ず聞く。'),
+    S('aq', '発達', 'AQ', '自閉症スペクトラム指数', ['self'], '50項目、合計0〜50点。成人版と児童版（保護者が答える）。', '33点以上が目安とされることが多い。', '自閉スペクトラム特性のふるいわけ。', '社交不安やうつでも点が上がる。これだけで診断しない。'),
+    S('k6', '全般・機能', 'K6', 'ケスラー心理的苦痛尺度', ['self'], '6項目、それぞれ0〜4点、合計0〜24点。', '5点以上で心理的苦痛あり。10点以上・13点以上が、より重い目安として使われる。', '国民生活基礎調査などの一般の人の調査や、職場でのふるいわけ。', '病名はわからない。苦痛の程度のふるいわけ。')
+  ];
+  var AREAS = ['すべて'].concat(SC.reduce(function (a, s) { if (a.indexOf(s.area) < 0) a.push(s.area); return a; }, []));
+  var HOW = { self: ['t-self', '自記式'], int: ['t-int', '面接'], obs: ['t-obs', '観察'], inf: ['t-inf', '家族など'] };
+  var area = 'すべて', query = '';
+  function renderZukan() {
+    document.getElementById('filters').innerHTML = AREAS.map(function (a) { return '<button type="button" class="fchip" data-a="' + a + '" aria-pressed="' + (a === area) + '">' + a + '</button>'; }).join('');
+    var q = query.toLowerCase();
+    var list = SC.filter(function (s) { return (area === 'すべて' || s.area === area) && (!q || (s.name + s.full + s.area + s.use).toLowerCase().indexOf(q) >= 0); });
+    document.getElementById('zgrid').innerHTML = list.length ? list.map(function (s) {
+      return '<li class="sc"><div class="sc-h"><b>' + esc(s.name) + '</b><span>' + s.how.map(function (h) { return '<span class="tag ' + HOW[h][0] + '">' + HOW[h][1] + '</span>'; }).join(' ') + '</span></div><p class="sc-full">' + esc(s.full) + '・' + esc(s.area) + '</p><dl>' +
+        '<div><dt>項目と点</dt><dd>' + esc(s.items) + '</dd></div><div><dt>目安</dt><dd class="cut">' + esc(s.cut) + '</dd></div><div><dt>使いどころ</dt><dd>' + esc(s.use) + '</dd></div><div><dt>注意</dt><dd>' + esc(s.care) + '</dd></div></dl></li>';
+    }).join('') : '<li class="note">見つかりませんでした。</li>';
+  }
+  document.getElementById('filters').addEventListener('click', function (e) { var b = e.target.closest('[data-a]'); if (!b) return; area = b.getAttribute('data-a'); renderZukan(); });
+  document.getElementById('q').addEventListener('input', function (e) { query = e.target.value.trim(); renderZukan(); });
+
+  /* ---------- 採点してみる ---------- */
+  /* qs の a は「正解を先頭」に書き、表示のときに並べ替える */
+  var PR = [
+    { id: 'phq', name: 'PHQ-9 を数える', sub: '外来の問診票', vig: '<p>30代女性。初診の待合で PHQ-9 に記入してもらった（この2週間のこと）。</p><table><tr><th>内容（要約）</th><th>答え</th></tr><tr><td>1 興味・喜びがわかない</td><td>半分以上の日（2）</td></tr><tr><td>2 気分が落ち込む</td><td>ほとんど毎日（3）</td></tr><tr><td>3 眠りの問題</td><td>ほとんど毎日（3）</td></tr><tr><td>4 疲れやすい</td><td>半分以上の日（2）</td></tr><tr><td>5 食欲の問題</td><td>数日（1）</td></tr><tr><td>6 自分を責める</td><td>半分以上の日（2）</td></tr><tr><td>7 集中できない</td><td>数日（1）</td></tr><tr><td>8 動きが遅い・落ち着かない</td><td>全くない（0）</td></tr><tr><td>9 死んだほうがよい・自分を傷つける考え</td><td>数日（1）</td></tr></table>',
+      qs: [
+        { q: '合計点は？', a: ['15点', '13点', '17点', '12点'], why: '2＋3＋3＋2＋1＋2＋1＋0＋1＝15点。PHQ-9 は各項目0〜3点で、合計0〜27点です。' },
+        { q: '重さの目安は？', a: ['中等度から重度（15〜19点）', '中等度（10〜14点の範囲）', '軽度（5〜9点の範囲）', '重度（20点以上の範囲）'], why: '5・10・15・20点が区切りです。15点は「中等度から重度」。ただし PHQ-9 は診断ではないので、面接で症状と経過を確かめます。' },
+        { q: '9番目の項目が「数日（1）」でした。まずすることは？', a: ['この診察で、死にたい気持ちの頻度・計画・手段・過去の行動を詳しく聞く', '1点なので、次回の外来で合計点と一緒に見直すことにする', '合計点が20点未満なので、自殺の危険は低いと考えて記録する', '家族に問診票を見せて、本人の様子を家で見守ってもらう'], why: '9番目の項目は、合計点に関係なく、1点でもあればその場で詳しく聞きます。計画や手段、過去の自殺企図、保護因子を確かめ、危険の程度に合わせて対応します。' }
+      ] },
+    { id: 'hamd', name: 'HAM-D の不眠と体重', sub: 'うつ病の面接', vig: '<p>50代男性、うつ病。HAM-D の面接から（この1週間のこと）。</p><p class="say">「寝つきは悪くないんです。でも夜中に2、3回目が覚めて、そのたびに起き上がって、台所で水を飲んだりテレビをつけたりして、なかなか寝つけない。朝は毎日4時ごろ目が覚めて、そこからはもう眠れません」</p><p class="say">「この1か月で体重が3キロ減りました。食べる気がしなくて」</p><p class="note">HAM-D の不眠の3項目（入眠・中途覚醒・早朝覚醒）と体重減少は、それぞれ0〜2点です。</p>',
+      qs: [
+        { q: '不眠の3項目の点数は？', a: ['入眠 0・中途覚醒 2・早朝覚醒 2', '入眠 0・中途覚醒 1・早朝覚醒 2', '入眠 1・中途覚醒 2・早朝覚醒 2', '入眠 0・中途覚醒 2・早朝覚醒 1'], why: '寝つきの問題はないので入眠は0。夜中に目が覚めて床から起き出すのは中途覚醒の2点（落ち着かない・眠りが浅いだけなら1点。トイレのためだけに起きるのは数えない）。早朝に目が覚めて二度と眠れないのは早朝覚醒の2点（また眠れるなら1点）。' },
+        { q: '体重減少の項目（病歴からつける）は？', a: ['2点（本人がはっきり減ったと言う）', '1点（たぶん減っている）', '0点（体重計で測っていない）', '4点（1か月で3キロ以上）'], why: '病歴からつけるときは、減っていない0点、病気に伴っておそらく減っている1点、本人がはっきり減ったと言う2点です。この項目の最大は2点です。' },
+        { q: '治療前の HAM-D が24点、8週後が10点でした。どう表しますか。', a: ['反応した（50%以上減った）が、寛解（7点以下）ではない', '寛解した（10点は軽い範囲なので）', '反応していない（まだ10点ある）', '悪化した（評価者が変わったので比べられない）'], why: '24点から10点は約58%の改善で、一般的な「反応」（50%以上の改善）を満たします。HAM-D17 の寛解は7点以下とすることが多いので、まだ寛解ではありません。残っている症状を確かめ、治療を続けます。' }
+      ] },
+    { id: 'ymrs', name: 'YMRS の重み', sub: '躁状態の入院', vig: '<p>40代男性、双極症I型。入院3日目の面接。</p><p class="say">早口で話が止まらず、さえぎるのが難しい。看護師が服薬を勧めると大声でどなり、病棟のドアを強くたたいた。「自分は大きな事業を始める。国から表彰される」と話す。夜はほとんど眠っていない。</p>',
+      qs: [
+        { q: 'YMRS で、0〜8点（重みが2倍）の項目の組み合わせは？', a: ['易怒性・会話の速さと量・思考の内容・破壊的攻撃的行動', '気分の高揚・睡眠の減少・性的関心・身なり', '活動の増加・言語と思考の障害・病識・易怒性', '睡眠の減少・思考の内容・病識・身なり'], why: 'YMRS は11項目で、易怒性、会話（速さと量）、思考の内容、破壊的・攻撃的行動の4項目が0〜8点、ほかの7項目が0〜4点です。' },
+        { q: 'その4項目の重みを2倍にしてあるのはなぜ？', a: ['重い患者ほど面接に協力しにくく、評価しにくいのを補うため', '4つとも躁病エピソードの診断基準に必ず入る項目だから', '本人が自分で振り返って答えやすい項目だから', '気分安定薬の効果が最初に表れやすい項目だから'], why: '重い躁状態の患者は面接に協力しにくいため、観察でとらえられる重要な4項目の重みを大きくしてあります。' },
+        { q: '入院時 32点、3週後 11点。どう表しますか。', a: ['寛解の目安（12点以下）に入った', '反応はしたが、まだ寛解の目安には届かない', '変化は小さく、治療を見直す必要がある', '20点を下回ったので、退院の基準を満たした'], why: 'YMRS は12点以下を寛解とすることが多く、11点はその範囲です。ただし点数だけで退院を決めず、睡眠、生活のリズム、服薬の継続、家族の受け入れなども合わせて判断します。' }
+      ] },
+    { id: 'cgi', name: 'CGI をつける', sub: '統合失調症の入院', vig: '<p>20代男性、統合失調症。</p><p><b>入院時</b>：命令する声の幻聴に左右されて自宅で窓ガラスを割り、ほとんど眠らず食事もとれない。会話はまとまらず、常に見守りが必要。</p><p><b>6週後</b>：幻聴は時々あるが行動は左右されない。作業療法に毎日参加し、外泊も問題なく過ごせた。</p>',
+      qs: [
+        { q: '入院時の CGI-S（重症度、1〜7点）は？', a: ['6点（著しく悪い）', '4点（中等度）', '2点（境界域）', '1点（正常）'], why: 'CGI-S は 1 正常、2 境界域、3 軽度、4 中等度、5 はっきり悪い、6 著しく悪い、7 最も重い患者の一人、の7段階です。行動が幻聴に強く左右され、常に見守りが必要なので6点（7点とする評価者もいる）が妥当です。同じ病気の患者たちと比べてつけます。' },
+        { q: '6週後の CGI-I（改善度、1〜7点）は？', a: ['2点（かなり改善）', '4点（変化なし）', '6点（かなり悪化）', '1点（非常に改善）'], why: 'CGI-I は 1 非常に改善、2 かなり改善、3 少し改善、4 変化なし、5 少し悪化、6 かなり悪化、7 非常に悪化。幻聴は残るものの生活が大きく改善したので2点が妥当です。1か2を「反応あり」とすることが多いです。' }
+      ] },
+    { id: 'eps', name: '副作用をどの尺度で？', sub: '抗精神病薬の外来', vig: '<p>抗精神病薬を飲んでいる3人の患者。</p><p><b>Aさん</b>（長く服薬している60代）：口をもぐもぐ動かし、舌を出し入れしている。本人は気にしていない。</p><p><b>Bさん</b>（2週前に増量した20代）：座っていられず足踏みをくり返し、「じっとしていられなくてつらい」と言う。</p><p><b>Cさん</b>（増量して1か月の40代）：小きざみに歩き、手がふるえ、表情が乏しい。腕を曲げ伸ばしすると抵抗がある。</p>',
+      qs: [
+        { q: 'Aさんの症状の評価に最も合う尺度は？', a: ['AIMS（遅発性ジスキネジア）', 'BARS（アカシジア）', 'YMRS（躁症状）', 'CIWA-Ar（アルコール離脱）'], why: '長期服薬後の口・舌・顔の不随意運動は遅発性ジスキネジアを考え、AIMS で部位ごとに評価します。DIEPSS のジスキネジアの項目でもとらえられます。' },
+        { q: 'Bさんの症状の評価に最も合う尺度は？', a: ['BARS（アカシジア）', 'AIMS（遅発性ジスキネジア）', 'HAM-A（不安）', 'Y-BOCS（強迫）'], why: '増量後の落ち着きのなさと「じっとしていられない」苦痛はアカシジアです。BARS は客観的な様子・本人の自覚・苦痛・全体を評価します。不安や焦燥と見誤らないことが大切です。' },
+        { q: 'Cさんのようなパーキンソン症状をまとめて評価できる、日本で作られた尺度は？', a: ['DIEPSS', 'NPI', 'CDR', 'PANSS'], why: 'DIEPSS（薬原性錐体外路症状評価尺度）は、歩行・動作緩慢・流涎・筋強剛・振戦・アカシジア・ジストニア・ジスキネジアと概括重症度を0〜4点で評価します。' }
+      ] },
+    { id: 'alc', name: 'アルコールの数字', sub: '内科からの紹介', vig: '<p>50代男性。肝機能障害で内科に入院中。毎日、日本酒を4合ほど飲んでいた。</p><p>AUDIT は 22点。入院2日目の夜、手のふるえ、汗、不安が強く、「虫が壁をはっている」と言う。CIWA-Ar は 19点。</p>',
+      qs: [
+        { q: 'AUDIT 22点の読み方は？', a: ['アルコール依存症の疑いが強い（日本では15点以上が目安）', '危険な飲酒（8〜14点）の範囲で、依存症ではない', '低リスクの飲酒で、減酒の助言は不要', '離脱症状が重くなる危険を表す点数'], why: 'AUDIT は WHO の10項目の尺度で、8点以上で危険な飲酒、日本では15点以上でアルコール依存症の疑いとすることが多いです。診断は面接で行います。' },
+        { q: 'CIWA-Ar 19点。まず考える対応は？', a: ['重い離脱として、ベンゾジアゼピン系薬で治療し、点数をくり返し測る', 'まだ軽い離脱の範囲なので、点数を測りながら経過をみる', '幻覚があるので、まず抗精神病薬だけで鎮静して治療する', '詳しい飲酒歴の聞き取りが終わるまで、薬での治療は待つ'], why: 'CIWA-Ar はおおよそ15点以上（施設によっては20点以上）で重い離脱です。ベンゾジアゼピン系薬で治療し、くり返し評価して量を調整します。チアミン（ビタミンB1）の補充も忘れずに。幻覚があっても、まず離脱の治療です。' }
+      ] }
+  ];
+  var KEY = 'scale-dojo-v1', ST = {}; try { ST = JSON.parse(localStorage.getItem(KEY) || '{}') || {}; } catch (e) { ST = {}; }
+  if (!ST.prac) ST.prac = {};
+  function save() { try { localStorage.setItem(KEY, JSON.stringify(ST)); } catch (e) {} }
+  function shuf(a) { a = a.slice(); for (var i = a.length - 1; i > 0; i--) { var j = Math.floor(Math.random() * (i + 1)), t = a[i]; a[i] = a[j]; a[j] = t; } return a; }
+  function prepQ(q) { return { q: q.q, why: q.why, ord: shuf(q.a.map(function (t, i) { return { t: t, ok: i === 0 }; })), pick: null }; }
+  var pcur = 0, pst = null;
+  function startPrac(i) { pcur = i; pst = PR[i].qs.map(prepQ); renderPrac(); }
+  function qHTML(q, k, pre) {
+    var h = '<div class="q"><p class="qh"><span class="n">' + (k + 1) + '</span>' + esc(q.q) + '</p><div class="opts">' + q.ord.map(function (o, j) {
+      var cls = 'opt'; if (q.pick != null) cls += o.ok ? ' ok' : (j === q.pick ? ' ng' : ' dim');
+      return '<button type="button" class="' + cls + '" data-' + pre + '="' + k + '" data-o="' + j + '"' + (q.pick != null ? ' disabled' : '') + '>' + esc(o.t) + '</button>';
+    }).join('') + '</div>';
+    if (q.pick != null) h += '<p class="why">' + (q.ord[q.pick].ok ? '<b class="okc">正解。</b>' : '<b class="ngc">ちがいます。</b>') + esc(q.why) + '</p>';
+    return h + '</div>';
+  }
+  function renderPrac() {
+    document.getElementById('plist').innerHTML = PR.map(function (p, i) { return '<button type="button" class="pbtn" data-p="' + i + '" aria-pressed="' + (i === pcur) + '"><b>' + esc(p.name) + '</b><small>' + esc(p.sub) + (ST.prac[p.id] ? '　<span class="done">' + ST.prac[p.id] + '</span>' : '') + '</small></button>'; }).join('');
+    var p = PR[pcur], done = pst.every(function (q) { return q.pick != null; }), ok = pst.filter(function (q) { return q.pick != null && q.ord[q.pick].ok; }).length;
+    document.getElementById('psheet').innerHTML = '<h3>' + esc(p.name) + '</h3><div class="vig">' + p.vig + '</div>' + pst.map(function (q, k) { return qHTML(q, k, 'pq'); }).join('') +
+      (done ? '<div class="row"><span class="big">' + ok + ' / ' + pst.length + '</span><button type="button" class="btn ghost" data-act="pre">もう一度</button>' + (pcur < PR.length - 1 ? '<button type="button" class="btn" data-act="pnext">次の練習へ</button>' : '') + '</div>' : '');
+  }
+  document.getElementById('prac').addEventListener('click', function (e) {
+    var b = e.target.closest('button'); if (!b) return;
+    if (b.hasAttribute('data-p')) { startPrac(+b.getAttribute('data-p')); return; }
+    if (b.hasAttribute('data-pq')) {
+      var q = pst[+b.getAttribute('data-pq')]; if (q.pick != null) return; q.pick = +b.getAttribute('data-o');
+      if (pst.every(function (x) { return x.pick != null; })) { var ok = pst.filter(function (x) { return x.ord[x.pick].ok; }).length, p = PR[pcur], prev = ST.prac[p.id]; if (!prev || ok > parseInt(prev, 10)) { ST.prac[p.id] = ok + '/' + pst.length; save(); } }
+      renderPrac(); return;
+    }
+    var a = b.getAttribute('data-act');
+    if (a === 'pre') startPrac(pcur); else if (a === 'pnext') { startPrac(pcur + 1); document.getElementById('prac').scrollIntoView({ block: 'start', behavior: 'smooth' }); }
+  });
+
+  /* ---------- クイズ ---------- */
+  var QZ = [
+    { q: '産後2週の健診で、産後うつ病のふるいわけに使う自記式の尺度は？', a: ['EPDS', 'GDS-15', 'HAM-D', 'YMRS'], why: 'EPDS（エジンバラ産後うつ病自己評価票）は10項目、日本では9点以上で産後うつ病を疑います。' },
+    { q: 'EPDS の合計は6点。ただし10番目の項目（自分を傷つける考え）が「ときどきある」。どうする？', a: ['合計に関係なく、その場で希死念慮を詳しく確かめる', '9点未満なので、次の健診まで様子をみる', '1か月後に EPDS をもう一度とって比べる', '夫にも EPDS を書いてもらい、点数を比べる'], why: '自分を傷つける考えの項目は、合計点が低くても必ず確かめます。PHQ-9 の9番目の項目も同じです。' },
+    { q: 'PANSS の合計点の最小値は？', a: ['30点', '0点', '7点', '16点'], why: 'PANSS は30項目をそれぞれ1〜7点でつけ、1は「症状なし」です。だから症状が全くなくても合計は30点になります。' },
+    { q: '抑うつの重さを、評価者が面接してつける尺度の組み合わせは？', a: ['HAM-D と MADRS', 'PHQ-9 と BDI-II', 'SDS と GDS-15', 'EPDS と AIS'], why: 'HAM-D と MADRS は面接で評価者がつけます。PHQ-9・BDI-II・SDS・GDS-15・EPDS は本人が書く自記式です。' },
+    { q: 'MADRS の特徴として正しいのは？', a: ['身体症状の項目が少なく、治療による変化をとらえやすいとされる', '高齢者のために、はい・いいえで答えるようにできている', '本人が書く9項目の質問票で、合計0〜27点である', 'うつ症状と躁症状を同時に評価できる'], why: 'MADRS は10項目・各0〜6点の面接尺度で、変化をとらえやすいように作られ、治験でよく使われます。' },
+    { q: '強迫症の重さと治療の経過をみる標準的な尺度は？', a: ['Y-BOCS', 'LSAS-J', 'GAD-7', 'BARS'], why: 'Y-BOCS は強迫観念5項目・強迫行為5項目、合計0〜40点。時間、生活への支障、苦痛、抵抗、コントロールの程度でつけます。' },
+    { q: '禁煙治療を保険で行うときの、ニコチン依存症の判定に使うのは？', a: ['TDS（5点以上）', 'AUDIT（8点以上）', 'CAGE（2つ以上）', 'K6（10点以上）'], why: '保険での禁煙治療の条件の一つが TDS 5点以上です（35歳以上は喫煙指数200以上も必要）。' },
+    { q: '日中の過度な眠気（睡眠時無呼吸やナルコレプシーなど）を評価する尺度は？', a: ['ESS（11点以上）', 'AIS（6点以上）', 'PSQI（6点以上）', 'GDS-15（5点以上）'], why: 'ESS（エプワース眠気尺度）は8つの場面での眠気を0〜3点でつけ、11点以上で日中の過度な眠気とします。AIS と PSQI は夜の睡眠の問題をみます。' },
+    { q: 'MoCA-J で、教育歴が12年以下の人の採点で行うことは？', a: ['合計に1点を加える', '合計から1点を引く', '25点以下でも正常とみなす', '図形の課題を省いて採点する'], why: '教育歴の影響を補うため、12年以下なら1点を加えます。25点以下で軽度認知障害（MCI）を疑います。' },
+    { q: 'CDR が 0.5 の意味は？', a: ['認知症の疑い（軽度認知障害にあたることが多い）', '軽度の認知症（生活に支障が出ている）', '中等度の認知症（見守りが必要）', '健常（認知症の心配はない）'], why: 'CDR は 0 健常、0.5 認知症の疑い、1 軽度、2 中等度、3 重度です。本人と、よく知る人の両方から情報を得てつけます。' },
+    { q: '認知症の行動・心理症状（BPSD）を、介護者から聞いて評価する尺度は？', a: ['NPI', 'MMSE', 'HDS-R', 'CDR'], why: 'NPI は妄想・幻覚・興奮・うつ・無関心などの頻度と重さ、介護者の負担を聞きます。BPSD の治療の効果をみるのにも使います。' },
+    { q: '自殺の危険を、死にたい気持ちの強さと行動に分けて系統的に聞く尺度は？', a: ['C-SSRS', 'K6', 'BDI-II', 'WHODAS 2.0'], why: 'C-SSRS は、受け身の死の願望から具体的な計画・意図までの段階と、実行・中断・準備などの行動を順に聞きます。' },
+    { q: 'DSM-5 で GAF の代わりに示された、生活の困難さを評価する尺度は？', a: ['WHODAS 2.0', 'CGI-S と CGI-I', 'BPRS 18項目版', 'K6'], why: 'GAF は症状と機能を1つの数字にまとめるものでしたが、DSM-5 では外れ、WHODAS 2.0（6領域）が示されました。' },
+    { q: '治療の「反応」の一般的な定義は？', a: ['治療前から点数が50%以上減ること', '点数が寛解の基準以下になること', '点数が少しでも減ること', '本人が「良くなった」と言うこと'], why: '多くの研究で、反応は治療前から50%以上の改善、寛解は決められた点数以下（HAM-D17 なら7点以下など）と定義されます。' },
+    { q: 'PHQ-9 と一緒によく使われる、全般不安のふるいわけの尺度は？', a: ['GAD-7', 'HAM-A', 'Y-BOCS', 'CIWA-Ar'], why: 'GAD-7 は7項目・合計0〜21点、10点以上で全般不安症を疑います。HAM-A は面接でつける尺度です。' },
+    { q: '自記式の尺度の弱点として、最も当てはまるのは？', a: ['病識の乏しい人や重い人では、実際の重さとずれることがある', '評価者の研修が必要で、外来の短い時間ではできない', '同じ人の経過をくり返し追うのには向いていない', '採点が複雑で、点数が出るまでに数日かかる'], why: '自記式は短時間で誰でも使えますが、本人の受け止め方や読み書きの力に左右されます。面接による評価や観察と合わせて読みます。' },
+    { q: '尺度を経過の評価に使うときの原則として、正しいのは？', a: ['同じ尺度・同じ条件（できれば同じ評価者）でくり返す', '毎回ちがう尺度を使い、いろいろな角度から比べる', '点数が改善したら、本人の訴えより点数を優先する', 'カットオフを超えたら、その時点で診断を確定する'], why: '尺度は同じ物差しでくり返し測ってこそ変化がわかります。点数だけで診断を決めたり、本人の訴えを無視したりはしません。' },
+    { q: 'AUDIT の飲酒量の項目で数える「1ドリンク」は、純アルコールで何グラム？', a: ['10g', '20g', '5g', '40g'], why: '日本では1ドリンク＝純アルコール10gで数えます。ビール中瓶1本（500mL・5%）は約20g、つまり2ドリンクです。' }
+  ];
+  var qs = null, qi = 0;
+  function startQuiz() { qs = shuf(QZ).map(prepQ); qi = 0; renderQuiz(); }
+  function renderQuiz() {
+    var el = document.getElementById('qsheet');
+    if (qi >= qs.length) {
+      var ok = qs.filter(function (q) { return q.ord[q.pick].ok; }).length;
+      if (!ST.quiz || ok > ST.quiz) { ST.quiz = ok; save(); }
+      el.innerHTML = '<h3>おしまい</h3><p class="big">' + ok + ' / ' + qs.length + '</p><p class="prog">これまでの最高：' + ST.quiz + ' / ' + qs.length + '</p><div class="row"><button type="button" class="btn" data-act="qre">もう一度（順番を入れ替える）</button></div>';
+      return;
+    }
+    var q = qs[qi];
+    el.innerHTML = '<p class="prog">' + (qi + 1) + ' / ' + qs.length + (ST.quiz ? '　これまでの最高 ' + ST.quiz : '') + '</p>' + qHTML(q, qi, 'qq') + (q.pick != null ? '<div class="row"><button type="button" class="btn" data-act="qnext">' + (qi < qs.length - 1 ? '次の問題' : '結果を見る') + '</button></div>' : '');
+  }
+  document.getElementById('quiz').addEventListener('click', function (e) {
+    var b = e.target.closest('button'); if (!b) return;
+    if (b.hasAttribute('data-qq')) { var q = qs[qi]; if (q.pick != null) return; q.pick = +b.getAttribute('data-o'); renderQuiz(); return; }
+    var a = b.getAttribute('data-act');
+    if (a === 'qnext') { qi++; renderQuiz(); document.getElementById('qsheet').scrollIntoView({ block: 'nearest' }); }
+    else if (a === 'qre') startQuiz();
+  });
+
+  /* ---------- モード ---------- */
+  function setMode(m) {
+    ['zukan', 'prac', 'quiz'].forEach(function (id) { document.getElementById(id).hidden = id !== m; });
+    document.querySelectorAll('.mode').forEach(function (b) { b.setAttribute('aria-pressed', String(b.getAttribute('data-m') === m)); });
+  }
+  document.querySelector('.modes').addEventListener('click', function (e) { var b = e.target.closest('[data-m]'); if (b) setMode(b.getAttribute('data-m')); });
+  renderZukan(); startPrac(0); startQuiz();
+  var h = (location.hash || '').slice(1); if (h === 'prac' || h === 'quiz') setMode(h);
+  window.__scale = { SC: SC, PR: PR, QZ: QZ };
+})();
+</script>
+
+</body>
+</html>
