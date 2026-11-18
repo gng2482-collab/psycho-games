@@ -1,0 +1,662 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<meta name="app-version" content="20261118140418">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="精神科試験ゲーム">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icon-180.png">
+<style>
+:root{color-scheme:light; padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px)}
+body{margin:0; font:14px system-ui,-apple-system,sans-serif}
+img{max-width:100%}
+[hidden]{display:none!important}
+.ipad-bar{display:flex; flex-wrap:wrap; gap:6px 14px; align-items:center; justify-content:space-between;
+  padding:8px max(16px, env(safe-area-inset-right,0px)) 8px max(16px, env(safe-area-inset-left,0px));
+  font:600 14px system-ui,-apple-system,"Hiragino Sans",sans-serif; background:#1d2a33; color:#f3f6f8}
+.ipad-bar a{color:#f3f6f8; text-decoration:none; padding:6px 10px; border:1px solid #4a5d6a; border-radius:6px}
+.ipad-bar span{opacity:.85; font-weight:400}
+.ipad-bar .upd{font:inherit; color:#f3f6f8; background:transparent; border:1px solid #4a5d6a; border-radius:6px; padding:6px 10px; cursor:pointer}
+.ipad-bar .right{display:flex; gap:10px; align-items:center}
+</style>
+<script>
+/* プレイヤーごとに記録を分ける（自分は今までどおり、ゲストは頭に印をつける） */
+(function () {
+  try {
+    var P = window.localStorage.getItem('ipad-player') || 'me';
+    window.__ipadPlayer = P;
+    if (P === 'me') return;
+    var pre = 'p:' + P + ':', S = Storage.prototype, g = S.getItem, s = S.setItem, r = S.removeItem;
+    var map = function (k) { return k === 'ipad-player' ? k : pre + k; };
+    S.getItem = function (k) { return g.call(this, map(k)); };
+    S.setItem = function (k, v) { return s.call(this, map(k), v); };
+    S.removeItem = function (k) { return r.call(this, map(k)); };
+  } catch (e) { /* 保存できない環境 */ }
+})();
+if ('serviceWorker' in navigator) { window.addEventListener('load', function () { navigator.serviceWorker.register('sw.js').catch(function () {}); }); }
+</script>
+<script src="ipad-update.js" defer></script>
+</head>
+<body>
+<nav class="ipad-bar" aria-label="アプリ"><a href="index.html">← ゲーム一覧</a><span class="right"><span id="ipadWho"></span><button type="button" class="upd" data-upd="manual" aria-label="新しい版を確かめて更新">↻ 更新</button></span></nav>
+<script>(function(){var P=window.__ipadPlayer||'me';document.getElementById('ipadWho').textContent='プレイヤー：'+(P==='me'?'自分':P);})();</script>
+<title>処方チェック</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=BIZ+UDPGothic:wght@400;700&family=DotGothic16&display=swap">
+<style>
+/* Layout: 上に順番の帯、その下に1件分の要点と3つの問い。最後に早見表。土台は 当直明けの病棟（作り方/build_casequiz.py で組み立て） */
+:root{
+  --paper:#e9edf3; --panel:#f8f9fc; --ink:#1b2133; --muted:#5a6377; --line:#c5ccd9;
+  --accent:#7a3f8f; --accent-ink:#fff; --seal:#c0352b; --lamp:#a36a0a; --ok:#25744f;
+  --accent-soft:color-mix(in srgb, var(--accent) 10%, var(--panel));
+  --seal-soft:color-mix(in srgb, var(--seal) 9%, var(--panel));
+  --ok-soft:color-mix(in srgb, var(--ok) 11%, var(--panel));
+  --night:color-mix(in srgb, var(--accent) 22%, var(--panel));
+  --shadow:color-mix(in srgb, var(--ink) 20%, transparent);
+  --f-display:"DotGothic16","BIZ UDPGothic","Hiragino Sans","Yu Gothic",system-ui,sans-serif;
+  --f-body:"BIZ UDPGothic","Hiragino Sans","Hiragino Kaku Gothic ProN","Yu Gothic",Meiryo,system-ui,sans-serif;
+  --fs-xs:.78rem; --fs-s:.875rem; --fs-m:1rem; --fs-l:1.15rem; --fs-xl:1.45rem;
+  --r:5px;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --paper:#10131d; --panel:#181d2a; --ink:#e3e7f1; --muted:#97a0b5; --line:#2b3346;
+    --accent:#d3a3e6; --accent-ink:#10131d; --seal:#ec6a5f; --lamp:#e7b24e; --ok:#5fc495;
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --paper:#10131d; --panel:#181d2a; --ink:#e3e7f1; --muted:#97a0b5; --line:#2b3346;
+  --accent:#d3a3e6; --accent-ink:#10131d; --seal:#ec6a5f; --lamp:#e7b24e; --ok:#5fc495;
+  color-scheme:dark;
+}
+[hidden]{display:none!important}
+*,*::before,*::after{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{
+  margin:0; background:var(--paper); color:var(--ink);
+  font-family:var(--f-body); font-size:var(--fs-m); line-height:1.75;
+  padding-left:max(16px, env(safe-area-inset-left, 0px)); padding-right:max(16px, env(safe-area-inset-right, 0px));
+  padding-block:0 56px; overflow-wrap:anywhere;
+}
+:focus-visible{outline:3px solid var(--accent); outline-offset:2px}
+h1,h2,h3{text-wrap:balance; line-height:1.35}
+p{margin:0}
+.wrap{max-width:920px; margin:0 auto}
+.muted{color:var(--muted)}
+
+/* 見出し */
+.top{padding-block:36px 6px; display:grid; gap:14px}
+.eyebrow{font-size:var(--fs-xs); letter-spacing:.16em; color:var(--muted)}
+h1{
+  font-family:var(--f-display); font-weight:400; margin:0;
+  font-size:clamp(2.1rem, 8vw, 3.2rem); letter-spacing:.08em; line-height:1.15;
+  text-shadow:3px 3px 0 var(--line);
+}
+.lead{max-width:40em}
+.rule a{color:var(--accent)}
+.rule{font-size:var(--fs-xs); color:var(--muted)}
+
+/* 当直表 */
+.board{margin-top:22px; display:grid; gap:6px}
+.board-h{display:flex; justify-content:space-between; gap:8px 14px; flex-wrap:wrap; font-size:var(--fs-xs); color:var(--muted); letter-spacing:.06em}
+.board-h b{color:var(--ink); font-weight:700}
+.slots{list-style:none; margin:0; padding:0; display:grid; grid-template-columns:repeat(8, minmax(0,1fr)); gap:5px}
+.slot{
+  position:relative; border:1px solid var(--line); border-radius:var(--r); background:var(--panel);
+  padding:6px 4px 4px; display:grid; justify-items:center; gap:2px; min-height:70px; font-variant-numeric:tabular-nums;
+}
+.slot.night{background:var(--night)}
+.slot .t{font-family:var(--f-display); font-size:var(--fs-s); color:var(--lamp); letter-spacing:.02em}
+.slot .m{font-size:var(--fs-xs); color:var(--muted)}
+.slot[aria-current="step"]{border-color:var(--accent); box-shadow:inset 0 0 0 1px var(--accent)}
+.slot .mini{
+  width:34px; height:34px; border-radius:50%; border:2px solid var(--seal); color:var(--seal);
+  display:grid; place-items:center; font-weight:700; font-size:.66rem; line-height:1; transform:rotate(-10deg);
+}
+.slot .mini.miss{border-style:dashed}
+.slot .dot{width:34px; height:34px; display:grid; place-items:center; color:var(--muted); font-family:var(--f-display)}
+@media (max-width:620px){
+  .slots{grid-template-columns:repeat(4, minmax(0,1fr))}
+}
+
+/* 患者1人分 */
+.case{margin-top:26px; background:var(--panel); border:1px solid var(--line); border-radius:var(--r); position:relative; overflow:hidden}
+.case-top{display:flex; flex-wrap:wrap; align-items:baseline; gap:4px 16px; padding:16px 120px 12px 18px; border-bottom:3px double var(--line)}
+@media (max-width:620px){
+  .case-top{padding-right:92px}
+  .stamp{width:74px; height:74px; top:10px; right:10px}
+  .stamp .s1{font-size:.98rem}
+}
+.clock{font-family:var(--f-display); font-size:2.3rem; line-height:1; color:var(--lamp); font-variant-numeric:tabular-nums; letter-spacing:.04em}
+.where{font-size:var(--fs-s); color:var(--muted)}
+.case-top h2{flex-basis:100%; margin:6px 0 0; font-family:var(--f-display); font-weight:400; font-size:var(--fs-xl); letter-spacing:.04em}
+.case-top h2:focus{outline:none}
+.case-body{padding:16px 18px 20px; display:grid; gap:18px}
+.story{max-width:40em}
+.memo-box{border:1px solid var(--line); border-radius:var(--r); font-size:var(--fs-s); overflow:hidden}
+.memo{display:grid; grid-template-columns:auto minmax(0,1fr); margin:0}
+.memo-cap{font-size:var(--fs-xs); letter-spacing:.14em; color:var(--muted); padding:5px 12px; border-bottom:1px solid var(--line); background:var(--accent-soft)}
+.memo dt, .memo dd{margin:0; padding:6px 12px; border-bottom:1px dashed var(--line)}
+.memo dt{color:var(--muted); white-space:nowrap}
+.memo dd{font-weight:700}
+.memo dt:last-of-type, .memo dd:last-of-type{border-bottom:0}
+
+.q{display:grid; gap:10px; border-top:1px solid var(--line); padding-top:16px}
+.q-h{margin:0; font-size:var(--fs-l); display:flex; gap:10px; align-items:baseline}
+.q-h:focus{outline:none}
+.q-h:focus-visible{outline:3px solid var(--accent); outline-offset:3px}
+.q-n{font-family:var(--f-display); font-weight:400; font-size:var(--fs-s); color:var(--accent); border:1.5px solid var(--accent); padding:0 7px; flex:none}
+.opts{list-style:none; margin:0; padding:0; display:grid; gap:8px}
+.opt{
+  font:inherit; width:100%; text-align:left; color:var(--ink); background:var(--paper); cursor:pointer;
+  border:1px solid var(--line); border-radius:var(--r); padding:10px 12px; min-height:48px;
+  display:grid; grid-template-columns:1.6em minmax(0,1fr) auto; gap:8px; align-items:start; line-height:1.55;
+}
+.opt:hover:not(:disabled){border-color:var(--accent); background:var(--accent-soft)}
+.opt .k{font-family:var(--f-display); color:var(--muted)}
+.opt .v{font-weight:700; font-size:var(--fs-s); white-space:nowrap}
+.opt:disabled{cursor:default}
+.opt.right{border-color:var(--ok); background:var(--ok-soft)}
+.opt.right .v{color:var(--ok)}
+.opt.wrong{border-color:var(--seal); background:var(--seal-soft)}
+.opt.wrong .v{color:var(--seal)}
+.opt.dim{opacity:.62}
+.why{border-left:3px solid var(--accent); padding:4px 0 4px 12px; font-size:var(--fs-s); max-width:44em}
+.why b{font-weight:700}
+.why .law{display:block; margin-top:4px; font-size:var(--fs-xs); color:var(--muted)}
+.done-q{font-size:var(--fs-s); color:var(--muted); display:flex; gap:8px; align-items:baseline}
+.done-q .mk{font-weight:700}
+.done-q .mk.o{color:var(--ok)} .done-q .mk.x{color:var(--seal)}
+
+.next{
+  font:inherit; font-weight:700; justify-self:start; cursor:pointer; min-height:46px; padding:8px 20px;
+  border:0; border-radius:var(--r); background:var(--accent); color:var(--accent-ink);
+}
+.next:hover{filter:brightness(1.08)}
+.ghost{
+  font:inherit; font-size:var(--fs-s); cursor:pointer; min-height:44px; padding:8px 14px;
+  border:1px solid var(--line); border-radius:var(--r); background:var(--panel); color:var(--ink);
+}
+.ghost:hover{border-color:var(--accent)}
+
+/* 判子 */
+.stamp{
+  position:absolute; top:12px; right:14px; width:92px; height:92px; border-radius:50%;
+  border:3px solid var(--seal); color:var(--seal); display:grid; place-items:center; text-align:center;
+  font-weight:700; line-height:1.15; transform:rotate(-12deg); pointer-events:none;
+  box-shadow:inset 0 0 0 3px var(--panel), inset 0 0 0 4.5px var(--seal);
+  background:color-mix(in srgb, var(--panel) 70%, transparent);
+}
+.stamp .s1{font-size:1.15rem; letter-spacing:.06em}
+.stamp .s2{font-size:.62rem; letter-spacing:.1em}
+.stamp.press{animation:press .42s cubic-bezier(.2,1.4,.4,1) both}
+@keyframes press{from{transform:scale(1.9) rotate(-2deg); opacity:0} to{transform:scale(1) rotate(-12deg); opacity:1}}
+@media (prefers-reduced-motion: reduce){ .stamp.press{animation:none} }
+
+/* 回診の記録（結果） */
+.result{margin-top:26px; background:var(--panel); border:1px solid var(--line); border-radius:var(--r); padding:20px 18px; display:grid; gap:16px}
+.result h2{margin:0; font-family:var(--f-display); font-weight:400; font-size:var(--fs-xl)}
+.result h2:focus{outline:none}
+.rank{display:flex; align-items:center; gap:18px; flex-wrap:wrap}
+.rank .big{font-family:var(--f-display); font-size:4.4rem; line-height:1; color:var(--seal); text-shadow:3px 3px 0 var(--line)}
+.rank .pts{font-family:var(--f-display); font-size:1.4rem; font-variant-numeric:tabular-nums}
+.rank .best{font-size:var(--fs-xs); color:var(--muted)}
+.log{list-style:none; margin:0; padding:0; display:grid; gap:10px}
+.log li{border-top:1px dashed var(--line); padding-top:10px; display:grid; gap:4px}
+.log .lh{display:flex; gap:10px; align-items:baseline; flex-wrap:wrap}
+.log .lt{font-family:var(--f-display); color:var(--lamp); font-variant-numeric:tabular-nums}
+.log .ls{font-weight:700}
+.log .lm{font-size:var(--fs-s)}
+.log .miss{font-size:var(--fs-s); color:var(--seal)}
+.row{display:flex; flex-wrap:wrap; gap:10px}
+
+/* 判子帳 */
+.hanko{margin-top:34px; display:grid; gap:10px}
+.hanko h2{margin:0; font-family:var(--f-display); font-weight:400; font-size:var(--fs-xl); letter-spacing:.04em; display:flex; flex-wrap:wrap; gap:4px 14px; align-items:baseline}
+.hanko h2 small{font-family:var(--f-body); font-size:var(--fs-s); color:var(--muted); letter-spacing:0}
+.hk-title{font-size:var(--fs-s)}
+.hk-title b{font-family:var(--f-display); font-weight:400; font-size:var(--fs-l); color:var(--seal); letter-spacing:.06em}
+.hk-meter{height:8px; max-width:420px; border-radius:4px; border:1px solid var(--line); background:var(--panel); overflow:hidden}
+.hk-meter span{display:block; height:100%; background:linear-gradient(90deg, var(--seal), var(--lamp))}
+.hk-grid{list-style:none; margin:0; padding:0; display:grid; grid-template-columns:repeat(auto-fill, minmax(120px, 1fr)); gap:8px}
+.hk{border:1px solid var(--line); border-radius:var(--r); background:var(--panel); padding:10px 8px 8px; display:grid; justify-items:center; gap:4px; text-align:center}
+.hk-st{width:62px; height:62px; border-radius:50%; display:grid; place-items:center; align-content:center; line-height:1.1; font-weight:700; transform:rotate(-10deg)}
+.hk-st b{font-size:.95rem; letter-spacing:.04em} .hk-st small{font-size:.55rem; letter-spacing:.06em}
+.hk.t0 .hk-st{border:2px dashed var(--line); color:var(--muted); transform:none}
+.hk.t1 .hk-st{border:2.5px solid var(--seal); color:var(--seal)}
+.hk.t2{border-color:var(--lamp); background:color-mix(in srgb, var(--lamp) 9%, var(--panel))}
+.hk.t2 .hk-st{border:2.5px solid var(--lamp); color:var(--lamp); box-shadow:inset 0 0 0 3px var(--panel), inset 0 0 0 4.5px var(--lamp)}
+.hk-t{font-family:var(--f-display); font-size:var(--fs-xs); color:var(--lamp); font-variant-numeric:tabular-nums}
+.hk-n{font-size:var(--fs-xs); line-height:1.45}
+.hk.t0 .hk-n{color:var(--muted)}
+.hk-tag{font-size:.66rem; font-weight:700; color:var(--muted)}
+.hk.t2 .hk-tag{color:var(--lamp)}
+.toast{
+  position:fixed; z-index:20; right:max(16px, env(safe-area-inset-right, 0px)); bottom:calc(16px + env(safe-area-inset-bottom, 0px));
+  max-width:min(340px, calc(100vw - 32px)); background:var(--panel); color:var(--ink); border:2px solid var(--seal);
+  border-radius:var(--r); padding:10px 14px; box-shadow:0 6px 24px var(--shadow); font-size:var(--fs-s);
+}
+.toast b{color:var(--seal)}
+@media (prefers-reduced-motion: no-preference){ .toast:not([hidden]){animation:tpop .35s cubic-bezier(.2,1.4,.4,1)} }
+@keyframes tpop{from{transform:translateY(12px) scale(.96); opacity:0} to{transform:none; opacity:1}}
+
+/* 早見表 */
+.ref{margin-top:40px; display:grid; gap:10px}
+.ref h2{margin:0; font-family:var(--f-display); font-weight:400; font-size:var(--fs-xl); letter-spacing:.04em}
+.tbl-wrap{overflow-x:auto; border:1px solid var(--line); border-radius:var(--r); background:var(--panel)}
+table{border-collapse:collapse; width:100%; min-width:680px; font-size:var(--fs-s); line-height:1.55}
+th, td{padding:8px 10px; text-align:left; vertical-align:top; border-bottom:1px solid var(--line)}
+thead th{font-size:var(--fs-xs); letter-spacing:.08em; color:var(--muted); font-weight:400; background:var(--accent-soft)}
+tbody th{white-space:nowrap}
+tbody tr:last-child th, tbody tr:last-child td{border-bottom:0}
+.foot{margin-top:28px; font-size:var(--fs-xs); color:var(--muted); max-width:52em}
+</style>
+
+<div class="wrap">
+  <header class="top">
+    <p class="eyebrow">精神科試験ゲーム ・ 向精神薬の処方（試作）</p>
+    <h1>処方チェック</h1>
+    <p class="lead">外来と病棟から回ってきた処方を点検します。相互作用・禁忌・高齢者や妊娠で気をつけること・多剤大量。1つの処方に3問。あなたは処方を確かめる精神科医です。</p>
+    <p class="rule">全8件・24問。1問1回きりで、答えるとすぐ解説が出ます。数字キー1〜4で選び、Enterで次へ進めます。薬の副作用を体で覚えるなら<a href="fukusayo.html">副作用ランナー</a>へ。</p>
+  </header>
+
+  <section class="board" aria-label="今日の処方点検の順番">
+    <div class="board-h"><span>今日の処方点検</span><span>あなた：<b>精神科医</b>（処方の点検）</span></div>
+    <ol class="slots" id="slots"></ol>
+  </section>
+
+  <main id="main"></main>
+
+  <section class="hanko" aria-labelledby="hkh">
+    <h2 id="hkh">判子帳 <small id="hkCount"></small></h2>
+    <p class="hk-title" id="hkTitle"></p>
+    <div class="hk-meter" id="hkMeter" role="img"><span></span></div>
+    <p class="rule">処方ごとに、点検の判子が押されます。3問とも正解なら金の判子です。集めた判子と称号は、このブラウザに保存されます。</p>
+    <ol class="hk-grid" id="hkGrid"></ol>
+  </section>
+  <div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
+
+  <section class="ref" aria-labelledby="refh">
+    <h2 id="refh">相互作用・注意の早見表</h2>
+    <div class="tbl-wrap">
+      <table>
+        <thead><tr><th scope="col">組み合わせ・状況</th><th scope="col">起きること</th><th scope="col">対応</th></tr></thead>
+        <tbody>
+          <tr><th scope="row">リチウム × NSAIDs・ACE阻害薬・ARB・サイアザイド系利尿薬・脱水</th><td>リチウムの排泄が減り、血中濃度が上がる（中毒）</td><td>避けるか、始めたら濃度を測る。鎮痛はアセトアミノフェンを</td></tr>
+          <tr><th scope="row">バルプロ酸 × カルバペネム系抗菌薬</th><td>バルプロ酸の濃度が急に下がる（併用禁忌）</td><td>ほかの抗菌薬に替える</td></tr>
+          <tr><th scope="row">バルプロ酸 × ラモトリギン</th><td>ラモトリギンの濃度が上がり、重い皮疹の危険</td><td>ラモトリギンを半量の決まった増やし方で</td></tr>
+          <tr><th scope="row">SSRI・SNRI × トラマドール・トリプタン・リネゾリド・MAO阻害薬</th><td>セロトニン症候群</td><td>併用を避ける・見直す。症状を説明しておく</td></tr>
+          <tr><th scope="row">フルボキサミン × ラメルテオン・チザニジン</th><td>相手の濃度が大きく上がる（併用禁忌）</td><td>組み合わせない</td></tr>
+          <tr><th scope="row">クロザピン・オランザピン × 禁煙（入院・病気）</th><td>喫煙で速まっていた代謝が戻り、濃度が上がる</td><td>禁煙したら量を見直す・濃度を測る</td></tr>
+          <tr><th scope="row">QT を延ばす薬の重ね（抗精神病薬・一部の抗うつ薬・抗菌薬）× 低カリウム</th><td>QT 延長・致死的な不整脈</td><td>心電図と電解質。重ねない</td></tr>
+          <tr><th scope="row">高齢者 × 抗コリン薬・ベンゾジアゼピン系</th><td>せん妄・転倒・認知機能の低下</td><td>減らす・やめる。非薬物療法を先に</td></tr>
+          <tr><th scope="row">妊娠の可能性 × バルプロ酸</th><td>神経管閉鎖不全などの奇形、子の認知への影響</td><td>妊娠前から相談し、ほかの薬を考える。葉酸</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="foot">登場する患者はすべて架空です。早見表と解説は試験勉強のための要約で、添付文書の言い回しどおりではありません。実際の処方は、最新の添付文書・ガイドラインに従ってください。内容は専門医・薬剤師の確認の途中です（試作版）。</p>
+  </section>
+</div>
+
+<script>
+(function () {
+  'use strict';
+
+  // 各問いの a[0] が正解。表示するときに並べ替える。
+  var CASES = [
+    {
+      time: '9:10', where: '外来（家族から電話）', night: false,
+      title: '82歳・夜中に起きて混乱する', stamp: ['抗コ', 'ベンゾ'], stampName: '高齢者の抗コリン薬とベンゾジアゼピン系',
+      story: '82歳の女性。アルツハイマー型認知症でドネペジルを飲んでいる。不眠を訴え、近くの内科でブロチゾラムが出た。さらに眠れないので、家族が市販の睡眠改善薬（ジフェンヒドラミン）も飲ませ始めた。この1週間、夜中に起きて「知らない人がいる」と混乱し、2回転んだ。',
+      memo: [['処方', 'ドネペジル 5mg 朝、ブロチゾラム 0.25mg 寝る前'], ['市販薬', 'ジフェンヒドラミン（睡眠改善薬）寝る前'], ['変化', '夜間の混乱、転倒2回']],
+      qs: [
+        { q: 'この組み合わせでいちばん問題なのは？', a: ['抗コリン薬とベンゾ系の重なりによるせん妄・転倒', 'ドネペジルの量が足りず、認知症が悪化している', '睡眠薬の量が少なく、不眠が続いているため', '認知症の自然な進行で、薬とは関係がない'],
+          why: '第一世代の抗ヒスタミン薬（ジフェンヒドラミン）は抗コリン作用が強く、高齢者でせん妄・認知機能の低下・便秘・尿閉を起こします。ベンゾジアゼピン系はせん妄・転倒の原因になります。急な夜間の混乱は、まず薬を疑います。', law: '高齢者で避けたい薬（抗コリン薬・ベンゾジアゼピン系）' },
+        { q: 'ドネペジルと抗コリン薬の組み合わせについて正しいのは？', a: ['作用が打ち消し合い、治療の効果が弱まる', '作用が強まり、認知機能がさらに改善する', '同じ酵素で代謝され、ドネペジルが増える', '別々の働きなので、互いに影響しない'],
+          why: 'ドネペジルはアセチルコリンを増やして働かせる薬で、抗コリン薬はアセチルコリンの働きを妨げます。認知症の人に抗コリン薬を足すと、治療の効果を打ち消し、せん妄も起こしやすくなります。', law: '薬力学的な拮抗' },
+        { q: '対応として適切なのは？', a: ['市販薬を中止し、ブロチゾラムも漸減。非薬物療法を先に', '睡眠薬をもう1種類追加して、朝までしっかり眠らせる', '抗精神病薬を毎晩定時で追加し、夜間の混乱を抑える', 'ドネペジルを増量して、夜間の混乱と物忘れを改善する'],
+          why: '原因の薬を減らす・やめるのが先です。ベンゾジアゼピン系は急にやめず、ゆっくり減らします。どうしても必要なら、メラトニン受容体作動薬やオレキシン受容体拮抗薬など、せん妄を起こしにくい薬を考えます。家族には市販薬も含めて確認する習慣を伝えます。', law: '減薬（デプレスクライビング）' }
+      ]
+    },
+    {
+      time: '9:40', where: '外来', night: false,
+      title: 'リチウムの人が、腰痛と高血圧で', stamp: ['Li', '濃度'], stampName: 'リチウムと NSAIDs・ACE 阻害薬',
+      story: '58歳の男性。双極症で炭酸リチウムを長く飲み、血中濃度は 0.7 mEq/L 前後で安定していた。1か月前に整形外科でロキソプロフェンが、内科でエナラプリルが始まった。この数日、手のふるえが強く、下痢と吐き気、ふらつきがある。',
+      memo: [['処方（精神科）', '炭酸リチウム 800mg/日'], ['新しく始まった薬', 'ロキソプロフェン（腰痛）、エナラプリル（高血圧）'], ['症状', '粗いふるえ、下痢・吐き気、ふらつき']],
+      qs: [
+        { q: 'まず考えることは？', a: ['併用薬によるリチウム中毒', '双極症の再燃（躁病エピソード）', 'ウイルス性胃腸炎がたまたま重なった', '新たに発症したパーキンソン病'],
+          why: 'リチウムは腎臓から排泄されます。NSAIDs・ACE 阻害薬・ARB・サイアザイド系利尿薬は排泄を減らし、血中濃度を上げます。粗いふるえ・消化器症状・ふらつきは中毒のサインです。', law: '相互作用（腎排泄の低下）' },
+        { q: 'すぐにすることは？', a: ['濃度・腎機能・電解質を測り、リチウムを止める', 'β遮断薬でふるえを抑え、外来で様子を見る', '躁の再燃としてリチウムを 200mg 増やす', '他科の薬を続けたまま、1か月後に再診する'],
+          why: '中毒が疑われたら、まず濃度を測り、リチウムを止めます。脱水を補い、重症（意識障害・けいれん・高い濃度）では透析を考えます。', law: '中毒の対応' },
+        { q: '今後の処方の工夫は？', a: ['鎮痛はアセトアミノフェンに。併用時は濃度を測る', 'NSAIDs は湿布も含めてすべて使えないと伝える', 'リチウムはやめて、相互作用のない薬へ必ず替える', '降圧薬をサイアザイド系利尿薬に替えてもらう'],
+          why: '鎮痛はアセトアミノフェンが無難です。降圧薬はリチウムへの影響が少ないもの（Ca 拮抗薬など）を内科と相談します。サイアザイド系利尿薬もリチウムの濃度を上げます。お薬手帳で他科の処方を確かめる習慣が大切です。', law: '他科との連携' }
+      ]
+    },
+    {
+      time: '10:20', where: '外来（歯科から照会）', night: false,
+      title: 'パロキセチンに、痛み止めが加わる', stamp: ['5HT', '症候'], stampName: 'SSRI とトラマドール（セロトニン症候群）',
+      story: '45歳の女性。パニック症でパロキセチン 20mg を飲んでいる。抜歯のあとの痛みに、歯科がトラマドール・アセトアミノフェン配合錠を出そうとしていると問い合わせがあった。',
+      memo: [['処方（精神科）', 'パロキセチン 20mg'], ['予定', 'トラマドール・アセトアミノフェン配合錠'], ['ほか', '片頭痛にスマトリプタンを時々']],
+      qs: [
+        { q: 'この組み合わせで心配なことは？', a: ['セロトニン症候群', 'リチウム中毒', '悪性症候群', '重い低血糖発作'],
+          why: 'トラマドールはオピオイド作用に加えてセロトニン・ノルアドレナリンの再取り込みも阻害します。SSRI と重なると、セロトニン症候群（不安・焦燥、発汗、発熱、頻脈、ミオクローヌス、反射の亢進）を起こしえます。トリプタンも重なる要因です。', law: '相互作用（薬力学：セロトニン作用の重なり）' },
+        { q: 'パロキセチンとトラマドールの組み合わせで、もう一つ起こりうることは？', a: ['CYP2D6 阻害で、トラマドールの鎮痛が弱まる', 'トラマドールの作用が何倍にも強まり、呼吸が止まる', 'パロキセチンの濃度が下がり、発作がぶり返す', '代謝の経路が別なので、ほかには何も起こらない'],
+          why: 'トラマドールは CYP2D6 で活性の強い代謝物に変わって鎮痛効果を出します。パロキセチンは CYP2D6 を強く阻害するので、痛み止めが効きにくくなります（タモキシフェンの効果を弱めるのも同じしくみ）。', law: '相互作用（薬物動態：CYP2D6 阻害）' },
+        { q: '歯科への返事として適切なのは？', a: ['アセトアミノフェン単剤などを提案する', 'そのまま処方して問題ないと返事する', 'パロキセチンを中止してから処方してもらう', 'トラマドールを倍量にして確実に効かせる'],
+          why: '短期の歯痛なら、アセトアミノフェンや NSAIDs で足りることが多いです。パロキセチンを急にやめると、中断症候群（めまい・電気が走る感覚・焦燥）が出ます。照会への返事は、理由と代わりの案をそろえて書きます。', law: '他科への返信' }
+      ]
+    },
+    {
+      time: '11:00', where: '病棟（入院2週目）', night: false,
+      title: 'クロザピンの人が、入院して禁煙', stamp: ['禁煙', 'CYP1A2'], stampName: '禁煙でクロザピンの濃度が上がる',
+      story: '36歳の男性。治療抵抗性統合失調症でクロザピン 400mg を飲み、1日40本たばこを吸っていた。肺炎で入院し、病院は全館禁煙。入院10日目から、昼間も眠り込み、よだれが多く、昨日は手足がぴくっと動いた（ミオクローヌス）。',
+      memo: [['処方', 'クロザピン 400mg/日（量は変えていない）'], ['変化', '入院してから禁煙'], ['症状', '強い眠気、流涎、ミオクローヌス']],
+      qs: [
+        { q: '症状の原因として考えるべきことは？', a: ['禁煙で CYP1A2 が戻り、濃度が上がった', 'クロザピンが急に効かなくなってきた', '肺炎の発熱だけで、薬とは関係がない', '統合失調症の陰性症状が新しく出てきた'],
+          why: 'たばこの煙（タール）は CYP1A2 を誘導し、クロザピン・オランザピンの代謝を速めます。急に禁煙すると数日〜2週ほどで濃度が上がり、鎮静・流涎・けいれんの危険が増します。ニコチンパッチではこの誘導は起こりません。', law: '相互作用（喫煙による CYP1A2 誘導）' },
+        { q: 'このときの対応は？', a: ['量を減らし、可能なら濃度を測る', 'バルプロ酸を加え、量はそのまま', '眠気があるので、急に中止する', '退院まで変えずに様子を見る'],
+          why: '量を減らすのが基本です（目安として3〜4割ほど下がることが多い）。急な中止はリバウンド精神病やコリン性のリバウンドを起こします。シプロフロキサシン・フルボキサミンなど CYP1A2 を阻害する薬も、濃度を上げます。', law: '用量調整' },
+        { q: '退院後、また吸い始めたら？', a: ['濃度が下がるので、量を見直す', '影響はないので、気にしなくてよい', '喫煙者にはクロザピンは使えない', '吸い始めたら、必ず量を2倍にする'],
+          why: '喫煙の再開・中止のたびに濃度が動きます。入院・退院のときは、喫煙の状況と量の見直しをセットで確認します。', law: '喫煙と薬の量' }
+      ]
+    },
+    {
+      time: '13:30', where: '外来', night: false,
+      title: 'バルプロ酸に、ラモトリギンを足す', stamp: ['皮疹', '半量'], stampName: 'バルプロ酸とラモトリギン',
+      story: '40歳の女性。双極症でバルプロ酸を飲んでいるが、うつ状態をくり返す。再発予防のためにラモトリギンを加えることにした。研修医の処方案は、ラモトリギン 25mg/日から始めて2週ごとに増やす、ふだんどおりの量だった。',
+      memo: [['処方', 'バルプロ酸 800mg/日'], ['追加の予定', 'ラモトリギン（研修医の案：25mg/日から）'], ['既往', '薬疹なし']],
+      qs: [
+        { q: 'この処方案の問題は？', a: ['濃度が約2倍になり、皮疹の危険が高い', 'ラモトリギンはうつの再発予防に効かない', 'バルプロ酸とラモトリギンは併用禁忌である', '始め方は通常どおりで、問題はない'],
+          why: 'バルプロ酸はラモトリギンのグルクロン酸抱合を阻害し、血中濃度を上げます。スティーブンス・ジョンソン症候群などの重い皮疹は、早く増やすほど、量が多いほど起きやすくなります。添付文書には、バルプロ酸併用時の少ない始め方（隔日投与など）が決められています。', law: '相互作用（代謝の阻害）と皮疹' },
+        { q: '本人への説明で、いちばん大切なことは？', a: ['発疹・発熱・粘膜の異常で、すぐ中止し受診', '眠気が出たら、自分で量を増やしてよい', '皮疹は軽いことが多く、気にしなくてよい', '飲み忘れたら、次の回に2回分を飲む'],
+          why: '重い皮疹は、多くが始めてから8週以内に起こります。粘膜（口・目・陰部）の症状、発熱、広がる発疹は危険のサインです。何日も飲み忘れたあとは、また少ない量から始め直します。', law: '患者への説明' },
+        { q: '逆に、カルバマゼピンを飲んでいる人にラモトリギンを足すときは？', a: ['代謝が速まり、ラモトリギンは下がる', 'バルプロ酸と同じく、濃度が上がる', '代謝の経路が別なので、影響はない', 'この組み合わせは併用禁忌である'],
+          why: 'カルバマゼピン・フェニトインなどの酵素誘導薬は、ラモトリギンの濃度を下げます。組み合わせる薬によって増やし方が違うので、添付文書の表で確かめます。', law: '相互作用（代謝の誘導）' }
+      ]
+    },
+    {
+      time: '14:10', where: '外来（妊娠の相談）', night: false,
+      title: '子どもがほしい、双極症の女性', stamp: ['妊娠', '相談'], stampName: '妊娠を考える人とバルプロ酸',
+      story: '28歳の女性。双極症で、バルプロ酸 1000mg で3年間安定している。「来年、子どもがほしい。薬はどうしたらいい？」と相談された。',
+      memo: [['処方', 'バルプロ酸 1000mg/日'], ['経過', '3年間再発なし。過去に重い躁病エピソード2回'], ['希望', '来年妊娠したい']],
+      qs: [
+        { q: 'バルプロ酸と妊娠について正しいのは？', a: ['奇形と子の発達への影響の危険が高い', '妊娠中に最も安全な気分安定薬である', '妊娠がわかってから中止すれば問題ない', '量に関係なく、危険はほかの薬と同じ'],
+          why: 'バルプロ酸は、気分安定薬・抗てんかん薬の中でも奇形と発達への影響の危険が高く、量が多いほど危険が増します。器官ができる時期は妊娠に気づく前なので、妊娠を考えている段階から相談することが大切です。', law: '妊娠と薬' },
+        { q: 'この人への対応として適切なのは？', a: ['妊娠前から切り替えを一緒に考え、葉酸も', '自己判断で、今日からバルプロ酸をやめる', '再発が心配なので、妊娠は勧められないと伝える', '何も変えず、妊娠がわかってから相談に来る'],
+          why: '急な中止は再発の危険が高く、妊娠中・産後の再発は母子にとって大きな負担です。病歴（重い躁）と薬の危険を本人・家族と共有し、計画的に切り替えます。決めるのは本人で、医師は情報と選択肢を示します（共同意思決定）。', law: '共同意思決定' },
+        { q: '産後について正しいのは？', a: ['産後は再発しやすく、睡眠を守る工夫を', '産後はホルモンの変化で再発しにくい', '授乳中は、すべての向精神薬が使えない', '産後は、薬をいったんやめるのが原則'],
+          why: '出産後の数週間は、双極症の再発（とくに躁・混合状態・精神病）の危険が高い時期です。夜間の授乳で睡眠が削られることも引き金になります。授乳と薬は、薬ごとに情報を確かめて決めます。', law: '周産期の再発予防' }
+      ]
+    },
+    {
+      time: '15:00', where: '救急外来からの相談', night: false,
+      title: '興奮した人に、ハロペリドールを静注', stamp: ['QT', '延長'], stampName: 'QT 延長の薬の重ねと低カリウム',
+      story: '55歳の女性。うつ病でエスシタロプラムを飲んでいる。嘔吐が続いて救急に来たが、強い不安と興奮で点滴を抜こうとする。救急医から「ハロペリドールを静注してよいか」と相談された。採血で K 2.9 mEq/L。心電図は QTc 498ms。',
+      memo: [['内服', 'エスシタロプラム 20mg'], ['検査', 'K 2.9 mEq/L（低い）、QTc 498ms（延長）'], ['予定', 'ハロペリドール静注']],
+      qs: [
+        { q: 'いちばん心配なことは？', a: ['QT 延長からの致死的な不整脈', '悪性症候群による高熱と筋強剛', 'セロトニン症候群による発熱', '急な低血糖による意識障害'],
+          why: 'ハロペリドール（とくに静注）とエスシタロプラムは、どちらも QT を延ばします。低カリウム・低マグネシウム・徐脈・女性・心疾患は危険を高めます。QTc 500ms 前後は要注意の値です。', law: 'QT 延長' },
+        { q: 'まずすることは？', a: ['K・Mg を補い、心電図をモニターする', 'すぐにハロペリドールを静注して鎮める', 'エスシタロプラムを2倍に増やして落ち着かせる', '抗精神病薬を2種類組み合わせて鎮静する'],
+          why: '電解質の補正と心電図の監視が先です。嘔吐による低カリウムは、補えば QT も改善します。不安・興奮には、まず声かけ・環境の調整、必要なら QT への影響が少ない方法を救急医と相談します。', law: '安全な鎮静' },
+        { q: 'エスシタロプラムについて正しいのは？', a: ['QT 延長のある人には使えない（禁忌）', 'SSRI は QT にまったく影響しない', '低カリウムのときは量を増やす', '心電図の確認は、とくに必要ない'],
+          why: 'エスシタロプラムは QT 延長のある患者には禁忌で、使う前・増量の前に心電図を確かめます。ほかにも、三環系抗うつ薬・一部の抗精神病薬・マクロライド・抗真菌薬などが QT を延ばします。', law: '禁忌（QT 延長）' }
+      ]
+    },
+    {
+      time: '16:00', where: '病棟（転院してきた人）', night: false,
+      title: '抗精神病薬が3種類', stamp: ['多剤', 'CP換算'], stampName: '多剤大量の見直し',
+      story: '50歳の男性。統合失調症で、ほかの病院から転院してきた。陽性症状は落ち着いているが、日中ぼんやりして、よだれ・便秘・体重増加・ふるえがある。抗精神病薬が3種類出ている。',
+      memo: [['処方', 'リスペリドン 6mg、オランザピン 20mg、クロルプロマジン 300mg'], ['ほか', 'ビペリデン 3mg、センノシド'], ['状態', '陽性症状は落ち着いている。過鎮静・副作用が多い']],
+      qs: [
+        { q: 'クロルプロマジン換算で、合計はおよそ？（リスペリドン 1mg≒100mg、オランザピン 2.5mg≒100mg）', a: ['約1700mg', '約600mg', '約900mg', '約3000mg'],
+          why: 'リスペリドン 6mg≒600mg、オランザピン 20mg≒800mg、クロルプロマジン 300mg で、合計およそ1700mg です。換算値は目安ですが、多剤大量（おおむね1000mg を超える）の目安になります。', law: 'クロルプロマジン換算' },
+        { q: '多剤併用について正しいのは？', a: ['上乗せは乏しく、副作用が増える', '3種類のほうが1種類より確実に効く', '症状が安定していれば、そのままがよい', '抗コリン薬は長く続けるのが原則'],
+          why: '統合失調症の薬物療法は単剤が基本です。多剤大量は副作用を増やし、認知機能や生活の質を下げます。抗コリン薬（ビペリデン）も、便秘・認知機能の低下・遅発性ジスキネジアの悪化に関わります。', law: '単剤化の原則' },
+        { q: '見直しの進め方として適切なのは？', a: ['本人と相談し、1剤ずつ少しずつ減らす', '翌日から、思いきって1剤だけにする', 'すべて中止して、再燃しないか様子を見る', '副作用止めを追加して、副作用を抑える'],
+          why: '急な減量・中止は再燃やリバウンドの危険があります。本人の希望（眠気を減らしたい、体重を減らしたい）を目標にして、計画的に少しずつ減らします。減らす順番は、副作用の重いものや鎮静の強いものからが多いです。', law: '計画的な減量' }
+      ]
+    }
+  ];
+
+  var NQ = CASES.reduce(function (n, c) { return n + c.qs.length; }, 0);
+  var BEST_KEY = 'shoho-check-best';
+
+  function lsGet(k) { try { return window.localStorage.getItem(k); } catch (e) { return null; } }
+  function lsSet(k, v) { try { window.localStorage.setItem(k, v); } catch (e) { /* 保存できない環境 */ } }
+
+  function shuffled(n) {
+    var a = []; for (var i = 0; i < n; i++) a.push(i);
+    for (var j = n - 1; j > 0; j--) { var r = Math.floor(Math.random() * (j + 1)); var t = a[j]; a[j] = a[r]; a[r] = t; }
+    return a;
+  }
+  function newState() {
+    return {
+      ci: 0,
+      picks: CASES.map(function (c) { return c.qs.map(function () { return null; }); }),
+      order: CASES.map(function (c) { return c.qs.map(function (q) { return shuffled(q.a.length); }); }),
+      only: null  // まちがえた患者だけやり直すときの番号の並び
+    };
+  }
+
+  var S;
+  var slotsEl = document.getElementById('slots');
+  var mainEl = document.getElementById('main');
+
+  // ---- 判子帳
+  var HK_KEY = 'shoho-check-hanko-v1', HK_TITLES = [[0, "処方を見る人"], [4, "相互作用に気づく人"], [8, "処方を整える人"], [12, "薬に強い精神科医"], [16, "処方の番人"]], HK_MAX = CASES.length * 2;
+  var HK = {}; try { HK = JSON.parse(lsGet(HK_KEY) || '{}') || {}; } catch (e) { HK = {}; }
+  function hkPts() { var p = 0; CASES.forEach(function (c, i) { p += HK[i] || 0; }); return p; }
+  function hkTitle(p) { var t = HK_TITLES[0]; HK_TITLES.forEach(function (x) { if (p >= x[0]) t = x; }); return t; }
+  function hkNext(p) { for (var i = 0; i < HK_TITLES.length; i++) if (HK_TITLES[i][0] > p) return HK_TITLES[i]; return null; }
+  function hkSummary() { var n = CASES.filter(function (c, i) { return HK[i]; }).length; return '判子帳 ' + n + ' / ' + CASES.length + ' ・ 称号「' + hkTitle(hkPts())[1] + '」'; }
+  function renderHanko() {
+    var p = hkPts(), t = hkTitle(p), nx = hkNext(p), n = CASES.filter(function (c, i) { return HK[i]; }).length;
+    var gold = CASES.filter(function (c, i) { return HK[i] === 2; }).length;
+    document.getElementById('hkCount').textContent = n + ' / ' + CASES.length + ' ・ 金 ' + gold;
+    document.getElementById('hkTitle').innerHTML = '称号　<b>' + esc(t[1]) + '</b>　' + (nx ? '<span class="muted">次の「' + esc(nx[1]) + '」まで あと ' + (nx[0] - p) + '</span>' : '<span class="muted">すべて金の判子です</span>');
+    var m = document.getElementById('hkMeter'); m.firstChild.style.width = Math.round(p / HK_MAX * 100) + '%'; m.setAttribute('aria-label', p + ' / ' + HK_MAX);
+    document.getElementById('hkGrid').innerHTML = CASES.map(function (c, i) {
+      var tr = HK[i] || 0;
+      var st = tr ? '<b>' + esc(c.stamp[0]) + '</b>' + (c.stamp[1] ? '<small>' + esc(c.stamp[1]) + '</small>' : '') : '<b>？</b>';
+      return '<li class="hk t' + tr + '"><span class="hk-st" aria-hidden="true">' + st + '</span><span class="hk-t">' + c.time + '</span><span class="hk-n">' + (tr ? esc(c.title) : 'まだ') + '</span><span class="hk-tag">' + ['', '押した', '金・満点'][tr] + '</span></li>';
+    }).join('');
+  }
+  var toastEl = document.getElementById('toast'), toastT = 0;
+  function toast(html) { toastEl.innerHTML = html; toastEl.hidden = false; clearTimeout(toastT); toastT = setTimeout(function () { toastEl.hidden = true; }, 3400); }
+  function awardHanko(i) {
+    var tier = caseScore(i) === CASES[i].qs.length ? 2 : 1, cur = HK[i] || 0;
+    if (tier <= cur) return;
+    var before = hkTitle(hkPts())[1];
+    HK[i] = tier; lsSet(HK_KEY, JSON.stringify(HK));
+    var after = hkTitle(hkPts())[1];
+    toast('<b>' + (tier === 2 ? '金の判子' : '判子') + 'を押しました</b><br>' + esc(CASES[i].stampName) + (after !== before ? '<br>称号が「' + esc(after) + '」になりました' : ''));
+    renderHanko();
+  }
+
+  function esc(s) { return String(s).replace(/[&<>"]/g, function (ch) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[ch]; }); }
+
+  function caseDone(i) { return S.picks[i].every(function (p) { return p !== null; }); }
+  function caseScore(i) { return S.picks[i].filter(function (p) { return p === 0; }).length; }
+  function curQ(i) { var k = S.picks[i].indexOf(null); return k; }
+  function seq() { return S.only || CASES.map(function (_, i) { return i; }); }
+  function totalRight() { var n = 0; for (var i = 0; i < CASES.length; i++) n += caseScore(i); return n; }
+
+  function stampHTML(c, cls) {
+    return '<div class="stamp ' + (cls || '') + '" aria-hidden="true"><div><div class="s1">' + esc(c.stamp[0]) + '</div>' +
+      (c.stamp[1] ? '<div class="s2">' + esc(c.stamp[1]) + '</div>' : '') + '</div></div>';
+  }
+
+  function renderSlots() {
+    slotsEl.innerHTML = CASES.map(function (c, i) {
+      var done = caseDone(i), cur = (S.ci === i);
+      var inner = done
+        ? '<span class="mini' + (caseScore(i) < c.qs.length ? ' miss' : '') + '">' + esc(c.stamp[0]) + '</span>'
+        : '<span class="dot">' + (cur ? '▶' : '・') + '</span>';
+      var label = c.time + ' ' + (done ? c.stampName + '、' + caseScore(i) + '問正解' : cur ? '対応中' : 'まだ');
+      return '<li class="slot' + (c.night ? ' night' : '') + '"' + (cur ? ' aria-current="step"' : '') + ' aria-label="' + esc(label) + '">' +
+        '<span class="t">' + c.time + '</span>' + inner + '<span class="m">' + (done ? caseScore(i) + '/3' : '') + '</span></li>';
+    }).join('');
+  }
+
+  function optsHTML(i, qi, live) {
+    var q = CASES[i].qs[qi], pick = S.picks[i][qi];
+    return '<ol class="opts">' + S.order[i][qi].map(function (ai, pos) {
+      var cls = '', tag = '';
+      if (pick !== null) {
+        if (ai === 0) { cls = ' right'; tag = '正解'; }
+        else if (ai === pick) { cls = ' wrong'; tag = 'あなたの答え'; }
+        else cls = ' dim';
+      }
+      return '<li><button type="button" class="opt' + cls + '" data-q="' + qi + '" data-a="' + ai + '"' + (pick !== null || !live ? ' disabled' : '') + '>' +
+        '<span class="k">' + (pos + 1) + '</span><span>' + esc(q.a[ai]) + '</span><span class="v">' + tag + '</span></button></li>';
+    }).join('') + '</ol>';
+  }
+
+  function renderCase(pressStamp) {
+    var i = S.ci, c = CASES[i], k = curQ(i), s = seq(), pos = s.indexOf(i);
+    var html = '<article class="case" aria-labelledby="caseh">' +
+      (k === -1 ? stampHTML(c, pressStamp ? 'press' : '') : '') +
+      '<div class="case-top"><span class="clock">' + c.time + '</span><span class="where">' + esc(c.where) + ' ・ ' + (pos + 1) + '人目 / ' + s.length + '人</span>' +
+      '<h2 id="caseh" tabindex="-1">' + esc(c.title) + '</h2></div><div class="case-body">' +
+      '<p class="story">' + esc(c.story) + '</p>' +
+      '<div class="memo-box"><p class="memo-cap">カルテの要点</p><dl class="memo">' + c.memo.map(function (m) { return '<dt>' + esc(m[0]) + '</dt><dd>' + esc(m[1]) + '</dd>'; }).join('') + '</dl></div>';
+
+    c.qs.forEach(function (q, qi) {
+      var pick = S.picks[i][qi];
+      if (pick === null && qi !== k) return;
+      html += '<section class="q" aria-labelledby="q' + qi + '"><h3 class="q-h" id="q' + qi + '" tabindex="-1"><span class="q-n">問' + (qi + 1) + '</span><span>' + esc(q.q) + '</span></h3>' +
+        optsHTML(i, qi, qi === k);
+      if (pick !== null) {
+        html += '<p class="why"><b>' + (pick === 0 ? '正解。' : '正解は「' + esc(q.a[0]) + '」。') + '</b>' + esc(q.why) +
+          (q.law ? '<span class="law">ポイント：' + esc(q.law) + '</span>' : '') + '</p>';
+      }
+      html += '</section>';
+    });
+
+    if (k === -1) {
+      var isLast = pos === s.length - 1;
+      html += '<p class="done-q">点検：<b>' + esc(c.stampName) + '</b>（' + caseScore(i) + ' / 3 問正解）</p>' +
+        '<button type="button" class="next" id="nextBtn">' + (isLast ? '点検を終える' : '次の処方へ（' + CASES[s[pos + 1]].time + '）') + '</button>';
+    }
+    html += '</div></article>';
+    mainEl.innerHTML = html;
+  }
+
+  function renderResult() {
+    var right = totalRight(), pts = Math.round(right / NQ * 100);
+    var rank = pts >= 90 ? 'S' : pts >= 75 ? 'A' : pts >= 60 ? 'B' : pts >= 40 ? 'C' : 'D';
+    var best = parseInt(lsGet(BEST_KEY) || '0', 10) || 0;
+    if (!S.only && pts > best) { lsSet(BEST_KEY, String(pts)); best = pts; }
+    var missed = CASES.map(function (_, i) { return i; }).filter(function (i) { return caseScore(i) < CASES[i].qs.length; });
+
+    mainEl.innerHTML = '<section class="result" aria-labelledby="resh"><h2 id="resh" tabindex="-1">点検の記録</h2>' +
+      '<div class="rank"><span class="big">' + rank + '</span><span class="pts">' + pts + '<small class="muted"> ／100</small></span>' +
+      '<span class="best">' + right + ' / ' + NQ + ' 問正解' + (best ? '　自己ベスト ' + best + '点' : '') + '</span></div>' +
+      '<ol class="log">' + CASES.map(function (c, i) {
+        var miss = c.qs.filter(function (q, qi) { return S.picks[i][qi] !== 0; });
+        return '<li><div class="lh"><span class="lt">' + c.time + '</span><span class="ls">' + esc(c.title) + '</span><span class="lm muted">' + esc(c.stampName) + '・' + caseScore(i) + '/3</span></div>' +
+          miss.map(function (q) { return '<p class="miss">✗ ' + esc(q.q) + ' → ' + esc(q.a[0]) + '</p>'; }).join('') + '</li>';
+      }).join('') + '</ol>' +
+      '<p class="rule">' + hkSummary() + '</p>' +
+      '<div class="row">' + (missed.length ? '<button type="button" class="next" id="retryMiss">まちがえた患者だけもう一度（' + missed.length + '人）</button>' : '') +
+      '<button type="button" class="ghost" id="restart">はじめから（選択肢を並べ替える）</button></div></section>';
+    S._missed = missed;
+  }
+
+  function render(opts) {
+    opts = opts || {};
+    renderSlots();
+    if (S.ci === -1) {
+      renderResult();
+      if (opts.focus) document.getElementById('resh').focus();
+      return;
+    }
+    renderCase(opts.press);
+    if (opts.focus === 'case') { var h = document.getElementById('caseh'); h.focus({ preventScroll: true }); h.closest('.case').scrollIntoView({ block: 'start', behavior: 'auto' }); }
+    else if (opts.focus === 'q') {
+      var k = curQ(S.ci);
+      var el = k === -1 ? document.getElementById('nextBtn') : document.getElementById('q' + k);
+      if (el) el.focus({ preventScroll: true });
+    }
+  }
+
+  function answer(qi, ai) {
+    var i = S.ci;
+    if (S.picks[i][qi] !== null || curQ(i) !== qi) return;
+    S.picks[i][qi] = ai;
+    var finished = curQ(i) === -1;
+    if (finished) awardHanko(i);
+    render({ press: finished });
+    // 解説を読めるように、答えた問いの見出しへフォーカスを戻す
+    var h = document.getElementById('q' + qi);
+    if (h) h.focus({ preventScroll: true });
+  }
+
+  function nextCase() {
+    var s = seq(), pos = s.indexOf(S.ci);
+    S.ci = pos < s.length - 1 ? s[pos + 1] : -1;
+    render({ focus: S.ci === -1 ? true : 'case' });
+    if (S.ci === -1) document.getElementById('resh').scrollIntoView({ block: 'start' });
+  }
+
+  function restart(onlyMissed) {
+    if (onlyMissed) {
+      var m = S._missed.slice();
+      m.forEach(function (i) {
+        S.picks[i] = CASES[i].qs.map(function () { return null; });
+        S.order[i] = CASES[i].qs.map(function (q) { return shuffled(q.a.length); });
+      });
+      S.only = m; S.ci = m[0];
+    } else {
+      S = newState();
+    }
+    render({ focus: 'case' });
+  }
+
+  mainEl.addEventListener('click', function (e) {
+    var b = e.target.closest('button'); if (!b) return;
+    if (b.classList.contains('opt')) answer(+b.dataset.q, +b.dataset.a);
+    else if (b.id === 'nextBtn') nextCase();
+    else if (b.id === 'retryMiss') restart(true);
+    else if (b.id === 'restart') restart(false);
+  });
+
+  document.addEventListener('keydown', function (e) {
+    if (e.altKey || e.ctrlKey || e.metaKey || S.ci === -1) return;
+    var k = curQ(S.ci);
+    if (k !== -1 && /^[1-4]$/.test(e.key)) {
+      var ai = S.order[S.ci][k][+e.key - 1];
+      if (ai !== undefined) { e.preventDefault(); answer(k, ai); }
+    } else if (k === -1 && e.key === 'Enter' && !e.target.closest('button, a, input, textarea, select')) {
+      e.preventDefault(); nextCase();
+    }
+  });
+
+  function start(data) {
+    renderHanko();
+    S = (data && data.S && data.S.picks && data.S.picks.length === CASES.length) ? data.S : newState();
+    render();
+  }
+  if (window.claude && window.claude.hot && window.claude.hot.snapshot) {
+    window.claude.hot.snapshot(function () { return { S: S }; });
+  }
+  if (window.claude && window.claude.hot && window.claude.hot.ready) window.claude.hot.ready(start);
+  else start((window.claude && window.claude.hot && window.claude.hot.data) || {});
+
+  // 確認用：全問を自動で答える（正解率 r）
+  window.__autoplay = function (r) {
+    S = newState();
+    CASES.forEach(function (c, i) { c.qs.forEach(function (q, qi) { S.picks[i][qi] = Math.random() < (r == null ? 1 : r) ? 0 : 1; }); });
+    S.ci = -1; render();
+  };
+})();
+</script>
+
+</body>
+</html>
