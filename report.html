@@ -1,0 +1,248 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<meta name="app-version" content="20261118141534">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="精神科試験ゲーム">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icon-180.png">
+<style>
+:root{color-scheme:light; padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px)}
+body{margin:0; font:14px system-ui,-apple-system,sans-serif}
+img{max-width:100%}
+[hidden]{display:none!important}
+.ipad-bar{display:flex; flex-wrap:wrap; gap:6px 14px; align-items:center; justify-content:space-between;
+  padding:8px max(16px, env(safe-area-inset-right,0px)) 8px max(16px, env(safe-area-inset-left,0px));
+  font:600 14px system-ui,-apple-system,"Hiragino Sans",sans-serif; background:#1d2a33; color:#f3f6f8}
+.ipad-bar a{color:#f3f6f8; text-decoration:none; padding:6px 10px; border:1px solid #4a5d6a; border-radius:6px}
+.ipad-bar span{opacity:.85; font-weight:400}
+.ipad-bar .upd{font:inherit; color:#f3f6f8; background:transparent; border:1px solid #4a5d6a; border-radius:6px; padding:6px 10px; cursor:pointer}
+.ipad-bar .right{display:flex; gap:10px; align-items:center}
+</style>
+<script>
+/* プレイヤーごとに記録を分ける（自分は今までどおり、ゲストは頭に印をつける） */
+(function () {
+  try {
+    var P = window.localStorage.getItem('ipad-player') || 'me';
+    window.__ipadPlayer = P;
+    if (P === 'me') return;
+    var pre = 'p:' + P + ':', S = Storage.prototype, g = S.getItem, s = S.setItem, r = S.removeItem;
+    var map = function (k) { return k === 'ipad-player' ? k : pre + k; };
+    S.getItem = function (k) { return g.call(this, map(k)); };
+    S.setItem = function (k, v) { return s.call(this, map(k), v); };
+    S.removeItem = function (k) { return r.call(this, map(k)); };
+  } catch (e) { /* 保存できない環境 */ }
+})();
+if ('serviceWorker' in navigator) { window.addEventListener('load', function () { navigator.serviceWorker.register('sw.js').catch(function () {}); }); }
+</script>
+<script src="ipad-update.js" defer></script>
+</head>
+<body>
+<nav class="ipad-bar" aria-label="アプリ"><a href="index.html">← ゲーム一覧</a><span class="right"><span id="ipadWho"></span><button type="button" class="upd" data-upd="manual" aria-label="新しい版を確かめて更新">↻ 更新</button></span></nav>
+<script>(function(){var P=window.__ipadPlayer||'me';document.getElementById('ipadWho').textContent='プレイヤー：'+(P==='me'?'自分':P);})();</script>
+<title>症例レポート添削</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=BIZ+UDPGothic:wght@400;700&family=BIZ+UDMincho&family=DotGothic16&display=swap">
+<style>
+/* Layout: 上に説明とレポートの選択。下に下書き（紙のような見た目）。文をタップして赤ペンの印。右（スマホでは下）に印の数と「添削を確かめる」、結果。最大幅1040px */
+:root{
+  --paper:#eeece6; --panel:#fbfaf6; --ink:#1e1f1c; --muted:#62645c; --line:#cfcbbf;
+  --sheet:#fffefa; --accent:#2d5b86; --accent-ink:#fff; --red:#c23a2e; --ok:#2a7a55; --warn:#b06a10;
+  --accent-soft:color-mix(in srgb, var(--accent) 10%, var(--panel));
+  --f-display:"DotGothic16","BIZ UDPGothic",system-ui,sans-serif;
+  --f-body:"BIZ UDPGothic","Hiragino Sans","Yu Gothic",Meiryo,system-ui,sans-serif;
+  --f-doc:"BIZ UDMincho","Hiragino Mincho ProN","Yu Mincho",serif;
+  --fs-xs:.78rem; --fs-s:.875rem; --fs-m:1rem; --fs-l:1.12rem; --fs-xl:1.4rem; --r:6px;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){ --paper:#14140f; --panel:#1c1c17; --ink:#e6e4dc; --muted:#a3a195; --line:#35342c; --sheet:#20201a; --accent:#8fbbe6; --accent-ink:#14140f; --red:#f07a6e; --ok:#63c993; --warn:#e2a54b; color-scheme:dark; }
+}
+:root[data-theme="dark"]{ --paper:#14140f; --panel:#1c1c17; --ink:#e6e4dc; --muted:#a3a195; --line:#35342c; --sheet:#20201a; --accent:#8fbbe6; --accent-ink:#14140f; --red:#f07a6e; --ok:#63c993; --warn:#e2a54b; color-scheme:dark; }
+[hidden]{display:none!important}
+*,*::before,*::after{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--f-body);font-size:var(--fs-m);line-height:1.75;padding-left:max(16px, env(safe-area-inset-left, 0px));padding-right:max(16px, env(safe-area-inset-right, 0px));padding-block:0 56px;overflow-wrap:anywhere}
+:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+p{margin:0}
+.wrap{max-width:1040px;margin:0 auto}
+.top{padding-block:30px 6px;display:grid;gap:10px}
+.eyebrow{font-size:var(--fs-xs);letter-spacing:.16em;color:var(--muted)}
+h1{font-family:var(--f-display);font-weight:400;margin:0;font-size:clamp(2rem,7.5vw,3rem);letter-spacing:.08em;line-height:1.15;text-shadow:3px 3px 0 var(--line)}
+.note{font-size:var(--fs-xs);color:var(--muted)}
+.tabs{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}
+.tab{font:inherit;cursor:pointer;border:1px solid var(--line);background:var(--panel);color:var(--ink);border-radius:var(--r);padding:8px 14px;min-height:44px;text-align:left;display:grid}
+.tab[aria-pressed="true"]{border:2px solid var(--accent);background:var(--accent-soft)}
+.tab b{font-size:var(--fs-s)} .tab small{font-size:var(--fs-xs);color:var(--muted)}
+.tab .done{color:var(--ok);font-weight:700}
+.desk{display:grid;grid-template-columns:minmax(0,1fr) 300px;gap:16px;margin-top:16px;align-items:start}
+@media (max-width:860px){.desk{grid-template-columns:minmax(0,1fr)}}
+.sheet{background:var(--sheet);border:1px solid var(--line);box-shadow:0 2px 0 var(--line), 0 10px 30px rgba(0,0,0,.08);padding:28px clamp(16px,4vw,44px) 36px;font-family:var(--f-doc);line-height:2}
+.sheet h2{font-family:var(--f-doc);font-size:1.25rem;margin:0 0 4px;text-align:center}
+.sheet .sub{font-family:var(--f-body);text-align:center;font-size:var(--fs-xs);color:var(--muted);margin-bottom:14px}
+.sheet h3{font-family:var(--f-body);font-size:var(--fs-s);margin:16px 0 2px;color:var(--accent);letter-spacing:.06em}
+.sheet p{margin:0}
+.s{cursor:pointer;border-radius:3px;padding:1px 0;transition:background .15s}
+.s:hover{background:color-mix(in srgb,var(--red) 7%,transparent)}
+.s.mk{text-decoration:underline wavy var(--red);text-decoration-thickness:1.5px;text-underline-offset:5px;background:color-mix(in srgb,var(--red) 9%,transparent)}
+.s.hit{background:color-mix(in srgb,var(--ok) 16%,transparent);text-decoration:underline wavy var(--ok)}
+.s.miss{background:color-mix(in srgb,var(--warn) 22%,transparent);text-decoration:underline dashed var(--warn);text-underline-offset:5px}
+.s.fp{background:transparent;text-decoration:line-through var(--muted)}
+.s .num{font-family:var(--f-body);font-size:.68rem;font-weight:700;color:#fff;background:var(--red);border-radius:999px;padding:0 5px;margin-left:2px;vertical-align:super}
+.s.hit .num{background:var(--ok)} .s.miss .num{background:var(--warn)}
+.side{display:grid;gap:12px;position:sticky;top:10px}
+@media (max-width:860px){.side{position:static}}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:var(--r);padding:12px 14px;display:grid;gap:8px;font-size:var(--fs-s)}
+.card h3{margin:0;font-size:var(--fs-m)}
+.big{font-family:var(--f-display);font-size:2.2rem;line-height:1.1;color:var(--accent)}
+.btn{font:inherit;font-weight:700;min-height:44px;padding:6px 16px;border:0;border-radius:var(--r);background:var(--accent);color:var(--accent-ink);cursor:pointer}
+.btn:disabled{opacity:.45;cursor:default}
+.ghost{font:inherit;font-size:var(--fs-s);min-height:40px;padding:4px 12px;border:1px solid var(--line);border-radius:var(--r);background:var(--panel);color:var(--ink);cursor:pointer}
+.legend{display:grid;gap:4px;font-size:var(--fs-xs)}
+.legend span{display:inline-block;width:2.2em;height:.9em;border-radius:3px;vertical-align:middle;margin-right:6px}
+.fbl{list-style:none;margin:0;padding:0;display:grid;gap:8px}
+.fbl li{border-left:4px solid var(--line);padding:4px 10px;background:var(--sheet);border-radius:4px;font-size:var(--fs-s);line-height:1.6}
+.fbl li.hit{border-left-color:var(--ok)} .fbl li.miss{border-left-color:var(--warn)} .fbl li.fp{border-left-color:var(--muted)}
+.fbl li b{display:block}
+.fbl .fix{display:block;margin-top:3px;font-family:var(--f-doc);background:color-mix(in srgb,var(--ok) 8%,transparent);border-radius:4px;padding:2px 6px}
+.guide{margin-top:34px;display:grid;gap:10px}
+.guide h2{margin:0;font-family:var(--f-display);font-weight:400;font-size:var(--fs-xl)}
+.gl{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;list-style:none;margin:0;padding:0}
+@media (max-width:700px){.gl{grid-template-columns:1fr}}
+.gl li{background:var(--panel);border:1px solid var(--line);border-radius:var(--r);padding:10px 12px;font-size:var(--fs-s)}
+.gl b{display:block;color:var(--accent)}
+#mbar{display:none}
+@media (max-width:860px){#mbar:not([hidden]){display:flex;position:fixed;left:0;right:0;bottom:0;z-index:5;gap:10px;align-items:center;justify-content:space-between;padding:8px max(16px,env(safe-area-inset-left,0px)) calc(8px + env(safe-area-inset-bottom,0px));background:var(--panel);border-top:1px solid var(--line);box-shadow:0 -4px 14px rgba(0,0,0,.08);font-size:var(--fs-s)}}
+.foot{margin-top:22px;font-size:var(--fs-xs);color:var(--muted);max-width:60em}
+</style>
+
+<div class="wrap">
+  <header class="top">
+    <p class="eyebrow">精神科試験ゲーム ・ 専門医試験の症例レポート（試作）</p>
+    <h1>症例レポート添削</h1>
+    <p>専攻医が書いた症例レポートの下書きに、赤ペンを入れます。直したほうがよいと思う文をタップして印をつけ、「添削を確かめる」を押してください。個人情報の書き方、診断の根拠、精神現症の書き方、治療経過、考察の5つが見どころです。</p>
+    <p class="note">学会の応募要件（症例の数・字数・書式・提出方法）は年度ごとに変わります。このアプリでは要件の数字は扱いません。必ず日本精神神経学会の最新の手引きで確認してください。</p>
+    <div class="tabs" id="tabs"></div>
+  </header>
+
+  <div class="desk">
+    <article class="sheet" id="sheet" aria-label="症例レポートの下書き"></article>
+    <aside class="side">
+      <div class="card" id="ctl"></div>
+      <div class="card" id="fb" hidden></div>
+    </aside>
+  </div>
+
+  <section class="guide" aria-labelledby="gh">
+    <h2 id="gh">書くときの10のポイント</h2>
+    <ul class="gl">
+      <li><b>1. 個人を特定させない</b>氏名・イニシャル・実際の日付・病院名・地名・職場名・珍しい職業は書かない。日付は「X年Y月」、施設は「当院」。</li>
+      <li><b>2. 主訴は本人の言葉で</b>「」で本人の言葉を残す。家族の訴えなら、そうと分かるように。</li>
+      <li><b>3. 生活歴・家族歴は診断と関係のあるものを</b>発達・学歴・職歴・婚姻・飲酒・物質使用・家族の精神疾患。</li>
+      <li><b>4. 現病歴は時間の順に</b>いつから、何が、どう変わったか。きっかけと、受診に至った経緯。</li>
+      <li><b>5. 精神現症は観察と言葉で</b>「被害妄想あり」と結論だけ書かず、本人の発言と観察した事実を書く。意識・見当識・疎通性・気分・思考・知覚・意欲・病識。</li>
+      <li><b>6. 身体所見と検査</b>器質因を除いた根拠（神経学的所見・血液・画像・脳波）を書く。</li>
+      <li><b>7. 診断は基準と根拠を添えて</b>DSM-5（-TR）や ICD の診断名と、それを満たす根拠。鑑別した疾患と、除外した理由。</li>
+      <li><b>8. 治療経過は具体的に</b>薬の名前・量・期間・変更の理由、効果と副作用、精神療法・環境調整・多職種の関わり。</li>
+      <li><b>9. 考察は経過のくり返しにしない</b>この症例で何を考え、何を学んだか。診断・治療の判断の理由を、文献と照らして論じる。</li>
+      <li><b>10. 書き方の約束</b>主観的・評価的な言葉（わがまま・問題のある患者）を避ける。略語は初出で正式名称。文献は本文と対応させる。</li>
+    </ul>
+  </section>
+  <div id="mbar" hidden><span>いまの印：<b id="mbN">0</b></span><button type="button" class="btn" id="mbBtn">添削を確かめる</button></div>
+  <p class="foot">下書きの症例はすべて架空で、誤りはわざと入れたものです。内容は試験勉強のための目安で、学会の公式の基準ではありません。指導医の添削を受けることも忘れずに（試作版）。</p>
+</div>
+
+<script>
+(function () {
+  'use strict';
+  /* レポートは見出し（h）と文（t）の並び。直すべき文には e = [種類, 理由, 直し方の例] をつける */
+  var R = [
+    { id: 'scz', name: '統合失調症', sub: '初発の幻覚妄想', title: '被害妄想で発症した統合失調症の一例', secs: [
+      { h: '患者', s: [{ t: '患者：Y.T.、24歳、男性、会社員（市役所勤務）。', e: ['個人情報', 'イニシャルと具体的な勤務先は、本人を特定させる手がかりになります。', '患者：20代男性、会社員。'] }] },
+      { h: '主訴', s: [{ t: '「隣の部屋から悪口が聞こえる」（本人）。', }] },
+      { h: '生活歴・家族歴', s: [{ t: '同胞2名の第1子。発達の遅れの指摘はない。' }, { t: '大学卒業後、2019年4月から現職に就いている。', e: ['個人情報', '実際の年月は特定につながります。', '大学卒業後、X−3年に現職に就いた。'] }, { t: '叔父に統合失調症の治療歴がある。' }] },
+      { h: '現病歴', s: [{ t: 'X年4月頃から不眠となり、職場で「同僚が自分の噂をしている」と話すようになった。' }, { t: '6月に入り、自宅でも「盗聴器がある」と言って部屋中を調べるようになったため、母親に伴われて○○市立病院を受診し、当院に紹介された。', e: ['個人情報', '地名や病院名は伏せます。', '…母親に伴われて近医を受診し、当院に紹介された。'] }] },
+      { h: '初診時精神現症', s: [{ t: '意識清明、見当識は保たれていた。' }, { t: '被害妄想と幻聴があった。', e: ['精神現症', '結論だけで、本人の言葉や観察した事実がありません。何をもって妄想・幻聴としたかが読み手にわかりません。', '「同僚が自分の噂をしていて、家の中まで盗聴されている」と確信をもって語り、訂正はできなかった。「隣の部屋から『辞めろ』という声が聞こえる」と述べ、声に返事をするような独語がみられた。'] }, { t: '本人はわがままで、医師の質問にまともに答えなかった。', e: ['書き方', '「わがまま」は評価的・主観的な言葉です。観察した事実で書きます。', '質問への返答は短く、しばしば視線をそらし、警戒的な態度であった。'] }, { t: '病識はなかった。' }] },
+      { h: '身体所見・検査', s: [{ t: '神経学的に異常はなかった。' }, { t: '血液検査では甲状腺機能・電解質・梅毒反応に異常はなく、頭部 MRI・脳波にも明らかな異常はなかった。' }] },
+      { h: '診断', s: [{ t: '統合失調症（F20）と診断した。', e: ['診断', '診断基準と、それを満たす根拠、鑑別した疾患が書かれていません。', 'DSM-5-TR の統合失調症の基準を満たした（妄想・幻聴が1か月以上、前駆期を含め6か月以上、社会的機能の低下）。物質誘発性・器質性精神病は、薬物使用歴がないこと、尿中薬物検査・MRI・脳波で除外した。抑うつ・躁症状は目立たず、統合失調感情症・双極症は否定的と考えた。'] }] },
+      { h: '治療経過', s: [{ t: '抗精神病薬を開始したところ、症状は改善した。', e: ['治療経過', '薬の名前・量・期間、効果と副作用の経過がありません。', '第3病日からアリピプラゾール 6mg/日を開始し、第10病日に 12mg/日に増量した。第3週から幻聴は減り、アカシジアがみられたため、プロプラノロールを併用した。'] }, { t: '第6週に退院し、外来通院となった。' }] },
+      { h: '考察', s: [{ t: '本症例は、4月頃から不眠となり、6月に盗聴器を探すようになって受診し、抗精神病薬で改善した。', e: ['考察', '経過のくり返しになっています。この症例で何を判断し、何を学んだかを論じます。', '本症例では、初発時に器質因の除外をどこまで行うかが問題となった。…初発精神病での MRI・脳波の意義について文献を踏まえて考察する。'] }, { t: '早期の治療が大切だと考えられた。' }] }
+    ] },
+    { id: 'mdd', name: 'うつ病', sub: '治療抵抗性のうつ', title: '抗うつ薬で改善が乏しく、双極症と診断を見直した一例', secs: [
+      { h: '患者', s: [{ t: '患者：50代女性、主婦。' }] },
+      { h: '主訴', s: [{ t: '「何もする気が起きない」。' }] },
+      { h: '生活歴・家族歴', s: [{ t: '高校卒業後に事務職として働き、結婚を機に退職した。' }, { t: '母がうつ病で通院していたと本人は言うが、詳細は不明である。' }] },
+      { h: '現病歴', s: [{ t: 'X−1年10月頃から気分の落ち込みと早朝覚醒が出現した。' }, { t: '近医で SSRI を処方されたが改善せず、X年3月に当院を紹介受診した。', e: ['治療経過', '前医での薬の名前・量・期間がないと、「治療抵抗性」かどうか判断できません。', '近医でセルトラリンを 100mg/日まで増量し8週以上続けたが改善せず、…'] }, { t: '夫によると、20代のころに数日ほとんど眠らずに家具を何度も買い替えた時期があった。' }] },
+      { h: '初診時精神現症', s: [{ t: '表情は乏しく、声は小さく、返答に時間がかかった。' }, { t: '「家族に迷惑をかけている。いないほうがいい」と述べたが、具体的な計画はないと話した。' }, { t: '典型的なうつ状態であった。', e: ['精神現症', '「典型的な」は評価の言葉で、情報が増えていません。抑うつ気分・興味の喪失・精神運動制止など、要素ごとに書きます。', '抑うつ気分、興味・喜びの喪失、精神運動制止、自責感を認めた。'] }] },
+      { h: '診断', s: [{ t: 'うつ病と考えて治療を始めたが、のちに双極症II型と診断を改めた。' }, { t: '夫の情報から、過去に軽躁病エピソードがあったと判断した。', e: ['診断', '軽躁病エピソードの基準（期間・症状の数・機能の変化）に照らした根拠が必要です。', '夫の情報から、20代に少なくとも4日間続いた気分の高揚、睡眠欲求の減少、浪費を伴う時期があり、DSM-5-TR の軽躁病エピソードの基準を満たすと判断した。'] }] },
+      { h: '治療経過', s: [{ t: '抗うつ薬を漸減中止し、ラモトリギンを少量から開始した。' }, { t: 'ラモトリギンは 25mg/日から始め、2週ごとに増量して 200mg/日とした。' }, { t: '経過中、患者は治療に非協力的で困った。', e: ['書き方', '「非協力的」「困った」は評価・感想です。何があったかを事実で書きます。', '経過中、2回の受診中断があり、その理由は「良くなった気がした」とのことであった。'] }, { t: '第12週には抑うつ症状はほぼ消失した。' }] },
+      { h: '考察', s: [{ t: '抗うつ薬で改善しないうつ病では、双極症を考えることが大切である。', e: ['考察', '一般論だけで、この症例に固有の論点と文献がありません。', '本症例は、本人が軽躁を「調子の良い時期」と捉えて申告しなかった点が診断を遅らせた。家族からの病歴聴取の重要性、および双極うつ病での抗うつ薬単剤治療の危険について、文献を踏まえて考察する。'] }, { t: '本症例の経験から、初診時に家族からも過去の気分の高揚について聴取するようにしている。' }] }
+    ] },
+    { id: 'dem', name: '認知症とせん妄', sub: '入院中の急な変化', title: 'アルツハイマー型認知症の経過中にせん妄を呈した一例', secs: [
+      { h: '患者', s: [{ t: '患者：80代女性。' }] },
+      { h: '主訴', s: [{ t: '（家族）「最近、物忘れがひどい」。' }] },
+      { h: '生活歴', s: [{ t: '長年、地元の駅前で和菓子屋を営んできた。', e: ['個人情報', '地域と珍しい職業の組み合わせは、特定の手がかりになります。必要な情報に絞ります。', '長年、自営業を営んできた。'] }, { t: '夫と死別後、長女と同居している。' }] },
+      { h: '現病歴', s: [{ t: 'X−2年頃から物忘れが目立ち、同じことを何度も尋ねるようになった。' }, { t: 'X年2月、アルツハイマー型認知症の診断で当院に入院した。', e: ['現病歴', '入院の理由（何が困って入院したのか）がありません。', 'X年2月、夜間に「家に帰る」と外へ出ようとすることが続き、在宅介護が困難となったため当院に入院した。'] }] },
+      { h: '入院時精神現症', s: [{ t: '意識は清明。日付の見当識は障害されていた。' }, { t: 'HDS-R は 14点であった。' }, { t: '認知症のため、夜間に問題行動があった。', e: ['精神現症', '「問題行動」はあいまいで、評価的です。具体的な行動を書きます。', '夜間に「家に帰る」と言って病棟の出口を探し、制止すると大声を出すことがあった。'] }] },
+      { h: '検査', s: [{ t: '頭部 MRI で両側海馬の萎縮（VSRAD の Z スコア 2.4）を認めた。' }] },
+      { h: '治療経過', s: [{ t: '第3週に尿路感染症を発症し、その頃から日中もうとうとして、つじつまの合わない話をするようになった。' }, { t: 'そのため、認知症が進行したと考えた。', e: ['診断', '急な変化を認知症の進行と結論づけ、せん妄の評価が抜けています（このレポートの主題にも反します）。', '急な発症と日内変動、注意の障害から、尿路感染症と、第2週に追加したブロチゾラムを原因とするせん妄と判断した。'] }, { t: 'ブロチゾラムを中止し、抗菌薬で感染を治療したところ、第5週には入院時の状態に戻った。' }] },
+      { h: '考察', s: [{ t: '認知症の患者が急に悪化したときは、まずせん妄を疑う必要がある。' }, { t: '本症例では、感染と睡眠薬の追加という2つの要因が重なっていた。' }, { t: '以上より、せん妄は認知症の患者によくみられる。', e: ['考察', '結論が考察の内容から導かれておらず、一般論のくり返しです。学んだことと今後の実践につなげます。', '本症例から、認知症病棟でベンゾジアゼピン系睡眠薬を追加する際の評価手順と、家族への説明の工夫について考察する。'] }] }
+    ] }
+  ];
+  var KEY = 'report-tensaku-v1', ST = {}; try { ST = JSON.parse(localStorage.getItem(KEY) || '{}') || {}; } catch (e) { ST = {}; }
+  function save() { try { localStorage.setItem(KEY, JSON.stringify(ST)); } catch (e) {} }
+  function esc(s) { return String(s).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); }
+  var cur = 0, marks = {}, checked = false;
+  function flat(r) { var a = []; r.secs.forEach(function (sec, si) { sec.s.forEach(function (x, k) { a.push({ id: si + '-' + k, x: x, sec: sec.h }); }); }); return a; }
+  function renderTabs() {
+    document.getElementById('tabs').innerHTML = R.map(function (r, i) { var b = ST[r.id]; return '<button type="button" class="tab" data-r="' + i + '" aria-pressed="' + (i === cur) + '"><b>' + esc(r.name) + '</b><small>' + esc(r.sub) + (b ? '　<span class="done">最高 ' + b + '</span>' : '') + '</small></button>'; }).join('');
+  }
+  function render() {
+    renderTabs();
+    var r = R[cur], all = flat(r), errN = all.filter(function (a) { return a.x.e; }).length, h = '<h2>' + esc(r.title) + '</h2><p class="sub">専攻医の下書き（架空）</p>';
+    var num = 0, numOf = {};
+    if (checked) all.forEach(function (a) { if (a.x.e || marks[a.id]) numOf[a.id] = ++num; });
+    r.secs.forEach(function (sec, si) {
+      h += '<h3>【' + esc(sec.h) + '】</h3><p>' + sec.s.map(function (x, k) {
+        var id = si + '-' + k, cls = 's';
+        if (checked) cls += x.e ? (marks[id] ? ' hit' : ' miss') : (marks[id] ? ' fp' : '');
+        else if (marks[id]) cls += ' mk';
+        return '<span class="' + cls + '" data-id="' + id + '" role="button" tabindex="0" aria-pressed="' + !!marks[id] + '">' + esc(x.t) + (checked && numOf[id] ? '<span class="num">' + numOf[id] + '</span>' : '') + '</span>';
+      }).join('') + '</p>';
+    });
+    document.getElementById('sheet').innerHTML = h;
+    var mk = Object.keys(marks).length;
+    document.getElementById('ctl').innerHTML = '<h3>赤ペン</h3><p>直したほうがよいと思う文をタップして印をつけます（もう一度タップで外す）。このレポートには、直すべき文が <b>' + errN + '</b> か所あります。</p><p>いまの印：<b>' + mk + '</b></p>' +
+      (checked ? '<button type="button" class="ghost" id="resetBtn">印を消して、もう一度</button>' : '<button type="button" class="btn" id="checkBtn"' + (mk ? '' : ' disabled') + '>添削を確かめる</button>') +
+      '<div class="legend"><div><span style="background:color-mix(in srgb,var(--ok) 30%,transparent)"></span>見つけた</div><div><span style="background:color-mix(in srgb,var(--warn) 35%,transparent)"></span>見落とし</div><div><span style="border-bottom:2px solid var(--muted)"></span>直さなくてよい文</div></div>';
+    var mb = document.getElementById('mbar'); mb.hidden = checked; document.getElementById('mbN').textContent = mk; document.getElementById('mbBtn').disabled = !mk;
+    var fb = document.getElementById('fb'); fb.hidden = !checked;
+    if (checked) {
+      var hit = all.filter(function (a) { return a.x.e && marks[a.id]; }).length, fp = all.filter(function (a) { return !a.x.e && marks[a.id]; }).length;
+      fb.innerHTML = '<h3>添削の結果</h3><p class="big">' + hit + ' / ' + errN + '</p><p>見つけた ' + hit + '、見落とし ' + (errN - hit) + '、直さなくてよい文への印 ' + fp + '。記録は「見つけた数 − 余分な印」で <b>' + Math.max(0, hit - fp) + '</b> です。</p><ul class="fbl">' +
+        all.filter(function (a) { return a.x.e || marks[a.id]; }).map(function (a) {
+          var c = a.x.e ? (marks[a.id] ? 'hit' : 'miss') : 'fp', tag = { hit: '見つけた', miss: '見落とし', fp: '直さなくてよい' }[c];
+          return '<li class="' + c + '"><b>' + numOf[a.id] + '．' + tag + (a.x.e ? '（' + esc(a.x.e[0]) + '）' : '') + '</b>' + (a.x.e ? esc(a.x.e[1]) + '<span class="fix">直し方の例：' + esc(a.x.e[2]) + '</span>' : 'この文は、このままで問題ありません。') + '</li>';
+        }).join('') + '</ul>';
+      var best = ST[r.id], val = Math.max(0, hit - fp); if (!best || val > parseInt(best, 10)) { ST[r.id] = val + '/' + errN; save(); renderTabs(); }
+    }
+  }
+  document.getElementById('sheet').addEventListener('click', function (e) { var s = e.target.closest('.s'); if (!s || checked) return; var id = s.getAttribute('data-id'); if (marks[id]) delete marks[id]; else marks[id] = true; render(); });
+  document.getElementById('sheet').addEventListener('keydown', function (e) { if ((e.key === 'Enter' || e.key === ' ') && e.target.classList.contains('s')) { e.preventDefault(); e.target.click(); } });
+  document.addEventListener('click', function (e) {
+    var b = e.target.closest('button'); if (!b) return;
+    if (b.hasAttribute('data-r')) { cur = +b.getAttribute('data-r'); marks = {}; checked = false; render(); }
+    else if (b.id === 'checkBtn' || b.id === 'mbBtn') { checked = true; render(); var f = document.getElementById('fb'); if (window.innerWidth <= 860) f.scrollIntoView({ block: 'start', behavior: 'smooth' }); }
+    else if (b.id === 'resetBtn') { marks = {}; checked = false; render(); }
+  });
+  render();
+  window.__rep = { R: R, flat: flat };
+})();
+</script>
+
+</body>
+</html>
