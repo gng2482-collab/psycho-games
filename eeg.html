@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="robots" content="noindex, nofollow">
-<meta name="app-version" content="20261120005300">
+<meta name="app-version" content="20261120082203">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
@@ -941,7 +941,7 @@ body.eegfs #panel.qz-on .mihon-box,body.eegfs #panel.rp-on .mihon-box{display:no
     <div class="pop pop-r" id="setPop" hidden>
       <div class="level" role="group" aria-label="設定">
         <button type="button" class="oki-btn">沖縄版へ</button>
-        <div class="set-row"><span class="lb">波</span><span class="seg" id="lvSeg"><button type="button" data-lv="0">入門：きれいな波</button><button type="button" data-lv="1">実践：本物に近い波</button></span>
+        <div class="set-row"><span class="lb">波</span><span class="seg" id="lvSeg"><button type="button" data-lv="0">入門：ふつうの記録</button><button type="button" data-lv="1">実践：ノイズの多い記録</button></span>
     </div><div class="set-row"><span class="lb">選択肢</span><span class="seg" id="hoSeg"><button type="button" data-ho="0">最初から表示</button><button type="button" data-ho="1">後から表示（上級）</button></span></div>
       </div>
     </div>
@@ -1121,6 +1121,8 @@ body.eegfs #panel.qz-on .mihon-box,body.eegfs #panel.rp-on .mihon-box{display:no
     blink: wm({Fp1:1,Fp2:1,F7:.32,F8:.32,F3:.2,F4:.2,Fz:.22}, 0),
     look: wm({F7:1,Fp1:.4,T3:.25,F3:.15,F8:-1,Fp2:-.4,T4:-.25,F4:-.15}, 0),
     emg: wm({F7:1,F8:1,T3:.9,T4:.9,T5:.35,T6:.35,Fp1:.25,Fp2:.25,A1:.3,A2:.3}, 0),
+    // 歯をしっかり食いしばったとき：側頭が最大で、頭全体にかぶさる（検査技師さんの指摘 2026-11-20）
+    emgWide: wm({F7:1,F8:1,T3:1,T4:1,T5:.75,T6:.75,Fp1:.7,Fp2:.7,F3:.55,F4:.55,Fz:.4,C3:.45,C4:.45,Cz:.3,P3:.4,P4:.4,Pz:.3,O1:.5,O2:.5,A1:.7,A2:.7}, 0.3),
     central: field(0, .05, .3, .3)
   };
   W.tri = W.front;
@@ -1350,7 +1352,7 @@ body.eegfs #panel.qz-on .mihon-box,body.eegfs #panel.rp-on .mihon-box{display:no
     var emgF = []; for (var q = 0; q < 10; q++) emgF.push(30 + R() * 60);
     var fph = [R() * TAU, R() * TAU, R() * TAU];
     var init = spec.init || {};
-    var real = !!spec.real, RS = null, rx = null;
+    var real = !!spec.real, noisy = real && !!spec.noisy, RS = null, rx = null;
     if (real) {
       var mkSrc = function (n, fLo, fHi, nc, sgLo, slope) {
         var S = [];
@@ -1378,7 +1380,7 @@ body.eegfs #panel.qz-on .mihon-box,body.eegfs #panel.rp-on .mihon-box{display:no
     };
     var srcMix = function (set, e) { var v = 0; for (var k5 = 0; k5 < set.S.length; k5++) v += set.S[k5].w[e] * set.buf[k5]; return v * set.norm[e]; };
     var sim = {
-      arT: -99, R: R, bg: bg, nz: nz, ph: ph, emgF: emgF, events: [], mem: {}, notch: !!spec.notch, real: real,
+      arT: -99, R: R, bg: bg, nz: nz, ph: ph, emgF: emgF, events: [], mem: {}, notch: !!spec.notch, real: real, noisy: noisy,
       preset: spec.preset || 'normal', auto: spec.auto !== false,
       tl: { eo: [[-99, init.eo || 0]], hv: [[-99, init.hv || 0]], sleep: [[-99, init.sleep || 0]], photic: [[-99, init.photic || 0]], flat: [[-99, init.flat || 0]], bz: [[-99, init.bz || 0]] }
     };
@@ -1419,7 +1421,7 @@ body.eegfs #panel.qz-on .mihon-box,body.eegfs #panel.rp-on .mihon-box{display:no
         var aPhR = TAU * b.alphaF * t + 2.2 * Math.sin(TAU * 0.11 * t + A[3]) + 1.4 * Math.sin(TAU * 0.23 * t + A[4]);
         for (var e = 0; e < NE; e++) {
           var p = ph[e], x0 = POS[E[e]][0], y0 = POS[E[e]][1];
-          var v = srcMix(RS.bgn, e) * 5.5 * b.noise / 0.62;
+          var v = srcMix(RS.bgn, e) * 5.5 * b.noise / 0.62 * (noisy ? 1.7 : 1);
           var aph = aPhR - 0.9 * y0 + 0.15 * p.a;
           v += aAmpR * W.alpha[e] * (x0 > 0.01 ? 1.12 : 1) * (Math.sin(aph) + 0.15 * Math.sin(2 * aph + 0.5));
           v += bAmp * Wb[e] * 0.82 * srcMix(RS.be, e);
@@ -1429,7 +1431,7 @@ body.eegfs #panel.qz-on .mihon-box,body.eegfs #panel.rp-on .mihon-box{display:no
           out[e] = v * rx.scale * b.suppress * (1 - 0.93 * s.flat) * W.bg[e];
         }
         // 汗による揺れ（1つの電極だけ）
-        out[rx.sway] += 16 * Math.sin(TAU * 0.21 * t + rx.swayPh) * (0.6 + 0.4 * Math.sin(TAU * 0.05 * t));
+        out[rx.sway] += (noisy ? 34 : 16) * Math.sin(TAU * 0.21 * t + rx.swayPh) * (0.6 + 0.4 * Math.sin(TAU * 0.05 * t));
       } else {
       // 入門：背景の揺れは頭全体でゆるやかにつながる（電極ごとにばらばらだと、双極導出でかえってギザギザが目立つため）
       var n0 = nz[0], vc = 0, p0 = ph[0];
@@ -1451,10 +1453,10 @@ body.eegfs #panel.qz-on .mihon-box,body.eegfs #panel.rp-on .mihon-box{display:no
       var ecg = g(u - 0.2, 0.011) - 0.18 * g(u - 0.17, 0.01) - 0.28 * g(u - 0.225, 0.012) + 0.22 * g(u - 0.46, 0.045);
       out[K_ECG] = ecg;
       if (b.ecgArt) addW(out, W.ecg, b.ecgArt * ecg);
-      else if (real) addW(out, W.ecg, 4 * ecg);
+      else if (real) addW(out, W.ecg, (noisy ? 9 : 4) * ecg);
       // 交流障害
       if (b.hum && !sim.notch) out[I[b.hum.e]] += b.hum.amp * Math.sin(TAU * b.hum.f * t);
-      if (real && !sim.notch) out[rx.hum] += 3 * Math.sin(TAU * 50 * t);
+      if (real && !sim.notch) out[rx.hum] += (noisy ? 10 : 3) * Math.sin(TAU * 50 * t);
       // 光刺激
       out[K_PH] = 0;
       if (s.photic > 0) {
@@ -1478,20 +1480,21 @@ body.eegfs #panel.qz-on .mihon-box,body.eegfs #panel.rp-on .mihon-box{display:no
     if (m.ra == null) { m.ra = t0 + 0.5 + R() * 2; m.rb = t0 + 1 + R() * 4; m.rp = t0 + 6 + R() * 14; }
     while (m.ra < t1) {
       var st = sim.stateAt(m.ra);
-      if (st.eo > 0.5) { sim.events.push(mkEv('blink', m.ra, { amp: 110 + R() * 110 })); m.ra += 1.5 + R() * 4; }
+      if (st.eo > 0.5) { sim.events.push(mkEv('blink', m.ra, { amp: 110 + R() * 110 })); m.ra += (sim.noisy ? 0.8 : 1.5) + R() * (sim.noisy ? 2.5 : 4); }
       else if (st.sleep > 0.4 && st.sleep < 1.5) { sim.events.push(mkEv('look', m.ra, { dir: R() < 0.5 ? 1 : -1, dur: 1.5 + R() * 1.5, amp: 30 + R() * 20 })); m.ra += 4 + R() * 4; }
-      else { if (R() < 0.3) sim.events.push(mkEv('blink', m.ra, { amp: 40 + R() * 50 })); m.ra += 4 + R() * 6; }
+      else { m.ra += 4 + R() * 6; } /* 目を閉じているときは、まばたきは入らない（閉眼でまばたきがあるのは矛盾） */
     }
     while (m.rb < t1) {
       var left = R() < 0.5;
       var w = W.emg.map(function (x, i) { var lx = POS[E[i]][0]; return (left ? lx < 0 : lx > 0) ? x : x * 0.15; });
-      sim.events.push(mkEv('emg', m.rb, { dur: 0.3 + R() * 0.9, amp: 4 + R() * 6, w: w }));
-      m.rb += 3 + R() * 7;
+      if (sim.noisy && R() < 0.35) w = W.emgWide;
+      sim.events.push(mkEv('emg', m.rb, { dur: 0.3 + R() * (sim.noisy ? 1.6 : 0.9), amp: sim.noisy ? 10 + R() * 22 : 4 + R() * 6, w: w }));
+      m.rb += sim.noisy ? 2 + R() * 4 : 3 + R() * 7;
     }
     while (m.rp < t1) {
       var pe = E[Math.floor(R() * 19)];
       sim.events.push(mkEv('pop', m.rp, { e: pe, amp: (R() < 0.5 ? -1 : 1) * (50 + R() * 70) }));
-      m.rp += 12 + R() * 20;
+      m.rp += sim.noisy ? 6 + R() * 10 : 12 + R() * 20;
     }
   }
 
@@ -2017,7 +2020,7 @@ body.eegfs #panel.qz-on .mihon-box,body.eegfs #panel.rp-on .mihon-box{display:no
   document.getElementById('playBtn').addEventListener('click', function () { V.playing = !V.playing; if (V.playing) V.lback = 0; syncToolbar(); draw(); if (V.playing) kick(); });
 
   function setPage(spec, keepView) {
-    var s2 = Object.assign({}, spec, { notch: V.notch, real: V.real });
+    var s2 = Object.assign({}, spec, { notch: V.notch, real: true, noisy: V.real });
     V.spec = spec; V.src = buildPage(s2); V.live = false;
     if (!keepView) { V.off = 0; V.hl = null; V.sel = -1; V.cur = null; V.mline = null; if (spec.mont) V.mont = spec.mont; V.sens = spec.sens || 10; chanNote.innerHTML = noteFor(null); }
     syncToolbar(); draw(); updateHead(); updateTopo();
@@ -2027,7 +2030,7 @@ body.eegfs #panel.qz-on .mihon-box,body.eegfs #panel.rp-on .mihon-box{display:no
   var BUF = FS * 64;
   var LIVE = null, lastTs = 0, rafId = 0;
   function newLive(preset) {
-    var sim = makeSim({ seed: 1 + Math.floor(Math.random() * 1e6), preset: preset, real: V.real });
+    var sim = makeSim({ seed: 1 + Math.floor(Math.random() * 1e6), preset: preset, real: true, noisy: V.real });
     sim.R = Math.random;
     sim.notch = V.notch;
     var data = []; for (var k = 0; k < NS; k++) data.push(new Float32Array(BUF));
@@ -2095,7 +2098,7 @@ body.eegfs #panel.qz-on .mihon-box,body.eegfs #panel.rp-on .mihon-box{display:no
     blink: ['まばたき', 'Fp1・Fp2 に、左右そろった大きな下向きの波。まぶたを閉じると眼球が上を向き（ベル現象）、プラスの角膜が Fp に近づきます。下向き＝プラスです。後ろの電極には広がりません。'],
     lookL: ['左を見た', '左目の角膜（プラス）が F7 に近づき、F7 がプラス、F8 がマイナスになります。左右の前側頭で向きが逆の、四角い波になります。'],
     lookR: ['右を見た', '今度は F8 がプラス、F7 がマイナス。左を見たときと鏡写しの向きになります。'],
-    clench: ['歯をくいしばった', '側頭筋の上（F7・F8・T3・T4）に、β波よりさらに速く不規則な筋電図が重なります。'],
+    clench: ['歯をくいしばった', '側頭筋の上（F7・F8・T3・T4）を中心に、β波よりさらに速く不規則な筋電図が、頭全体にかぶさるように重なります。'],
     hv1: ['過呼吸を始めた', '息を大きく速く続けると、血液の二酸化炭素が減って脳の血管が縮み、徐波が増えます（ビルドアップ）。子どもでは大きく出ても正常です。欠神てんかんでは3Hz棘徐波が誘発されます。'],
     hv0: ['過呼吸をやめた', '徐波は1分ほどで元に戻ります。'],
     ph: ['光刺激', '後頭部に、光の点滅と同じ周波数の波が出ます（光駆動）。正常な反応です。全体に広がる棘徐波が出たら光突発反応で、てんかんを疑います。'],
@@ -2528,7 +2531,7 @@ body.eegfs #panel.qz-on .mihon-box,body.eegfs #panel.rp-on .mihon-box{display:no
       a: ['目を開けて、α波が小さくなった', '眠り始めて、α波が消えた', 'O1・O2 の電極がはずれた', '発作が止まった'],
       why: '目を開けるとα波は小さくなります（α減衰）。同じ時刻に Fp1・Fp2 にまばたきの波も出ています。眠気でα波が消えるときは、まばたきがなく、ゆっくりした眼球の動きやθ波が出てきます。',
       tip: '開眼でα波が小さくなること自体が、その波が正常な後頭部α律動だという証拠になります。', hl: { t0: 4.2, t1: 6.5, el: ['O1', 'O2', 'Fp1', 'Fp2'] } },
-    { title: 'Fp の大きな波', spec: { seed: 13, preset: 'normal', mont: 'bip', ev: [['blink', 1.8], ['blink', 4.9], ['blink', 7.7]] },
+    { title: 'Fp の大きな波', spec: { seed: 13, preset: 'normal', mont: 'bip', init: { eo: 1 }, ev: [['blink', 1.8], ['blink', 4.9], ['blink', 7.7]] },
       q: 'Fp1−F3 と Fp2−F4 に出た、左右そろった大きな下向きの波は？',
       a: ['まばたき', '前頭部の徐波', '目を左右に動かした', '前頭部の棘波'],
       why: 'まぶたを閉じると眼球が上を向き（ベル現象）、プラスの電気を帯びた角膜が Fp1・Fp2 に近づきます。プラスは下向きに描かれるので、Fp で下向きの大きな波になります。左右対称で、後ろの電極には広がりません。',
@@ -2538,10 +2541,10 @@ body.eegfs #panel.qz-on .mihon-box,body.eegfs #panel.rp-on .mihon-box{display:no
       a: ['目を左右に動かした', 'まばたきをした', '歯をくいしばった', '側頭部に徐波が出た'],
       why: '左を見ると、左目の角膜（プラス）が F7 に近づき、F7 がプラスになります。右目の角膜は鼻のほうへ向くので、F8 はマイナスになります。左右の前側頭で向きが逆になり、見ているあいだは平らに続くので四角い形になります。',
       tip: 'F7 と F8 で鏡に映したように逆向きなら、横方向の眼球運動です。', hl: { t0: 1.9, t1: 8.2, el: ['F7', 'F8'] } },
-    { title: '細かく速い波', spec: { seed: 15, preset: 'normal', mont: 'bip', ev: [['emg', 2.0, { dur: 3.8, amp: 14 }]] },
+    { title: '細かく速い波', spec: { seed: 15, preset: 'normal', mont: 'bip', ev: [['emg', 2.0, { dur: 3.8, amp: 42, w: W.emgWide }]] },
       q: '側頭部のチャンネルに重なった、細かく不規則な速い波は？',
       a: ['筋電図（歯をくいしばった）', 'β波（薬の影響）', '電源の交流障害（ハム）', '紡錘波'],
-      why: '歯をくいしばると、側頭筋の上の F7・F8・T3・T4 に筋肉の電気が入ります。β波（13〜30Hz）よりさらに速く、形も大きさも不ぞろいです。β波は形のそろった波が前頭から中心に広く出ます。',
+      why: '歯をくいしばると、側頭筋の上の F7・F8・T3・T4 を中心に、強い筋肉の電気が入ります。しっかり食いしばると、頭全体のチャンネルにかぶさり、その奥の脳波が読めなくなります。β波（13〜30Hz）よりさらに速く、形も大きさも不ぞろいです。β波は形のそろった波が前頭から中心に広く出ます。',
       tip: '「速くて、不規則で、筋肉の上だけ」なら筋電図です。', hl: { t0: 1.8, t1: 6, el: ['F7', 'T3', 'F8', 'T4'] } },
     { title: '規則正しい小さな波', spec: { seed: 16, preset: 'normal', mont: 'ref', bg: { ecgArt: 16 } },
       q: '左の電極のチャンネル（−A1）にそろって出る、規則正しい小さな鋭い波は？',
@@ -3271,7 +3274,7 @@ body.eegfs #panel.qz-on .mihon-box,body.eegfs #panel.rp-on .mihon-box{display:no
         [0, 'cap blink', '', 'まばたきが多い。'],
         [3, 'cap clench', '', '歯をくいしばっている。'],
         [6, 'cap scratch', '', '汗をかいて、頭をさわる。']] },
-      spec: { seed: 61, preset: 'normal', mont: 'ref', bg: { ecgArt: 36 }, ev: [['blink', 1.0], ['emg', 3.0, { dur: 2.2, amp: 14 }], ['pop', 6.4, { e: 'C4', amp: -150 }], ['blink', 8.6]] },
+      spec: { seed: 61, preset: 'normal', mont: 'ref', init: { eo: 1 }, bg: { ecgArt: 36 }, ev: [['blink', 1.0], ['emg', 3.0, { dur: 2.2, amp: 42, w: W.emgWide }], ['pop', 6.4, { e: 'C4', amp: -150 }], ['blink', 8.6]] },
       hl: { t0: 0, t1: 10, el: ['Fp1', 'Fp2', 'F7', 'F8', 'T3', 'T4', 'C4'] },
       qs: [
         { mk: { multi: [{ t0: 0.85, t1: 1.5, el: ['Fp1', 'Fp2'], txt: 'まばたき' }, { t0: 3.0, t1: 5.2, el: ['F7', 'F8', 'T3', 'T4'], txt: '筋電図' }, { t0: 6.3, t1: 7.4, el: ['C4'], txt: 'C4 ポップ' }, { t0: 7.3, t1: 7.65, el: ['F7'], txt: '心電図（−A1 の線すべて）' }] }, q: 'この記録に含まれるアーチファクトはどれか。4つ選べ。', n: 4, a: ['まばたき', '筋電図（くいしばり）', 'C4 の電極ポップ', '心電図の混入', '左側頭部の棘波'],
@@ -3409,7 +3412,7 @@ body.eegfs #panel.qz-on .mihon-box,body.eegfs #panel.rp-on .mihon-box{display:no
         [0, 'cap clench', '', '緊張して、歯をくいしばっている。'],
         [3.5, 'cap blink', '', 'まばたきが多い。'],
         [6.5, 'cap', 'L:検査技師:口を少し開けて、楽にしてください', '声をかけて、力を抜いてもらう。']] },
-      spec: { seed: 15, preset: 'normal', mont: 'bip', ev: [['emg', 2.0, { dur: 3.8, amp: 14 }], ['blink', 0.8], ['blink', 7.2]] }, hl: { t0: 1.8, t1: 6, el: ['F7', 'T3', 'F8', 'T4'] },
+      spec: { seed: 15, preset: 'normal', mont: 'bip', init: { eo: 1 }, ev: [['emg', 2.0, { dur: 3.8, amp: 42, w: W.emgWide }], ['blink', 0.8], ['blink', 7.2]] }, hl: { t0: 1.8, t1: 6, el: ['F7', 'T3', 'F8', 'T4'] },
       qs: [
         { mk: { type: 'emg', txt: '筋電図' }, q: '2〜6秒に、側頭部のチャンネルに重なった細かく速い波はどれか。', a: ['筋電図（くいしばり）', 'β 波（薬の影響）', '交流障害（ハム）', '紡錘波', '棘波'],
           why: '側頭筋の上（F7・F8・T3・T4）に、β 波よりさらに速く、不規則な波が重なっています。歯をくいしばったときの筋電図です。' },
@@ -4060,7 +4063,7 @@ body.eegfs #panel.qz-on .mihon-box,body.eegfs #panel.rp-on .mihon-box{display:no
     { id: 'hv_buildup', cat: '正常', name: 'ビルドアップ', feat: '過呼吸で徐波が増える。子どもでは大きく出ても正常。', hint: '触ってみるで過呼吸', spec: { seed: 204, preset: 'normal', auto: false, init: { hv: 1 }, bg: { hvDelta: 34, hvTheta: 16 } }, ch: [['F3','A1'], ['C3','A1'], ['O1','A1']] },
     { id: 'vertex', cat: '睡眠', name: '頭蓋頂鋭波', feat: 'うとうとすると Cz を中心に出る鋭い波。棘波と間違えやすい。', hint: '眠り（N1）', spec: { seed: 205, preset: 'normal', auto: false, init: { sleep: 1 }, ev: [['vertex', 1.2, { amp: 170 }]] }, ch: [['Fz','Cz'], ['Cz','Pz'], ['C3','P3']] },
     { id: 'spindle_kc', cat: '睡眠', name: '紡錘波とK複合', feat: '12〜14Hz の波の束と、大きな二相性の波。N2 のしるし。', hint: '眠り（N2）', spec: { seed: 206, preset: 'normal', auto: false, init: { sleep: 2 }, ev: [['kc', 0.3, { amp: 170 }], ['spindle', 1.0, { dur: 0.9, amp: 44 }], ['spindle', 2.1, { dur: 0.8, amp: 40 }]] }, ch: [['Cz','LE'], ['C3','A1'], ['Fz','LE']] },
-    { id: 'blink', cat: 'アーチファクト', name: 'まばたき', feat: 'Fp に左右そろった下向きの大きな波。ベル現象で角膜が近づく。', hint: 'まばたき', spec: { seed: 207, preset: 'normal', auto: false, ev: [['blink', 1.2]] }, ch: [['Fp1','F3'], ['Fp2','F4'], ['F3','C3']] },
+    { id: 'blink', cat: 'アーチファクト', name: 'まばたき', feat: 'Fp に左右そろった下向きの大きな波。ベル現象で角膜が近づく。', hint: 'まばたき', spec: { seed: 207, preset: 'normal', auto: false, init: { eo: 1 }, ev: [['blink', 1.2]] }, ch: [['Fp1','F3'], ['Fp2','F4'], ['F3','C3']] },
     { id: 'look', cat: 'アーチファクト', name: '水平眼球運動', feat: 'F7 と F8 で逆向きの四角い波。', hint: '左右を見る', spec: { seed: 208, preset: 'normal', auto: false, init: { eo: 1 }, ev: [['look', 0.6, { dir: 1, dur: 1.6 }]] }, ch: [['Fp1','F7'], ['F7','T3'], ['Fp2','F8'], ['F8','T4']] },
     { id: 'emg', cat: 'アーチファクト', name: '筋電図', feat: '側頭筋の上に出る、30Hzを超える不規則な速い波。', hint: '歯をくいしばる', spec: { seed: 209, preset: 'normal', auto: false, ev: [['emg', 0.6, { dur: 1.8, amp: 14 }]] }, ch: [['F7','T3'], ['T3','T5'], ['F8','T4']] },
     { id: 'ecg', cat: 'アーチファクト', name: '心電図アーチファクト', feat: '心電図と同じ時刻の小さな鋭い波。A1 に入ると左のチャンネル全部に出る。', hint: '耳に心電図', spec: { seed: 210, preset: 'normal', auto: false, bg: { ecgArt: 16 } }, ch: [['T3','A1'], ['C3','A1'], 'ECG'] },
