@@ -1,0 +1,466 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<meta name="app-version" content="20261120141754">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="精神科試験ゲーム">
+<link rel="manifest" href="../../manifest.webmanifest">
+<link rel="apple-touch-icon" href="../../icons/icon-180.png">
+<script>window.__ipadBase = '../../';</script>
+<style>
+:root{color-scheme:light; padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px)}
+body{margin:0; font:14px system-ui,-apple-system,sans-serif}
+img{max-width:100%}
+[hidden]{display:none!important}
+.ipad-bar{display:flex; flex-wrap:wrap; gap:6px 14px; align-items:center; justify-content:space-between;
+  padding:8px max(16px, env(safe-area-inset-right,0px)) 8px max(16px, env(safe-area-inset-left,0px));
+  font:600 14px system-ui,-apple-system,"Hiragino Sans",sans-serif; background:#1d2a33; color:#f3f6f8}
+.ipad-bar a{color:#f3f6f8; text-decoration:none; padding:6px 10px; border:1px solid #4a5d6a; border-radius:6px}
+.ipad-bar span{opacity:.85; font-weight:400}
+.ipad-bar .upd{font:inherit; color:#f3f6f8; background:transparent; border:1px solid #4a5d6a; border-radius:6px; padding:6px 10px; cursor:pointer}
+.ipad-bar .right{display:flex; gap:10px; align-items:center; flex-wrap:wrap}
+.ipad-bar .fbk{border-color:#c98a3a}
+</style>
+<script>
+/* プレイヤーごとに記録を分ける（自分は今までどおり、ゲストは頭に印をつける） */
+(function () {
+  try {
+    var P = window.localStorage.getItem('ipad-player') || 'me';
+    window.__ipadPlayer = P;
+    if (P === 'me') return;
+    var pre = 'p:' + P + ':', S = Storage.prototype, g = S.getItem, s = S.setItem, r = S.removeItem;
+    var map = function (k) { return k === 'ipad-player' ? k : pre + k; };
+    S.getItem = function (k) { return g.call(this, map(k)); };
+    S.setItem = function (k, v) { return s.call(this, map(k), v); };
+    S.removeItem = function (k) { return r.call(this, map(k)); };
+  } catch (e) { /* 保存できない環境 */ }
+})();
+if ('serviceWorker' in navigator) { window.addEventListener('load', function () { navigator.serviceWorker.register('../../sw.js', { scope: '../../' }).catch(function () {}); }); }
+</script>
+<script src="../../ipad-update.js" defer></script>
+</head>
+<body>
+<nav class="ipad-bar" aria-label="アプリ"><a href="../../index.html#g=psychotherapy">← ゲーム一覧</a><span class="right"><span id="ipadWho"></span><a href="#" class="fbk" id="ipadFbk" target="_blank" rel="noopener">⚑ 不具合・感想</a><button type="button" class="upd" data-upd="manual" aria-label="新しい版を確かめて更新">↻ 更新</button></span></nav>
+<script>(function(){var P=window.__ipadPlayer||'me';document.getElementById('ipadWho').textContent='プレイヤー：'+(P==='me'?'自分':P);})();
+/* 不具合・感想を送る：どのアプリのどの画面からでも、いまの場所を「どこの不具合か」の欄に自動で入れる（Google フォーム） */
+(function(){var FB='https://docs.google.com/forms/d/e/1FAIpQLSdNJkjXAVATEdI6vKRfg8gmFf87viEZP8qCpqCzv9lQGojGeg/viewform?usp=pp_url&entry.298389701=',APP='認知行動療法の道場',a=document.getElementById('ipadFbk');if(!a)return;
+function txt(sel){var e=document.querySelector(sel);return e&&e.offsetParent!==null?(e.textContent||'').replace(/\s+/g,' ').trim().slice(0,40):'';}
+function where(){var w=[APP];try{if(typeof window.__feedbackWhere==='function'){var h=window.__feedbackWhere();if(h)w.push(h);}}catch(e){}
+ if(w.length<2){var m=txt('[aria-pressed="true"].mode b')||txt('[aria-pressed="true"].mode')||txt('[aria-current="true"]');if(m)w.push(m);var hd=txt('#panelH')||txt('main h2')||txt('.pane:not([hidden]) h2')||txt('h2');if(hd&&hd!==m)w.push(hd);}
+ if(location.hash)w.push(decodeURIComponent(location.hash));return w.join('／');}
+function upd(){a.href=FB+encodeURIComponent(where());}
+upd();a.addEventListener('click',upd);a.addEventListener('pointerdown',upd);})();</script>
+<title>認知行動療法の道場</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=BIZ+UDPGothic:wght@400;700&family=DotGothic16&display=swap">
+<style>
+/* Layout: 見出し＋5つのモード。どのモードも1枚の「面接ノート」の上で進む。最大幅900px */
+:root{
+  --paper:#eef3ef; --panel:#fbfdfb; --ink:#1b2620; --muted:#5a6a60; --line:#c8d6cc;
+  --accent:#2c7a57; --accent-ink:#fff; --good:#2c7a57; --bad:#c0392b; --mid:#b07a12;
+  --ev:#2f62b3; --cev:#2c8a5a; --neu:#7a7f88;
+  --accent-soft:color-mix(in srgb, var(--accent) 10%, var(--panel));
+  --strip:color-mix(in srgb, var(--line) 30%, var(--panel));
+  --f-display:"DotGothic16","BIZ UDPGothic",system-ui,sans-serif;
+  --f-body:"BIZ UDPGothic","Hiragino Sans","Yu Gothic",Meiryo,system-ui,sans-serif;
+  --fs-xs:.78rem; --fs-s:.875rem; --fs-m:1rem; --fs-l:1.12rem; --fs-xl:1.4rem; --r:6px;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){ --paper:#111813; --panel:#18211b; --ink:#e2ebe5; --muted:#9db0a3; --line:#2f3d34; --accent:#6fcf9f; --accent-ink:#111813; --good:#6fcf9f; --bad:#f07a6e; --mid:#e2b04b; --ev:#86a8ee; --cev:#6fcf9f; --neu:#a7acb5; color-scheme:dark; }
+}
+:root[data-theme="dark"]{ --paper:#111813; --panel:#18211b; --ink:#e2ebe5; --muted:#9db0a3; --line:#2f3d34; --accent:#6fcf9f; --accent-ink:#111813; --good:#6fcf9f; --bad:#f07a6e; --mid:#e2b04b; --ev:#86a8ee; --cev:#6fcf9f; --neu:#a7acb5; color-scheme:dark; }
+[hidden]{display:none!important}
+*,*::before,*::after{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--f-body);font-size:var(--fs-m);line-height:1.75;padding-left:max(16px, env(safe-area-inset-left, 0px));padding-right:max(16px, env(safe-area-inset-right, 0px));padding-block:0 56px;overflow-wrap:anywhere}
+:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+p{margin:0}
+.wrap{max-width:900px;margin:0 auto}
+.top{padding-block:28px 6px;display:grid;gap:10px}
+.eyebrow{font-size:var(--fs-xs);letter-spacing:.16em;color:var(--muted)}
+h1{font-family:var(--f-display);font-weight:400;margin:0;font-size:clamp(1.9rem,7vw,2.9rem);letter-spacing:.06em;line-height:1.15;text-shadow:3px 3px 0 var(--line)}
+h2{font-family:var(--f-display);font-weight:400;font-size:var(--fs-xl);margin:0}
+h3{margin:0;font-size:var(--fs-m)}
+.note{font-size:var(--fs-xs);color:var(--muted)}
+.modes{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:6px}
+.mode{font:inherit;text-align:left;cursor:pointer;border:1px solid var(--line);background:var(--panel);color:var(--ink);border-radius:var(--r);padding:8px 10px;min-height:52px;display:grid;gap:1px}
+.mode b{font-family:var(--f-display);font-weight:400;font-size:var(--fs-m)}
+.mode small{font-size:.7rem;color:var(--muted);line-height:1.4}
+.mode[aria-pressed="true"]{border:2px solid var(--accent);background:var(--accent-soft)}
+@media (max-width:760px){.modes{grid-template-columns:repeat(2,minmax(0,1fr))}.modes .mode:last-child{grid-column:1/-1}}
+.pane{margin-top:18px;display:grid;gap:12px}
+.sheet{background:var(--panel);border:1px solid var(--line);border-radius:var(--r);box-shadow:0 10px 26px -20px rgba(0,0,0,.3);padding:16px clamp(14px,3vw,26px);display:grid;gap:12px;background-image:repeating-linear-gradient(transparent 0 31px, color-mix(in srgb,var(--line) 45%,transparent) 31px 32px)}
+.btn{font:inherit;font-weight:700;min-height:44px;padding:6px 16px;border:0;border-radius:var(--r);background:var(--accent);color:var(--accent-ink);cursor:pointer}
+.btn.ghost{background:var(--panel);color:var(--accent);border:1.5px solid var(--accent)}
+.btn:disabled{opacity:.45;cursor:default}
+.row{display:flex;flex-wrap:wrap;gap:8px 12px;align-items:center}
+.big{font-family:var(--f-display);font-size:2.6rem;line-height:1;color:var(--accent)}
+.prog{font-size:var(--fs-s);color:var(--muted)}
+.say{background:var(--panel);border:1px solid var(--line);border-radius:14px 14px 14px 4px;padding:10px 14px;font-size:var(--fs-l);max-width:36em;position:relative}
+.say.pt::before{content:"患者";position:absolute;top:-10px;left:10px;font-size:var(--fs-xs);background:var(--mid);color:#fff;border-radius:3px;padding:0 6px}
+.say.th{border-radius:14px 14px 4px 14px;justify-self:end;background:var(--accent-soft);font-size:var(--fs-m)}
+.say.th::before{content:"あなた";position:absolute;top:-10px;right:10px;font-size:var(--fs-xs);background:var(--accent);color:var(--accent-ink);border-radius:3px;padding:0 6px}
+.opts{display:grid;gap:8px}
+.opt{font:inherit;text-align:left;width:100%;padding:9px 12px;min-height:46px;border:1px solid var(--line);border-radius:var(--r);background:var(--panel);color:var(--ink);cursor:pointer;line-height:1.6}
+.opt:hover:not(:disabled){border-color:var(--accent)}
+.opt:disabled{cursor:default}
+.opt.ok{border:2px solid var(--good);background:color-mix(in srgb,var(--good) 12%,var(--panel))}
+.opt.mid{border:2px solid var(--mid);background:color-mix(in srgb,var(--mid) 12%,var(--panel))}
+.opt.ng{border:2px solid var(--bad);background:color-mix(in srgb,var(--bad) 9%,var(--panel))}
+.opt.dim{color:var(--muted)}
+.why{font-size:var(--fs-s);background:var(--strip);border-radius:var(--r);padding:8px 12px}
+.why b.ok{color:var(--good)} .why b.ng{color:var(--bad)} .why b.mid{color:var(--mid)}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{font:inherit;font-size:var(--fs-s);padding:5px 12px;min-height:40px;border-radius:999px;border:1px solid var(--line);background:var(--panel);color:var(--ink);cursor:pointer;text-align:left}
+.chip[aria-pressed="true"]{border:2px solid var(--accent);background:var(--accent-soft);font-weight:700}
+.chip .ok{color:var(--good);font-weight:700}
+/* クセさがし */
+.stmt{font-size:var(--fs-l);font-weight:700;background:var(--panel);border:2px solid var(--ink);border-radius:var(--r);padding:16px;box-shadow:4px 4px 0 var(--line);text-align:center}
+.combo{font-family:var(--f-display);color:var(--accent);min-height:1.4em;text-align:center}
+.dgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,250px),1fr));gap:8px;list-style:none;margin:0;padding:0}
+.dgrid li{background:var(--panel);border:1px solid var(--line);border-radius:var(--r);padding:8px 12px;font-size:var(--fs-s)}
+.dgrid b{display:block;color:var(--accent)}
+/* コラム法 */
+.cols{display:grid;gap:0;border:1px solid var(--ink);border-radius:var(--r);overflow:hidden;background:var(--panel)}
+.col{display:grid;grid-template-columns:8.5em minmax(0,1fr);border-bottom:1px solid var(--line)}
+.col:last-child{border-bottom:0}
+.col>span:first-child{background:var(--strip);padding:8px 10px;font-size:var(--fs-xs);font-weight:700;color:var(--muted);border-right:1px solid var(--line)}
+.col>span:last-child{padding:8px 12px;font-size:var(--fs-s)}
+.col.now>span:first-child{background:var(--accent);color:var(--accent-ink)}
+@media (max-width:520px){.col{grid-template-columns:1fr}.col>span:first-child{border-right:0;border-bottom:1px solid var(--line)}}
+.sortrow{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px;align-items:center;padding:6px 0;border-bottom:1px dotted var(--line);font-size:var(--fs-s)}
+@media (max-width:520px){.sortrow{grid-template-columns:1fr}}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:var(--r);overflow:hidden}
+.seg button{font:inherit;font-size:var(--fs-xs);min-height:38px;padding:0 10px;border:0;border-right:1px solid var(--line);background:var(--panel);color:var(--ink);cursor:pointer}
+.seg button:last-child{border-right:0}
+.seg button[aria-pressed="true"][data-v="ev"]{background:var(--ev);color:#fff}
+.seg button[aria-pressed="true"][data-v="cev"]{background:var(--cev);color:#fff}
+.seg button[aria-pressed="true"][data-v="neu"]{background:var(--neu);color:#fff}
+.mark{font-weight:700;font-size:var(--fs-xs)}
+.mark.ok{color:var(--good)} .mark.ng{color:var(--bad)}
+.meter{display:grid;grid-template-columns:6em minmax(0,1fr) 3em;gap:8px;align-items:center;font-size:var(--fs-s)}
+.meter i{display:block;height:12px;border-radius:6px;background:var(--bad)}
+.meter i.after{background:var(--mid)}
+/* 悪循環 */
+.cyc{position:relative;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));grid-template-rows:auto auto auto;gap:10px}
+.box{border:2px solid var(--ink);border-radius:10px;background:var(--panel);padding:8px 10px;min-height:86px;display:grid;gap:4px;align-content:start;font-size:var(--fs-s)}
+.box b{font-family:var(--f-display);font-weight:400;font-size:var(--fs-m);color:var(--accent)}
+.box.drop{border-style:dashed;cursor:pointer}
+.box.drop:hover,.box.drop.hot{background:var(--accent-soft)}
+.box .placed{background:var(--strip);border-radius:4px;padding:2px 6px}
+.box .placed.ng{background:color-mix(in srgb,var(--bad) 15%,var(--panel))}
+.box .placed.ok{background:color-mix(in srgb,var(--good) 18%,var(--panel))}
+.b-trig{grid-column:2;grid-row:1}
+.b-cog{grid-column:1;grid-row:2}
+.b-emo{grid-column:3;grid-row:2}
+.b-body{grid-column:3;grid-row:3}
+.b-beh{grid-column:1;grid-row:3}
+.center{grid-column:2;grid-row:2/4;display:grid;place-items:center;text-align:center;font-family:var(--f-display);color:var(--muted);font-size:var(--fs-s)}
+.center span{font-size:2.6rem;line-height:1;color:var(--bad)}
+@media (max-width:560px){.cyc{grid-template-columns:repeat(2,minmax(0,1fr))}.b-trig{grid-column:1/-1;grid-row:auto}.b-cog,.b-emo,.b-body,.b-beh{grid-column:auto;grid-row:auto}.center{grid-column:1/-1;grid-row:auto}}
+.hand{display:flex;flex-wrap:wrap;gap:6px}
+.card{font:inherit;font-size:var(--fs-s);padding:6px 12px;min-height:40px;border-radius:6px;border:1px solid var(--ink);background:var(--panel);color:var(--ink);cursor:pointer;box-shadow:2px 2px 0 var(--line);text-align:left}
+.card[aria-pressed="true"]{background:var(--accent);color:var(--accent-ink)}
+.foot{margin-top:28px;font-size:var(--fs-xs);color:var(--muted);max-width:60em}
+</style>
+
+<div class="wrap">
+  <header class="top">
+    <p class="eyebrow">精神科試験ゲーム ・ 精神療法</p>
+    <h1>認知行動療法の道場</h1>
+    <p>認知行動療法（CBT）は、「出来事」そのものより、それをどう受けとるか（認知）が気分と行動を左右する、という考えから始まります。考えのクセを見つけ、コラム法で書き、ソクラテス式の質問で一緒に考え、悪循環の図を描く。面接ですぐ使える型を、手を動かして身につけます。</p>
+    <div class="modes" role="group" aria-label="モード">
+      <button type="button" class="mode" data-m="kuse" aria-pressed="true"><b>クセさがし</b><small>考えのクセ（認知のゆがみ）を当てる</small></button>
+      <button type="button" class="mode" data-m="col" aria-pressed="false"><b>コラム法</b><small>思考記録表を一緒に書く</small></button>
+      <button type="button" class="mode" data-m="soc" aria-pressed="false"><b>質問の練習</b><small>ソクラテス式の問いかけ</small></button>
+      <button type="button" class="mode" data-m="cyc" aria-pressed="false"><b>悪循環の図</b><small>症状が続くしくみを描く</small></button>
+      <button type="button" class="mode" data-m="base" aria-pressed="false"><b>基本のクイズ</b><small>構造・技法・用語</small></button>
+    </div>
+  </header>
+
+  <section class="pane" id="kuse" aria-label="クセさがし"><div class="sheet" id="kusebox"></div></section>
+  <section class="pane" id="col" hidden aria-label="コラム法"><div class="chips" id="collist"></div><div class="sheet" id="colbox"></div></section>
+  <section class="pane" id="soc" hidden aria-label="質問の練習"><div class="chips" id="soclist"></div><div class="sheet" id="socbox"></div></section>
+  <section class="pane" id="cyc" hidden aria-label="悪循環の図"><div class="chips" id="cyclist"></div><div class="sheet" id="cycbox"></div></section>
+  <section class="pane" id="base" hidden aria-label="基本のクイズ"><div class="sheet" id="basebox"></div></section>
+
+  <p class="foot">症例とせりふはすべて架空です。考えのクセの名前と分け方は、バーンズの10の分類をもとにした一般的なものです。実際の認知行動療法は、研修とスーパービジョンを受けて行いましょう。曝露（逃げずにとどまる練習）は「曝露ランナー」でも体験できます（試作版）。</p>
+</div>
+
+<script>
+(function () {
+  'use strict';
+  function esc(s) { return String(s).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); }
+  function shuf(a) { a = a.slice(); for (var i = a.length - 1; i > 0; i--) { var j = Math.floor(Math.random() * (i + 1)), t = a[i]; a[i] = a[j]; a[j] = t; } return a; }
+  var KEY = 'cbt-dojo-v1', ST = {}; try { ST = JSON.parse(localStorage.getItem(KEY) || '{}') || {}; } catch (e) { ST = {}; }
+  ['col', 'soc', 'cyc'].forEach(function (k) { if (!ST[k]) ST[k] = {}; });
+  function save() { try { localStorage.setItem(KEY, JSON.stringify(ST)); } catch (e) {} }
+
+  /* ---------- クセさがし ---------- */
+  var DIST = {
+    zero: ['全か無か思考', '白か黒か、100点か0点かで考える。'],
+    gen: ['一般化のしすぎ', '1回の出来事から「いつも」「すべて」と決めつける。'],
+    filt: ['心のフィルター', '悪いところだけに目が向き、よいところが見えなくなる。'],
+    disq: ['マイナス化思考', 'よい出来事を「たまたま」「誰でもできる」と打ち消す。'],
+    mind: ['結論の飛躍（心の読みすぎ）', '根拠なく、相手が悪く思っていると決めつける。'],
+    fort: ['結論の飛躍（先読みの誤り）', '根拠なく、悪い結果になると決めつける。'],
+    mag: ['拡大解釈（破局視）', '失敗や危険を大きく、よいところを小さく見る。最悪の結末を考える。'],
+    emo: ['感情的決めつけ', '「そう感じるから、そうに違いない」と、気分を証拠にする。'],
+    should: ['すべき思考', '「〜すべき」「〜ねばならない」で自分や人をしばる。'],
+    label: ['レッテル貼り', '1つの行動から「最低の人間」「ダメな人」と決めつける。'],
+    pers: ['個人化（自己関連づけ）', '自分のせいではないことまで、自分のせいだと考える。']
+  };
+  var KQ = [
+    ['テストで1問だけまちがえた。完璧じゃないなら、やった意味がない。', 'zero'],
+    ['ダイエット中にケーキを1つ食べてしまった。もう全部台無しだ。', 'zero'],
+    ['面接に1回落ちた。自分はどこにも採用されないんだ。', 'gen'],
+    ['また電車が遅れた。いつもこうだ、私は何をやってもうまくいかない。', 'gen'],
+    ['発表で9人がうなずいていたのに、あくびをした1人のことばかり考えてしまう。', 'filt'],
+    ['上司にほめられたけど、たまたまだ。誰にでもできる仕事だし。', 'disq'],
+    ['友だちから返信がない。きっと私のことを嫌いになったんだ。', 'mind'],
+    ['同僚が目をそらした。私の仕事にあきれているに違いない。', 'mind'],
+    ['どうせ明日のプレゼンは失敗する。', 'fort'],
+    ['この治療を受けても、私はよくならないに決まっている。', 'fort'],
+    ['少し胸がどきどきする。このまま倒れて死んでしまうかもしれない。', 'mag'],
+    ['書類の小さなミスで、会社に取り返しのつかない損害を与えてしまった。', 'mag'],
+    ['こんなに不安なのだから、きっと何か悪いことが起きる。', 'emo'],
+    ['みじめな気持ちになるのは、私がみじめな人間だからだ。', 'emo'],
+    ['母親なら、いつも笑顔でいるべきだ。', 'should'],
+    ['弱音をはいてはいけない。もっとがんばらなければならない。', 'should'],
+    ['約束を1つ忘れた。私は最低の人間だ。', 'label'],
+    ['あの人は一度判断をまちがえた。ダメな上司だ。', 'label'],
+    ['子どもの成績が下がったのは、全部私の育て方のせいだ。', 'pers'],
+    ['チームが試合に負けたのは、私が声をかけなかったからだ。', 'pers']
+  ];
+  var KS = null;
+  function kuseStart() { KS = { q: shuf(KQ).map(function (x) { var others = shuf(Object.keys(DIST).filter(function (k) { return k !== x[1]; })).slice(0, 3); return { t: x[0], a: x[1], o: shuf([x[1]].concat(others)), pick: null }; }), i: 0, ok: 0, combo: 0, best: 0 }; renderKuse(); }
+  function renderKuse() {
+    var el = document.getElementById('kusebox');
+    if (!KS) { el.innerHTML = '<h2>考えのクセさがし</h2><p>患者さんのことばに隠れた「考えのクセ（認知のゆがみ）」を4つから選びます。全20問。続けて当てるとコンボになります。</p>' + (ST.kuse ? '<p class="note">これまでの最高 ' + ST.kuse + ' / 20</p>' : '') + '<div class="row"><button type="button" class="btn" data-k="start">はじめる</button></div><h3>11のクセ</h3><ul class="dgrid">' + Object.keys(DIST).map(function (k) { return '<li><b>' + DIST[k][0] + '</b>' + DIST[k][1] + '</li>'; }).join('') + '</ul>'; return; }
+    if (KS.i >= KS.q.length) {
+      if (!ST.kuse || KS.ok > ST.kuse) { ST.kuse = KS.ok; save(); }
+      el.innerHTML = '<h2>おしまい</h2><p class="big">' + KS.ok + ' / ' + KS.q.length + '</p><p>最大コンボ ' + KS.best + '　これまでの最高 ' + ST.kuse + '</p><p class="note">クセは1つに決まらないことも多く、いくつも重なっていることがよくあります。大事なのは名前を当てることより、本人が「あ、またこのパターンだ」と気づけるようになることです。</p><div class="row"><button type="button" class="btn" data-k="start">もう一度</button></div>';
+      return;
+    }
+    var q = KS.q[KS.i];
+    el.innerHTML = '<p class="prog">' + (KS.i + 1) + ' / ' + KS.q.length + '　正解 ' + KS.ok + '</p><p class="stmt">「' + esc(q.t) + '」</p><p class="combo">' + (KS.combo >= 2 ? KS.combo + ' コンボ！' : '') + '</p>' +
+      '<div class="opts">' + q.o.map(function (k, j) { var c = 'opt'; if (q.pick != null) c += k === q.a ? ' ok' : (j === q.pick ? ' ng' : ' dim'); return '<button type="button" class="' + c + '" data-ko="' + j + '"' + (q.pick != null ? ' disabled' : '') + '>' + DIST[k][0] + '</button>'; }).join('') + '</div>' +
+      (q.pick != null ? '<p class="why">' + (q.o[q.pick] === q.a ? '<b class="ok">正解。</b>' : '<b class="ng">ちがいます。</b>') + '<b>' + DIST[q.a][0] + '</b>：' + DIST[q.a][1] + '</p><div class="row"><button type="button" class="btn" data-k="next">' + (KS.i < KS.q.length - 1 ? '次へ' : '結果を見る') + '</button></div>' : '');
+  }
+  document.getElementById('kusebox').addEventListener('click', function (e) {
+    var b = e.target.closest('button'); if (!b) return; var a = b.getAttribute('data-k');
+    if (a === 'start') { kuseStart(); return; }
+    if (a === 'next') { KS.i++; renderKuse(); return; }
+    if (b.hasAttribute('data-ko')) { var q = KS.q[KS.i]; if (q.pick != null) return; q.pick = +b.getAttribute('data-ko'); if (q.o[q.pick] === q.a) { KS.ok++; KS.combo++; KS.best = Math.max(KS.best, KS.combo); } else KS.combo = 0; renderKuse(); }
+  });
+
+  /* ---------- コラム法 ---------- */
+  /* sort: [文, 正しい区分 ev=根拠 cev=反証 neu=どちらでもない, 説明] / bal: 適応的思考の候補 [文, ok|mid|ng, 説明] */
+  var CC = [
+    { id: 'c1', nm: 'うつ病の会社員', sit: '月曜の会議で、自分の企画に課長が「もう少し練って」と言った。', mood: [['落ち込み', 80], ['恥ずかしさ', 60]], after: [['落ち込み', 40], ['恥ずかしさ', 25]],
+      hot: [['私には能力がない。この仕事に向いていない。', 1, 'いちばん気分を動かしている考え（ホットな思考）です。'], ['課長が会議で、私の企画について発言した。', 0, 'これは出来事（事実）で、考えではありません。'], ['朝から少し疲れていて、頭が重い感じがする。', 0, 'これは体の感覚や気分です。'], ['次の会議は水曜日の午後にある予定だ。', 0, '予定（事実）で、気分を動かしていません。']],
+      sort: [['課長に「もう少し練って」と言われた。', 'ev', '事実で、考えを支える方向。'], ['先月は別の企画が通った。', 'cev', '事実で、考えと合わない。'], ['課長は他の人の企画にも同じように意見を言っていた。', 'cev', '事実で、「自分だけ能力がない」とは言えない。'], ['課長はきっと内心あきれている。', 'neu', '推測で、事実ではない（心の読みすぎ）。根拠には入れない。'], ['最近、資料の締め切りに1回遅れた。', 'ev', '事実で、考えを支える方向。'], ['同僚からよく相談される。', 'cev', '事実で、考えと合わない。']],
+      bal: [['改善点を言われただけで、能力がないとは限らない。先月は通った企画もある。どこを練るか課長に聞いてみよう。', 'ok', '根拠と反証の両方をふまえ、次の行動にもつながる、バランスのとれた考えです。'], ['私は優秀だ。課長が私の企画のよさをわかっていないだけなので、まったく気にする必要はない。', 'ng', '反対の極端です。根拠がなく、続きません。CBTは「ポジティブ思考」ではありません。'], ['気にしない、気にしない。会議のことはもう考えないようにして、今日は早く寝てしまおう。', 'mid', '考えないようにするのは回避で、また浮かんできます。'], ['やっぱり私には能力がないけれど、それでも人一倍がんばって、ミスを取り返すしかない。', 'ng', '元の考えのままです。']] },
+    { id: 'c2', nm: '社交不安の大学生', sit: 'ゼミで発表している最中に、声が震えた。', mood: [['不安', 85], ['恥ずかしさ', 75]], after: [['不安', 45], ['恥ずかしさ', 35]],
+      hot: [['みんな声の震えに気づいて、私を変な人だと思った。', 1, 'いちばん気分を動かしている考え（ホットな思考）です。'], ['発表の途中で、自分の声が何度か震えてしまった。', 0, '出来事（事実）です。'], ['心臓がどきどきして、手のひらに汗をかいていた。', 0, '体の反応です。'], ['発表は15分で、質問の時間が5分あった。', 0, '事実で、気分を動かしていません。']],
+      sort: [['自分では声がはっきり震えていると感じた。', 'ev', '本人の感覚としては事実で、考えを支える方向（ただし周りからどう見えたかは別）。'], ['発表のあと、友だちが「わかりやすかった」と言った。', 'cev', '事実で、考えと合わない。'], ['質問が2つ出て、きちんと答えられた。', 'cev', '事実で、考えと合わない。'], ['みんな心の中で笑っていたはずだ。', 'neu', '推測で、事実ではない（心の読みすぎ）。'], ['前の席の1人が、途中で下を向いていた。', 'ev', '事実で、考えを支える方向（理由はほかにもありうる）。'], ['自分も、他の人の声の震えはほとんど覚えていない。', 'cev', '事実で、「みんな気づいた」とは限らない。']],
+      bal: [['震えに気づいた人はいたかもしれないが、それで変な人と思うとは限らない。内容は伝わった。友だちに震えが目立ったか聞いてみよう。', 'ok', 'バランスがとれていて、確かめる行動（行動実験）にもつながっています。'], ['声なんて少しも震えていなかった。そう感じたのは私だけで、誰ひとり何も気づいていなかったはずだ。', 'ng', '事実を打ち消しています。本人の体験と合わず、信じられません。'], ['人前で話すと必ずこうなるのだから、もうゼミで発表するのはやめて、先生に頼んでレポートに変えてもらおう。', 'ng', '回避です。不安は一時的に下がっても、長い目では強まります。'], ['きっと大丈夫だったと思うことにしよう。いくら考えても仕方がないので、今日のことはもう忘れてしまおう。', 'mid', '根拠と結びついておらず、すぐにまた不安になります。']] },
+    { id: 'c3', nm: 'パニック症の会社員', sit: '朝の満員電車で、急に動悸と息苦しさが出た。', mood: [['恐怖', 95], ['不安', 90]], after: [['恐怖', 40], ['不安', 45]],
+      hot: [['心臓発作で死んでしまう。', 1, 'いちばん気分を動かしている考え（ホットな思考）で、体の感覚を破局的に解釈しています。'], ['電車が混んでいた。', 0, '状況（事実）です。'], ['動悸がして息が苦しい。', 0, '体の反応です。考えと分けて書きます。'], ['会社に遅れるかもしれない。', 0, '考えではありますが、いまの強い恐怖を動かしている中心ではありません。']],
+      sort: [['動悸がとても速い。', 'ev', '事実で、考えを支える方向に感じられる。'], ['心電図や血液検査では異常がないと言われた。', 'cev', '事実で、考えと合わない。'], ['これまで何十回も発作があったが、倒れたことはない。', 'cev', '事実で、考えと合わない。'], ['今回だけは本当に違うかもしれない。', 'neu', '推測で、事実ではない。'], ['走ったあとも同じくらい動悸がするが、平気だった。', 'cev', '事実で、動悸＝危険ではないことを示す。'], ['胸が苦しい感じがする。', 'ev', '体の感覚としては事実。']],
+      bal: [['これはパニック発作の動悸で、不安による体の反応だ。苦しいが危険ではなく、たいてい10分ほどでおさまる。このまま乗っていよう。', 'ok', '体の反応を正しく解釈し直し、とどまる行動（曝露）を支える考えです。'], ['次の駅ですぐに降りて、ホームのベンチで休めば安全だ。発作がおさまるまで電車には乗らないでおこう。', 'ng', '安全行動です。発作は「降りたから助かった」と学習され、悪循環が続きます。'], ['動悸なんてただの気のせいだ。本当は何も起きていないのだから、体のことはまったく考えないようにしよう。', 'ng', '体験を打ち消しています。信じられず、効果がありません。'], ['念のため、これからはいつも水と頓服薬を持ち歩いて、発作が来たらすぐに飲めるようにしておこう。', 'mid', 'お守りとしての安全行動になりやすく、頼りすぎると不安が残ります（治療の段階によっては使う）。']] }
+  ];
+  var CS = null, cci = 0;
+  function colStart(i) { cci = i; var c = CC[i]; CS = { step: 0, hot: null, hotOrder: shuf(c.hot.map(function (h, j) { return j; })), sort: c.sort.map(function () { return null; }), sortChecked: false, balOrder: shuf(c.bal.map(function (b, j) { return j; })), bal: null, score: 0 }; renderCol(); }
+  function renderCol() {
+    var c = CC[cci], S = CS;
+    document.getElementById('collist').innerHTML = CC.map(function (x, i) { return '<button type="button" class="chip" data-ci="' + i + '" aria-pressed="' + (i === cci) + '">' + (ST.col[x.id] ? '<span class="ok">✓ </span>' : '') + esc(x.nm) + '</button>'; }).join('');
+    function colRow(k, v, now) { return '<div class="col' + (now ? ' now' : '') + '"><span>' + k + '</span><span>' + v + '</span></div>'; }
+    var hotT = S.hot != null ? esc(c.hot[S.hot][0]) : '？', ev = [], cev = [];
+    if (S.sortChecked) c.sort.forEach(function (x) { if (x[1] === 'ev') ev.push(esc(x[0])); if (x[1] === 'cev') cev.push(esc(x[0])); });
+    var balT = S.bal != null ? esc(c.bal.filter(function (b) { return b[1] === 'ok'; })[0][0]) : '？';
+    var table = '<div class="cols">' + colRow('① 状況', esc(c.sit)) + colRow('② 気分（強さ）', c.mood.map(function (m) { return m[0] + ' ' + m[1] + '%'; }).join('、')) + colRow('③ 自動思考', hotT, S.step === 0) + colRow('④ 根拠', ev.join('<br>') || '？', S.step === 1) + colRow('⑤ 反証', cev.join('<br>') || '？', S.step === 1) + colRow('⑥ 適応的思考', balT, S.step === 2) + colRow('⑦ 気分の変化', S.step === 3 ? c.after.map(function (m) { return m[0] + ' ' + m[1] + '%'; }).join('、') : '？', S.step === 3) + '</div>';
+    var body = '';
+    if (S.step === 0) {
+      body = '<h3>③ いちばん気分を動かしている考え（ホットな思考）はどれ？</h3><div class="opts">' + S.hotOrder.map(function (j) { var h = c.hot[j], cl = 'opt'; if (S.hotPick != null) cl += h[1] ? ' ok' : (j === S.hotPick ? ' ng' : ' dim'); return '<button type="button" class="' + cl + '" data-h="' + j + '"' + (S.hotPick != null ? ' disabled' : '') + '>' + esc(h[0]) + '</button>'; }).join('') + '</div>' +
+        (S.hotPick != null ? '<p class="why">' + (c.hot[S.hotPick][1] ? '<b class="ok">正解。</b>' : '<b class="ng">ちがいます。</b>' + esc(c.hot[S.hotPick][2]) + ' ') + esc(c.hot.filter(function (h) { return h[1]; })[0][2]) + ' 出来事・気分・体の反応・考えを分けて書くのが、コラム法の第一歩です。</p><div class="row"><button type="button" class="btn" data-c="h-next">次へ（根拠と反証）</button></div>' : '');
+    } else if (S.step === 1) {
+      body = '<h3>④⑤ それぞれの文を、根拠・反証・どちらでもない（推測など）に分けよう</h3><p class="note">根拠と反証には「事実」だけを入れます。推測や気持ちは入れません。</p>' + c.sort.map(function (x, i) {
+        var v = S.sort[i], mk = S.sortChecked ? (v === x[1] ? '<span class="mark ok">○</span>' : '<span class="mark ng">× ' + { ev: '根拠', cev: '反証', neu: 'どちらでもない' }[x[1]] + '</span>') : '';
+        return '<div class="sortrow"><span>' + esc(x[0]) + ' ' + mk + (S.sortChecked ? '<br><span class="note">' + esc(x[2]) + '</span>' : '') + '</span><span class="seg" role="group">' + [['ev', '根拠'], ['cev', '反証'], ['neu', 'どちらでもない']].map(function (o) { return '<button type="button" data-si="' + i + '" data-v="' + o[0] + '" aria-pressed="' + (v === o[0]) + '"' + (S.sortChecked ? ' disabled' : '') + '>' + o[1] + '</button>'; }).join('') + '</span></div>';
+      }).join('') + '<div class="row">' + (S.sortChecked ? '<button type="button" class="btn" data-c="s-next">次へ（適応的思考）</button>' : '<button type="button" class="btn" data-c="s-check"' + (S.sort.every(function (v) { return v; }) ? '' : ' disabled') + '>答え合わせ</button>') + '</div>';
+    } else if (S.step === 2) {
+      body = '<h3>⑥ 根拠と反証をふまえた、バランスのとれた考えは？</h3><div class="opts">' + S.balOrder.map(function (j) { var b = c.bal[j], cl = 'opt'; if (S.bal != null) cl += b[1] === 'ok' ? ' ok' : (j === S.bal ? (b[1] === 'mid' ? ' mid' : ' ng') : ' dim'); return '<button type="button" class="' + cl + '" data-b="' + j + '"' + (S.bal != null ? ' disabled' : '') + '>' + esc(b[0]) + '</button>'; }).join('') + '</div>' +
+        (S.bal != null ? '<p class="why"><b class="' + c.bal[S.bal][1] + '">' + { ok: '正解。', mid: 'おしい。', ng: 'ちがいます。' }[c.bal[S.bal][1]] + '</b>' + esc(c.bal[S.bal][2]) + '</p><div class="row"><button type="button" class="btn" data-c="b-next">次へ（気分の変化）</button></div>' : '');
+    } else {
+      body = '<h3>⑦ 気分をもう一度測る</h3>' + c.mood.map(function (m, i) { var a = c.after[i]; return '<div class="meter"><span>' + m[0] + '（前）</span><span><i style="width:' + m[1] + '%"></i></span><span>' + m[1] + '%</span></div><div class="meter"><span>' + m[0] + '（後）</span><span><i class="after" style="width:' + a[1] + '%"></i></span><span>' + a[1] + '%</span></div>'; }).join('') +
+        '<p class="why">気分は0にならなくてかまいません。少しでも和らぎ、ほかの行動を選べるようになれば十分です。<br>この回の点数：<b>' + S.score + ' / 3</b>（ホットな思考・根拠と反証の分け方・適応的思考）</p><div class="row"><button type="button" class="btn ghost" data-c="again">もう一度</button>' + (cci < CC.length - 1 ? '<button type="button" class="btn" data-c="nextcase">次の症例へ</button>' : '') + '</div>';
+    }
+    document.getElementById('colbox').innerHTML = '<h2>' + esc(c.nm) + '</h2>' + table + body;
+  }
+  document.getElementById('collist').addEventListener('click', function (e) { var b = e.target.closest('[data-ci]'); if (b) colStart(+b.getAttribute('data-ci')); });
+  document.getElementById('colbox').addEventListener('click', function (e) {
+    var b = e.target.closest('button'); if (!b || b.disabled) return; var c = CC[cci], S = CS, a = b.getAttribute('data-c');
+    if (b.hasAttribute('data-h')) { S.hotPick = +b.getAttribute('data-h'); if (c.hot[S.hotPick][1]) S.score++; S.hot = c.hot.map(function (h) { return h[1]; }).indexOf(1); }
+    else if (b.hasAttribute('data-si')) S.sort[+b.getAttribute('data-si')] = b.getAttribute('data-v');
+    else if (a === 'h-next') S.step = 1;
+    else if (a === 's-check') { S.sortChecked = true; if (c.sort.every(function (x, i) { return S.sort[i] === x[1]; })) S.score++; }
+    else if (a === 's-next') S.step = 2;
+    else if (b.hasAttribute('data-b')) { S.bal = +b.getAttribute('data-b'); if (c.bal[S.bal][1] === 'ok') S.score++; }
+    else if (a === 'b-next') { S.step = 3; var prev = ST.col[c.id] || 0; if (S.score > prev) { ST.col[c.id] = S.score; save(); } }
+    else if (a === 'again') { colStart(cci); return; }
+    else if (a === 'nextcase') { colStart(cci + 1); document.getElementById('col').scrollIntoView({ block: 'start', behavior: 'smooth' }); return; }
+    renderCol();
+  });
+
+  /* ---------- ソクラテス式の質問 ---------- */
+  /* turns: [患者のことば, [[あなたのことば, ok|mid|ng, 説明], ...]] */
+  var SC = [
+    { id: 's1', nm: 'うつ病「何をやってもダメ」', turns: [
+      ['私は何をやってもダメなんです。', [['「何をやっても」というのは、たとえばこの1週間では、どんなことがありましたか？', 'ok', '具体的な場面を聞いて、考えを確かめられる形にしています（具体化）。'], ['そんなことはありませんよ。あなたは毎日ちゃんと通院して、本当によくがんばっていますよ。', 'mid', '励ましは気持ちを楽にしますが、本人の考えは検討されず、「先生はわかっていない」と感じさせることもあります。'], ['それは「一般化のしすぎ」という考えのクセです。まずはその名前を覚えておきましょう。', 'ng', '本人が気づく前に、治療者がラベルを貼って結論を出しています。']]],
+      ['昨日も洗濯物をたたもうとして、途中でやめてしまって……。', [['途中まではできたのですね。調子が悪いときにどのくらいできたか、一緒に見てみませんか？', 'ok', '例外（できていること）に目を向け、本人と一緒に確かめる姿勢です。'], ['洗濯物くらい、できなくても大丈夫です。ご家族に任せて、気にしなくていいですよ。', 'mid', '気づかいは伝わりますが、考えの検討にはつながりません。'], ['途中でやめてしまうのはよくないですね。次は最後までやりきることを目標にしましょう。', 'ng', '「すべき」を強め、自責を深めます。']]],
+      ['前は家事も仕事も全部できていたのに、今は半分もできません。', [['うつの症状がある中で半分できているとしたら、同じ状況の友だちには、どう声をかけますか？', 'ok', '別の視点（友だちならどう言う？）から、自分への厳しさに気づいてもらう問いです。'], ['半分できているなら、それでもう十分ですよ。あまり自分を責めないでくださいね。', 'mid', '治療者が答えを渡しています。本人が自分で見つけた考えのほうが残ります。'], ['前と比べるからつらくなるんです。昔の自分と比べるのは、今日からやめましょう。', 'ng', '説得で、本人の考え方を否定しています。']]]
+    ] },
+    { id: 's2', nm: 'パニック症「電車でまた倒れる」', turns: [
+      ['電車に乗ったら、また発作が起きて倒れてしまいます。', [['これまで電車で発作が起きたとき、実際にはどうなりましたか？', 'ok', '過去の事実を確かめる問いです。'], ['大丈夫ですよ。パニック発作で倒れることはありません。', 'mid', '情報としては正しいのですが、保証をくり返すと、安心を人に頼る習慣が続きます。'], ['では、しばらく電車は避けましょう。', 'ng', '回避をすすめると、不安は長い目で強まります。']]],
+      ['倒れたことはないです。でもそれは、すぐに降りてベンチに座ったからです。', [['もし降りずに乗り続けたら、何が起きると思いますか？ それを確かめる方法はありそうですか？', 'ok', '安全行動（降りる）が考えを守っていることに気づき、確かめる（行動実験）方向へ向かいます。'], ['すぐに降りてベンチで休むのは上手な対処ですね。これからもそうして続けましょう。', 'ng', '安全行動を強めます。「降りたから助かった」という考えが残ります。'], ['降りても降りなくても、結果は同じですよ。発作で倒れることはないのですから。', 'mid', '治療者の結論を渡しているだけで、本人は納得できません。']]],
+      ['……試すのはこわいです。', [['こわいのは自然なことです。各駅停車で1駅から、など小さく始める方法を一緒に考えませんか。', 'ok', '気持ちを受けとめ、段階的な曝露の計画を一緒に立てます。'], ['こわい気持ちはわかりますが、こわくても乗らないと治りません。思い切って乗ってみましょう。', 'ng', '本人の気持ちを置き去りにして押しています。'], ['こわいなら無理しなくていいですよ。乗れそうな気持ちになるまで、もう少し待ちましょう。', 'mid', 'やさしいですが、回避を続ける形になります。']]]
+    ] },
+    { id: 's3', nm: '社交不安「みんな私を変だと思う」', turns: [
+      ['職場のみんなが、私のことを変だと思っているんです。', [['「みんな」というのは、どの場面の、誰のことですか？', 'ok', '具体化。場面と相手がはっきりすると、確かめられます。'], ['誰もあなたを変だなんて思っていませんよ。', 'mid', '保証です。治療者にも根拠がなく、本人は信じにくい。'], ['気にしすぎですよ。', 'ng', '本人の体験を否定しています。']]],
+      ['昼休みです。私が話し始めると、会話が止まる気がして。', [['会話が止まったとき、ほかにどんな理由が考えられますか？', 'ok', '別の説明を本人に考えてもらう問いです。'], ['話すと会話が止まるというのは、被害妄想かもしれませんね。', 'ng', '根拠なく病的なラベルを貼っています。'], ['それなら昼休みは、一人で別の場所で過ごせば楽ですよ。', 'ng', '回避をすすめています。']]],
+      ['……みんな、食べるのに忙しかっただけかもしれません。', [['そうかもしれませんね。確かめるために、来週の昼休みにできそうなことはありますか？', 'ok', '新しい考えを、実際の行動で確かめる（行動実験・ホームワーク）につなげています。'], ['ほら、やっぱり気にしすぎだったでしょう。私の言ったとおりでしたね。', 'ng', '治療者が勝ったような言い方で、協働が崩れます。'], ['そう思えてよかったです。少し楽になったところで、今日はここまでにしましょう。', 'mid', '気づきを行動で確かめる機会を逃しています。']]]
+    ] }
+  ];
+  var SS = null, sci = 0;
+  function socStart(i) { sci = i; SS = { t: 0, picks: [], order: SC[i].turns.map(function (t) { return shuf([0, 1, 2]); }) }; renderSoc(); }
+  function renderSoc() {
+    var s = SC[sci];
+    document.getElementById('soclist').innerHTML = SC.map(function (x, i) { return '<button type="button" class="chip" data-si2="' + i + '" aria-pressed="' + (i === sci) + '">' + (ST.soc[x.id] ? '<span class="ok">✓ </span>' : '') + esc(x.nm) + '</button>'; }).join('');
+    var h = '<h2>' + esc(s.nm) + '</h2><p class="note">患者のことばに、次にどう返しますか。答えを教えるより、本人が自分で気づけるような問いを選びます。</p>';
+    for (var k = 0; k <= SS.t && k < s.turns.length; k++) {
+      var tn = s.turns[k], pk = SS.picks[k];
+      h += '<p class="say pt">' + esc(tn[0]) + '</p>';
+      if (pk == null) {
+        h += '<div class="opts">' + SS.order[k].map(function (j) { return '<button type="button" class="opt" data-so="' + j + '">' + esc(tn[1][j][0]) + '</button>'; }).join('') + '</div>';
+      } else {
+        var o = tn[1][pk];
+        h += '<p class="say th">' + esc(o[0]) + '</p><p class="why"><b class="' + o[1] + '">' + { ok: 'よい問いかけ。', mid: 'わるくはないが……', ng: '避けたい返し方。' }[o[1]] + '</b>' + esc(o[2]) + (o[1] !== 'ok' ? '<br>よい例：' + esc(tn[1].filter(function (x) { return x[1] === 'ok'; })[0][0]) : '') + '</p>';
+      }
+    }
+    if (SS.picks.length === s.turns.length) {
+      var ok = SS.picks.filter(function (p, k) { return s.turns[k][1][p][1] === 'ok'; }).length;
+      h += '<p class="why"><b>' + ok + ' / ' + s.turns.length + '</b>　ソクラテス式の質問の型：①具体的な場面を聞く　②事実（根拠と例外）を確かめる　③別の見方を一緒に考える　④本人のことばでまとめる　⑤行動で確かめる（ホームワーク）。</p><div class="row"><button type="button" class="btn ghost" data-sx="again">もう一度</button>' + (sci < SC.length - 1 ? '<button type="button" class="btn" data-sx="next">次の場面へ</button>' : '') + '</div>';
+    }
+    document.getElementById('socbox').innerHTML = h;
+  }
+  document.getElementById('soclist').addEventListener('click', function (e) { var b = e.target.closest('[data-si2]'); if (b) socStart(+b.getAttribute('data-si2')); });
+  document.getElementById('socbox').addEventListener('click', function (e) {
+    var b = e.target.closest('button'); if (!b) return; var s = SC[sci];
+    if (b.hasAttribute('data-so')) { SS.picks[SS.t] = +b.getAttribute('data-so'); SS.t++; if (SS.picks.length === s.turns.length) { var ok = SS.picks.filter(function (p, k) { return s.turns[k][1][p][1] === 'ok'; }).length; if (ok > (ST.soc[s.id] || 0)) { ST.soc[s.id] = ok; save(); } } renderSoc(); return; }
+    var a = b.getAttribute('data-sx'); if (a === 'again') socStart(sci); else if (a === 'next') socStart(sci + 1);
+  });
+
+  /* ---------- 悪循環の図 ---------- */
+  var BOX = [['trig', 'きっかけ'], ['cog', '考え'], ['emo', '気分'], ['body', 'からだ'], ['beh', '行動']];
+  var CY = [
+    { id: 'y1', nm: 'パニック症', cards: [['満員電車に乗る', 'trig'], ['「心臓発作で死ぬかもしれない」', 'cog'], ['強い恐怖・不安', 'emo'], ['動悸・息苦しさ・めまい', 'body'], ['次の駅で降りる・電車を避ける', 'beh']],
+      center: '動悸 →「死ぬ」→ 不安 → さらに動悸',
+      q: ['この悪循環を断つ入口として、CBTでよく使うのは？', [['体の感覚の解釈を見直し、降りずにとどまる練習（曝露）をする', 'ok', '破局的な解釈を見直し、安全行動をやめて「とどまっても大丈夫」と体験で学びます。'], ['発作が起きないよう、電車を避け続ける', 'ng', '回避は不安を一時的に下げますが、恐怖を長く保ちます。'], ['動悸を感じないよう、体に注意を向けないようにする', 'mid', '注意をそらすのは一時的な対処で、解釈は変わりません。']]] },
+    { id: 'y2', nm: 'うつ病', cards: [['休日、予定がない', 'trig'], ['「何をしても楽しくない。どうせ疲れるだけ」', 'cog'], ['落ち込み・むなしさ', 'emo'], ['だるさ・重さ', 'body'], ['一日中横になって過ごす', 'beh']],
+      center: '動かない → 楽しみ・達成感が減る → さらに落ち込む',
+      q: ['この悪循環を断つ入口として、まずよく使う技法は？', [['気分が上がるのを待たず、小さな楽しみや達成感のある活動を計画して行う（行動活性化）', 'ok', '行動が先、気分はあとからついてくる、という考え方です。活動記録で気分の変化を確かめます。'], ['元気が出てくるまでは、無理に動かずに、家でゆっくり休んでいるよう伝える', 'mid', '急性期の休養は大切ですが、休むだけが続くと悪循環が保たれることがあります。'], ['「やってみれば楽しいはずだ」と説得して、以前の趣味を再開してもらう', 'ng', '説得は本人の体験を否定し、協働を損ないます。']]] },
+    { id: 'y3', nm: '強迫症', cards: [['ドアノブにさわる', 'trig'], ['「ばい菌で家族が病気になる」', 'cog'], ['強い不安・不快感', 'emo'], ['手がむずむずする・緊張', 'body'], ['30分手を洗い続ける', 'beh']],
+      center: '洗う → 一時的に安心 → 次はもっと洗いたくなる',
+      q: ['強迫症のCBTの中心になる方法は？', [['あえてドアノブにさわり、手を洗わずに不安が下がるのを待つ（曝露反応妨害法）', 'ok', '曝露（不安な刺激に向き合う）と反応妨害（強迫行為をしない）を組み合わせます。'], ['気がすむまで洗ってよいと伝えて、本人の不安を和らげることを優先する', 'ng', '強迫行為を強めます。'], ['「そのくらいのばい菌なら大丈夫」と、確認されるたびに保証する', 'mid', '保証も一種の強迫行為になり、くり返し確認を求めるようになります。']]] }
+  ];
+  var YS = null, yci = 0;
+  function cycStart(i) { yci = i; YS = { place: {}, sel: null, checked: false, qOrder: shuf([0, 1, 2]), qp: null, hand: shuf(CY[i].cards.map(function (c, j) { return j; })) }; renderCyc(); }
+  function renderCyc() {
+    var y = CY[yci], S = YS;
+    document.getElementById('cyclist').innerHTML = CY.map(function (x, i) { return '<button type="button" class="chip" data-yi="' + i + '" aria-pressed="' + (i === yci) + '">' + (ST.cyc[x.id] ? '<span class="ok">✓ </span>' : '') + esc(x.nm) + '</button>'; }).join('');
+    var h = '<h2>' + esc(y.nm) + 'の悪循環</h2><p class="note">カードを選んでから、入れたい枠を押します。5つの枠（きっかけ・考え・気分・からだ・行動）はおたがいに影響しあい、症状を長びかせます。</p>';
+    h += '<div class="hand">' + S.hand.filter(function (j) { return S.place[j] == null; }).map(function (j) { return '<button type="button" class="card" data-yc="' + j + '" aria-pressed="' + (S.sel === j) + '">' + esc(y.cards[j][0]) + '</button>'; }).join('') + '</div>';
+    h += '<div class="cyc">' + BOX.map(function (bx) {
+      var inside = Object.keys(S.place).filter(function (j) { return S.place[j] === bx[0]; }).map(function (j) { var cl = 'placed'; if (S.checked) cl += y.cards[j][1] === bx[0] ? ' ok' : ' ng'; return '<span class="' + cl + '" data-back="' + j + '">' + esc(y.cards[j][0]) + '</span>'; }).join('');
+      return '<div class="box drop b-' + bx[0] + '" data-yb="' + bx[0] + '" role="button" tabindex="0"><b>' + bx[1] + '</b>' + inside + '</div>';
+    }).join('') + '<div class="center"><div><span>↻</span><br>' + (S.checked ? esc(y.center) : '悪循環') + '</div></div></div>';
+    var all = Object.keys(S.place).length === y.cards.length;
+    if (!S.checked) h += '<div class="row"><button type="button" class="btn" data-yx="check"' + (all ? '' : ' disabled') + '>答え合わせ</button><span class="note">枠の中のカードを押すと手札に戻ります。</span></div>';
+    else {
+      var okN = y.cards.filter(function (c, j) { return S.place[j] === c[1]; }).length;
+      h += '<p class="why"><b>' + okN + ' / ' + y.cards.length + '</b>　' + (okN === y.cards.length ? 'きれいに描けました。' : '赤い枠のカードの位置を見直しましょう。') + '出来事・考え・気分・からだ・行動を分けて描くと、本人も「どこから変えられるか」が見えてきます。</p>';
+      var q = y.q;
+      h += '<h3>' + esc(q[0]) + '</h3><div class="opts">' + S.qOrder.map(function (j) { var o = q[1][j], cl = 'opt'; if (S.qp != null) cl += o[1] === 'ok' ? ' ok' : (j === S.qp ? (o[1] === 'mid' ? ' mid' : ' ng') : ' dim'); return '<button type="button" class="' + cl + '" data-yq="' + j + '"' + (S.qp != null ? ' disabled' : '') + '>' + esc(o[0]) + '</button>'; }).join('') + '</div>';
+      if (S.qp != null) h += '<p class="why"><b class="' + q[1][S.qp][1] + '">' + { ok: '正解。', mid: 'おしい。', ng: 'ちがいます。' }[q[1][S.qp][1]] + '</b>' + esc(q[1][S.qp][2]) + '</p><div class="row"><button type="button" class="btn ghost" data-yx="again">もう一度</button>' + (yci < CY.length - 1 ? '<button type="button" class="btn" data-yx="next">次の症例へ</button>' : '') + '</div>';
+    }
+    document.getElementById('cycbox').innerHTML = h;
+  }
+  document.getElementById('cyclist').addEventListener('click', function (e) { var b = e.target.closest('[data-yi]'); if (b) cycStart(+b.getAttribute('data-yi')); });
+  function cycClick(e) {
+    var S = YS, y = CY[yci];
+    var back = e.target.closest('[data-back]'); if (back && !S.checked) { delete S.place[back.getAttribute('data-back')]; renderCyc(); return; }
+    var c = e.target.closest('[data-yc]'); if (c) { var j = +c.getAttribute('data-yc'); S.sel = S.sel === j ? null : j; renderCyc(); return; }
+    var bx = e.target.closest('[data-yb]'); if (bx && S.sel != null && !S.checked) { S.place[S.sel] = bx.getAttribute('data-yb'); S.sel = null; renderCyc(); return; }
+    var b = e.target.closest('button'); if (!b) return;
+    var a = b.getAttribute('data-yx');
+    if (a === 'check') { S.checked = true; }
+    else if (b.hasAttribute('data-yq')) { S.qp = +b.getAttribute('data-yq'); var okN = y.cards.filter(function (cc, j) { return S.place[j] === cc[1]; }).length + (y.q[1][S.qp][1] === 'ok' ? 1 : 0); if (okN > (ST.cyc[y.id] || 0)) { ST.cyc[y.id] = okN; save(); } }
+    else if (a === 'again') { cycStart(yci); return; }
+    else if (a === 'next') { cycStart(yci + 1); return; }
+    renderCyc();
+  }
+  document.getElementById('cycbox').addEventListener('click', cycClick);
+  document.getElementById('cycbox').addEventListener('keydown', function (e) { if ((e.key === 'Enter' || e.key === ' ') && e.target.hasAttribute('data-yb')) { e.preventDefault(); cycClick(e); } });
+
+  /* ---------- 基本のクイズ ---------- */
+  var BQ = [
+    ['ベックが述べた、うつ病の「否定的な認知の3つ組」は？', ['自分・周りの世界・将来についての否定的な見方', '思考・感情・行動の3つの悪循環', '過去・現在・未来の3つの時間への後悔', '不安・抑うつ・怒りの3つの感情'], 'うつ病では、自分（私はダメだ）・世界（誰もわかってくれない）・将来（よくならない）を否定的に見やすいとベックは考えました。'],
+    ['「私は愛されない」のように、自分や世界についての深く根本的な信念を何という？', ['中核信念（スキーマ）', '自動思考', '媒介信念（思い込み・ルール）', '安全行動'], '中核信念の上に、「人に認められなければ価値がない」のような思い込み・ルール（媒介信念）があり、その場その場で自動思考が浮かびます。'],
+    ['CBTのセッションの流れとして正しいのは？', ['気分のチェックとホームワークの振り返りのあと、今日話すこと（アジェンダ）を本人と決める', '毎回、治療者がその日に教える内容を決めて、本人には講義を聞いてもらう形で進める', 'アジェンダは決めずに、その日に本人が話したいことを、時間いっぱい自由に話してもらう', 'ホームワークは本人の負担になるので、前回のホームワークの振り返りはしないでおく'], '構造化された面接が特徴です。気分チェック→前回の橋渡し・ホームワーク→アジェンダ設定→話し合い→まとめ→新しいホームワーク→フィードバック。'],
+    ['うつ病で、気分が上がるのを待たずに、楽しみや達成感のある活動を計画して行う技法は？', ['行動活性化', '曝露反応妨害法', '睡眠制限法', 'リラクセーション'], '活動記録表で活動と気分の関係を見て、少しずつ活動を増やします。'],
+    ['強迫症のCBTの中心になる技法は？', ['曝露反応妨害法', '行動活性化', '問題解決療法', '睡眠制限法'], '不安になる刺激に向き合い（曝露）、強迫行為をしない（反応妨害）練習をくり返します。'],
+    ['不眠症のCBT（CBT-I）で、床にいる時間を実際に眠れている時間に近づける方法は？', ['睡眠制限法', '刺激制御法', '睡眠衛生指導', '漸進的筋弛緩法'], '床にいる時間を短くして眠りを深くし、効率が上がったら少しずつ延ばします。刺激制御法は「眠くなってから床に入る、眠れなければ床を出る」です。'],
+    ['パニック症の人が「発作に備えて必ず水を持つ・誰かと一緒に乗る」。CBTではこれを何と呼ぶ？', ['安全行動', '行動実験', '適応的思考', '中核信念'], '一時的に不安を下げますが、「本当は危険ではない」と学ぶ機会を奪い、不安を長びかせます。'],
+    ['治療者と患者が、考えを「仮説」として一緒に確かめていく姿勢を何という？', ['協働的経験主義', '無条件の肯定的関心', '直面化', '徹底的受容'], '治療者が正解を教えるのではなく、二人で証拠を集めて確かめるチームになる、という姿勢です。'],
+    ['新しい考えが正しいかを、実際に行動して結果を観察して確かめる方法は？', ['行動実験', '認知再構成', 'セルフモニタリング', '心理教育'], '予想（例：話したら笑われる）を書き、実際に試し、結果と比べます。'],
+    ['コラム法の「適応的思考」の目的として正しいのは？', ['事実に合ったバランスのよい考えを見つけ、気分を和らげ、行動の選択肢を広げる', '気分が0%になるまで、つらい考えをすべて前向きな考えに置きかえていく', '元の考えがまちがっていることを、治療者が根拠を示して本人に認めさせる', 'つらい出来事をできるだけ思い出さないようにして、気分を落ち着ける'], 'ポジティブ思考ではありません。根拠と反証の両方をふまえた、本人が「確かにそうかも」と思える考えをめざします。']
+  ];
+  var BS = null;
+  function baseStart() { BS = { q: shuf(BQ).map(function (x) { return { t: x[0], a: x[1][0], o: shuf(x[1]), why: x[2], pick: null }; }), i: 0, ok: 0 }; renderBase(); }
+  function renderBase() {
+    var el = document.getElementById('basebox');
+    if (BS.i >= BS.q.length) {
+      if (!ST.base || BS.ok > ST.base) { ST.base = BS.ok; save(); }
+      el.innerHTML = '<h2>おしまい</h2><p class="big">' + BS.ok + ' / ' + BS.q.length + '</p><p class="note">これまでの最高 ' + ST.base + '</p><p class="why">日本では、うつ病などの気分障害、強迫症、社交不安症、パニック症、PTSD、神経性過食症などへの認知療法・認知行動療法に保険の算定がある（回数や要件あり）。対象と要件は診療報酬の改定で変わるので、最新のものを確かめてください。</p><div class="row"><button type="button" class="btn" data-bx="again">もう一度</button></div>';
+      return;
+    }
+    var q = BS.q[BS.i];
+    el.innerHTML = '<p class="prog">' + (BS.i + 1) + ' / ' + BS.q.length + '　正解 ' + BS.ok + '</p><h3>' + esc(q.t) + '</h3><div class="opts">' + q.o.map(function (o, j) { var c = 'opt'; if (q.pick != null) c += o === q.a ? ' ok' : (j === q.pick ? ' ng' : ' dim'); return '<button type="button" class="' + c + '" data-bo="' + j + '"' + (q.pick != null ? ' disabled' : '') + '>' + esc(o) + '</button>'; }).join('') + '</div>' +
+      (q.pick != null ? '<p class="why">' + (q.o[q.pick] === q.a ? '<b class="ok">正解。</b>' : '<b class="ng">ちがいます。</b>') + esc(q.why) + '</p><div class="row"><button type="button" class="btn" data-bx="next">' + (BS.i < BS.q.length - 1 ? '次へ' : '結果を見る') + '</button></div>' : '');
+  }
+  document.getElementById('basebox').addEventListener('click', function (e) {
+    var b = e.target.closest('button'); if (!b) return;
+    if (b.hasAttribute('data-bo')) { var q = BS.q[BS.i]; if (q.pick != null) return; q.pick = +b.getAttribute('data-bo'); if (q.o[q.pick] === q.a) BS.ok++; renderBase(); return; }
+    var a = b.getAttribute('data-bx'); if (a === 'next') { BS.i++; renderBase(); } else if (a === 'again') baseStart();
+  });
+
+  /* ---------- モード ---------- */
+  function setMode(m) {
+    ['kuse', 'col', 'soc', 'cyc', 'base'].forEach(function (id) { document.getElementById(id).hidden = id !== m; });
+    document.querySelectorAll('.mode').forEach(function (b) { b.setAttribute('aria-pressed', String(b.getAttribute('data-m') === m)); });
+  }
+  document.querySelector('.modes').addEventListener('click', function (e) { var b = e.target.closest('[data-m]'); if (b) setMode(b.getAttribute('data-m')); });
+  renderKuse(); colStart(0); socStart(0); cycStart(0); baseStart();
+  var h = (location.hash || '').slice(1); if (['col', 'soc', 'cyc', 'base'].indexOf(h) >= 0) setMode(h);
+  window.__cbt = { KQ: KQ, CC: CC, SC: SC, CY: CY, BQ: BQ, DIST: DIST };
+})();
+</script>
+
+</body>
+</html>

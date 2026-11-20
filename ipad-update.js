@@ -43,7 +43,7 @@
   }
   function check(manual) {
     if (checking || !CUR || location.protocol === 'file:') return; checking = true;
-    fetch('version.json?t=' + Date.now(), { cache: 'no-store' }).then(function (r) { return r.ok ? r.json() : null; }).then(function (j) {
+    fetch((window.__ipadBase || '') + 'version.json?t=' + Date.now(), { cache: 'no-store' }).then(function (r) { return r.ok ? r.json() : null; }).then(function (j) {
       checking = false;
       var v = j && j.v;
       if (!v || v <= CUR) { newer = ''; if (manual) showBadge('いまの版が最新です（' + label(CUR) + '）', false), setTimeout(function () { if (badge && badge.dataset.tap !== '1') badge.hidden = true; }, 2500); return; }

@@ -1,11 +1,13 @@
 name: Fetch CT images from Wikimedia Commons
 
 # 頭部CTよみ道場に使う、自由なライセンスの CT 画像の候補を集める。
-# tools/fetch_commons.py を直して push したとき、または手動で動かす。
+# .github/ct-materials/fetch_commons.py を直して push したとき、または手動で動かす。
+# 結果（ct-src/）は .github/ct-materials/ に置く。ゲームが読む画像（games/imaging/ct-img/）は、
+# psycoAI の 精神科試験ゲーム/作り方/build_ct_real.py でここから作る。
 on:
   push:
     paths:
-      - 'tools/fetch_commons.py'
+      - '.github/ct-materials/fetch_commons.py'
       - '.github/workflows/fetch-ct.yml'
   workflow_dispatch:
 
@@ -22,11 +24,12 @@ jobs:
         with:
           python-version: '3.12'
       - name: Collect candidates
-        run: python3 tools/fetch_commons.py
+        working-directory: .github/ct-materials
+        run: python3 fetch_commons.py
       - name: Commit results
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add ct-src
+          git add .github/ct-materials/ct-src
           git diff --cached --quiet || git commit -m "CT 画像の候補を Wikimedia Commons から集める（自動）"
           git push
