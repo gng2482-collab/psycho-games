@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="robots" content="noindex, nofollow">
-<meta name="app-version" content="20261120211838">
+<meta name="app-version" content="20261120215735">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
@@ -435,6 +435,10 @@ body.playing .bnav{transform:translateY(110%);opacity:0;pointer-events:none}
 .room-c:hover{transform:translateY(-2px);border-color:var(--accent)}
 .room-c:active{transform:scale(.98)}
 .room-c::after{content:"";position:absolute;right:13px;top:56%;width:8px;height:8px;border-radius:50%;background:var(--line-strong)}
+.room-top{display:flex;align-items:center;gap:7px;padding-right:48px}
+.room-ic{flex:none;width:30px;height:30px;border-radius:9px;background:var(--accent-soft);color:var(--accent);display:grid;place-items:center}
+.room-ic svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:1.85;stroke-linecap:round;stroke-linejoin:round}
+.room-c.cleared .room-ic{background:var(--paper);color:var(--ok)}
 .room-no{font-size:11.5px;font-family:var(--f-mono);color:var(--ink-3);letter-spacing:.04em}
 .room-n{font-weight:800;font-size:15.5px;line-height:1.4}
 .room-a{margin-top:auto;font-size:13px;color:var(--ink-3);font-weight:700;padding-right:16px}
@@ -764,6 +768,22 @@ body.playing .bnav{transform:translateY(110%);opacity:0;pointer-events:none}
 .sh-dl dt{margin-top:16px;font-size:12px;font-weight:800;letter-spacing:.08em;color:var(--ink-3)}
 .sh-dl dd{margin:4px 0 0;font-size:15.5px;line-height:1.85}
 .ex{display:block;padding:9px 13px;margin-top:6px;background:var(--paper-2);border-left:3px solid var(--line-strong);border-radius:10px;font-size:15px}
+.sh-try{display:flex;flex-wrap:wrap;align-items:center;gap:10px;margin:12px 0 4px;padding:11px 13px;background:var(--accent-soft);border:1.5px solid var(--accent);border-radius:14px}
+.sh-try-ic{flex:none;width:36px;height:36px;border-radius:10px;background:var(--paper);color:var(--accent);display:grid;place-items:center}
+.sh-try-ic svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:1.85;stroke-linecap:round;stroke-linejoin:round}
+.sh-try-b{flex:1 1 160px;min-width:0;display:flex;flex-direction:column;gap:1px}
+.sh-try-b b{font-size:13.5px;color:var(--ink);line-height:1.35}
+.sh-try-b span{font-size:12.5px;color:var(--ink-2)}
+.sh-vs{margin-top:18px;padding-top:14px;border-top:1px solid var(--line);display:flex;flex-direction:column;gap:8px}
+.sh-vs-h{margin:0;font-size:12px;font-weight:800;letter-spacing:.08em;color:var(--ink-3)}
+.sh-vs-card{padding:11px 13px;background:var(--paper-2);border:1px solid var(--line);border-radius:13px;display:flex;flex-direction:column;gap:7px}
+.sh-vs-row{display:flex;flex-wrap:wrap;align-items:center;gap:6px 8px}
+.sh-vs-self{display:inline-flex;align-items:center;min-height:36px;padding:4px 11px;border-radius:10px;background:var(--paper);border:1.5px solid var(--side-a);color:var(--ink);font-size:14px;font-weight:800}
+.sh-vs-self.dim{border-color:var(--line-strong)}
+.sh-vs-arr{font-size:15px;font-weight:900;color:var(--ink-3)}
+.sh-vs-other{background:var(--side-b-soft);color:var(--ink);border-color:var(--side-b)}
+.sh-vs-other:hover{border-color:var(--side-b);filter:brightness(.97)}
+.sh-vs-rule{margin:0;font-size:14px;line-height:1.7;color:var(--ink-2)}
 .sh-rel{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin:20px 0 0;padding-top:14px;border-top:1px solid var(--line)}
 .sh-rel span{flex-basis:100%;font-size:12px;font-weight:800;letter-spacing:.08em;color:var(--ink-3)}
 
@@ -2064,9 +2084,11 @@ function stars(r){return '<span class="stars" aria-label="試験での重要度'
 function tagChips(e){return e.tags.map(function(t){return '<span class="tagc">'+esc(D.tagNames[t])+'</span>';}).join('');}
 
 /* ---------- 称号アップ祝福オーバーレイ ---------- */
-var rankupEl=null;
+var rankupEl=null,rankupFocus=null;
 function showRankUp(before,after,n){
+ var prev=!rankupEl?document.activeElement:rankupFocus;
  closeRankUp(true);
+ rankupFocus=prev;
  confetti();
  var nx=nextRank(n);
  rankupEl=document.createElement('div');
@@ -2092,13 +2114,16 @@ function closeRankUp(silent){
  if(!rankupEl)return;
  rankupEl.remove();rankupEl=null;
  if($('#sheet').hidden)document.body.classList.remove('noscroll');
+ var prev=rankupFocus;rankupFocus=null;
+ if(!silent&&prev&&document.contains(prev)&&prev.focus){try{prev.focus({preventScroll:true});}catch(e){}}
 }
 
 /* ---------- 称号と進捗シート ---------- */
 function openRankSheet(){
  var n=caughtN(),cur=rankOf(n),nx=nextRank(n),pct=Math.round(n/TOTAL*100);
- lastFocus=document.activeElement;
  var sh=$('#sheet');
+ if(sh.hidden){lastFocus=document.activeElement;lastFocusEnt=null;}
+ activeSheetLabel='称号と進捗';
  var catHtml=D.cats.map(function(c){
   var all=ENT.filter(function(e){return e.c===c.id;});
   var got=all.filter(function(e){return S.caught[e.id];}).length;
@@ -2156,11 +2181,13 @@ function setPlaying(flag){document.body.classList.toggle('playing',!!flag);}
 
 var current=null;
 var keyHandler=null;
+var activeRoom=null,pendingRoomIdx=null;
 function show(v){
  if(VIEWS.indexOf(v)<0)v='home';
- clearTimers();hush();keyHandler=null;closeSheet(true);closeRankUp(true);setPlaying(false);
+ clearTimers();hush();keyHandler=null;activeRoom=null;closeSheet(true);closeRankUp(true);setPlaying(false);
  VIEWS.forEach(function(x){$('#v-'+x).hidden=(x!==v);});
  current=v;syncNav(v);
+ if(v==='taiken'&&pendingRoomIdx!=null){var ri=pendingRoomIdx;pendingRoomIdx=null;enterRoom(ri);window.scrollTo(0,0);return;}
  ({home:renderHome,live:liveIntro,taiken:taikenList,dojo:dojoIntro,shiken:shikenIntro,zukan:renderZukan})[v]();
  window.scrollTo(0,0);
 }
@@ -2252,7 +2279,7 @@ function demoLoop(){
 /* ---------- 診察ライブ ---------- */
 var LV=null;
 function liveIntro(){
- setPlaying(false);
+ LV=null;setPlaying(false);
  $('#v-live').innerHTML=gbar()+
  '<div class="intro">'+
   '<h1 class="h1" tabindex="-1">診察ライブ</h1>'+
@@ -2353,6 +2380,7 @@ function liveAnswer(id){
  });
 }
 function liveResult(){
+ if(LV)LV.ended=true;
  setPlaying(false);keyHandler=null;
  var best=S.best.live||0,isBest=LV.score>best;if(isBest){S.best.live=LV.score;save();}
  var grade=LV.ok===8?'S':LV.ok>=7?'A':LV.ok>=5?'B':'C';
@@ -2372,8 +2400,25 @@ function liveResult(){
 }
 
 /* ---------- 追体験ルーム ---------- */
+var ROOM_ICONS={
+ T1:'<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="3" width="14" height="18" rx="2"/><path d="M8.5 8h7M8.5 12h7M8.5 16h4"/><path d="M16 14l4-2-2 4"/></svg>',
+ T2:'<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="4" width="16" height="16" rx="2"/><path d="M8 9h8M8 13h5M15 15l4-4M19 11h-3M19 11v3"/></svg>',
+ T3:'<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="7" r="3"/><circle cx="5.5" cy="12" r="2.2"/><circle cx="18.5" cy="12" r="2.2"/><path d="M8.5 16c0-2 1.6-3.2 3.5-3.2s3.5 1.2 3.5 3.2M3 19c0-1.6 1.1-2.6 2.5-2.6M21 19c0-1.6-1.1-2.6-2.5-2.6"/></svg>',
+ T4:'<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="9" cy="12" r="3"/><path d="M14 9a5 5 0 0 1 0 6M17 6.5a8.5 8.5 0 0 1 0 11"/></svg>',
+ T5:'<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="7" cy="10" r="3"/><circle cx="17" cy="10" r="3"/><circle cx="12" cy="17" r="3"/><path d="M12 3v3"/></svg>',
+ T6:'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6.5A2.5 2.5 0 0 1 6.5 4H12v16H6.5A2.5 2.5 0 0 0 4 22V6.5z"/><path d="M20 6.5A2.5 2.5 0 0 0 17.5 4H12v16h5.5A2.5 2.5 0 0 1 20 22V6.5z"/></svg>',
+ T7:'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 17h16v4H4z"/><rect x="6" y="7" width="5" height="6" rx="1"/><circle cx="16.5" cy="10" r="3"/></svg>',
+ T8:'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 15l2-6 3 2h5l2-2 1 3-1 3v4h-2v-3h-6v3H8v-4H6z"/><circle cx="16.5" cy="11.5" r=".7"/></svg>',
+ T9:'<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="4.5"/><path d="M17 4l1.5 1.5M19 7l1.5.5"/></svg>',
+ T10:'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 16h18M4 16V9l4-2v9M10 16V6l5-2v12M17 16v-6l3-1v7"/><path d="M9 20l2-4M15 20l-2-4"/></svg>',
+ T11:'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 20V9a5 5 0 0 1 10 0v11z"/><circle cx="12" cy="11" r="2.2"/><path d="M9.2 17.5c.7-1.6 1.7-2.3 2.8-2.3s2.1.7 2.8 2.3"/></svg>',
+ T12:'<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="4" width="16" height="14" rx="1.5"/><path d="M12 4v14M4 11h16M7 21h10"/></svg>',
+ T13:'<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="9" cy="12" r="4"/><path d="M13 12h8M18 12v3M21 12v2.5"/></svg>',
+ T14:'<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="3"/><circle cx="12" cy="12" r="2"/><path d="M12 5.5v4.5M12 14v4.5M5.5 12H10M14 12h4.5"/></svg>',
+ T15:'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3a2 2 0 0 1 2 2c0 1-2 1.8-2 3"/><path d="M12 8l-5 3.5L9 20h6l2-8.5L12 8z"/><path d="M18.5 5.5a3 3 0 0 0 2 3.5 3.2 3.2 0 1 1-2-3.5z"/></svg>'
+};
 function taikenList(){
- setPlaying(false);
+ activeRoom=null;setPlaying(false);
  var done=SCN.filter(function(s){return S.rooms[s.id];}).length;
  var pct=Math.round(done/SCN.length*100);
  $('#v-taiken').innerHTML=gbar('','<span class="stat">クリア <b>'+done+'</b>/'+SCN.length+'</span>')+
@@ -2383,7 +2428,7 @@ function taikenList(){
   '<div class="room-prog"><button type="button" class="btn" id="tk-rand">'+(done<SCN.length?'まだの部屋に入る':'ランダムに部屋に入る')+'</button><div class="room-meter"><span class="room-bar" aria-hidden="true"><i style="width:'+pct+'%"></i></span><span class="stat"><b>'+pct+'%</b></span></div></div>'+
   '<div class="soundrow">'+soundNote()+'</div>'+
  '</div>'+
- '<div class="rooms">'+SCN.map(function(s,i){var ok=S.rooms[s.id];return '<button type="button" class="room-c'+(ok?' cleared':'')+'" data-i="'+i+'"><span class="room-no">部屋 '+(i+1)+'</span><span class="room-n">'+esc(s.name)+'</span><span class="room-a">'+(ok?'✓ '+esc(BY[s.ans].t):'未体験')+'</span>'+(s.sound?'<span class="room-s">音あり</span>':'')+'</button>';}).join('')+'</div>';
+ '<div class="rooms">'+SCN.map(function(s,i){var ok=S.rooms[s.id];return '<button type="button" class="room-c'+(ok?' cleared':'')+'" data-i="'+i+'"><span class="room-top"><span class="room-ic">'+(ROOM_ICONS[s.id]||'')+'</span><span class="room-no">部屋 '+(i+1)+'</span></span><span class="room-n">'+esc(s.name)+'</span><span class="room-a">'+(ok?'✓ '+esc(BY[s.ans].t):'未体験')+'</span>'+(s.sound?'<span class="room-s">音あり</span>':'')+'</button>';}).join('')+'</div>';
  $$('.room-c').forEach(function(b){b.addEventListener('click',function(){enterRoom(+b.getAttribute('data-i'));});});
  $('#tk-rand').addEventListener('click',function(){var left=SCN.map(function(s,i){return i;}).filter(function(i){return !S.rooms[SCN[i].id];});if(!left.length)left=SCN.map(function(s,i){return i;});enterRoom(pick(left,1)[0]);});
  bindSoundNote();
@@ -2394,6 +2439,7 @@ function bindSoundNote(){var b=$('#sn-btn');if(b)b.addEventListener('click',func
 function enterRoom(i){
  clearTimers();hush();setPlaying(true);
  var s=SCN[i];
+ activeRoom={idx:i,scene:s};
  $('#v-taiken').innerHTML='<div class="gbar"><button type="button" class="back" id="tk-back">← 部屋の一覧</button><span class="stat">部屋 <b>'+(i+1)+'</b> ・ '+esc(s.name)+'</span><span class="gb-sp"></span><span class="live-dot">体験中</span></div>'+
  (s.sound&&!S.sound?'<div class="soundrow small">'+soundNote()+'</div>':'')+
  '<div class="stage" id="stage"></div>'+
@@ -2462,7 +2508,7 @@ function roomAnswer(i,id){
 /* ---------- 見分け道場 ---------- */
 var DJ=null;
 function dojoIntro(){
- setPlaying(false);
+ DJ=null;setPlaying(false);
  $('#v-dojo').innerHTML=gbar()+
  '<div class="intro">'+
   '<h1 class="h1" tabindex="-1">見分け道場</h1>'+
@@ -2582,7 +2628,7 @@ function genQ(){
  return {q:'次の説明に当てはまる用語はどれか。',quote:t.d,a:[t.t].concat(ds.map(function(e){return e.t;})),link:t.id,why:t.k,gen:1};
 }
 function shikenIntro(){
- setPlaying(false);
+ SK=null;setPlaying(false);
  $('#v-shiken').innerHTML=gbar()+
  '<div class="intro">'+
   '<h1 class="h1" tabindex="-1">本番形式</h1>'+
@@ -2636,6 +2682,7 @@ function shikenAnswer(btn,correct){
  $('#sfb').scrollIntoView({behavior:REDUCE?'auto':'smooth',block:'nearest'});
 }
 function shikenEnd(){
+ if(SK)SK.ended=true;
  keyHandler=null;setPlaying(false);
  var best=S.best.shiken==null?-1:S.best.shiken,isBest=SK.ok>best;if(isBest){S.best.shiken=SK.ok;save();}
  var grade=SK.ok===10?'S':SK.ok>=8?'A':SK.ok>=6?'B':'C';
@@ -2692,28 +2739,56 @@ function zGrid(){
  }).join('');
  $$('.zcard',g).forEach(function(b){b.addEventListener('click',function(){openEntry(b.getAttribute('data-ent'));});});
 }
-var lastFocus=null;
+var lastFocus=null,lastFocusEnt=null,activeSheetLabel=null;
 function openEntry(id){
  var e=BY[id];if(!e)return;var got=S.caught[id];
- lastFocus=document.activeElement;
  var sh=$('#sheet');
+ if(sh.hidden){
+  lastFocus=document.activeElement;
+  var zc=lastFocus&&lastFocus.closest?lastFocus.closest('.zcard'):null;
+  lastFocusEnt=zc?zc.getAttribute('data-ent'):null;
+ }
+ activeSheetLabel='用語「'+e.t+'」';
  var rel=relatedOf(id);
+ var pairs=D.pairs.filter(function(p){return p.a===id||p.b===id;});
+ var pairHtml=pairs.length?'<div class="sh-vs"><p class="sh-vs-h">見てわかる 見分け対比</p>'+pairs.map(function(p){
+  var isA=p.a===id,otherId=isA?p.b:p.a,selfLbl=isA?p.la:p.lb,otherLbl=isA?p.lb:p.la;
+  return '<div class="sh-vs-card"><div class="sh-vs-row"><span class="sh-vs-self">'+esc(selfLbl)+'</span><span class="sh-vs-arr" aria-hidden="true">⇄</span>'+(BY[otherId]?'<button type="button" class="linkbtn sh-vs-other" data-ent="'+otherId+'">'+esc(otherLbl)+'</button>':'<span class="sh-vs-self dim">'+esc(otherLbl)+'</span>')+'</div><p class="sh-vs-rule">'+esc(p.rule)+'</p></div>';
+ }).join('')+'</div>':'';
+ var roomIdx=-1;
+ SCN.forEach(function(s,idx){if(s.ans===id&&roomIdx<0)roomIdx=idx;});
+ var roomHtml=roomIdx>=0?'<div class="sh-try"><span class="sh-try-ic">'+(ROOM_ICONS[SCN[roomIdx].id]||ICONS.taiken)+'</span><div class="sh-try-b"><b>追体験ルームで体感できます</b><span>部屋 '+(roomIdx+1)+'「'+esc(SCN[roomIdx].name)+'」'+(S.rooms[SCN[roomIdx].id]?'（クリア済み）':'')+'</span></div><button type="button" class="btn small" id="sh-go-room">体験する →</button></div>':'';
  sh.innerHTML='<div class="sheet-bg" data-close></div><div class="sheet-card" role="dialog" aria-modal="true" aria-labelledby="sh-t">'+
   '<div class="sheet-grab" aria-hidden="true"></div>'+
   '<button type="button" class="sheet-x" data-close aria-label="閉じる">×</button>'+
   '<div class="sh-head">'+catDot(e.c)+stars(e.r)+(got?'<span class="zc-n">登録ずみ ×'+got+'</span>':'<span class="zc-n">未登録：ゲームで正解すると登録されます</span>')+'</div>'+
   '<h2 class="sh-t" id="sh-t">'+esc(e.t)+'</h2><p class="sh-y">'+esc(e.y)+'<span class="sh-o">'+esc(e.o)+'</span></p>'+
   (e.tags.length?'<p class="sh-tags">'+tagChips(e)+'</p>':'')+
+  roomHtml+
   '<dl class="sh-dl"><dt>定義</dt><dd>'+esc(e.d)+'</dd><dt>例</dt><dd>'+e.ex.map(function(x){return '<span class="ex">'+esc(x)+'</span>';}).join('')+'</dd><dt>みられる病気</dt><dd>'+esc(e.dx)+'</dd><dt>見分け・試験のツボ</dt><dd>'+esc(e.k)+'</dd></dl>'+
+  pairHtml+
   (rel.length?'<p class="sh-rel"><span>くらべたい語</span>'+rel.map(function(r){return '<button type="button" class="linkbtn" data-ent="'+r+'">'+esc(BY[r].t)+'</button>';}).join('')+'</p>':'')+
  '</div>';
  sh.hidden=false;document.body.classList.add('noscroll');
  $$('[data-close]',sh).forEach(function(b){b.addEventListener('click',function(){closeSheet();});});
- $$('.sh-rel .linkbtn',sh).forEach(function(b){b.addEventListener('click',function(){openEntry(b.getAttribute('data-ent'));});});
+ $$('.sh-rel .linkbtn, .sh-vs .linkbtn',sh).forEach(function(b){b.addEventListener('click',function(){openEntry(b.getAttribute('data-ent'));});});
+ var gr=$('#sh-go-room',sh);
+ if(gr)gr.addEventListener('click',function(){pendingRoomIdx=roomIdx;closeSheet(true);if(location.hash==='#taiken')show('taiken');else location.hash='#taiken';});
  $('.sheet-x',sh).focus({preventScroll:true});
 }
 function relatedOf(id){var out={};D.pairs.forEach(function(p){if(p.a===id)out[p.b]=1;if(p.b===id)out[p.a]=1;});var n=NEAR[id]||{};Object.keys(n).forEach(function(k){if(!GEN[k])out[k]=1;});delete out[id];return Object.keys(out).slice(0,6);}
-function closeSheet(silent){var sh=$('#sheet');if(sh.hidden)return;sh.hidden=true;sh.innerHTML='';if(!rankupEl)document.body.classList.remove('noscroll');if(!silent&&lastFocus&&lastFocus.focus){try{lastFocus.focus({preventScroll:true});}catch(e){}}if(!silent&&current==='zukan')zGrid();}
+function closeSheet(silent){
+ var sh=$('#sheet');if(sh.hidden)return;
+ sh.hidden=true;sh.innerHTML='';activeSheetLabel=null;
+ if(!rankupEl)document.body.classList.remove('noscroll');
+ var prev=lastFocus,entId=lastFocusEnt;
+ lastFocus=null;lastFocusEnt=null;
+ if(!silent&&current==='zukan')zGrid();
+ if(!silent){
+  var target=prev&&document.contains(prev)?prev:(entId?$('#zgrid .zcard[data-ent="'+entId+'"]'):null);
+  if(target&&target.focus){try{target.focus({preventScroll:true});}catch(e){}}
+ }
+}
 
 /* ---------- 小物・初期化 ---------- */
 function confetti(){if(REDUCE)return;var box=document.createElement('div');box.className='confetti';var cs=['--c-ishiki','--c-chikaku','--c-keishiki','--c-naiyo','--c-jiga','--c-kanjo','--c-iyoku','--c-jinmei'];for(var i=0;i<50;i++){var s=document.createElement('i');s.style.left=Math.random()*100+'%';s.style.background='var('+cs[i%cs.length]+')';s.style.animationDelay=(Math.random()*.6)+'s';s.style.setProperty('--dx',(Math.random()*130-65)+'px');box.appendChild(s);}document.body.appendChild(box);setTimeout(function(){box.remove();},3300);}
@@ -2748,6 +2823,29 @@ mountNav();
 applyTheme();
 $('#soundbtn').addEventListener('click',function(){setSound(!S.sound);});
 setSound(S.sound&&false);/* 開くたびに音はオフから始める */
+
+/* iPad 版：不具合・感想フォームにいまの画面・部屋名・症例名を入れる */
+var VIEW_NAMES={home:'ホーム',live:'診察ライブ',taiken:'追体験ルーム',dojo:'見分け道場',shiken:'本番形式',zukan:'症候図鑑'};
+window.__feedbackWhere=function(){
+ var parts=[VIEW_NAMES[current]||'ホーム'];
+ if(current==='taiken'&&activeRoom&&activeRoom.scene){
+  parts.push('部屋 '+(activeRoom.idx+1)+'「'+activeRoom.scene.name+'」');
+ }else if(current==='live'&&LV){
+  if(LV.ended)parts.push('結果');
+  else if(LV.list&&LV.list[LV.i])parts.push('患者 '+(LV.i+1)+'/'+LV.list.length+'「'+LV.list[LV.i].who+'」');
+ }else if(current==='dojo'&&DJ){
+  if(DJ.over)parts.push('結果');
+  else if(DJ.deck&&DJ.deck[DJ.k]){var p=DJ.deck[DJ.k].p;parts.push(p.la+'⇄'+p.lb);}
+ }else if(current==='shiken'&&SK){
+  if(SK.ended)parts.push('結果');
+  else parts.push('問 '+(SK.i+1)+'/'+SK.qs.length);
+ }else if(current==='zukan'&&ZF.cat&&ZF.cat!=='all'&&CATBY[ZF.cat]){
+  parts.push(CATBY[ZF.cat].n);
+ }
+ var sh=$('#sheet');
+ if(sh&&!sh.hidden&&activeSheetLabel)parts.push(activeSheetLabel);
+ return parts.join('／');
+};
 
 /* iPad 版：遊んでいる途中は新しい版への自動入れ替えをしない（ホーム・図鑑・各モードの説明と結果の画面だけ入れ替えてよい） */
 window.__ipadIdle=function(){if(!$('#sheet').hidden||rankupEl)return false;if(current==='home'||current==='zukan')return true;var v=$('#v-'+current);return !!(v&&(v.querySelector('.intro')||v.querySelector('.result')));};
