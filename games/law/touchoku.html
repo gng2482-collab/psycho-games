@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="robots" content="noindex, nofollow">
-<meta name="app-version" content="20261120141754">
+<meta name="app-version" content="20261120195434">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
@@ -267,6 +267,127 @@ thead th{font-size:var(--fs-xs); letter-spacing:.08em; color:var(--muted); font-
 tbody th{white-space:nowrap}
 tbody tr:last-child th, tbody tr:last-child td{border-bottom:0}
 .foot{margin-top:28px; font-size:var(--fs-xs); color:var(--muted); max-width:52em}
+.rule a{display:inline-flex;align-items:center;min-height:44px;padding:0 4px}
+
+/* 見て分かる入院形態フローチャート・明暗切替（Gemini 担当） */
+:root{
+  --fl-stage:#eef3fa; --fl-node:#ffffff; --fl-dim:rgba(27,33,51,.32);
+  --fl-ok-bg:color-mix(in srgb, var(--ok) 14%, var(--panel));
+  --fl-warn-bg:color-mix(in srgb, var(--lamp) 15%, var(--panel));
+  --fl-ng-bg:color-mix(in srgb, var(--seal) 13%, var(--panel));
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --fl-stage:#141926; --fl-node:#1d2436; --fl-dim:rgba(227,231,241,.30);
+  }
+}
+:root[data-theme="dark"]{
+  --fl-stage:#141926; --fl-node:#1d2436; --fl-dim:rgba(227,231,241,.30);
+}
+.fl-top-row{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.fl-theme-btn{
+  flex:none;display:inline-flex;align-items:center;justify-content:center;gap:5px;
+  min-width:44px;min-height:44px;padding:0 11px;border-radius:999px;
+  border:1.5px solid var(--line);background:var(--panel);color:var(--ink);
+  font:inherit;font-size:var(--fs-xs);font-weight:700;cursor:pointer;white-space:nowrap;touch-action:manipulation;
+}
+.fl-theme-btn:hover{border-color:var(--accent)}
+.fl-theme-btn svg{width:17px;height:17px;fill:none;stroke:currentColor;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
+@media (max-width:420px){.fl-theme-lbl{display:none}.fl-theme-btn{padding:0;width:44px}}
+
+.fl-lab{
+  margin-top:18px;background:var(--panel);border:1.5px solid var(--line);
+  border-radius:10px;overflow:hidden;box-shadow:0 2px 10px color-mix(in srgb, var(--ink) 7%, transparent);
+}
+.fl-lab-head{
+  display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:nowrap;
+  padding:8px 12px;background:var(--accent-soft);border-bottom:1px solid var(--line);
+}
+.fl-lab-title{
+  flex:1;min-width:0;display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin:0;
+  font-family:var(--f-display);font-weight:400;font-size:.98rem;line-height:1.3;color:var(--ink);
+}
+.fl-badge{
+  font-family:var(--f-body);font-size:.7rem;font-weight:700;padding:2px 8px;border-radius:999px;
+  background:var(--accent);color:var(--accent-ink);white-space:nowrap;
+}
+.fl-toggle{
+  min-height:44px;padding:0 12px;border-radius:8px;border:1px solid var(--line);
+  background:var(--panel);color:var(--ink);font:inherit;font-size:var(--fs-xs);font-weight:700;
+  cursor:pointer;touch-action:manipulation;white-space:nowrap;
+}
+.fl-toggle:hover{border-color:var(--accent)}
+.fl-lab-body{padding:14px;display:grid;gap:12px}
+.fl-lab-body[hidden]{display:none!important}
+
+.fl-stage{background:var(--fl-stage);border:1px solid var(--line);border-radius:9px;padding:8px;overflow:hidden}
+.fl-svg{display:block;width:100%;height:auto;max-width:700px;margin:0 auto}
+.fl-svg text{font-family:var(--f-body);fill:var(--ink)}
+.fl-svg .n-box{transition:opacity .25s,stroke-width .25s}
+.fl-svg .n-dim{opacity:.34}
+.fl-svg .n-cur{stroke:var(--accent);stroke-width:3}
+.fl-svg .n-hit-ok{fill:var(--fl-ok-bg);stroke:var(--ok);stroke-width:2.8}
+.fl-svg .n-hit-acc{fill:var(--accent-soft);stroke:var(--accent);stroke-width:2.8}
+.fl-svg .n-hit-warn{fill:var(--fl-warn-bg);stroke:var(--lamp);stroke-width:2.8}
+.fl-svg .n-hit-ng{fill:var(--fl-ng-bg);stroke:var(--seal);stroke-width:2.8}
+.fl-svg .e-on{stroke:var(--accent);stroke-width:3;opacity:1}
+.fl-svg .e-dim{stroke:var(--line);stroke-width:1.6;opacity:.42}
+
+.fl-stepbox{
+  background:var(--paper);border:1.5px solid var(--line);border-radius:9px;
+  padding:12px 14px;display:grid;gap:10px;
+}
+.fl-crumb{display:flex;flex-wrap:wrap;align-items:center;gap:5px;font-size:var(--fs-xs);color:var(--muted)}
+.fl-crumb b{color:var(--accent)}
+.fl-q{margin:0;font-size:1.02rem;font-weight:700;color:var(--ink)}
+.fl-choices{display:grid;grid-template-columns:1fr;gap:8px}
+@media (min-width:560px){.fl-choices{grid-template-columns:repeat(auto-fit,minmax(190px,1fr))}}
+.fl-ch{
+  min-height:48px;padding:8px 12px;border-radius:8px;border:1.5px solid var(--accent);
+  background:var(--panel);color:var(--ink);font:inherit;font-size:var(--fs-s);font-weight:700;
+  text-align:left;cursor:pointer;display:grid;gap:2px;touch-action:manipulation;transition:background .15s,transform .1s;
+}
+.fl-ch:hover{background:var(--accent-soft)}
+.fl-ch:active{transform:scale(.98)}
+.fl-ch small{font-size:var(--fs-xs);font-weight:400;color:var(--muted)}
+.fl-goal{
+  padding:12px 14px;border-radius:9px;border:2px solid var(--accent);background:var(--panel);
+  display:grid;gap:8px;animation:flFade .28s ease-out;
+}
+.fl-goal.g-ok{border-color:var(--ok);background:var(--fl-ok-bg)}
+.fl-goal.g-warn{border-color:var(--lamp);background:var(--fl-warn-bg)}
+.fl-goal.g-ng{border-color:var(--seal);background:var(--fl-ng-bg)}
+.fl-goal-h{margin:0;font-family:var(--f-display);font-weight:400;font-size:1.25rem;display:flex;flex-wrap:wrap;align-items:baseline;gap:8px}
+.fl-goal-grid{display:grid;grid-template-columns:1fr;gap:5px;font-size:var(--fs-xs)}
+@media (min-width:520px){.fl-goal-grid{grid-template-columns:1fr 1fr}}
+.fl-goal-item{background:var(--panel);border:1px solid var(--line);border-radius:6px;padding:6px 9px}
+.fl-goal-item b{display:block;color:var(--muted);font-size:.7rem;margin-bottom:1px}
+.fl-bar{display:flex;flex-wrap:wrap;align-items:center;gap:8px}
+.fl-subbtn{
+  min-height:44px;padding:0 12px;border-radius:8px;border:1.5px solid var(--line);
+  background:var(--panel);color:var(--ink);font:inherit;font-size:var(--fs-xs);font-weight:700;
+  cursor:pointer;touch-action:manipulation;
+}
+.fl-subbtn:hover{border-color:var(--accent)}
+.fl-subbtn[aria-pressed="true"]{border-color:var(--lamp);background:var(--fl-warn-bg);color:var(--ink)}
+
+/* 症例カード内の当直条件パネル */
+.fl-case{
+  border:1.5px solid var(--line);border-radius:8px;background:var(--fl-stage);
+  padding:10px 12px;display:grid;gap:8px;font-size:var(--fs-xs);
+}
+.fl-case.is-night{border-color:var(--lamp);background:var(--fl-warn-bg)}
+.fl-case-h{display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap;font-weight:700}
+.fl-doc{padding:2px 9px;border-radius:999px;background:var(--accent);color:var(--accent-ink);font-size:.74rem}
+.fl-case.is-night .fl-doc{background:var(--lamp);color:#fff}
+.fl-pills{display:flex;flex-wrap:wrap;gap:6px}
+.fl-pill{padding:3px 9px;border-radius:6px;background:var(--panel);border:1px solid var(--line);font-weight:700}
+.fl-path{
+  padding:7px 10px;border-radius:7px;background:var(--ok-soft);border:1px solid var(--ok);
+  font-weight:700;color:var(--ink);animation:flFade .28s ease-out;
+}
+.fl-path b{color:var(--ok)}
+@keyframes flFade{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
 </style>
 
 <div class="wrap">
@@ -299,10 +420,11 @@ tbody tr:last-child th, tbody tr:last-child td{border-bottom:0}
       <table>
         <thead><tr><th scope="col">入院の形</th><th scope="col">診察する医師</th><th scope="col">同意</th><th scope="col">期間</th><th scope="col">届出</th></tr></thead>
         <tbody>
-          <tr><th scope="row">任意入院<br><span class="muted">20条</span></th><td>要件ではない。退院を制限するときは指定医（72時間）か特定医師（12時間）</td><td>本人（書面）</td><td>定めなし</td><td>不要</td></tr>
-          <tr><th scope="row">医療保護入院<br><span class="muted">33条</span></th><td>指定医1名。特定病院では特定医師が12時間に限り可</td><td>家族等のいずれか。家族等がいない・全員が意思を示さないときは市町村長</td><td>6か月までは3か月以内、以後6か月以内ごとに更新</td><td>10日以内に保健所長を経て知事へ</td></tr>
-          <tr><th scope="row">応急入院<br><span class="muted">33条の6</span></th><td>指定医1名（特定医師は12時間）</td><td>不要。急速を要し家族等の同意を得られないとき</td><td>72時間</td><td>直ちに保健所長を経て知事へ</td></tr>
-          <tr><th scope="row">措置入院<br><span class="muted">29条</span></th><td>指定医2名以上で判定が一致</td><td>不要。知事（指定都市は市長）が決める</td><td>定めなし（症状が消えたら解除）</td><td>知事が決定する</td></tr>
+          <!-- 査読：任意入院・医療保護入院の特例と応急入院の指定病院を明記し、措置解除の条件を29条の4に合わせる。 -->
+          <tr><th scope="row">任意入院<br><span class="muted">20・21条</span></th><td>入院時の指定医の診察は不要。退院制限は指定医で最長72時間。特定病院で緊急などやむを得ないときは特定医師で最長12時間</td><td>本人（書面）</td><td>定めなし</td><td>入院時の届出は不要</td></tr>
+          <tr><th scope="row">医療保護入院<br><span class="muted">33条</span></th><td>指定医1名。特定病院で緊急などやむを得ないときは特定医師で最長12時間</td><td>家族等のいずれか。家族等がいないか、全員が意思表示できない、または同意も不同意も示さないときは市町村長</td><td>6か月までは3か月以内、以後6か月以内ごとに更新</td><td>10日以内に保健所長を経て知事へ</td></tr>
+          <tr><th scope="row">応急入院<br><span class="muted">33条の6</span></th><td>応急入院指定病院で指定医1名。緊急などやむを得ないときは特定医師で最長12時間</td><td>不要。急速を要し家族等の同意を得られないとき</td><td>最長72時間</td><td>直ちに保健所長を経て知事へ</td></tr>
+          <tr><th scope="row">措置入院<br><span class="muted">29条</span></th><td>指定医2名以上で判定が一致</td><td>不要。知事（指定都市は市長）が決める</td><td>定めなし。入院を続けなくても精神障害による自傷他害のおそれがないと認められれば解除</td><td>知事が決定する</td></tr>
           <tr><th scope="row">緊急措置入院<br><span class="muted">29条の2</span></th><td>指定医1名</td><td>不要。知事が決める</td><td>72時間</td><td>知事が決定する</td></tr>
         </tbody>
       </table>
@@ -323,14 +445,17 @@ tbody tr:last-child th, tbody tr:last-child td{border-bottom:0}
       story: '33歳の女性。幻覚妄想が強まり、診察室でも興奮して入院を拒みます。配偶者の夫には、裁判所の保護命令（DV）が出ています。両親は亡くなっており、きょうだいや子はいません。指定医の診察で、入院が必要で任意入院ができる状態ではないと判定しました。',
       memo: [['本人の同意', 'なし（拒否）'], ['自傷他害のおそれ', 'はっきりしない'], ['家族等', '夫のみ（DVの加害者）'], ['診察した医師', '精神保健指定医'], ['時間帯', '平日の日中。役所に連絡がつく']],
       qs: [
+        // 査読：このケースで夫を同意者から外す根拠は第5条第2項第4号。
         { q: '入院の形は？', a: ['医療保護入院（市町村長の同意）', '医療保護入院（夫の同意）', '応急入院', '任意入院'],
-          why: '2022年の改正（2023年4月施行）で、DV・虐待の加害者は「家族等」から外れました。ほかに家族等がいないので、本人の居住地の市町村長が同意します。日中で同意の手続きがとれるので、応急入院を使う場面ではありません。',
-          law: '33条（家族等の範囲、市町村長の同意）' },
-        { q: '市町村長の同意を使えるのはどんなとき？', a: ['家族等がいないとき、または家族等の全員が意思を示さないとき', '家族等と夜間や休日に連絡がつかず、朝まで待てないとき', '家族等のうち1人でも入院に反対し、意見が割れたとき', '本人が、家族ではなく市町村長の同意を希望したとき'],
-          why: '家族等が「いない」か「全員が同意も不同意も示さない」ときに使えます（後者は2024年の改正で加わりました）。連絡がつかないだけなら家族等はいるので使えません。家族等が反対したときも使えません。',
-          law: '33条' },
+          why: '2023年4月から、本人に暴力を加えた配偶者などは「家族等」から除かれます。この夫は同意者になれず、ほかに該当する家族等もいないため、本人の居住地の市町村長に同意を求めます。',
+          law: '5条2項・33条2項' },
+        // 査読：意思表示できない場合も第33条第2項の対象。明示の不同意と一時的な不通を区別する。
+        { q: '市町村長の同意を使えるのは、家族等がいない場合と、ほかにどんな場合？', a: ['全員が意思表示できないか、同意も不同意も示さない', '夜間や休日に電話がつながらず、朝まで待てない', '家族等のうち1人でも入院に反対し、意見が割れた', '本人が家族に知らせず、市町村長に判断してほしいと希望した'],
+          why: '家族等全員が意思を表示できない場合や、同意・不同意のどちらも示さない場合が対象です。一時的に電話がつながらない事情だけでは該当しません。家族等が不同意を示した場合、市町村長の同意でその意思を置き換えることはできません。',
+          law: '33条2項' },
+        // 査読：更新にも所定の同意が必要。2週間の扱いは施行規則15条の10・14・15の要件に限る。
         { q: '医療保護入院の期間は？', a: ['入院から6か月までは3か月以内、その後は6か月以内ごとに更新', '定めはない（指定医が必要と認めるあいだ続けられる）', '入院から72時間まで。続けるには措置診察を受ける', '入院から1年以内。その後は1年ごとに更新する'],
-          why: '2024年の改正で、医療保護入院に期間が定められました。続けるには、指定医の診察で要件を確かめ、退院支援委員会で審議し、家族等の同意を得て更新します。家族等に通知して2週間、不同意の意思表示がなければ同意したものとみなされます。',
+          why: '更新には、指定医による入院要件の再確認、医療保護入院者退院支援委員会での審議、家族等または該当する場合の市町村長の同意が必要です。直前の入院・更新に同意した家族等に所定の通知を出し、満了日前に通知から2週間が経過して誰からも不同意の意思表示がないなどの要件を満たす場合は、家族等の同意があったとみなせます。',
           law: '33条・施行規則' }
       ]
     },
@@ -343,8 +468,9 @@ tbody tr:last-child th, tbody tr:last-child td{border-bottom:0}
         { q: '入院の形は？', a: ['任意入院', '医療保護入院（妻の同意）', '応急入院', '措置入院'],
           why: '本人が同意できるなら、まず任意入院です。法は、本人の同意に基づいて入院できるよう努めることを病院に求めています。妻が付き添っていても、妻の同意で入院させる理由はありません。',
           law: '20条' },
+        // 査読：ここで不要なのは入院時の届出。定期病状報告とは区別する。
         { q: '入院のときに要るものは？', a: ['本人の書面の同意と、退院の請求などを書いた書面での告知', '指定医の診察と、任意入院が妥当とする診療録の記載', '付き添った妻（家族等）の書面による同意', '10日以内に保健所長を経て知事に出す入院届'],
-          why: '任意入院では、指定医の診察は要件ではなく、届出も要りません。要るのは本人の書面による同意と、退院を求めることができることなどを書いた書面での告知です。',
+          why: '任意入院に指定医の診察は必要なく、入院時の届出も不要です。病院は、本人から自ら入院する旨の書面を受け取り、退院等を請求できることなどを書面で知らせます。',
           law: '21条' },
         { q: '病棟で「やっぱり帰る」と言い出したとき、指定医が診察して入院を続ける必要があると判断した。退院を止められるのは？', a: ['72時間まで', '12時間まで', '任意入院なので止められない', '妻が同意すれば期限なく'],
           why: '指定医の診察で必要と認めれば、72時間に限り退院を制限できます。その間に医療保護入院への切り替えなどを考えます。',
@@ -372,17 +498,21 @@ tbody tr:last-child th, tbody tr:last-child td{border-bottom:0}
       time: '21:50', where: '救急外来（救急隊が搬送）', night: false,
       title: '姉に電話がつながらない', stamp: ['応急', ''], stampName: '応急入院',
       story: '58歳の男性。双極症で、一人暮らしです。コンビニで大声をあげ、救急隊が運んできました。興奮して入院を拒みます。家族等は県外に住む姉だけで、何度かけても電話がつながりません。指定医が、すぐ入院させなければ本人の医療と保護に大きな支障があると判定しました。当院は応急入院指定病院です。',
-      memo: [['本人の同意', 'なし（拒否）'], ['自傷他害のおそれ', '他人を傷つけてはいない'], ['家族等', '姉（連絡がつかない）'], ['当直', '精神保健指定医'], ['病院', '応急入院指定病院']],
+      // 査読：他害行為の有無と、今後の自傷他害のおそれの評価を区別する。
+      memo: [['本人の同意', 'なし（拒否）'], ['自傷他害のおそれ', '診察時点では確認できない'], ['家族等', '姉（連絡がつかない）'], ['当直', '精神保健指定医'], ['病院', '応急入院指定病院']],
       qs: [
+        // 査読：家族等の存在だけでなく、姉の電話番号が判明し一時的に不通である点を理由にする。
         { q: '入院の形は？', a: ['応急入院', '医療保護入院（市町村長の同意）', '措置入院', '任意入院'],
-          why: '家族等（姉）はいるので、市町村長の同意は使えません。急速を要し、家族等の同意を得られないので応急入院です。その間に姉と連絡をとり、医療保護入院への切り替えを考えます。',
+          why: '姉の電話番号はわかっていて、現時点では電話に出ない状況です。その事情だけでは市町村長の同意を求める条件に該当しません。直ちに入院が必要で家族等の同意を得られないため、応急入院とし、その間に姉との連絡を試みます。',
           law: '応急入院' },
-        { q: '応急入院の期限は？', a: ['72時間', '12時間', '10日', '3か月'],
-          why: '指定医の診察なら72時間です。特定医師が診察した場合は12時間です。',
+        // 査読：12時間の特例は緊急その他やむを得ない場合に限る（33条の6第2項）。
+        { q: 'この応急入院の上限は？', a: ['72時間', '12時間', '10日', '3か月'],
+          why: '指定医の診察による応急入院の上限は72時間です。緊急などやむを得ない理由で指定医に代えて特定医師が診察する特例では、最長12時間です。',
           law: '応急入院' },
+        // 査読：直ちに届け出る根拠は、同意の有無一般でなく応急入院に関する個別の規定。
         { q: '届出は？', a: ['直ちに、最寄りの保健所長を経て都道府県知事へ', '10日以内に、最寄りの保健所長を経て都道府県知事へ', '72時間がたち、入院を続けると決めてから知事へ', '72時間以内に退院するなら、届出は要らない'],
-          why: '応急入院は本人と家族等の同意のない入院なので、届出は「直ちに」です。',
-          law: '応急入院' }
+          why: '病院の管理者は、応急入院の措置を採った理由などを、直ちに最寄りの保健所長を経て都道府県知事に届け出ます。',
+          law: '33条の6第5項' }
       ]
     },
     {
@@ -397,8 +527,9 @@ tbody tr:last-child th, tbody tr:last-child td{border-bottom:0}
         { q: '入院させると決めるのは？', a: ['都道府県知事（指定都市は市長）', '入院先の病院の管理者（院長）', '診察して判定した指定医', '通報した警察署の署長'],
           why: '措置入院と緊急措置入院は、知事の行政処分です。指定医は診察して判定しますが、決めるのは知事です。',
           law: '29条・29条の2' },
-        { q: '緊急措置入院の期限は？', a: ['72時間（その間に指定医2名の措置診察を行う）', '12時間（その間に指定医1名がもう一度診察する）', '3か月（その間に精神医療審査会が審査する）', '期限はない（症状が消えたら知事が解除する）'],
-          why: '72時間を超えられません。その間に、措置入院にするかどうかを決める診察を行います。',
+        // 査読：72時間は上限。措置入院への移行の可否は速やかに決める（29条の2第2・3項）。
+        { q: '緊急措置入院の上限は？', a: ['72時間', '12時間', '3か月', '期限なし'],
+          why: '上限は72時間です。知事は速やかに、措置入院の手続をとるかどうかを決めます。',
           law: '29条の2' }
       ]
     },
@@ -408,8 +539,9 @@ tbody tr:last-child th, tbody tr:last-child td{border-bottom:0}
       story: '67歳の女性。うつ病が再燃し、ほとんど動かず、話しかけてもわずかにうなずくだけです。2日前から水も飲みません。入院の意思を示すことができません。夫が付き添い、入院に同意しています。0時から当直は特定医師で、指定医は朝まで来られません。当院は知事が認めた特定病院です。',
       memo: [['本人の同意', '示せない'], ['自傷他害のおそれ', 'なし'], ['家族等', '夫（同意あり）'], ['当直', '特定医師（指定医ではない）'], ['病院', '特定病院']],
       qs: [
-        { q: '入院の形は？', a: ['医療保護入院', '任意入院', '応急入院', '措置入院'],
-          why: '本人は意思を示せず、夫が同意しています。家族等の同意があるので医療保護入院です。夜間で指定医がいないことは、次の問いに関わります。',
+        // 査読：家族の同意だけでは足りず、今夜は特定医師の医学的な判定が必要。選択肢の長さも調整。
+        { q: '入院の要件を満たすと特定医師が判定したら、どの形を選ぶ？', a: ['医療保護入院', '本人同意の任意入院', '応急入院', '措置入院'],
+          why: '入院による医療と保護が必要で、精神障害のために任意入院ができないと特定医師が判定した場合、この特定病院では、夫の同意を得て特例による医療保護入院とできます。',
           law: '33条' },
         { q: '指定医のいない今夜、できることは？', a: ['特定医師の診察で、12時間に限り入院させる', '特定医師の診察で、72時間に限り入院させる', '指定医が来るまでは入院させられない', '夫の同意があるので、通常どおり入院させる'],
           why: '緊急その他やむを得ない理由があるとき、特定病院では特定医師の診察で12時間に限り医療保護入院させられます。その後も続けるには指定医の診察が要ります。',
@@ -422,16 +554,19 @@ tbody tr:last-child th, tbody tr:last-child td{border-bottom:0}
     {
       time: '3:20', where: '救急外来（救急隊が搬送）', night: true,
       title: '名前のわからない女性', stamp: ['応急', '身元不明'], stampName: '応急入院 → 医療保護入院（市町村長同意）',
-      story: '30代くらいの女性。駅で立ちつくし、呼びかけに答えず、水も飲みません（昏迷）。身体の病気は救急科で除外されました。身分証などはなく、名前も家族もわかりません。いますぐ入院が必要です。当院は応急入院指定病院で、当直は精神保健指定医です。',
+      // 査読：応急入院には、入院の緊急性に加え、精神障害のため任意入院できないことの判定が必要。
+      story: '30代くらいの女性。駅で立ちつくし、呼びかけに答えず、水も飲みません（昏迷）。救急科で身体の病気を調べたうえで、当直の精神保健指定医が、精神障害のため任意入院ができず、直ちに入院させなければ医療と保護に著しい支障があると判定しました。身分証などはなく、名前も家族もわかりません。当院は応急入院指定病院です。',
       memo: [['本人の同意', 'できない（昏迷）'], ['自傷他害のおそれ', 'なし'], ['家族等', 'わからない（身元不明）'], ['病院', '応急入院指定病院'], ['当直', '精神保健指定医']],
       qs: [
         { q: '今夜の入院の形は？', a: ['応急入院', '医療保護入院（夫の同意を朝にもらう）', '措置入院', '任意入院'],
           why: '急いで入院させる必要があり、本人は同意できず、家族等の同意も得られません。応急入院指定病院で、指定医の診察により72時間に限り応急入院できます。自傷他害のおそれはないので措置ではありません。',
           law: '33条の6（応急入院）' },
-        { q: '72時間たっても身元がわからない。入院が必要なら？', a: ['家族等がいない場合として、いま本人がいる場所の市町村長の同意で医療保護入院にする', '応急入院をもう72時間延ばす', '身元がわかるまで任意入院として扱う', '措置入院に切り替える'],
-          why: '身元がわからず家族等が確かめられないときは、家族等がいない場合として、居住地（わからなければ現在地）の市町村長の同意で医療保護入院にします。応急入院は延ばせません。',
-          law: '33条（市町村長の同意）' },
-        { q: '医療保護入院にしたら、病院が選ばなければならないのは？', a: ['退院後生活環境相談員', '成年後見人', '保護者', '身元保証人'],
+        // 査読：期限を迎える前に調査と依頼を進める。居住地不明時は現在地の市町村長が管轄（33条2項・市町村長同意事務処理要領）。
+        { q: '応急入院の期限が近い。調べても身元や家族等がわからず、医療保護入院の医学的要件を満たすときは？', a: ['現在地の市町村長に同意を求める', '応急入院をもう72時間延ばす', '身元がわかるまで任意入院として扱う', '措置入院に切り替える'],
+          why: '家族等の調査と市町村長への同意の依頼を速やかに進めます。居住地がわからない場合は現在地の市町村長に同意を求め、要件がそろえば応急入院の期限までに医療保護入院へ切り替えます。',
+          law: '33条2項・33条の6' },
+        // 査読：相談員の名称だけで答えが推測できないよう、ほかの選択肢にも役割を添える。
+        { q: '医療保護入院にしたら、病院が選ばなければならないのは？', a: ['退院後生活環境相談員', '財産を管理する成年後見人', '費用を保証する身元保証人', '入院先との連絡を担う保護者'],
           why: '医療保護入院者には、退院後生活環境相談員（精神保健福祉士など）を選び、退院に向けた相談や調整をします。2024年の改正で、措置入院者にも選ぶことが義務になりました。「保護者」の制度は2014年になくなっています。',
           law: '33条の4（退院後生活環境相談員）' }
       ]
@@ -442,15 +577,18 @@ tbody tr:last-child th, tbody tr:last-child td{border-bottom:0}
       story: '18:20に任意入院した42歳の男性が、荷物をまとめて「やっぱり帰る」と言っています。「帰ったら死ぬしかない」とも口にします。当直の特定医師が診察し、入院を続ける必要があると判断しました。指定医は朝まで来られません。',
       memo: [['入院の形', '任意入院'], ['本人', '退院を求めている'], ['自傷他害のおそれ', '希死念慮が強まっている'], ['当直', '特定医師（指定医ではない）'], ['病院', '特定病院']],
       qs: [
+        // 査読：特定医師の退院制限は例外的な措置。指定医の診察だけで無期限には延ばせない。
         { q: 'どうする？', a: ['特定医師の診察で、12時間に限り退院を制限する', '特定医師の診察で、72時間に限り退院を制限する', '任意入院なので、帰すしかない', '妻の同意があるので、期限なく医療保護入院に切り替える'],
-          why: '特定病院では、特定医師の診察で12時間に限り退院を制限できます。期限を区切らずに入院を続けるには、朝に指定医が診察して判断します。',
+          why: '緊急などやむを得ないとき、特定病院では、特定医師の診察で最長12時間の退院制限ができます。その間に指定医の診察を手配し、本人の意思や病状を再評価して、必要なら別の入院形態の要件を確認します。',
           law: '21条（特定医師による退院制限）' },
-        { q: '朝に指定医が診察した場合なら、退院を制限できる期間は？', a: ['72時間', '12時間', '24時間', '期限はない'],
-          why: '指定医なら72時間です。特定医師は12時間。数字の組み合わせは応急入院と同じです。',
+        // 査読：再診で72時間が新たに始まると読める設問を避け、第21条第3項の原則を問う。
+        { q: '最初から指定医の診察に基づいて退院を制限する場合、上限は？', a: ['72時間', '12時間', '24時間', '期限はない'],
+          why: '指定医の診察で、医療と保護のため入院を続ける必要があると認められた場合、退院制限は最長72時間です。',
           law: '21条' },
+        // 査読：21条7項には、医療保護入院の告知のような病状による延期規定がない。
         { q: '退院を制限するとき、本人には？', a: ['制限すること、その理由、退院などを求められることを書面で知らせる', '制限することを口頭で伝え、診療録に書いておけば足りる', '家族等に書面で知らせれば、本人には知らせなくてよい', '不穏になるおそれがあるので、制限が終わるまで伏せておく'],
-          why: '退院の制限は本人の意思に反する処遇なので、書面で知らせます。病状のためにすぐ知らせにくいときでも、落ち着いたら知らせます。',
-          law: '21条・施行規則' }
+          why: '退院を制限する際には、本人にその理由と退院等を請求できることなどを、書面で知らせる必要があります。',
+          law: '21条7項' }
       ]
     },
     {
@@ -462,8 +600,9 @@ tbody tr:last-child th, tbody tr:last-child td{border-bottom:0}
         { q: '入院の形は？', a: ['入院させない（外来で治療する）', '医療保護入院（妻の同意）', '応急入院', '措置入院'],
           why: '医療保護入院には、指定医が「入院が必要で、任意入院ができる状態にない」と判定することが要ります。妻が同意していても、この判定がなければ入院させられません。',
           law: '33条' },
-        { q: '医療保護入院の要件として正しいのは？', a: ['指定医の判定と、家族等の同意の両方', '家族等の同意があれば、指定医の判定は要らない', '指定医の判定があれば、家族等の同意は要らない', '本人と家族等の両方が同意していること'],
-          why: '指定医の判定と家族等（または市町村長）の同意が、両方そろって初めて医療保護入院になります。',
+        // 査読：特定医師、市町村長同意、法34条2項による移送の経路があるため、ここは原則を問う。
+        { q: '通常の医療保護入院で、同意できる家族等がいる場合の要件は？', a: ['指定医の判定と、家族等の同意の両方', '家族等の同意があれば、指定医の判定は要らない', '指定医の判定があれば、家族等の同意は要らない', '本人と家族等の両方が同意していること'],
+          why: '原則は、指定医が入院の必要性と、精神障害のため任意入院が行われる状態にないことを確認し、家族等の同意を得ることです。',
           law: '33条' },
         { q: 'アルコール依存症は、精神保健福祉法の「精神障害者」に入る？', a: ['入る（精神作用物質の依存症として）', '入らない', '離脱せん妄のときだけ入る', '肝障害などの合併症があるときだけ入る'],
           why: '法の定義に「精神作用物質による急性中毒又はその依存症」が含まれます。入院の要件を満たせば、医療保護入院などの対象になります。',
@@ -482,9 +621,10 @@ tbody tr:last-child th, tbody tr:last-child td{border-bottom:0}
         { q: '措置入院に必要な診察は？', a: ['指定医2名以上で、判定が一致すること', '指定医1名', '指定医1名と特定医師1名', '医師2名（指定医でなくてよい）'],
           why: '2名以上の指定医の診察結果が一致することが要件です。1名で足りるのは緊急措置入院です。',
           law: '29条' },
+        // 査読：措置入院を採らない旨の通知を受けた時点で緊急措置入院は終了する（29条の3）。
         { q: 'もし2人目が「おそれなし」と判定していたら？', a: ['措置入院にはできない。医療保護入院などほかの形を考える', '1人目の指定医の判定があるので、措置入院にできる', '3人目の指定医を呼び、多数決で措置入院を決める', '結論が出るまで、緊急措置入院を72時間延長する'],
-          why: '判定が一致しなければ措置入院にはなりません。緊急措置入院は延長できないので、入院が必要なら医療保護入院などを考えます。',
-          law: '29条・29条の2' }
+          why: '指定医の判定が一致しなければ措置入院には移行できません。措置入院を採らない旨の通知が来たら、病院は直ちに緊急措置入院を終えます。引き続き治療が必要なら、本人の同意で入院できるか、医療保護入院の要件を満たすかなどを確認します。',
+          law: '29条・29条の2・29条の3' }
       ]
     }
   ];
@@ -720,6 +860,311 @@ tbody tr:last-child th, tbody tr:last-child td{border-bottom:0}
     CASES.forEach(function (c, i) { c.qs.forEach(function (q, qi) { S.picks[i][qi] = Math.random() < (r == null ? 1 : r) ? 0 : 1; }); });
     S.ci = -1; render();
   };
+})();
+</script>
+<script>
+/* 当直の入院判定：触って進む入院形態フローチャート＋症例条件パネル＋明暗切替（Gemini 担当） */
+(function () {
+  'use strict';
+  var darkMQ = window.matchMedia ? window.matchMedia('(prefers-color-scheme: dark)') : null;
+  var themePref = 'auto';
+  function isDark() { return themePref === 'dark' ? true : themePref === 'light' ? false : !!(darkMQ && darkMQ.matches); }
+  function syncTheme() {
+    var r = document.documentElement;
+    if (themePref === 'dark' || themePref === 'light') r.setAttribute('data-theme', themePref);
+    else r.removeAttribute('data-theme');
+    var b = document.getElementById('flThemeBtn'); if (!b) return;
+    var dk = isDark();
+    b.setAttribute('aria-label', dk ? '明るい画面に切り替える' : '暗い画面に切り替える');
+    b.innerHTML = dk
+      ? '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg><span class="fl-theme-lbl">明るく</span>'
+      : '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg><span class="fl-theme-lbl">暗く</span>';
+  }
+  function mountTheme() {
+    var top = document.querySelector('.top'), eye = top && top.querySelector('.eyebrow');
+    if (!top || !eye || document.getElementById('flThemeBtn')) return;
+    var row = document.createElement('div'); row.className = 'fl-top-row';
+    eye.parentNode.insertBefore(row, eye); row.appendChild(eye);
+    var b = document.createElement('button'); b.type = 'button'; b.id = 'flThemeBtn'; b.className = 'fl-theme-btn';
+    b.addEventListener('click', function () { themePref = isDark() ? 'light' : 'dark'; syncTheme(); });
+    row.appendChild(b); syncTheme();
+    if (darkMQ) { try { darkMQ.addEventListener('change', function () { if (themePref === 'auto') syncTheme(); }); } catch (e) {} }
+  }
+
+  /* ---------- 入院形態の分岐ツリー（精神保健福祉法：2023/2024改正対応） ---------- */
+  var NODES = {
+    // 査読：入院が必要な場合に限る学習用の図とし、要件を満たさない場合に入院へ誘導しない。
+    s1: {
+      q: '① 入院による医療と保護が必要な場合、本人の同意はあるか？ 各形態の代表的な条件をたどります。該当する選択肢がなければ、その入院形態は選べません。',
+      choices: [
+        { label: '同意あり（書面で同意できる）', sub: '本人の意思で入院する', to: 'nini', edge: 'e-s1-nini' },
+        { label: '本人の同意を得られない', sub: '精神障害のため任意入院ができる状態にない場合など', to: 's2', edge: 'e-s1-s2' }
+      ]
+    },
+    // 査読：措置入院は「入院しなければ精神障害による自傷他害のおそれ」という判定を要する（29条）。
+    s2: {
+      q: '② 入院しなければ、精神障害のため自分や他人を傷つけるおそれがあるか？',
+      choices: [
+        { label: 'おそれがあると判定された', sub: '措置入院の要件を確認する', to: 's3a', edge: 'e-s2-s3a' },
+        { label: '措置入院に必要なおそれは確認できない', sub: '医療保護・応急入院の要件を確認する', to: 's3b', edge: 'e-s2-s3b' }
+      ]
+    },
+    // 査読：緊急措置入院は通常の手続をとれず、直ちに入院しなければ自傷他害のおそれが著しい場合（29条の2）。
+    s3a: {
+      q: '③ 通常の措置入院の手続がとれるか？',
+      choices: [
+        { label: '通常の手続がとれ、指定医2名以上の判定が一致した', sub: '知事等が措置入院を決定する', to: 'sochi', edge: 'e-s3a-sochi' },
+        { label: '急を要し、通常の手続がとれない', sub: '指定医1名が、直ちに入院しなければ自傷他害のおそれが著しいと判定した', to: 'kinsochi', edge: 'e-s3a-kin' }
+      ]
+    },
+    // 査読：市町村長同意の対象と同意の成立を区別する。応急入院は33条の6の緊急性が必要。
+    s3b: {
+      q: '③ 精神障害のため任意入院ができない場合、家族等か市町村長の同意を得られるか？',
+      choices: [
+        { label: '家族等のいずれかが同意した', sub: '本人に暴力を加えた配偶者などは、法律上の家族等から除かれる', to: 'iho_fam', edge: 'e-s3b-iho' },
+        { label: '市町村長の同意を得た', sub: '家族等がいないか、全員が意思表示できない、または同意も不同意も示さない', to: 'iho_city', edge: 'e-s3b-iho' },
+        { label: '急を要し、家族等の同意を得られない', sub: '直ちに入院しなければ医療と保護に著しい支障があると判定され、応急入院指定病院で受け入れる', to: 'okyu', edge: 'e-s3b-okyu' }
+      ]
+    },
+    // 査読：21条の退院制限は、入院継続が必要と認めた場合に限る。
+    nini: {
+      goal: true, cls: 'g-ok', nodeId: 'nini', hitCls: 'n-hit-ok',
+      title: '任意入院（20・21条）',
+      doc: '入院時の指定医の診察は不要。退院の申出後に入院継続が必要と指定医が判定した場合、退院制限は最長72時間。',
+      tokutei: '特定病院で緊急などやむを得ないとき、特定医師の診察に基づき最長12時間の退院制限ができる。',
+      consent: '本人の書面による同意', period: '期間の定めなし', report: '入院時の届出は不要'
+    },
+    // 査読：家族等の同意があっても、入院の必要性と任意入院ができる状態かの判定が要る（33条）。
+    iho_fam: {
+      goal: true, cls: '', nodeId: 'iho', hitCls: 'n-hit-acc',
+      title: '医療保護入院・家族等同意（33条）',
+      doc: '精神保健指定医1名が、入院が必要で精神障害のため任意入院ができないと判定。',
+      tokutei: '特定病院で緊急などやむを得ないとき、特定医師の診察に基づき最長12時間の医療保護入院ができる。',
+      consent: '法律上の家族等のいずれか', period: '6か月までは3か月以内、以後6か月以内ごとに更新', report: '10日以内に保健所長を経て知事へ'
+    },
+    // 査読：管轄は居住地が原則。現在地を使うのは居住地がないか不明なとき（33条2項）。
+    iho_city: {
+      goal: true, cls: '', nodeId: 'iho', hitCls: 'n-hit-acc',
+      title: '医療保護入院・市町村長同意（33条）',
+      doc: '精神保健指定医1名が、入院が必要で精神障害のため任意入院ができないと判定。',
+      tokutei: '特定病院で緊急などやむを得ないとき、特定医師の診察に基づき最長12時間の医療保護入院ができる。',
+      consent: '本人の居住地の市町村長。居住地がないか不明な場合は、現在地の市町村長。', period: '6か月までは3か月以内、以後6か月以内ごとに更新', report: '10日以内に保健所長を経て知事へ'
+    },
+    // 査読：応急入院で特定医師が診察できる場面も緊急などやむを得ない場合に限る。
+    okyu: {
+      goal: true, cls: 'g-warn', nodeId: 'okyu', hitCls: 'n-hit-warn',
+      title: '応急入院（33条の6）',
+      doc: '応急入院指定病院で精神保健指定医1名が判定。',
+      tokutei: '応急入院指定病院で緊急などやむを得ないとき、特定医師の診察に基づき最長12時間の応急入院ができる。',
+      consent: '不要（急速を要し家族等の同意が得られないとき）', period: '72時間以内（特定医師は12時間）', report: '直ちに保健所長を経て知事へ'
+    },
+    // 査読：措置解除の基準は入院を続けなくても自傷他害のおそれがないこと（29条の4）。
+    sochi: {
+      goal: true, cls: 'g-ng', nodeId: 'sochi', hitCls: 'n-hit-ng',
+      title: '措置入院（29条）',
+      doc: '精神保健指定医 2名以上の診察で判定が一致',
+      tokutei: '特定医師：措置診察は不可（必ず指定医2名以上が必要）。',
+      consent: '不要（都道府県知事・指定都市市長が決定）', period: '期間の定めなし。入院を続けなくても精神障害による自傷他害のおそれがないと認められれば解除。', report: '知事が決定する'
+    },
+    kinsochi: {
+      goal: true, cls: 'g-ng', nodeId: 'kinsochi', hitCls: 'n-hit-ng',
+      title: '緊急措置入院（29条の2）',
+      doc: '精神保健指定医 1名の診察',
+      tokutei: '特定医師：緊急措置診察も不可（必ず指定医1名が必要）。',
+      consent: '不要（知事が決定・急速を要するとき）', period: '72時間以内', report: '知事が決定する'
+    }
+  };
+
+  function flowSVG(curId, visitedNodes, visitedEdges) {
+    function nCls(id, goalHit) {
+      var isCur = (curId === id) || (NODES[curId] && NODES[curId].nodeId === id);
+      if (isCur && goalHit) return 'n-box ' + goalHit;
+      if (isCur) return 'n-box n-cur';
+      if (visitedNodes[id]) return 'n-box';
+      return 'n-box n-dim';
+    }
+    function eCls(id) { return visitedEdges[id] ? 'e-on' : 'e-dim'; }
+    var gHit = NODES[curId] && NODES[curId].hitCls;
+
+    return '<svg class="fl-svg" viewBox="0 0 600 286" role="img" aria-label="入院形態5種類の条件分岐フローチャート">' +
+      /* 接続線 */
+      '<path class="' + eCls('e-s1-nini') + '" d="M220 32 L92 32 L92 78" fill="none"/>' +
+      '<path class="' + eCls('e-s1-s2') + '" d="M380 32 L420 32 L420 74" fill="none"/>' +
+      '<path class="' + eCls('e-s2-s3b') + '" d="M350 96 L236 96 L236 144" fill="none"/>' +
+      '<path class="' + eCls('e-s2-s3a') + '" d="M490 96 L516 96 L516 144" fill="none"/>' +
+      '<path class="' + eCls('e-s3b-iho') + '" d="M196 184 L118 224" fill="none"/>' +
+      '<path class="' + eCls('e-s3b-okyu') + '" d="M256 184 L268 224" fill="none"/>' +
+      '<path class="' + eCls('e-s3a-sochi') + '" d="M484 184 L416 224" fill="none"/>' +
+      '<path class="' + eCls('e-s3a-kin') + '" d="M532 184 L538 224" fill="none"/>' +
+      /* 査読：図の見出しも、行為の有無でなく将来のおそれと、通常の手続が可能かを示す。 */
+      '<text x="148" y="25" text-anchor="middle" font-size="10.5" font-weight="700" fill="var(--ok)">同意あり</text>' +
+      '<text x="410" y="25" text-anchor="middle" font-size="10.5" font-weight="700" fill="var(--seal)">同意なし</text>' +
+      '<text x="290" y="90" text-anchor="middle" font-size="10" fill="var(--muted)">おそれ未確認</text>' +
+      '<text x="530" y="90" text-anchor="middle" font-size="10" font-weight="700" fill="var(--seal)">おそれあり</text>' +
+      /* ノード：s1 */
+      '<rect class="' + nCls('s1') + '" x="220" y="10" width="160" height="44" rx="8" fill="var(--fl-node)" stroke="var(--line)" stroke-width="1.6"/>' +
+      '<text x="300" y="30" text-anchor="middle" font-size="12" font-weight="700">① 本人の同意は？</text>' +
+      '<text x="300" y="45" text-anchor="middle" font-size="10" fill="var(--muted)">書面で同意できるか</text>' +
+      /* ゴール：任意入院 */
+      '<rect class="' + nCls('nini', gHit) + '" x="18" y="78" width="148" height="50" rx="10" fill="var(--fl-node)" stroke="var(--ok)" stroke-width="1.8"/>' +
+      '<text x="92" y="100" text-anchor="middle" font-size="13" font-weight="700">任意入院</text>' +
+      '<text x="92" y="117" text-anchor="middle" font-size="10" fill="var(--muted)">20条・本人同意</text>' +
+      /* ノード：s2 */
+      '<rect class="' + nCls('s2') + '" x="348" y="74" width="144" height="44" rx="8" fill="var(--fl-node)" stroke="var(--line)" stroke-width="1.6"/>' +
+      '<text x="420" y="94" text-anchor="middle" font-size="12" font-weight="700">② 自傷他害のおそれ</text>' +
+      '<text x="420" y="109" text-anchor="middle" font-size="10" fill="var(--muted)">入院しなければ</text>' +
+      /* ノード：s3b（家族等同意） */
+      '<rect class="' + nCls('s3b') + '" x="150" y="144" width="172" height="42" rx="8" fill="var(--fl-node)" stroke="var(--line)" stroke-width="1.6"/>' +
+      '<text x="236" y="163" text-anchor="middle" font-size="11.5" font-weight="700">③ 家族等・市町村長同意</text>' +
+      '<text x="236" y="178" text-anchor="middle" font-size="9.8" fill="var(--muted)">得られるか／急速を要するか</text>' +
+      /* ノード：s3a（措置緊急） */
+      '<rect class="' + nCls('s3a') + '" x="434" y="144" width="154" height="42" rx="8" fill="var(--fl-node)" stroke="var(--line)" stroke-width="1.6"/>' +
+      '<text x="511" y="163" text-anchor="middle" font-size="11.5" font-weight="700">③ 通常の措置手続</text>' +
+      '<text x="511" y="178" text-anchor="middle" font-size="9.8" fill="var(--muted)">可能か／急を要するか</text>' +
+      /* 下段ゴール4種 */
+      '<rect class="' + nCls('iho', gHit) + '" x="14" y="224" width="164" height="52" rx="10" fill="var(--fl-node)" stroke="var(--accent)" stroke-width="1.8"/>' +
+      '<text x="96" y="246" text-anchor="middle" font-size="12.5" font-weight="700">医療保護入院</text>' +
+      '<text x="96" y="263" text-anchor="middle" font-size="9.8" fill="var(--muted)">33条・家族等/市町村長</text>' +
+      '<rect class="' + nCls('okyu', gHit) + '" x="190" y="224" width="144" height="52" rx="10" fill="var(--fl-node)" stroke="var(--lamp)" stroke-width="1.8"/>' +
+      '<text x="262" y="246" text-anchor="middle" font-size="12.5" font-weight="700">応急入院</text>' +
+      '<text x="262" y="263" text-anchor="middle" font-size="9.8" fill="var(--muted)">33条の6・72h(12h)</text>' +
+      '<rect class="' + nCls('sochi', gHit) + '" x="346" y="224" width="122" height="52" rx="10" fill="var(--fl-node)" stroke="var(--seal)" stroke-width="1.8"/>' +
+      '<text x="407" y="246" text-anchor="middle" font-size="12.5" font-weight="700">措置入院</text>' +
+      '<text x="407" y="263" text-anchor="middle" font-size="9.8" fill="var(--muted)">29条・指定医2名</text>' +
+      '<rect class="' + nCls('kinsochi', gHit) + '" x="478" y="224" width="110" height="52" rx="10" fill="var(--fl-node)" stroke="var(--seal)" stroke-width="1.8"/>' +
+      '<text x="533" y="246" text-anchor="middle" font-size="12" font-weight="700">緊急措置</text>' +
+      '<text x="533" y="263" text-anchor="middle" font-size="9.8" fill="var(--muted)">29条の2・72h</text>' +
+      '</svg>';
+  }
+
+  function mountFlowLab() {
+    var board = document.querySelector('.board');
+    if (!board || document.getElementById('flLab')) return;
+    var sec = document.createElement('section');
+    sec.className = 'fl-lab'; sec.id = 'flLab';
+    sec.setAttribute('aria-label', '入院形態の条件分岐流れ図');
+    sec.innerHTML =
+      '<div class="fl-lab-head">' +
+        '<h2 class="fl-lab-title"><span class="fl-badge">触って分かる</span><span>入院形態の決まり方（流れ図）</span></h2>' +
+        '<button type="button" class="fl-toggle" id="flToggle" aria-expanded="true">たたむ</button>' +
+      '</div>' +
+      '<div class="fl-lab-body" id="flBody">' +
+        '<div class="fl-stage" id="flStage"></div>' +
+        '<div class="fl-stepbox" id="flStep"></div>' +
+      '</div>';
+    board.parentNode.insertBefore(sec, board);
+
+    var hist = [{ id: 's1', edge: null, label: '開始' }];
+    var tokuteiMode = false;
+
+    function renderFlow() {
+      var cur = hist[hist.length - 1].id;
+      var vNodes = {}, vEdges = {};
+      hist.forEach(function (h) {
+        vNodes[h.id] = true;
+        if (NODES[h.id] && NODES[h.id].nodeId) vNodes[NODES[h.id].nodeId] = true;
+        if (h.edge) vEdges[h.edge] = true;
+      });
+      document.getElementById('flStage').innerHTML = flowSVG(cur, vNodes, vEdges);
+
+      var nd = NODES[cur];
+      var crumb = '<div class="fl-crumb">' + hist.map(function (h, i) {
+        return (i ? '<span>→</span>' : '') + (i === hist.length - 1 ? '<b>' + h.label + '</b>' : '<span>' + h.label + '</span>');
+      }).join('') + '</div>';
+
+      var bodyHtml = '';
+      if (nd.goal) {
+        bodyHtml = crumb +
+          '<div class="fl-goal ' + nd.cls + '">' +
+            '<h3 class="fl-goal-h">' + nd.title + '</h3>' +
+            '<div class="fl-goal-grid">' +
+              '<div class="fl-goal-item"><b>診察する医師</b>' + nd.doc + '</div>' +
+              '<div class="fl-goal-item"><b>同意</b>' + nd.consent + '</div>' +
+              '<div class="fl-goal-item"><b>期間</b>' + nd.period + '</div>' +
+              '<div class="fl-goal-item"><b>届出</b>' + nd.report + '</div>' +
+            '</div>' +
+            // 査読：特定医師の特例を適用できるかは、時刻で決まらない。
+            (tokuteiMode ? '<div class="fl-goal-item" style="border-color:var(--lamp)"><b>🌙 特定医師が診察する場合</b>' + nd.tokutei + '</div>' : '') +
+          '</div>' +
+          '<div class="fl-bar">' +
+            '<button type="button" class="fl-subbtn" data-fa="back">← 1つ戻る</button>' +
+            '<button type="button" class="fl-subbtn" data-fa="reset">最初からたどる</button>' +
+            '<button type="button" class="fl-subbtn" data-fa="tokutei" aria-pressed="' + tokuteiMode + '">🌙 特定医師の特例を見る</button>' +
+          '</div>';
+      } else {
+        bodyHtml = crumb +
+          '<p class="fl-q">' + nd.q + '</p>' +
+          '<div class="fl-choices">' + nd.choices.map(function (c, idx) {
+            return '<button type="button" class="fl-ch" data-fpick="' + idx + '"><span>' + c.label + '</span><small>' + c.sub + '</small></button>';
+          }).join('') + '</div>' +
+          (hist.length > 1 ? '<div class="fl-bar"><button type="button" class="fl-subbtn" data-fa="back">← 1つ戻る</button><button type="button" class="fl-subbtn" data-fa="reset">最初に戻る</button></div>' : '');
+      }
+      document.getElementById('flStep').innerHTML = bodyHtml;
+    }
+
+    document.getElementById('flStep').addEventListener('click', function (e) {
+      var b = e.target.closest('button'); if (!b) return;
+      if (b.hasAttribute('data-fpick')) {
+        var cur = hist[hist.length - 1].id;
+        var ch = NODES[cur].choices[+b.getAttribute('data-fpick')];
+        if (!ch) return;
+        hist.push({ id: ch.to, edge: ch.edge, label: ch.label });
+        renderFlow();
+        return;
+      }
+      var fa = b.getAttribute('data-fa');
+      if (fa === 'back' && hist.length > 1) { hist.pop(); renderFlow(); }
+      else if (fa === 'reset') { hist = [{ id: 's1', edge: null, label: '開始' }]; renderFlow(); }
+      else if (fa === 'tokutei') { tokuteiMode = !tokuteiMode; renderFlow(); }
+    });
+
+    var tg = document.getElementById('flToggle'), bd = document.getElementById('flBody');
+    tg.addEventListener('click', function () {
+      var open = bd.hidden; bd.hidden = !open;
+      tg.setAttribute('aria-expanded', String(open)); tg.textContent = open ? 'たたむ' : 'ひらく';
+    });
+    renderFlow();
+  }
+
+  /* ---------- 症例カード内に当直帯＆条件の視覚チェック帯を自動連動 ---------- */
+  function injectCaseBanner() {
+    var main = document.getElementById('main');
+    var body = main && main.querySelector('.case-body');
+    var memo = body && body.querySelector('.memo-box');
+    if (!body || !memo || body.querySelector('.fl-case')) return;
+
+    var curSlot = document.querySelector('#slots .slot[aria-current="step"]');
+    var isNight = curSlot && curSlot.classList.contains('night');
+    var items = [];
+    var dts = memo.querySelectorAll('dt'), dds = memo.querySelectorAll('dd');
+    for (var i = 0; i < dts.length && i < 4; i++) {
+      items.push(dts[i].textContent + '：' + dds[i].textContent);
+    }
+    var ansN = main.querySelectorAll('.q .why').length;
+    var q0Why = main.querySelector('.q .why b');
+    var pathHtml = (ansN >= 1 && q0Why) ? '<div class="fl-path"><b>判定ルート確認：</b>' + q0Why.textContent + ' 上の流れ図で条件をたどって確認できます。</div>' : '';
+
+    var box = document.createElement('div');
+    box.className = 'fl-case' + (isNight ? ' is-night' : '');
+    // 査読：3:20の症例は指定医が診察する。ここは時間帯だけ示し、医師は当直メモで確認する。
+    box.innerHTML =
+      '<div class="fl-case-h"><span>いまの条件カード</span><span class="fl-doc">' + (isNight ? '🌙 夜間の症例' : '☀ 日中・夕方の症例') + '</span></div>' +
+      '<div class="fl-pills">' + items.map(function (t) { return '<span class="fl-pill">' + t + '</span>'; }).join('') + '</div>' +
+      pathHtml;
+    body.insertBefore(box, memo);
+  }
+
+  function init() {
+    mountTheme();
+    mountFlowLab();
+    injectCaseBanner();
+    var main = document.getElementById('main');
+    if (main && window.MutationObserver) {
+      new MutationObserver(injectCaseBanner).observe(main, { childList: true });
+    }
+  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
+  else init();
 })();
 </script>
 

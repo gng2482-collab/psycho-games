@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="robots" content="noindex, nofollow">
-<meta name="app-version" content="20261120141754">
+<meta name="app-version" content="20261120195434">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
@@ -167,6 +167,68 @@ h3{margin:0;font-size:var(--fs-m)}
 .card{font:inherit;font-size:var(--fs-s);padding:6px 12px;min-height:40px;border-radius:6px;border:1px solid var(--ink);background:var(--panel);color:var(--ink);cursor:pointer;box-shadow:2px 2px 0 var(--line);text-align:left}
 .card[aria-pressed="true"]{background:var(--accent);color:var(--accent-ink)}
 .foot{margin-top:28px;font-size:var(--fs-xs);color:var(--muted);max-width:60em}
+
+/* === 見て分かる CBT 図解ラボ・スマホ押しやすさ改善（Gemini 担当） === */
+.chip,.card,.seg button{min-height:44px;touch-action:manipulation}
+@media (max-width:520px){.seg{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));width:100%}.seg button{padding:0 4px;font-size:.76rem}}
+:root{--cbt-stage:#f1f6f3;--cbt-bad-soft:color-mix(in srgb,var(--bad) 10%,var(--panel));--cbt-good-soft:color-mix(in srgb,var(--good) 11%,var(--panel));--cbt-mid-soft:color-mix(in srgb,var(--mid) 12%,var(--panel));--cbt-water:#dcebf5;--cbt-ice:#ffffff;--cbt-deep:#bed7ea}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--cbt-stage:#151e18;--cbt-water:#172734;--cbt-ice:#2c3d4d;--cbt-deep:#1e3447}}
+:root[data-theme="dark"]{--cbt-stage:#151e18;--cbt-water:#172734;--cbt-ice:#2c3d4d;--cbt-deep:#1e3447}
+
+.cbt-top-row{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.cbt-theme-btn{flex:none;display:inline-flex;align-items:center;justify-content:center;gap:5px;min-width:44px;min-height:44px;padding:0 11px;border-radius:999px;border:1.5px solid var(--line);background:var(--panel);color:var(--ink);font:inherit;font-size:var(--fs-xs);font-weight:700;cursor:pointer;white-space:nowrap;touch-action:manipulation}
+.cbt-theme-btn:hover{border-color:var(--accent)}
+.cbt-theme-btn svg{width:17px;height:17px;fill:none;stroke:currentColor;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
+@media (max-width:420px){.cbt-theme-lbl{display:none}.cbt-theme-btn{padding:0;width:44px}}
+
+.cbt-lab{margin-top:16px;background:var(--panel);border:1.5px solid var(--line);border-radius:10px;overflow:hidden;box-shadow:0 2px 10px color-mix(in srgb,var(--ink) 7%,transparent)}
+.cbt-lab-head{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:8px 12px;background:var(--accent-soft);border-bottom:1px solid var(--line)}
+.cbt-lab-title{flex:1;min-width:0;display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin:0;font-family:var(--f-display);font-weight:400;font-size:.98rem;line-height:1.3;color:var(--ink)}
+.cbt-badge{font-family:var(--f-body);font-size:.7rem;font-weight:700;padding:2px 8px;border-radius:999px;background:var(--accent);color:var(--accent-ink);white-space:nowrap}
+.cbt-toggle{min-height:44px;padding:0 12px;border-radius:8px;border:1px solid var(--line);background:var(--panel);color:var(--ink);font:inherit;font-size:var(--fs-xs);font-weight:700;cursor:pointer;white-space:nowrap;touch-action:manipulation}
+.cbt-lab-body{padding:14px;display:grid;gap:12px}
+.cbt-lab-body[hidden]{display:none!important}
+
+.cbt-tabs{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:5px;padding:4px;background:var(--paper);border:1px solid var(--line);border-radius:9px}
+@media (max-width:480px){.cbt-tabs{grid-template-columns:1fr}}
+.cbt-tab{min-height:44px;padding:6px 8px;border:0;border-radius:7px;background:transparent;color:var(--muted);font:inherit;font-size:var(--fs-xs);font-weight:700;cursor:pointer;touch-action:manipulation}
+.cbt-tab[aria-selected="true"]{background:var(--panel);color:var(--accent);box-shadow:0 1px 4px color-mix(in srgb,var(--ink) 14%,transparent)}
+
+.cbt-row{display:flex;flex-wrap:wrap;gap:6px}
+.cbt-btn{flex:1 1 120px;min-height:44px;padding:6px 10px;border-radius:8px;border:1.5px solid var(--line);background:var(--paper);color:var(--ink);font:inherit;font-size:var(--fs-xs);font-weight:700;cursor:pointer;touch-action:manipulation}
+.cbt-btn[aria-pressed="true"]{border-color:var(--accent);background:var(--accent-soft);color:var(--accent)}
+.cbt-btn.bad[aria-pressed="true"]{border-color:var(--bad);background:var(--cbt-bad-soft);color:var(--bad)}
+.cbt-btn.good[aria-pressed="true"]{border-color:var(--good);background:var(--cbt-good-soft);color:var(--good)}
+
+.cbt-stage{background:var(--cbt-stage);border:1px solid var(--line);border-radius:9px;padding:10px;overflow:hidden}
+.cbt-svg{display:block;width:100%;height:auto;max-width:640px;margin:0 auto}
+.cbt-svg text{font-family:var(--f-body);fill:var(--ink)}
+.cbt-svg .sm{fill:var(--muted)} .cbt-svg .sa{fill:var(--accent)} .cbt-svg .sg{fill:var(--good)} .cbt-svg .sb{fill:var(--bad)} .cbt-svg .sw{fill:var(--mid)}
+@keyframes cbtFlow{to{stroke-dashoffset:-24}}
+.cbt-flow{stroke-dasharray:6 6;animation:cbtFlow 1.4s linear infinite}
+
+.cbt-msg{padding:9px 12px;border-radius:8px;font-size:var(--fs-s);font-weight:700;background:var(--cbt-good-soft);border-left:4px solid var(--good)}
+.cbt-msg.bad{background:var(--cbt-bad-soft);border-left-color:var(--bad)}
+.cbt-msg.mid{background:var(--cbt-mid-soft);border-left-color:var(--mid)}
+
+.cbt-dist-btns{display:flex;flex-wrap:wrap;gap:6px}
+.cbt-dist-btn{min-height:44px;padding:6px 11px;border-radius:999px;border:1.5px solid var(--line);background:var(--paper);color:var(--ink);font:inherit;font-size:var(--fs-xs);font-weight:700;cursor:pointer;touch-action:manipulation}
+.cbt-dist-btn[aria-pressed="true"]{border-color:var(--accent);background:var(--accent-soft);color:var(--accent)}
+
+.cbt-mini-vis{background:var(--cbt-stage);border:1.5px solid var(--line);border-radius:9px;padding:10px 12px;display:grid;gap:8px;overflow:hidden}
+.cbt-mini-h{display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap;font-size:var(--fs-xs);font-weight:700;color:var(--muted)}
+.cbt-pill{display:inline-flex;align-items:center;padding:2px 9px;border-radius:999px;background:var(--panel);border:1px solid var(--line);color:var(--accent);font-weight:700}
+
+.cbt-steps{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:5px}
+@media (max-width:540px){.cbt-steps{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.cbt-step{padding:5px 8px;border-radius:7px;border:1px solid var(--line);background:var(--paper);font-size:.74rem;font-weight:700;color:var(--muted);text-align:center}
+.cbt-step.now{border-color:var(--accent);background:var(--accent-soft);color:var(--accent)}
+.cbt-step.done{border-color:var(--good);background:var(--cbt-good-soft);color:var(--good)}
+
+@media (prefers-reduced-motion:reduce){
+  .cbt-flow{animation:none!important}
+  .cbt-svg *,.cbt-btn,.cbt-tab,.cbt-theme-btn{transition:none!important;animation:none!important}
+}
 </style>
 
 <div class="wrap">
@@ -459,6 +521,546 @@ h3{margin:0;font-size:var(--fs-m)}
   renderKuse(); colStart(0); socStart(0); cycStart(0); baseStart();
   var h = (location.hash || '').slice(1); if (['col', 'soc', 'cyc', 'base'].indexOf(h) >= 0) setMode(h);
   window.__cbt = { KQ: KQ, CC: CC, SC: SC, CY: CY, BQ: BQ, DIST: DIST };
+})();
+</script>
+<script>
+/* 認知行動療法の道場：見て分かる CBTモデル図解ラボ・11のクセ絵図鑑・悪循環SVG補助（Gemini 担当） */
+(function(){
+  'use strict';
+  if(window.__cbtVisInit) return;
+  window.__cbtVisInit = true;
+
+  var root = document.documentElement;
+  var head = document.querySelector('header.top');
+  var kusePane = document.getElementById('kuse');
+  if(!head || !kusePane) return;
+
+  function esc(s){ return String(s).replace(/[&<>"]/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]; }); }
+
+  // --- 1. ヘッダー明暗切替ボタン ---
+  var eyebrow = head.querySelector('.eyebrow');
+  if(eyebrow && !document.getElementById('cbtThemeBtn')){
+    var row = document.createElement('div');
+    row.className = 'cbt-top-row';
+    eyebrow.parentNode.insertBefore(row, eyebrow);
+    row.appendChild(eyebrow);
+    var tbtn = document.createElement('button');
+    tbtn.type = 'button';
+    tbtn.id = 'cbtThemeBtn';
+    tbtn.className = 'cbt-theme-btn';
+    row.appendChild(tbtn);
+
+    function isDark(){
+      var t = root.getAttribute('data-theme');
+      if(t === 'dark') return true;
+      if(t === 'light') return false;
+      return window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+    }
+    function syncTheme(){
+      var d = isDark();
+      tbtn.setAttribute('aria-label', d ? '明るい表示に切り替え' : '暗い表示に切り替え');
+      tbtn.innerHTML = d
+        ? '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg><span class="cbt-theme-lbl">明るく</span>'
+        : '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg><span class="cbt-theme-lbl">暗く</span>';
+    }
+    tbtn.addEventListener('click', function(){
+      root.setAttribute('data-theme', isDark() ? 'light' : 'dark');
+      syncTheme();
+    });
+    if(window.matchMedia){
+      var mq = window.matchMedia('(prefers-color-scheme: dark)');
+      if(mq.addEventListener) mq.addEventListener('change', syncTheme);
+    }
+    syncTheme();
+  }
+
+  // --- 2. 認知モデル（5つの輪）SVGデータ ---
+  var MODELS = [
+    {
+      btn: '会議の指摘',
+      trig: '課長「もう少し練って」',
+      bad: {
+        cog: '私には能力がない', emo: '落ち込み 80%', body: '頭が重い・だるい', beh: '引きこもる・避ける',
+        meter: 80, msg: '出来事そのものより「私には能力がない」という自動思考が、落ち込みと回避行動を強め、悪循環を回します。'
+      },
+      good: {
+        cog: '改善点の相談だ', emo: '落ち込み 40%', body: '少し肩の力が抜ける', beh: '課長に具体的に聞く',
+        meter: 40, msg: '根拠と反証を並べて見方を広げると、気分は0にならなくても和らぎ、次の一歩（行動）が選べるようになります。'
+      }
+    },
+    {
+      btn: '満員電車の動悸',
+      trig: '電車で急に動悸がした',
+      bad: {
+        cog: '心臓発作で死ぬ！', emo: '強い恐怖 95%', body: 'さらに動悸・息苦しさ', beh: '次の駅で降りて回避',
+        meter: 95, msg: '体の感覚を破局的に解釈し「降りて助かった」と学習すると、次も電車が怖くなる悪循環が続きます。'
+      },
+      good: {
+        cog: '不安反応。10分で収まる', emo: '恐怖 40%', body: '呼吸が徐々に落ち着く', beh: 'そのまま乗って確かめる',
+        meter: 40, msg: '解釈を見直し、安全行動（すぐ降りる）を手放してとどまることで「大丈夫だった」と体験で学び直せます。'
+      }
+    },
+    {
+      btn: '発表で声が震えた',
+      trig: 'ゼミ発表で声が震えた',
+      bad: {
+        cog: 'みんな変だと思った', emo: '強い不安 85%', body: '手汗・さらに震える', beh: '今後は発表を避ける',
+        meter: 85, msg: '「みんな笑っている」と決めつけて回避すると、本当の反応を確かめる機会がなくなり不安が残ります。'
+      },
+      good: {
+        cog: '内容は伝わったかも', emo: '不安 45%', body: '緊張が少しゆるむ', beh: '友だちに感想を聞く',
+        meter: 45, msg: '別の見方を持ち、友だちに聞くなどの小さな行動実験で確かめると、思い込みがゆるんでいきます。'
+      }
+    }
+  ];
+
+  function renderModelSvg(m, mode){
+    var d = m[mode], isGood = (mode === 'good');
+    var col = isGood ? 'var(--good)' : 'var(--bad)';
+    var soft = isGood ? 'var(--cbt-good-soft)' : 'var(--cbt-bad-soft)';
+    var barW = Math.round(300 * d.meter / 100);
+    return '<svg class="cbt-svg" viewBox="0 0 560 242" role="img" aria-label="'+esc(m.btn+'のCBTモデル図')+'">' +
+      '<rect x="6" y="6" width="548" height="230" rx="10" fill="var(--panel)" stroke="var(--line)"/>' +
+      // 出来事（上中央）
+      '<rect x="170" y="16" width="220" height="36" rx="18" fill="var(--accent-soft)" stroke="var(--accent)" stroke-width="1.6"/>' +
+      '<text x="280" y="31" text-anchor="middle" font-size="10" font-weight="700" class="sa">出来事（きっかけ）</text>' +
+      '<text x="280" y="45" text-anchor="middle" font-size="11.5" font-weight="700">'+esc(m.trig)+'</text>' +
+      // 矢印：出来事→考え
+      '<path d="M225,52 L162,72" fill="none" stroke="var(--accent)" stroke-width="2"/>' +
+      '<polygon points="158,74 168,75 164,66" fill="var(--accent)"/>' +
+      // 4要素の輪の矢印
+      '<path d="M214,96 L340,96" fill="none" stroke="'+col+'" stroke-width="2.4" class="cbt-flow"/>' +
+      '<polygon points="344,96 335,91 335,101" fill="'+col+'"/>' +
+      '<path d="M432,126 L432,146" fill="none" stroke="'+col+'" stroke-width="2.4" class="cbt-flow"/>' +
+      '<polygon points="432,150 427,141 437,141" fill="'+col+'"/>' +
+      '<path d="M344,174 L218,174" fill="none" stroke="'+col+'" stroke-width="2.4" class="cbt-flow"/>' +
+      '<polygon points="214,174 223,169 223,179" fill="'+col+'"/>' +
+      '<path d="M128,148 L128,128" fill="none" stroke="'+col+'" stroke-width="2.4" class="cbt-flow"/>' +
+      '<polygon points="128,124 123,133 133,133" fill="'+col+'"/>' +
+      // 中央ラベル
+      '<rect x="228" y="118" width="104" height="32" rx="16" fill="'+soft+'" stroke="'+col+'" stroke-width="1.5"/>' +
+      '<text x="280" y="138" text-anchor="middle" font-size="11.5" font-weight="700" fill="'+col+'">'+(isGood ? '好循環へほどく' : '↻ 悪循環が加速')+'</text>' +
+      // 左上：考え
+      '<rect x="42" y="72" width="172" height="52" rx="9" fill="'+soft+'" stroke="'+col+'" stroke-width="1.8"/>' +
+      '<text x="128" y="90" text-anchor="middle" font-size="10.5" font-weight="700" fill="'+col+'">① 考え（認知）</text>' +
+      '<text x="128" y="110" text-anchor="middle" font-size="12" font-weight="700">'+esc(d.cog)+'</text>' +
+      // 右上：気分
+      '<rect x="346" y="72" width="172" height="52" rx="9" fill="var(--panel)" stroke="'+col+'" stroke-width="1.6"/>' +
+      '<text x="432" y="90" text-anchor="middle" font-size="10.5" font-weight="700" fill="'+col+'">② 気分（感情）</text>' +
+      '<text x="432" y="110" text-anchor="middle" font-size="12" font-weight="700">'+esc(d.emo)+'</text>' +
+      // 右下：からだ
+      '<rect x="346" y="150" width="172" height="46" rx="9" fill="var(--panel)" stroke="var(--line)" stroke-width="1.5"/>' +
+      '<text x="432" y="167" text-anchor="middle" font-size="10" font-weight="700" class="sm">③ からだの反応</text>' +
+      '<text x="432" y="185" text-anchor="middle" font-size="11.5" font-weight="700">'+esc(d.body)+'</text>' +
+      // 左下：行動
+      '<rect x="42" y="150" width="172" height="46" rx="9" fill="var(--panel)" stroke="'+col+'" stroke-width="1.5"/>' +
+      '<text x="128" y="167" text-anchor="middle" font-size="10" font-weight="700" fill="'+col+'">④ 行動</text>' +
+      '<text x="128" y="185" text-anchor="middle" font-size="11.5" font-weight="700">'+esc(d.beh)+'</text>' +
+      // 下部メーター
+      '<text x="36" y="220" font-size="11" font-weight="700" class="sm">つらさの強さ</text>' +
+      '<rect x="126" y="209" width="300" height="14" rx="7" fill="var(--paper)" stroke="var(--line)"/>' +
+      '<rect x="126" y="209" width="'+barW+'" height="14" rx="7" fill="'+col+'"/>' +
+      '<text x="436" y="220" font-size="12" font-weight="700" fill="'+col+'">'+d.meter+'%</text>' +
+    '</svg>';
+  }
+
+  // --- 3. 氷山モデル（3層＋認知の3つ組） ---
+  var ICE = [
+    {
+      id: 'auto', btn: '① 自動思考（水面の上）',
+      msg: '出来事の瞬間にパッと浮かぶ考え（例：「失敗した、もうダメだ」）。コラム法や質問で最初に見つけ、根拠と反証を確かめる層です。'
+    },
+    {
+      id: 'inter', btn: '② 媒介信念（ルール）',
+      msg: '「〜すべき」「もし失敗したら価値がない」という自分なりのルール・前提。自動思考のすぐ下にあって反応を形づくります。'
+    },
+    {
+      id: 'core', btn: '③ 中核信念（スキーマ）',
+      msg: '「私は無能だ」「愛されない」といった最も深く根づいた根本的信念。時間をかけて少しずつ柔軟にしていきます。'
+    }
+  ];
+
+  function renderIceSvg(sel){
+    var sA = sel === 'auto', sI = sel === 'inter', sC = sel === 'core';
+    return '<svg class="cbt-svg" viewBox="0 0 560 202" role="img" aria-label="ベックの認知の3層氷山モデルと否定的な認知の3つ組">' +
+      '<rect x="6" y="6" width="340" height="190" rx="9" fill="var(--panel)" stroke="var(--line)"/>' +
+      // 水面下背景
+      '<rect x="7" y="72" width="338" height="123" fill="var(--cbt-water)"/>' +
+      '<line x1="8" y1="72" x2="344" y2="72" stroke="var(--ev)" stroke-width="1.6" stroke-dasharray="5 3"/>' +
+      '<text x="18" y="66" font-size="9.5" font-weight="700" class="sm">水面（気づきやすい）</text>' +
+      // 氷山3層
+      '<polygon points="176,14 106,72 246,72" fill="'+(sA?'var(--accent-soft)':'var(--cbt-ice)')+'" stroke="'+(sA?'var(--accent)':'var(--line)')+'" stroke-width="'+(sA?2.4:1.4)+'"/>' +
+      '<polygon points="106,72 78,126 274,126 246,72" fill="'+(sI?'var(--cbt-mid-soft)':'var(--cbt-deep)')+'" stroke="'+(sI?'var(--mid)':'var(--line)')+'" stroke-width="'+(sI?2.4:1.4)+'"/>' +
+      '<polygon points="78,126 48,182 304,182 274,126" fill="'+(sC?'var(--cbt-bad-soft)':'var(--cbt-deep)')+'" stroke="'+(sC?'var(--bad)':'var(--line)')+'" stroke-width="'+(sC?2.4:1.4)+'"/>' +
+      '<text x="176" y="61" text-anchor="middle" font-size="11" font-weight="700" class="'+(sA?'sa':'')+'">① 自動思考</text>' +
+      '<text x="176" y="96" text-anchor="middle" font-size="11.5" font-weight="700" class="'+(sI?'sw':'')+'">② 媒介信念</text>' +
+      '<text x="176" y="112" text-anchor="middle" font-size="9.5" class="sm">「〜すべき」のルール</text>' +
+      '<text x="176" y="152" text-anchor="middle" font-size="11.5" font-weight="700" class="'+(sC?'sb':'')+'">③ 中核信念（スキーマ）</text>' +
+      '<text x="176" y="168" text-anchor="middle" font-size="9.5" class="sm">根っこの思い込み</text>' +
+      // 右側：ベックの否定的な認知の3つ組
+      '<rect x="356" y="6" width="198" height="190" rx="9" fill="var(--panel)" stroke="var(--line)"/>' +
+      '<text x="455" y="28" text-anchor="middle" font-size="11.5" font-weight="700" class="sa">うつ病の否定的な3つ組</text>' +
+      '<polygon points="455,54 398,146 512,146" fill="var(--cbt-bad-soft)" stroke="var(--bad)" stroke-width="1.5"/>' +
+      '<rect x="415" y="42" width="80" height="24" rx="12" fill="var(--panel)" stroke="var(--bad)"/>' +
+      '<text x="455" y="58" text-anchor="middle" font-size="10.5" font-weight="700">自分</text>' +
+      '<rect x="366" y="134" width="76" height="24" rx="12" fill="var(--panel)" stroke="var(--bad)"/>' +
+      '<text x="404" y="150" text-anchor="middle" font-size="10.5" font-weight="700">世界・周囲</text>' +
+      '<rect x="468" y="134" width="76" height="24" rx="12" fill="var(--panel)" stroke="var(--bad)"/>' +
+      '<text x="506" y="150" text-anchor="middle" font-size="10.5" font-weight="700">将来</text>' +
+      '<rect x="403" y="96" width="104" height="22" rx="11" fill="var(--panel)" stroke="var(--bad)" stroke-width="1"/>' +
+      '<text x="455" y="111" text-anchor="middle" font-size="10" font-weight="700" class="sb">全部ダメに見える</text>' +
+      '<text x="455" y="180" text-anchor="middle" font-size="9.5" class="sm">ベックの認知モデル</text>' +
+    '</svg>';
+  }
+
+  // --- 4. 11の考えのクセ 絵でイメージ図鑑 SVG ---
+  var DIST_SVG = {
+    zero: function(){
+      return '<svg class="cbt-svg" viewBox="0 0 420 116" role="img" aria-label="全か無か思考の図解">' +
+        '<rect x="4" y="4" width="412" height="108" rx="8" fill="var(--panel)" stroke="var(--line)"/>' +
+        '<rect x="24" y="24" width="110" height="58" rx="7" fill="var(--cbt-good-soft)" stroke="var(--good)" stroke-width="1.8"/>' +
+        '<text x="79" y="50" text-anchor="middle" font-size="15" font-weight="700" class="sg">100点</text>' +
+        '<text x="79" y="68" text-anchor="middle" font-size="10">完璧だけOK</text>' +
+        '<rect x="150" y="34" width="120" height="38" rx="6" fill="var(--paper)" stroke="var(--line)" stroke-dasharray="4 3"/>' +
+        '<text x="210" y="57" text-anchor="middle" font-size="10.5" class="sm">99〜1点が見えない</text>' +
+        '<rect x="286" y="24" width="110" height="58" rx="7" fill="var(--cbt-bad-soft)" stroke="var(--bad)" stroke-width="1.8"/>' +
+        '<text x="341" y="50" text-anchor="middle" font-size="15" font-weight="700" class="sb">0点</text>' +
+        '<text x="341" y="68" text-anchor="middle" font-size="10">1問ミス＝全部無意味</text>' +
+        '<text x="210" y="100" text-anchor="middle" font-size="10.5" class="sm">白か黒の2択だけで、間のグレーが消える</text>' +
+      '</svg>';
+    },
+    gen: function(){
+      return '<svg class="cbt-svg" viewBox="0 0 420 116" role="img" aria-label="一般化のしすぎの図解">' +
+        '<rect x="4" y="4" width="412" height="108" rx="8" fill="var(--panel)" stroke="var(--line)"/>' +
+        '<circle cx="70" cy="52" r="24" fill="var(--cbt-bad-soft)" stroke="var(--bad)" stroke-width="1.8"/>' +
+        '<text x="70" y="56" text-anchor="middle" font-size="11" font-weight="700" class="sb">1回の失敗</text>' +
+        '<path d="M100,52 h44" stroke="var(--bad)" stroke-width="2.4"/>' +
+        '<polygon points="150,52 141,47 141,57" fill="var(--bad)"/>' +
+        '<rect x="158" y="22" width="238" height="60" rx="8" fill="var(--cbt-bad-soft)" stroke="var(--bad)" stroke-width="1.6"/>' +
+        '<text x="277" y="47" text-anchor="middle" font-size="12.5" font-weight="700" class="sb">「いつも」「どこでも」「すべて」</text>' +
+        '<text x="277" y="68" text-anchor="middle" font-size="10.5">1つの点から全体へ無限に広げる</text>' +
+        '<text x="210" y="100" text-anchor="middle" font-size="10.5" class="sm">例外を忘れて、全部ダメと決めつける</text>' +
+      '</svg>';
+    },
+    filt: function(){
+      var dots = '';
+      for(var i=0;i<10;i++){
+        var cx = 54 + i*34;
+        var bad = (i === 7);
+        dots += '<circle cx="'+cx+'" cy="52" r="'+(bad?14:11)+'" fill="'+(bad?'var(--cbt-bad-soft)':'var(--cbt-good-soft)')+'" stroke="'+(bad?'var(--bad)':'var(--good)')+'" stroke-width="'+(bad?2.5:1.2)+'" opacity="'+(bad?1:.38)+'"/>' +
+                '<text x="'+cx+'" y="56" text-anchor="middle" font-size="11" font-weight="700" fill="'+(bad?'var(--bad)':'var(--good)')+'" opacity="'+(bad?1:.45)+'">'+(bad?'×':'○')+'</text>';
+      }
+      return '<svg class="cbt-svg" viewBox="0 0 420 116" role="img" aria-label="心のフィルターの図解">' +
+        '<rect x="4" y="4" width="412" height="108" rx="8" fill="var(--panel)" stroke="var(--line)"/>' +
+        '<polygon points="292,10 264,78 320,78" fill="var(--bad)" opacity=".13"/>' +
+        dots +
+        '<text x="210" y="99" text-anchor="middle" font-size="10.5" class="sm">9つの○が薄れ、1つの×だけにスポットライトが当たる</text>' +
+      '</svg>';
+    },
+    disq: function(){
+      return '<svg class="cbt-svg" viewBox="0 0 420 116" role="img" aria-label="マイナス化思考の図解">' +
+        '<rect x="4" y="4" width="412" height="108" rx="8" fill="var(--panel)" stroke="var(--line)"/>' +
+        '<rect x="34" y="24" width="128" height="54" rx="8" fill="var(--cbt-good-soft)" stroke="var(--good)" stroke-width="1.6"/>' +
+        '<text x="98" y="47" text-anchor="middle" font-size="11.5" font-weight="700" class="sg">★ 良い出来事</text>' +
+        '<text x="98" y="65" text-anchor="middle" font-size="10">ほめられた・成功</text>' +
+        '<path d="M168,51 h68" stroke="var(--bad)" stroke-width="2.2" stroke-dasharray="5 3"/>' +
+        '<text x="202" y="43" text-anchor="middle" font-size="11" font-weight="700" class="sb">× 打ち消し</text>' +
+        '<rect x="242" y="24" width="144" height="54" rx="8" fill="var(--paper)" stroke="var(--bad)" stroke-width="1.5"/>' +
+        '<text x="314" y="47" text-anchor="middle" font-size="11" font-weight="700" class="sb">「たまたまだ」</text>' +
+        '<text x="314" y="65" text-anchor="middle" font-size="10">「誰でもできる」→ 0扱い</text>' +
+        '<text x="210" y="100" text-anchor="middle" font-size="10.5" class="sm">プラスの事実をわざわざマイナスやゼロに書き換える</text>' +
+      '</svg>';
+    },
+    mind: function(){
+      return '<svg class="cbt-svg" viewBox="0 0 420 116" role="img" aria-label="心の読みすぎの図解">' +
+        '<rect x="4" y="4" width="412" height="108" rx="8" fill="var(--panel)" stroke="var(--line)"/>' +
+        '<circle cx="90" cy="48" r="20" fill="var(--paper)" stroke="var(--ink)" stroke-width="1.5"/>' +
+        '<text x="90" y="53" text-anchor="middle" font-size="12" font-weight="700">相手</text>' +
+        '<text x="90" y="83" text-anchor="middle" font-size="10" class="sm">返信が遅いだけ</text>' +
+        '<path d="M122,48 h54" stroke="var(--bad)" stroke-width="2.2" stroke-dasharray="4 3"/>' +
+        '<text x="149" y="40" text-anchor="middle" font-size="10" font-weight="700" class="sb">根拠なし</text>' +
+        '<rect x="184" y="20" width="206" height="58" rx="12" fill="var(--cbt-bad-soft)" stroke="var(--bad)" stroke-width="1.6"/>' +
+        '<text x="287" y="45" text-anchor="middle" font-size="11.5" font-weight="700" class="sb">「きっと嫌われた！」</text>' +
+        '<text x="287" y="64" text-anchor="middle" font-size="10">相手の心の中を勝手に断定</text>' +
+        '<text x="210" y="101" text-anchor="middle" font-size="10.5" class="sm">確かめていないのに、相手の悪意を決めつける</text>' +
+      '</svg>';
+    },
+    fort: function(){
+      return '<svg class="cbt-svg" viewBox="0 0 420 116" role="img" aria-label="先読みの誤りの図解">' +
+        '<rect x="4" y="4" width="412" height="108" rx="8" fill="var(--panel)" stroke="var(--line)"/>' +
+        '<rect x="26" y="28" width="98" height="46" rx="8" fill="var(--paper)" stroke="var(--line)"/>' +
+        '<text x="75" y="55" text-anchor="middle" font-size="11.5" font-weight="700">まだ起きてない</text>' +
+        '<path d="M130,51 h44" stroke="var(--bad)" stroke-width="2.2"/>' +
+        '<polygon points="180,51 171,46 171,56" fill="var(--bad)"/>' +
+        '<circle cx="286" cy="50" r="34" fill="var(--cbt-bad-soft)" stroke="var(--bad)" stroke-width="1.8"/>' +
+        '<text x="286" y="47" text-anchor="middle" font-size="11" font-weight="700" class="sb">どうせ失敗</text>' +
+        '<text x="286" y="63" text-anchor="middle" font-size="9.5">水晶玉で決めつけ</text>' +
+        '<text x="210" y="101" text-anchor="middle" font-size="10.5" class="sm">未来を悪い結果と決めつけ、試す前にあきらめる</text>' +
+      '</svg>';
+    },
+    mag: function(){
+      return '<svg class="cbt-svg" viewBox="0 0 420 116" role="img" aria-label="拡大解釈の図解">' +
+        '<rect x="4" y="4" width="412" height="108" rx="8" fill="var(--panel)" stroke="var(--line)"/>' +
+        '<circle cx="76" cy="52" r="10" fill="var(--mid)"/>' +
+        '<text x="76" y="79" text-anchor="middle" font-size="10" class="sm">小さなミス</text>' +
+        '<path d="M98,52 h52" stroke="var(--bad)" stroke-width="2.2"/>' +
+        '<polygon points="156,52 147,47 147,57" fill="var(--bad)"/>' +
+        '<circle cx="242" cy="50" r="34" fill="var(--cbt-bad-soft)" stroke="var(--bad)" stroke-width="2.4"/>' +
+        '<line x1="268" y1="73" x2="294" y2="92" stroke="var(--ink)" stroke-width="5" stroke-linecap="round"/>' +
+        '<text x="242" y="47" text-anchor="middle" font-size="12" font-weight="700" class="sb">取り返しがつかない!</text>' +
+        '<text x="242" y="64" text-anchor="middle" font-size="9.5">虫眼鏡で破局視</text>' +
+        '<text x="352" y="55" text-anchor="middle" font-size="10" class="sm">良い点は縮小</text>' +
+        '<text x="210" y="102" text-anchor="middle" font-size="10.5" class="sm">失敗や危険を実物以上に巨大に見積もる</text>' +
+      '</svg>';
+    },
+    emo: function(){
+      return '<svg class="cbt-svg" viewBox="0 0 420 116" role="img" aria-label="感情的決めつけの図解">' +
+        '<rect x="4" y="4" width="412" height="108" rx="8" fill="var(--panel)" stroke="var(--line)"/>' +
+        '<rect x="28" y="24" width="144" height="52" rx="26" fill="var(--cbt-mid-soft)" stroke="var(--mid)" stroke-width="1.6"/>' +
+        '<text x="100" y="47" text-anchor="middle" font-size="11.5" font-weight="700" class="sw">強い不安・みじめさ</text>' +
+        '<text x="100" y="64" text-anchor="middle" font-size="10">（今の気分）</text>' +
+        '<text x="206" y="56" text-anchor="middle" font-size="18" font-weight="700" class="sb">＝</text>' +
+        '<rect x="240" y="24" width="152" height="52" rx="8" fill="var(--cbt-bad-soft)" stroke="var(--bad)" stroke-width="1.6"/>' +
+        '<text x="316" y="47" text-anchor="middle" font-size="11.5" font-weight="700" class="sb">本当に危険・ダメだ</text>' +
+        '<text x="316" y="64" text-anchor="middle" font-size="10">（事実の証拠と誤認）</text>' +
+        '<text x="210" y="100" text-anchor="middle" font-size="10.5" class="sm">「そう感じる」ことを、そのまま事実の証拠にしてしまう</text>' +
+      '</svg>';
+    },
+    should: function(){
+      return '<svg class="cbt-svg" viewBox="0 0 420 116" role="img" aria-label="すべき思考の図解">' +
+        '<rect x="4" y="4" width="412" height="108" rx="8" fill="var(--panel)" stroke="var(--line)"/>' +
+        '<rect x="34" y="22" width="166" height="56" rx="8" fill="var(--cbt-bad-soft)" stroke="var(--bad)" stroke-width="2"/>' +
+        '<text x="117" y="46" text-anchor="middle" font-size="12" font-weight="700" class="sb">「〜すべき」</text>' +
+        '<text x="117" y="65" text-anchor="middle" font-size="10.5">「〜ねばならない」</text>' +
+        '<path d="M206,50 h38" stroke="var(--bad)" stroke-width="2.4"/>' +
+        '<polygon points="250,50 241,45 241,55" fill="var(--bad)"/>' +
+        '<rect x="256" y="22" width="130" height="56" rx="8" fill="var(--paper)" stroke="var(--line)"/>' +
+        '<text x="321" y="46" text-anchor="middle" font-size="11" font-weight="700">自分へ → 罪悪感</text>' +
+        '<text x="321" y="65" text-anchor="middle" font-size="11" font-weight="700">他人へ → 怒り</text>' +
+        '<text x="210" y="100" text-anchor="middle" font-size="10.5" class="sm">硬いルールで自分や相手を縛り、苦しくなる</text>' +
+      '</svg>';
+    },
+    label: function(){
+      return '<svg class="cbt-svg" viewBox="0 0 420 116" role="img" aria-label="レッテル貼りの図解">' +
+        '<rect x="4" y="4" width="412" height="108" rx="8" fill="var(--panel)" stroke="var(--line)"/>' +
+        '<rect x="28" y="28" width="128" height="44" rx="7" fill="var(--paper)" stroke="var(--line)"/>' +
+        '<text x="92" y="54" text-anchor="middle" font-size="11" font-weight="700">1つの行動のミス</text>' +
+        '<path d="M164,50 h42" stroke="var(--bad)" stroke-width="2.4"/>' +
+        '<polygon points="212,50 203,45 203,55" fill="var(--bad)"/>' +
+        '<rect x="220" y="20" width="168" height="60" rx="6" fill="var(--cbt-bad-soft)" stroke="var(--bad)" stroke-width="2" stroke-dasharray="6 3"/>' +
+        '<text x="304" y="46" text-anchor="middle" font-size="12.5" font-weight="700" class="sb">【最低の人間】</text>' +
+        '<text x="304" y="66" text-anchor="middle" font-size="10">人格全体に大きな札を貼る</text>' +
+        '<text x="210" y="100" text-anchor="middle" font-size="10.5" class="sm">「行動の失敗」を「人間性そのもの」にすり替える</text>' +
+      '</svg>';
+    },
+    pers: function(){
+      return '<svg class="cbt-svg" viewBox="0 0 420 116" role="img" aria-label="個人化の図解">' +
+        '<rect x="4" y="4" width="412" height="108" rx="8" fill="var(--panel)" stroke="var(--line)"/>' +
+        '<rect x="24" y="18" width="96" height="24" rx="6" fill="var(--paper)" stroke="var(--line)"/><text x="72" y="34" text-anchor="middle" font-size="10">相手の機嫌</text>' +
+        '<rect x="24" y="46" width="96" height="24" rx="6" fill="var(--paper)" stroke="var(--line)"/><text x="72" y="62" text-anchor="middle" font-size="10">チームの敗戦</text>' +
+        '<rect x="24" y="74" width="96" height="24" rx="6" fill="var(--paper)" stroke="var(--line)"/><text x="72" y="90" text-anchor="middle" font-size="10">他人の不調</text>' +
+        '<path d="M126,30 L216,54 M126,58 L216,58 M126,86 L216,62" stroke="var(--bad)" stroke-width="2"/>' +
+        '<circle cx="268" cy="58" r="34" fill="var(--cbt-bad-soft)" stroke="var(--bad)" stroke-width="2"/>' +
+        '<text x="268" y="54" text-anchor="middle" font-size="11.5" font-weight="700" class="sb">全部</text>' +
+        '<text x="268" y="70" text-anchor="middle" font-size="11.5" font-weight="700" class="sb">私のせい</text>' +
+        '<text x="356" y="58" text-anchor="middle" font-size="10" class="sm">他の要因を忘れる</text>' +
+      '</svg>';
+    }
+  };
+
+  // --- 5. 上部ラボ設置 ---
+  var DIST = (window.__cbt && window.__cbt.DIST) || {};
+  var distKeys = Object.keys(DIST_SVG);
+
+  var lab = document.createElement('section');
+  lab.className = 'cbt-lab';
+  lab.id = 'cbtLab';
+  lab.setAttribute('aria-label', '見て分かる CBTモデル図解ラボ');
+  lab.innerHTML =
+    '<div class="cbt-lab-head">' +
+      '<h2 class="cbt-lab-title"><span class="cbt-badge">図解ラボ</span>見て分かる CBTの基本モデル</h2>' +
+      '<button type="button" class="cbt-toggle" id="cbtLabToggle" aria-expanded="true" aria-controls="cbtLabBody">たたむ</button>' +
+    '</div>' +
+    '<div class="cbt-lab-body" id="cbtLabBody">' +
+      '<div class="cbt-tabs" role="tablist" aria-label="CBT図解の切り替え">' +
+        '<button type="button" class="cbt-tab" role="tab" data-ct="model" aria-selected="true">5つの輪（悪循環とほどき方）</button>' +
+        '<button type="button" class="cbt-tab" role="tab" data-ct="ice" aria-selected="false">心の3層（氷山）＋3つ組</button>' +
+        '<button type="button" class="cbt-tab" role="tab" data-ct="dist" aria-selected="false">11のクセ 絵図鑑</button>' +
+      '</div>' +
+      '<div id="cbtPaneModel">' +
+        '<div class="cbt-row" id="cbtModelSc" style="margin-bottom:8px"></div>' +
+        '<div class="cbt-row" style="margin-bottom:10px">' +
+          '<button type="button" class="cbt-btn bad" data-cm="bad" aria-pressed="true">× 悪循環のまま</button>' +
+          '<button type="button" class="cbt-btn good" data-cm="good" aria-pressed="false">○ CBTでほどく</button>' +
+        '</div>' +
+        '<div class="cbt-stage" id="cbtModelStage"></div>' +
+        '<p class="cbt-msg bad" id="cbtModelMsg" style="margin-top:8px"></p>' +
+      '</div>' +
+      '<div id="cbtPaneIce" hidden>' +
+        '<div class="cbt-row" id="cbtIceBtns" style="margin-bottom:10px"></div>' +
+        '<div class="cbt-stage" id="cbtIceStage"></div>' +
+        '<p class="cbt-msg mid" id="cbtIceMsg" style="margin-top:8px"></p>' +
+      '</div>' +
+      '<div id="cbtPaneDist" hidden>' +
+        '<div class="cbt-dist-btns" id="cbtDistBtns" style="margin-bottom:10px"></div>' +
+        '<div class="cbt-stage" id="cbtDistStage"></div>' +
+        '<p class="cbt-msg" id="cbtDistMsg" style="margin-top:8px"></p>' +
+      '</div>' +
+    '</div>';
+
+  kusePane.parentNode.insertBefore(lab, kusePane);
+
+  var mIdx = 0, mMode = 'bad', iceSel = 'auto', dKey = 'zero';
+
+  function renderModel(){
+    document.getElementById('cbtModelSc').innerHTML = MODELS.map(function(m, i){
+      return '<button type="button" class="cbt-btn" data-ms="'+i+'" aria-pressed="'+(i===mIdx?'true':'false')+'">'+esc(m.btn)+'</button>';
+    }).join('');
+    lab.querySelectorAll('[data-cm]').forEach(function(b){
+      b.setAttribute('aria-pressed', b.getAttribute('data-cm') === mMode ? 'true' : 'false');
+    });
+    document.getElementById('cbtModelStage').innerHTML = renderModelSvg(MODELS[mIdx], mMode);
+    var msg = document.getElementById('cbtModelMsg');
+    msg.textContent = MODELS[mIdx][mMode].msg;
+    msg.className = 'cbt-msg' + (mMode === 'bad' ? ' bad' : '');
+  }
+
+  function renderIce(){
+    document.getElementById('cbtIceBtns').innerHTML = ICE.map(function(x){
+      return '<button type="button" class="cbt-btn" data-ice="'+x.id+'" aria-pressed="'+(x.id===iceSel?'true':'false')+'">'+esc(x.btn)+'</button>';
+    }).join('');
+    document.getElementById('cbtIceStage').innerHTML = renderIceSvg(iceSel);
+    var cur = ICE.filter(function(x){ return x.id === iceSel; })[0];
+    document.getElementById('cbtIceMsg').textContent = cur.msg;
+  }
+
+  function renderDist(){
+    document.getElementById('cbtDistBtns').innerHTML = distKeys.map(function(k){
+      var nm = DIST[k] ? DIST[k][0] : k;
+      return '<button type="button" class="cbt-dist-btn" data-dk="'+k+'" aria-pressed="'+(k===dKey?'true':'false')+'">'+esc(nm)+'</button>';
+    }).join('');
+    document.getElementById('cbtDistStage').innerHTML = DIST_SVG[dKey]();
+    document.getElementById('cbtDistMsg').textContent = DIST[dKey] ? (DIST[dKey][0] + '：' + DIST[dKey][1]) : '';
+  }
+
+  lab.addEventListener('click', function(e){
+    var tb = e.target.closest('#cbtLabToggle');
+    if(tb){
+      var b = document.getElementById('cbtLabBody');
+      var open = !b.hidden;
+      b.hidden = open;
+      tb.setAttribute('aria-expanded', open ? 'false' : 'true');
+      tb.textContent = open ? 'ひらく' : 'たたむ';
+      return;
+    }
+    var tab = e.target.closest('.cbt-tab');
+    if(tab){
+      var t = tab.getAttribute('data-ct');
+      lab.querySelectorAll('.cbt-tab').forEach(function(x){ x.setAttribute('aria-selected', x === tab ? 'true' : 'false'); });
+      document.getElementById('cbtPaneModel').hidden = (t !== 'model');
+      document.getElementById('cbtPaneIce').hidden = (t !== 'ice');
+      document.getElementById('cbtPaneDist').hidden = (t !== 'dist');
+      return;
+    }
+    var ms = e.target.closest('[data-ms]');
+    if(ms){ mIdx = +ms.getAttribute('data-ms'); renderModel(); return; }
+    var cm = e.target.closest('[data-cm]');
+    if(cm){ mMode = cm.getAttribute('data-cm'); renderModel(); return; }
+    var ib = e.target.closest('[data-ice]');
+    if(ib){ iceSel = ib.getAttribute('data-ice'); renderIce(); return; }
+    var db = e.target.closest('[data-dk]');
+    if(db){ dKey = db.getAttribute('data-dk'); renderDist(); return; }
+  });
+  renderModel(); renderIce(); renderDist();
+
+  // --- 6. 各モード内のライブ図解補助（元データ・ロジック無改変） ---
+  // (A) クセさがし：回答後に該当するクセのイメージ図を自動表示
+  var kuseBox = document.getElementById('kusebox');
+  function enhanceKuse(){
+    if(!kuseBox || kuseBox.querySelector('.cbt-mini-vis')) return;
+    var why = kuseBox.querySelector('p.why');
+    if(!why) return;
+    var txt = why.textContent || '';
+    var hit = null;
+    distKeys.forEach(function(k){
+      if(!hit && DIST[k] && txt.indexOf(DIST[k][0]) >= 0) hit = k;
+    });
+    if(!hit) return;
+    var wrap = document.createElement('div');
+    wrap.className = 'cbt-mini-vis';
+    wrap.innerHTML = '<div class="cbt-mini-h"><span>絵で見るこのクセ</span><span class="cbt-pill">'+esc(DIST[hit][0])+'</span></div>' + DIST_SVG[hit]();
+    why.parentNode.insertBefore(wrap, why);
+  }
+  if(kuseBox){
+    new MutationObserver(enhanceKuse).observe(kuseBox, {childList:true});
+    enhanceKuse();
+  }
+
+  // (B) コラム法：4ステップ進捗バーを自動表示
+  var colBox = document.getElementById('colbox');
+  function enhanceCol(){
+    if(!colBox || colBox.querySelector('.cbt-steps')) return;
+    var h2 = colBox.querySelector('h2');
+    var h3 = colBox.querySelector('h3');
+    if(!h2 || !h3) return;
+    var t = h3.textContent || '';
+    var st = t.indexOf('③') >= 0 ? 0 : t.indexOf('④⑤') >= 0 ? 1 : t.indexOf('⑥') >= 0 ? 2 : 3;
+    var labels = ['Step 1 ホットな思考', 'Step 2 根拠と反証', 'Step 3 適応的思考', 'Step 4 気分の変化'];
+    var bar = document.createElement('div');
+    bar.className = 'cbt-steps';
+    bar.innerHTML = labels.map(function(lb, i){
+      var cls = i < st ? 'done' : i === st ? 'now' : '';
+      return '<div class="cbt-step '+cls+'">'+(i < st ? '✓ ' : '')+lb+'</div>';
+    }).join('');
+    h2.parentNode.insertBefore(bar, h2.nextSibling);
+  }
+  if(colBox){
+    new MutationObserver(enhanceCol).observe(colBox, {childList:true});
+    enhanceCol();
+  }
+
+  // (C) 悪循環の図：5枠の矢印サイクルSVGをライブ同期
+  var cycBox = document.getElementById('cycbox');
+  function enhanceCyc(){
+    if(!cycBox || cycBox.querySelector('.cbt-mini-vis')) return;
+    var cycEl = cycBox.querySelector('.cyc');
+    if(!cycEl) return;
+    var filled = {};
+    ['trig','cog','emo','body','beh'].forEach(function(k){
+      var bx = cycEl.querySelector('.b-'+k);
+      filled[k] = !!(bx && bx.querySelector('.placed'));
+    });
+    var checked = !!cycBox.querySelector('p.why');
+    function node(x, y, label, key){
+      var on = filled[key];
+      return '<rect x="'+(x-48)+'" y="'+(y-16)+'" width="96" height="32" rx="16" fill="'+(on?'var(--accent-soft)':'var(--panel)')+'" stroke="'+(on?'var(--accent)':'var(--line)')+'" stroke-width="'+(on?2:1.3)+'"/>' +
+             '<text x="'+x+'" y="'+(y+4)+'" text-anchor="middle" font-size="11" font-weight="700" class="'+(on?'sa':'sm')+'">'+(on?'✓ ':'')+label+'</text>';
+    }
+    var col = checked ? 'var(--good)' : 'var(--bad)';
+    var vis = document.createElement('div');
+    vis.className = 'cbt-mini-vis';
+    vis.innerHTML =
+      '<div class="cbt-mini-h"><span>5つの枠のつながり図</span><span class="cbt-pill">'+(checked ? '断ち切る入口を探そう' : '枠を埋めると点灯')+'</span></div>' +
+      '<svg class="cbt-svg" viewBox="0 0 460 132" role="img" aria-label="きっかけ・考え・気分・からだ・行動のつながり図">' +
+        '<rect x="4" y="4" width="452" height="124" rx="8" fill="var(--panel)" stroke="var(--line)"/>' +
+        '<path d="M188,30 L124,46" stroke="var(--accent)" stroke-width="1.8"/>' +
+        '<path d="M142,58 L314,58" stroke="'+col+'" stroke-width="2" class="cbt-flow"/>' +
+        '<path d="M366,76 L366,90" stroke="'+col+'" stroke-width="2" class="cbt-flow"/>' +
+        '<path d="M314,104 L142,104" stroke="'+col+'" stroke-width="2" class="cbt-flow"/>' +
+        '<path d="M94,90 L94,76" stroke="'+col+'" stroke-width="2" class="cbt-flow"/>' +
+        '<text x="230" y="86" text-anchor="middle" font-size="11" font-weight="700" fill="'+col+'">'+(checked ? '✂ 考え・行動から断つ' : '↻ 互いに強め合う')+'</text>' +
+        node(230, 26, 'きっかけ', 'trig') +
+        node(94, 58, '考え', 'cog') +
+        node(366, 58, '気分', 'emo') +
+        node(366, 104, 'からだ', 'body') +
+        node(94, 104, '行動', 'beh') +
+      '</svg>';
+    cycEl.parentNode.insertBefore(vis, cycEl);
+  }
+  if(cycBox){
+    new MutationObserver(enhanceCyc).observe(cycBox, {childList:true});
+    enhanceCyc();
+  }
 })();
 </script>
 

@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="robots" content="noindex, nofollow">
-<meta name="app-version" content="20261120141754">
+<meta name="app-version" content="20261120195434">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
@@ -128,6 +128,58 @@ h1{font-family:var(--f-display);font-weight:400;margin:0;font-size:clamp(2rem,7.
 #mbar{display:none}
 @media (max-width:860px){#mbar:not([hidden]){display:flex;position:fixed;left:0;right:0;bottom:0;z-index:5;gap:10px;align-items:center;justify-content:space-between;padding:8px max(16px,env(safe-area-inset-left,0px)) calc(8px + env(safe-area-inset-bottom,0px));background:var(--panel);border-top:1px solid var(--line);box-shadow:0 -4px 14px rgba(0,0,0,.08);font-size:var(--fs-s)}}
 .foot{margin-top:22px;font-size:var(--fs-xs);color:var(--muted);max-width:60em}
+
+/* === 見て分かる 症例レポート添削ラボ・赤ペン進捗＆結果図解（Gemini 担当） === */
+.ghost{min-height:44px;touch-action:manipulation}
+:root{--rp-stage:#f4f2eb;--rp-red-soft:color-mix(in srgb,var(--red) 11%,var(--panel));--rp-ok-soft:color-mix(in srgb,var(--ok) 12%,var(--panel));--rp-warn-soft:color-mix(in srgb,var(--warn) 13%,var(--panel))}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--rp-stage:#181813}}
+:root[data-theme="dark"]{--rp-stage:#181813}
+
+.rp-top-row{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.rp-theme-btn{flex:none;display:inline-flex;align-items:center;justify-content:center;gap:5px;min-width:44px;min-height:44px;padding:0 11px;border-radius:999px;border:1.5px solid var(--line);background:var(--panel);color:var(--ink);font:inherit;font-size:var(--fs-xs);font-weight:700;cursor:pointer;white-space:nowrap;touch-action:manipulation}
+.rp-theme-btn:hover{border-color:var(--accent)}
+.rp-theme-btn svg{width:17px;height:17px;fill:none;stroke:currentColor;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
+@media (max-width:420px){.rp-theme-lbl{display:none}.rp-theme-btn{padding:0;width:44px}}
+
+.rp-lab{margin-top:16px;background:var(--panel);border:1.5px solid var(--line);border-radius:10px;overflow:hidden;box-shadow:0 2px 10px color-mix(in srgb,var(--ink) 7%,transparent)}
+.rp-lab-head{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:8px 12px;background:var(--accent-soft);border-bottom:1px solid var(--line)}
+.rp-lab-title{flex:1;min-width:0;display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin:0;font-family:var(--f-display);font-weight:400;font-size:.98rem;line-height:1.3;color:var(--ink)}
+.rp-badge{font-family:var(--f-body);font-size:.7rem;font-weight:700;padding:2px 8px;border-radius:999px;background:var(--red);color:#fff;white-space:nowrap}
+.rp-toggle{min-height:44px;padding:0 12px;border-radius:8px;border:1px solid var(--line);background:var(--panel);color:var(--ink);font:inherit;font-size:var(--fs-xs);font-weight:700;cursor:pointer;white-space:nowrap;touch-action:manipulation}
+.rp-lab-body{padding:14px;display:grid;gap:12px}
+.rp-lab-body[hidden]{display:none!important}
+
+.rp-tabs{display:grid;grid-template-columns:1fr 1fr;gap:6px;padding:4px;background:var(--paper);border:1px solid var(--line);border-radius:9px}
+.rp-tab{min-height:44px;padding:6px 8px;border:0;border-radius:7px;background:transparent;color:var(--muted);font:inherit;font-size:var(--fs-xs);font-weight:700;cursor:pointer;touch-action:manipulation}
+.rp-tab[aria-selected="true"]{background:var(--panel);color:var(--accent);box-shadow:0 1px 4px color-mix(in srgb,var(--ink) 14%,transparent)}
+
+.rp-row{display:flex;flex-wrap:wrap;gap:6px}
+.rp-btn{flex:1 1 100px;min-height:44px;padding:6px 10px;border-radius:8px;border:1.5px solid var(--line);background:var(--paper);color:var(--ink);font:inherit;font-size:var(--fs-xs);font-weight:700;cursor:pointer;touch-action:manipulation}
+.rp-btn[aria-pressed="true"]{border-color:var(--red);background:var(--rp-red-soft);color:var(--red)}
+.rp-btn.blue[aria-pressed="true"]{border-color:var(--accent);background:var(--accent-soft);color:var(--accent)}
+
+.rp-stage{background:var(--rp-stage);border:1px solid var(--line);border-radius:9px;padding:10px;overflow:hidden}
+.rp-svg{display:block;width:100%;height:auto;max-width:660px;margin:0 auto}
+.rp-svg text{font-family:var(--f-body);fill:var(--ink)}
+.rp-svg .sm{fill:var(--muted)} .rp-svg .sa{fill:var(--accent)} .rp-svg .so{fill:var(--ok)} .rp-svg .sr{fill:var(--red)} .rp-svg .sw{fill:var(--warn)}
+.rp-msg{padding:9px 12px;border-radius:8px;font-size:var(--fs-s);font-weight:700;background:var(--accent-soft);border-left:4px solid var(--accent)}
+
+.rp-meter{display:grid;gap:4px}
+.rp-meter-track{height:10px;border-radius:999px;background:var(--paper);border:1px solid var(--line);overflow:hidden}
+.rp-meter-fill{height:100%;border-radius:999px;background:var(--red);transition:width .25s ease}
+.rp-meter-fill.exact{background:var(--ok)}
+.rp-meter-fill.over{background:var(--warn)}
+.rp-meter-cap{font-size:var(--fs-xs);color:var(--muted);display:flex;justify-content:space-between;gap:6px}
+
+.rp-cat-box{background:var(--rp-stage);border:1px solid var(--line);border-radius:8px;padding:8px 10px;display:grid;gap:6px}
+.rp-cat-row{display:grid;grid-template-columns:5.2em minmax(0,1fr) auto;gap:6px;align-items:center;font-size:var(--fs-xs)}
+.rp-cat-bar{height:9px;border-radius:999px;background:var(--paper);border:1px solid var(--line);overflow:hidden}
+.rp-cat-bar i{display:block;height:100%;background:var(--ok);border-radius:999px}
+.rp-cat-bar i.miss{background:var(--warn)}
+
+@media (prefers-reduced-motion:reduce){
+  .rp-meter-fill,.s,.rp-svg *,.rp-btn,.rp-tab,.rp-theme-btn{transition:none!important;animation:none!important}
+}
 </style>
 
 <div class="wrap">
@@ -251,6 +303,278 @@ h1{font-family:var(--f-display);font-weight:400;margin:0;font-size:clamp(2rem,7.
   });
   render();
   window.__rep = { R: R, flat: flat };
+})();
+</script>
+<script>
+/* 症例レポート添削：見て分かる 査読5大チェック図解・構成マップ・赤ペン進捗＆結果グラフ（Gemini 担当） */
+(function(){
+  'use strict';
+  if(window.__rpVisInit) return;
+  window.__rpVisInit = true;
+
+  var root = document.documentElement;
+  var head = document.querySelector('header.top');
+  var desk = document.querySelector('.desk');
+  var ctlEl = document.getElementById('ctl');
+  var fbEl = document.getElementById('fb');
+  if(!head || !desk) return;
+
+  function esc(s){ return String(s).replace(/[&<>"]/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]; }); }
+
+  // --- 1. ヘッダー明暗切替ボタン ---
+  var eyebrow = head.querySelector('.eyebrow');
+  if(eyebrow && !document.getElementById('rpThemeBtn')){
+    var row = document.createElement('div');
+    row.className = 'rp-top-row';
+    eyebrow.parentNode.insertBefore(row, eyebrow);
+    row.appendChild(eyebrow);
+    var tbtn = document.createElement('button');
+    tbtn.type = 'button';
+    tbtn.id = 'rpThemeBtn';
+    tbtn.className = 'rp-theme-btn';
+    row.appendChild(tbtn);
+
+    function isDark(){
+      var t = root.getAttribute('data-theme');
+      if(t === 'dark') return true;
+      if(t === 'light') return false;
+      return window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+    }
+    function syncTheme(){
+      var d = isDark();
+      tbtn.setAttribute('aria-label', d ? '明るい表示に切り替え' : '暗い表示に切り替え');
+      tbtn.innerHTML = d
+        ? '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg><span class="rp-theme-lbl">明るく</span>'
+        : '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg><span class="rp-theme-lbl">暗く</span>';
+    }
+    tbtn.addEventListener('click', function(){
+      root.setAttribute('data-theme', isDark() ? 'light' : 'dark');
+      syncTheme();
+    });
+    if(window.matchMedia){
+      var mq = window.matchMedia('(prefers-color-scheme: dark)');
+      if(mq.addEventListener) mq.addEventListener('change', syncTheme);
+    }
+    syncTheme();
+  }
+
+  // --- 2. 上部図解ラボ：査読5大チェック & レポート構成マップ ---
+  var CHECKS = [
+    {
+      id: 'priv', btn: '① 個人情報', secIdx: [0, 1],
+      ng1: 'Y.T.、24歳（市役所勤務）', ng2: '2019年4月、○○市立病院',
+      ok1: '20代男性、会社員', ok2: 'X−3年、近医を受診',
+      msg: 'イニシャル・実年月・病院名・地名・珍しい職業の組み合わせは本人特定につながります。「20代」「X年Y月」「近医／当院」に置き換えます。'
+    },
+    {
+      id: 'mse', btn: '② 精神現症', secIdx: [2],
+      ng1: '被害妄想と幻聴があった。', ng2: 'わがままで非協力的だった。',
+      ok1: '「噂されている」と確信、訂正不能', ok2: '返答は短く、視線をそらし警戒的',
+      msg: '結論や評価語（「典型的」「問題行動」「わがまま」）だけで終わらせず、本人の発言「」と観察した行動事実で根拠を示します。'
+    },
+    {
+      id: 'dx', btn: '③ 診断の根拠', secIdx: [3],
+      ng1: '統合失調症と診断した。', ng2: '（基準・鑑別・除外が空白）',
+      ok1: 'DSM-5-TR基準を満たす根拠を明記', ok2: '器質因・物質・気分障害の除外理由',
+      msg: '病名だけ書かず、診断基準（期間・症状数・機能低下）と、検査や病歴から鑑別疾患を除外した理由をセットで書きます。'
+    },
+    {
+      id: 'tx', btn: '④ 治療経過', secIdx: [4],
+      ng1: '抗精神病薬を開始し改善した。', ng2: '近医でSSRIを出されたが無効。',
+      ok1: '薬名・開始量・増量日・期間を明記', ok2: '効果・副作用と対処・多職種連携',
+      msg: '「薬名・用量・期間・変更理由・効果と副作用」が抜けると妥当性を評価できません。精神療法や環境調整の関わりも具体的に残します。'
+    },
+    {
+      id: 'disc', btn: '⑤ 考察・書き方', secIdx: [5],
+      ng1: '4月に不眠、6月に受診し改善。', ng2: '早期治療が大切だと思われた。',
+      ok1: 'この症例固有の判断・迷いを論じる', ok2: '文献と照らし今後の実践へつなぐ',
+      msg: '考察は現病歴・経過のくり返しや一般論だけにしません。「この症例で何が問題になり、どう判断し、何を学んだか」を文献とともに述べます。'
+    }
+  ];
+
+  var PAPER_SECS = ['患者・生活歴', '現病歴', '初診時精神現症', '身体・検査／診断', '治療経過', '考察'];
+
+  function renderCheckSvg(idx){
+    var c = CHECKS[idx];
+    var rows = PAPER_SECS.map(function(nm, i){
+      var hit = c.secIdx.indexOf(i) >= 0;
+      var y = 32 + i * 25;
+      return '<rect x="22" y="'+y+'" width="154" height="20" rx="4" fill="'+(hit?'var(--rp-red-soft)':'var(--paper)')+'" stroke="'+(hit?'var(--red)':'var(--line)')+'" stroke-width="'+(hit?1.8:1)+'"/>' +
+             '<text x="30" y="'+(y+14)+'" font-size="10.5" font-weight="'+(hit?'700':'400')+'" class="'+(hit?'sr':'sm')+'">'+(hit?'● ':'・')+nm+'</text>';
+    }).join('');
+    var py = 42 + c.secIdx[0] * 25;
+    return '<svg class="rp-svg" viewBox="0 0 560 198" role="img" aria-label="'+esc(c.btn+'の赤ペン比較図')+'">' +
+      '<rect x="6" y="6" width="548" height="186" rx="10" fill="var(--panel)" stroke="var(--line)"/>' +
+      // 左：原稿ミニマップ
+      '<rect x="14" y="14" width="170" height="170" rx="7" fill="var(--sheet)" stroke="var(--line)"/>' +
+      '<text x="99" y="27" text-anchor="middle" font-size="10" font-weight="700" class="sm">症例レポート原稿</text>' +
+      rows +
+      // 矢印
+      '<path d="M188,'+py+' C210,'+py+' 210,56 232,56" fill="none" stroke="var(--red)" stroke-width="2.2"/>' +
+      '<polygon points="236,56 227,51 227,61" fill="var(--red)"/>' +
+      // 右上：NG（赤ペン）
+      '<rect x="240" y="18" width="302" height="68" rx="8" fill="var(--rp-red-soft)" stroke="var(--red)" stroke-width="1.6"/>' +
+      '<text x="254" y="36" font-size="10.5" font-weight="700" class="sr">× 赤ペンが入る下書き</text>' +
+      '<text x="254" y="56" font-size="11.5" text-decoration="line-through">'+esc(c.ng1)+'</text>' +
+      '<text x="254" y="75" font-size="11" class="sm">'+esc(c.ng2)+'</text>' +
+      // 中央下向き矢印
+      '<path d="M391,88 v18" stroke="var(--ok)" stroke-width="2.2"/>' +
+      '<polygon points="391,110 386,102 396,102" fill="var(--ok)"/>' +
+      // 右下：OK（添削後）
+      '<rect x="240" y="112" width="302" height="68" rx="8" fill="var(--rp-ok-soft)" stroke="var(--ok)" stroke-width="1.8"/>' +
+      '<text x="254" y="130" font-size="10.5" font-weight="700" class="so">○ 伝わる直し方の見本</text>' +
+      '<text x="254" y="150" font-size="11.5" font-weight="700">'+esc(c.ok1)+'</text>' +
+      '<text x="254" y="169" font-size="11">'+esc(c.ok2)+'</text>' +
+    '</svg>';
+  }
+
+  var FLOW = [
+    { t: '① 患者・主訴', sub: '匿名化＋「本人の言葉」', msg: '個人特定の手がかりを徹底的に伏せ、主訴は本人（または家族と明記）の言葉をそのまま「」で残します。' },
+    { t: '② 生活歴・現病歴', sub: '時系列＋入院・受診の理由', msg: '発症時期・変化・受診や入院に至った具体的な困りごとを時間の順に整理します。' },
+    { t: '③ 精神現症・検査', sub: '観察事実＋器質因の除外', msg: '意識・見当識・疎通性・気分・思考・知覚・病識を観察事実で書き、血液・MRI・脳波で器質因を除外します。' },
+    { t: '④ 診断と鑑別', sub: '基準・根拠＋除外理由', msg: 'DSM-5-TR / ICD 基準への合致根拠と、物質・器質・他の精神疾患を除外した論拠を示します。' },
+    { t: '⑤ 治療経過', sub: '薬名・量・期間・多職種', msg: '薬剤の増減・効果・副作用と対処、精神療法・環境調整・家族支援を具体的に時系列で書きます。' },
+    { t: '⑥ 考察', sub: '症例固有の論点＋文献', msg: '経過のくり返しや一般論で終わらせず、判断の分岐点と学びを文献と照らして論じます。' }
+  ];
+
+  function renderFlowSvg(sel){
+    var items = FLOW.map(function(f, i){
+      var col = i % 3, rw = Math.floor(i / 3);
+      var x = 18 + col * 178, y = 20 + rw * 86;
+      var on = (i === sel);
+      var arrow = (col < 2)
+        ? '<path d="M'+(x+164)+','+(y+32)+' h12" stroke="var(--accent)" stroke-width="2"/><polygon points="'+(x+178)+','+(y+32)+' '+(x+172)+','+(y+28)+' '+(x+172)+','+(y+36)+'" fill="var(--accent)"/>'
+        : (rw === 0 ? '<path d="M460,84 v10 H102 v10" fill="none" stroke="var(--accent)" stroke-width="1.8" stroke-dasharray="4 3"/>' : '');
+      return arrow +
+        '<rect x="'+x+'" y="'+y+'" width="164" height="64" rx="8" fill="'+(on?'var(--accent-soft)':'var(--panel)')+'" stroke="'+(on?'var(--accent)':'var(--line)')+'" stroke-width="'+(on?2.2:1.3)+'"/>' +
+        '<text x="'+(x+82)+'" y="'+(y+26)+'" text-anchor="middle" font-size="11.5" font-weight="700" class="'+(on?'sa':'')+'">'+esc(f.t)+'</text>' +
+        '<text x="'+(x+82)+'" y="'+(y+46)+'" text-anchor="middle" font-size="10" class="sm">'+esc(f.sub)+'</text>';
+    }).join('');
+    return '<svg class="rp-svg" viewBox="0 0 560 186" role="img" aria-label="症例レポート6段構成マップ">' +
+      '<rect x="6" y="6" width="548" height="174" rx="10" fill="var(--panel)" stroke="var(--line)"/>' +
+      items +
+    '</svg>';
+  }
+
+  var lab = document.createElement('section');
+  lab.className = 'rp-lab';
+  lab.id = 'rpLab';
+  lab.setAttribute('aria-label', '見て分かる 症例レポート添削ラボ');
+  lab.innerHTML =
+    '<div class="rp-lab-head">' +
+      '<h2 class="rp-lab-title"><span class="rp-badge">赤ペン図解</span>見て分かる 査読の5大チェック</h2>' +
+      '<button type="button" class="rp-toggle" id="rpLabToggle" aria-expanded="true" aria-controls="rpLabBody">たたむ</button>' +
+    '</div>' +
+    '<div class="rp-lab-body" id="rpLabBody">' +
+      '<div class="rp-tabs" role="tablist" aria-label="図解の切り替え">' +
+        '<button type="button" class="rp-tab" role="tab" data-rt="chk" aria-selected="true">5大チェック見本</button>' +
+        '<button type="button" class="rp-tab" role="tab" data-rt="flow" aria-selected="false">レポート構成のつながり</button>' +
+      '</div>' +
+      '<div id="rpPaneChk">' +
+        '<div class="rp-row" id="rpChkBtns" style="margin-bottom:10px"></div>' +
+        '<div class="rp-stage" id="rpChkSvg"></div>' +
+        '<p class="rp-msg" id="rpChkMsg" style="margin-top:8px"></p>' +
+      '</div>' +
+      '<div id="rpPaneFlow" hidden>' +
+        '<div class="rp-row" id="rpFlowBtns" style="margin-bottom:10px"></div>' +
+        '<div class="rp-stage" id="rpFlowSvg"></div>' +
+        '<p class="rp-msg" id="rpFlowMsg" style="margin-top:8px"></p>' +
+      '</div>' +
+    '</div>';
+
+  desk.parentNode.insertBefore(lab, desk);
+
+  var chkIdx = 0, flowIdx = 0;
+  function renderChk(){
+    document.getElementById('rpChkBtns').innerHTML = CHECKS.map(function(c, i){
+      return '<button type="button" class="rp-btn" data-rc="'+i+'" aria-pressed="'+(i===chkIdx?'true':'false')+'">'+esc(c.btn)+'</button>';
+    }).join('');
+    document.getElementById('rpChkSvg').innerHTML = renderCheckSvg(chkIdx);
+    document.getElementById('rpChkMsg').textContent = CHECKS[chkIdx].msg;
+  }
+  function renderFlow(){
+    document.getElementById('rpFlowBtns').innerHTML = FLOW.map(function(f, i){
+      return '<button type="button" class="rp-btn blue" data-rf="'+i+'" aria-pressed="'+(i===flowIdx?'true':'false')+'">'+esc(f.t)+'</button>';
+    }).join('');
+    document.getElementById('rpFlowSvg').innerHTML = renderFlowSvg(flowIdx);
+    document.getElementById('rpFlowMsg').textContent = FLOW[flowIdx].msg;
+  }
+
+  lab.addEventListener('click', function(e){
+    var tb = e.target.closest('#rpLabToggle');
+    if(tb){
+      var b = document.getElementById('rpLabBody');
+      var open = !b.hidden;
+      b.hidden = open;
+      tb.setAttribute('aria-expanded', open ? 'false' : 'true');
+      tb.textContent = open ? 'ひらく' : 'たたむ';
+      return;
+    }
+    var tab = e.target.closest('.rp-tab');
+    if(tab){
+      var t = tab.getAttribute('data-rt');
+      lab.querySelectorAll('.rp-tab').forEach(function(x){ x.setAttribute('aria-selected', x === tab ? 'true' : 'false'); });
+      document.getElementById('rpPaneChk').hidden = (t !== 'chk');
+      document.getElementById('rpPaneFlow').hidden = (t !== 'flow');
+      return;
+    }
+    var cb = e.target.closest('[data-rc]');
+    if(cb){ chkIdx = +cb.getAttribute('data-rc'); renderChk(); return; }
+    var fb = e.target.closest('[data-rf]');
+    if(fb){ flowIdx = +fb.getAttribute('data-rf'); renderFlow(); return; }
+  });
+  renderChk(); renderFlow();
+
+  // --- 3. サイドパネルに赤ペン進捗バー＆結果のカテゴリ別達成グラフを自動追加 ---
+  function enhanceCtl(){
+    if(!ctlEl || ctlEl.querySelector('.rp-meter')) return;
+    var bs = ctlEl.querySelectorAll('p b');
+    if(bs.length < 2) return;
+    var errN = parseInt(bs[0].textContent, 10) || 1;
+    var mk = parseInt(bs[1].textContent, 10) || 0;
+    var pct = Math.min(100, Math.round(mk / errN * 100));
+    var cls = mk === errN ? ' exact' : (mk > errN ? ' over' : '');
+    var isChecked = !!ctlEl.querySelector('#resetBtn');
+    var status = isChecked ? '添削済み（下の観点ごとの結果を確認）' : mk === 0 ? '本文の気になる文をタップ' : mk < errN ? 'あと ' + (errN - mk) + ' か所探してみよう' : mk === errN ? 'ぴったり ' + errN + ' か所！確かめよう' : '目安より ' + (mk - errN) + ' か所多め';
+    var box = document.createElement('div');
+    box.className = 'rp-meter';
+    box.innerHTML =
+      '<div class="rp-meter-cap"><span>赤ペンの進み具合</span><b>'+mk+' / '+errN+'</b></div>' +
+      '<div class="rp-meter-track"><div class="rp-meter-fill'+cls+'" style="width:'+pct+'%"></div></div>' +
+      '<div class="rp-meter-cap"><span>'+esc(status)+'</span></div>';
+    var legend = ctlEl.querySelector('.legend');
+    if(legend) ctlEl.insertBefore(box, legend); else ctlEl.appendChild(box);
+  }
+
+  function enhanceFb(){
+    if(!fbEl || fbEl.hidden || fbEl.querySelector('.rp-cat-box')) return;
+    var items = fbEl.querySelectorAll('.fbl li');
+    if(!items.length) return;
+    var cats = {};
+    items.forEach(function(li){
+      var isHit = li.classList.contains('hit'), isMiss = li.classList.contains('miss');
+      if(!isHit && !isMiss) return;
+      var headT = (li.querySelector('b') && li.querySelector('b').textContent) || '';
+      var m = headT.match(/（([^）]+)）/);
+      var cat = m ? m[1] : 'その他';
+      if(!cats[cat]) cats[cat] = { hit: 0, tot: 0 };
+      cats[cat].tot++;
+      if(isHit) cats[cat].hit++;
+    });
+    var keys = Object.keys(cats);
+    if(!keys.length) return;
+    var box = document.createElement('div');
+    box.className = 'rp-cat-box';
+    box.innerHTML = '<b style="font-size:var(--fs-xs);color:var(--accent)">観点ごとの発見率</b>' + keys.map(function(k){
+      var d = cats[k], pct = Math.round(d.hit / d.tot * 100);
+      return '<div class="rp-cat-row"><span>'+esc(k)+'</span><div class="rp-cat-bar"><i class="'+(d.hit<d.tot?'miss':'')+'" style="width:'+pct+'%"></i></div><b>'+d.hit+'/'+d.tot+'</b></div>';
+    }).join('');
+    var fbl = fbEl.querySelector('.fbl');
+    if(fbl) fbEl.insertBefore(box, fbl); else fbEl.appendChild(box);
+  }
+
+  if(ctlEl){ new MutationObserver(enhanceCtl).observe(ctlEl, {childList:true}); enhanceCtl(); }
+  if(fbEl){ new MutationObserver(enhanceFb).observe(fbEl, {childList:true, attributes:true, attributeFilter:['hidden']}); enhanceFb(); }
 })();
 </script>
 

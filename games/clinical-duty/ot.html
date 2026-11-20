@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="robots" content="noindex, nofollow">
-<meta name="app-version" content="20261120141754">
+<meta name="app-version" content="20261120195434">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
@@ -209,6 +209,51 @@ tbody tr:last-child th,tbody tr:last-child td{border-bottom:0}
 .foot{margin-top:24px;font-size:var(--fs-xs);color:var(--muted);max-width:56em}
 .toast{position:fixed;z-index:20;right:max(16px, env(safe-area-inset-right, 0px));bottom:calc(16px + env(safe-area-inset-bottom, 0px));max-width:min(340px, calc(100vw - 32px));background:var(--panel);color:var(--ink);border:2px solid var(--seal);border-radius:var(--r);padding:10px 14px;box-shadow:0 6px 24px var(--shadow);font-size:var(--fs-s)}
 .toast b{color:var(--seal)}
+
+/* === 見て分かる 精神科リハ・回復期マップ＆全9症例図解（Gemini 担当） === */
+:root{--ot-stage:#f2f5ec;--ot-lamp-soft:color-mix(in srgb,var(--lamp) 12%,var(--panel))}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--ot-stage:#161b12}}
+:root[data-theme="dark"]{--ot-stage:#161b12}
+.ot-top-row{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.ot-theme-btn{flex:none;display:inline-flex;align-items:center;justify-content:center;gap:5px;min-width:44px;min-height:44px;padding:0 11px;border-radius:999px;border:1.5px solid var(--line);background:var(--panel);color:var(--ink);font:inherit;font-size:var(--fs-xs);font-weight:700;cursor:pointer;white-space:nowrap;touch-action:manipulation}
+.ot-theme-btn:hover{border-color:var(--accent)}
+.ot-theme-btn svg{width:17px;height:17px;fill:none;stroke:currentColor;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
+@media (max-width:420px){.ot-theme-lbl{display:none}.ot-theme-btn{padding:0;width:44px}}
+
+.ot-lab{margin-top:18px;background:var(--panel);border:1.5px solid var(--line);border-radius:10px;overflow:hidden;box-shadow:0 2px 10px color-mix(in srgb,var(--ink) 7%,transparent)}
+.ot-lab-head{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:8px 12px;background:var(--accent-soft);border-bottom:1px solid var(--line)}
+.ot-lab-title{flex:1;min-width:0;display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin:0;font-family:var(--f-display);font-weight:400;font-size:.98rem;line-height:1.3;color:var(--ink)}
+.ot-badge{font-family:var(--f-body);font-size:.7rem;font-weight:700;padding:2px 8px;border-radius:999px;background:var(--accent);color:var(--accent-ink);white-space:nowrap}
+.ot-toggle{min-height:44px;padding:0 12px;border-radius:8px;border:1px solid var(--line);background:var(--panel);color:var(--ink);font:inherit;font-size:var(--fs-xs);font-weight:700;cursor:pointer;white-space:nowrap;touch-action:manipulation}
+.ot-lab-body{padding:14px;display:grid;gap:12px}
+.ot-lab-body[hidden]{display:none!important}
+
+.ot-tabs{display:grid;grid-template-columns:1fr 1fr;gap:6px;padding:4px;background:var(--paper);border:1px solid var(--line);border-radius:9px}
+.ot-tab{min-height:44px;padding:6px 8px;border:0;border-radius:7px;background:transparent;color:var(--muted);font:inherit;font-size:var(--fs-xs);font-weight:700;cursor:pointer;touch-action:manipulation}
+.ot-tab[aria-selected="true"]{background:var(--panel);color:var(--accent);box-shadow:0 1px 4px color-mix(in srgb,var(--ink) 14%,transparent)}
+
+.ot-row{display:flex;flex-wrap:wrap;gap:6px}
+.ot-btn{flex:1 1 110px;min-height:44px;padding:6px 10px;border-radius:8px;border:1.5px solid var(--line);background:var(--paper);color:var(--ink);font:inherit;font-size:var(--fs-xs);font-weight:700;cursor:pointer;touch-action:manipulation}
+.ot-btn[aria-pressed="true"]{border-color:var(--accent);background:var(--accent-soft);color:var(--accent)}
+
+.ot-stage{background:var(--ot-stage);border:1px solid var(--line);border-radius:9px;padding:10px;overflow:hidden}
+.ot-svg{display:block;width:100%;height:auto;max-width:640px;margin:0 auto}
+.ot-svg text{font-family:var(--f-body);fill:var(--ink)}
+.ot-svg .sm{fill:var(--muted)} .ot-svg .sa{fill:var(--accent)} .ot-svg .so{fill:var(--ok)} .ot-svg .sn{fill:var(--seal)} .ot-svg .sw{fill:var(--lamp)}
+
+.ot-msg{padding:9px 12px;border-radius:8px;font-size:var(--fs-s);font-weight:700;background:var(--accent-soft);border-left:4px solid var(--accent)}
+
+.ot-case-vis{border:1.5px solid var(--line);border-radius:9px;background:var(--ot-stage);padding:11px 12px;display:grid;gap:8px;overflow:hidden}
+.ot-case-h{display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap;font-size:var(--fs-xs);font-weight:700;color:var(--muted)}
+.ot-pill{display:inline-flex;align-items:center;padding:2px 9px;border-radius:999px;background:var(--panel);border:1px solid var(--line);color:var(--accent);font-weight:700}
+.ot-meter-strip{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:4px}
+@media (max-width:460px){.ot-meter-strip{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.ot-st-chip{padding:4px 6px;border-radius:6px;border:1px solid var(--line);background:var(--panel);font-size:.73rem;font-weight:700;color:var(--muted);text-align:center}
+.ot-st-chip.now{border-color:var(--accent);background:var(--accent);color:var(--accent-ink)}
+
+@media (prefers-reduced-motion:reduce){
+  .ot-svg *,.ot-btn,.ot-tab,.ot-theme-btn{transition:none!important;animation:none!important}
+}
 </style>
 
 <div class="wrap">
@@ -587,6 +632,432 @@ tbody tr:last-child th,tbody tr:last-child td{border-bottom:0}
   });
   render();
   window.__ot = { S: function () { return S; }, CASES: CASES, caseScore: caseScore };
+})();
+</script>
+<script>
+/* OT処方の日：見て分かる 回復4段階×活動マップ・リハ地図・全9症例図解（Gemini 担当） */
+(function(){
+  'use strict';
+  if(window.__otVisInit) return;
+  window.__otVisInit = true;
+
+  var root = document.documentElement;
+  var head = document.querySelector('header.top');
+  var board = document.querySelector('section.board');
+  var mainEl = document.getElementById('main');
+  if(!head || !mainEl) return;
+
+  function esc(s){ return String(s).replace(/[&<>"]/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]; }); }
+
+  // --- 1. ヘッダー明暗切替ボタン ---
+  var eyebrow = head.querySelector('.eyebrow');
+  if(eyebrow && !document.getElementById('otThemeBtn')){
+    var row = document.createElement('div');
+    row.className = 'ot-top-row';
+    eyebrow.parentNode.insertBefore(row, eyebrow);
+    row.appendChild(eyebrow);
+    var tbtn = document.createElement('button');
+    tbtn.type = 'button';
+    tbtn.id = 'otThemeBtn';
+    tbtn.className = 'ot-theme-btn';
+    row.appendChild(tbtn);
+
+    function isDark(){
+      var t = root.getAttribute('data-theme');
+      if(t === 'dark') return true;
+      if(t === 'light') return false;
+      return window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+    }
+    function syncTheme(){
+      var d = isDark();
+      tbtn.setAttribute('aria-label', d ? '明るい表示に切り替え' : '暗い表示に切り替え');
+      tbtn.innerHTML = d
+        ? '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg><span class="ot-theme-lbl">明るく</span>'
+        : '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg><span class="ot-theme-lbl">暗く</span>';
+    }
+    tbtn.addEventListener('click', function(){
+      root.setAttribute('data-theme', isDark() ? 'light' : 'dark');
+      syncTheme();
+    });
+    if(window.matchMedia){
+      var mq = window.matchMedia('(prefers-color-scheme: dark)');
+      if(mq.addEventListener) mq.addEventListener('change', syncTheme);
+    }
+    syncTheme();
+  }
+
+  // --- 2. 上部図解ラボ：回復4段階マップ & リハ制度地図 ---
+  var STAGES = [
+    {
+      nm: '① 急性期', px: 82, py: 120,
+      stim: 15, stimTxt: 'ごく低く（個別・静か）',
+      load: 15, loadTxt: '短時間・安心できる場',
+      aim: '休息と安全が最優先。必要時のみ個別・短時間で現実感と安心感を支える。'
+    },
+    {
+      nm: '② 回復期前期', px: 214, py: 90,
+      stim: 38, stimTxt: '少人数・落ち着いた場',
+      load: 42, loadTxt: '簡単で終わりが見える作業',
+      aim: '生活リズムを整え、作業を続けられる時間（疲れやすさ）を少しずつ伸ばす。副作用観察にも最適。'
+    },
+    {
+      nm: '③ 回復期後期', px: 346, py: 60,
+      stim: 72, stimTxt: '小〜中集団・役割あり',
+      load: 72, loadTxt: '少し複雑な作業・対人交流',
+      aim: '対人交流・役割・自信を広げ、退院や復職を見すえた生活技能・持久力を整える。'
+    },
+    {
+      nm: '④ 維持期（生活期）', px: 478, py: 36,
+      stim: 92, stimTxt: '地域・通所・職場環境',
+      load: 90, loadTxt: '生活管理・就労・定着支援',
+      aim: 'デイケア・訪問看護・リワーク・就労移行支援などで、地域生活と再発予防を支える。'
+    }
+  ];
+
+  function renderStageSvg(idx){
+    var st = STAGES[idx];
+    var dots = STAGES.map(function(s, i){
+      var on = (i === idx);
+      return '<circle cx="'+s.px+'" cy="'+s.py+'" r="'+(on?10:6)+'" fill="'+(on?'var(--accent)':'var(--panel)')+'" stroke="var(--accent)" stroke-width="2.2"/>' +
+             '<text x="'+s.px+'" y="'+(s.py+24)+'" text-anchor="middle" font-size="10.5" font-weight="700" class="'+(on?'sa':'sm')+'">'+esc(s.nm)+'</text>';
+    }).join('');
+    var w1 = Math.round(230 * st.stim / 100);
+    var w2 = Math.round(230 * st.load / 100);
+    return '<svg class="ot-svg" viewBox="0 0 560 222" role="img" aria-label="回復4段階とOT活動強度の図解">' +
+      '<rect x="6" y="6" width="548" height="210" rx="10" fill="var(--panel)" stroke="var(--line)"/>' +
+      // 回復カーブ
+      '<path d="M50,126 C140,124 220,86 346,60 C410,48 456,38 510,34" fill="none" stroke="var(--accent)" stroke-width="3" stroke-linecap="round"/>' +
+      dots +
+      // 下半分：2つのゲージ
+      '<line x1="20" y1="154" x2="540" y2="154" stroke="var(--line)" stroke-dasharray="4 3"/>' +
+      '<text x="24" y="177" font-size="11" font-weight="700" class="sm">刺激・集団の広さ</text>' +
+      '<rect x="148" y="166" width="230" height="13" rx="6.5" fill="var(--paper)" stroke="var(--line)"/>' +
+      '<rect x="148" y="166" width="'+w1+'" height="13" rx="6.5" fill="var(--accent)"/>' +
+      '<text x="388" y="177" font-size="10.5" font-weight="700" class="sa">'+esc(st.stimTxt)+'</text>' +
+      '<text x="24" y="202" font-size="11" font-weight="700" class="sm">作業の負荷・時間</text>' +
+      '<rect x="148" y="191" width="230" height="13" rx="6.5" fill="var(--paper)" stroke="var(--line)"/>' +
+      '<rect x="148" y="191" width="'+w2+'" height="13" rx="6.5" fill="var(--lamp)"/>' +
+      '<text x="388" y="202" font-size="10.5" font-weight="700" class="sw">'+esc(st.loadTxt)+'</text>' +
+    '</svg>';
+  }
+
+  var PATHS = [
+    { id: 'hosp', btn: '入院〜退院直後', hl: ['ot','dc','sst','vis'], msg: '病棟OTで生活リズムと生活技能を整え、退院後はデイケア（居場所・リズム）・SST（対人技能）・訪問看護（自宅見守り）で支えます。' },
+    { id: 'rew', btn: '休職中→復職', hl: ['dc','rew'], msg: '会社に籍がある休職者は「リワーク（復職支援）」で通勤リズム・オフィス作業・再発予防を整え、産業医や職場と連携して戻ります。' },
+    { id: 'emp', btn: '一般就労を目指す', hl: ['ot','ico'], msg: 'OTなどで得意・苦手（特性）を言葉にし、「就労移行支援（原則2年）」で訓練・職場探し・就職後の定着支援を受けます。' },
+    { id: 'pace', btn: '自分のペースで働く', hl: ['ab'], msg: '一般就労がまだ難しい場合は福祉サービスの「就労継続支援」へ。A型は雇用契約あり（最低賃金）、B型は雇用契約なし（工賃）です。' }
+  ];
+
+  function renderRehabSvg(pid){
+    var p = PATHS.filter(function(x){ return x.id === pid; })[0];
+    function box(x, y, w, h, id, t1, t2){
+      var on = p.hl.indexOf(id) >= 0;
+      return '<rect x="'+x+'" y="'+y+'" width="'+w+'" height="'+h+'" rx="8" fill="'+(on?'var(--accent-soft)':'var(--panel)')+'" stroke="'+(on?'var(--accent)':'var(--line)')+'" stroke-width="'+(on?2.2:1.2)+'"/>' +
+             '<text x="'+(x+w/2)+'" y="'+(y+22)+'" text-anchor="middle" font-size="11" font-weight="700" class="'+(on?'sa':'')+'">'+esc(t1)+'</text>' +
+             '<text x="'+(x+w/2)+'" y="'+(y+38)+'" text-anchor="middle" font-size="9.5" class="sm">'+esc(t2)+'</text>';
+    }
+    return '<svg class="ot-svg" viewBox="0 0 560 206" role="img" aria-label="精神科リハビリテーションと就労支援の地図">' +
+      '<rect x="6" y="6" width="548" height="194" rx="10" fill="var(--panel)" stroke="var(--line)"/>' +
+      // 3列の見出し
+      '<text x="95" y="26" text-anchor="middle" font-size="10.5" font-weight="700" class="sm">【医療機関（入院・外来）】</text>' +
+      '<text x="275" y="26" text-anchor="middle" font-size="10.5" font-weight="700" class="sm">【地域生活・通所医療】</text>' +
+      '<text x="455" y="26" text-anchor="middle" font-size="10.5" font-weight="700" class="sm">【復職・福祉就労サービス】</text>' +
+      '<line x1="184" y1="34" x2="184" y2="190" stroke="var(--line)" stroke-dasharray="4 3"/>' +
+      '<line x1="364" y1="34" x2="364" y2="190" stroke="var(--line)" stroke-dasharray="4 3"/>' +
+      // 矢印
+      '<path d="M168,86 h26 M168,146 h26 M348,66 h26 M348,118 h26 M348,166 h26" stroke="var(--line)" stroke-width="1.8"/>' +
+      // 列1
+      box(22, 54, 146, 52, 'ot', '精神科作業療法 (OT)', '指示のもと生活力・観察') +
+      box(22, 124, 146, 52, 'sst', 'SST (社会生活技能)', '頼む・断る・相談の練習') +
+      // 列2
+      box(198, 42, 150, 48, 'dc', '精神科デイケア', '日中の居場所・リズム') +
+      box(198, 124, 150, 52, 'vis', '精神科訪問看護', '自宅で服薬・生活見守り') +
+      // 列3
+      box(378, 38, 160, 46, 'rew', 'リワーク（復職支援）', '休職者の定時通所・復職') +
+      box(378, 92, 160, 46, 'ico', '就労移行支援', '一般就労訓練・原則2年') +
+      box(378, 146, 160, 46, 'ab', '就労継続支援 A型/B型', 'A=雇用契約 / B=工賃') +
+    '</svg>';
+  }
+
+  var lab = document.createElement('section');
+  lab.className = 'ot-lab';
+  lab.id = 'otLab';
+  lab.setAttribute('aria-label', '見て分かる 精神科リハ・回復期マップ');
+  lab.innerHTML =
+    '<div class="ot-lab-head">' +
+      '<h2 class="ot-lab-title"><span class="ot-badge">図解ラボ</span>見て分かる 回復4段階とリハの地図</h2>' +
+      '<button type="button" class="ot-toggle" id="otLabToggle" aria-expanded="true" aria-controls="otLabBody">たたむ</button>' +
+    '</div>' +
+    '<div class="ot-lab-body" id="otLabBody">' +
+      '<div class="ot-tabs" role="tablist" aria-label="図解タブ">' +
+        '<button type="button" class="ot-tab" role="tab" data-ot="stage" aria-selected="true">回復4段階×活動強度</button>' +
+        '<button type="button" class="ot-tab" role="tab" data-ot="rehab" aria-selected="false">リハ・就労支援の地図</button>' +
+      '</div>' +
+      '<div id="otPaneStage">' +
+        '<div class="ot-row" id="otStageBtns" style="margin-bottom:10px"></div>' +
+        '<div class="ot-stage" id="otStageSvg"></div>' +
+        '<p class="ot-msg" id="otStageMsg" style="margin-top:8px"></p>' +
+      '</div>' +
+      '<div id="otPaneRehab" hidden>' +
+        '<div class="ot-row" id="otPathBtns" style="margin-bottom:10px"></div>' +
+        '<div class="ot-stage" id="otRehabSvg"></div>' +
+        '<p class="ot-msg" id="otRehabMsg" style="margin-top:8px"></p>' +
+      '</div>' +
+    '</div>';
+
+  if(board && board.parentNode){
+    board.parentNode.insertBefore(lab, board);
+  } else {
+    head.parentNode.insertBefore(lab, head.nextSibling);
+  }
+
+  var curStage = 1, curPath = 'hosp';
+  function renderLabStage(){
+    document.getElementById('otStageBtns').innerHTML = STAGES.map(function(s, i){
+      return '<button type="button" class="ot-btn" data-os="'+i+'" aria-pressed="'+(i===curStage?'true':'false')+'">'+esc(s.nm)+'</button>';
+    }).join('');
+    document.getElementById('otStageSvg').innerHTML = renderStageSvg(curStage);
+    document.getElementById('otStageMsg').textContent = STAGES[curStage].aim;
+  }
+  function renderLabRehab(){
+    document.getElementById('otPathBtns').innerHTML = PATHS.map(function(p){
+      return '<button type="button" class="ot-btn" data-op="'+p.id+'" aria-pressed="'+(p.id===curPath?'true':'false')+'">'+esc(p.btn)+'</button>';
+    }).join('');
+    document.getElementById('otRehabSvg').innerHTML = renderRehabSvg(curPath);
+    var p = PATHS.filter(function(x){ return x.id === curPath; })[0];
+    document.getElementById('otRehabMsg').textContent = p.msg;
+  }
+
+  lab.addEventListener('click', function(e){
+    var tb = e.target.closest('#otLabToggle');
+    if(tb){
+      var b = document.getElementById('otLabBody');
+      var open = !b.hidden;
+      b.hidden = open;
+      tb.setAttribute('aria-expanded', open ? 'false' : 'true');
+      tb.textContent = open ? 'ひらく' : 'たたむ';
+      return;
+    }
+    var tab = e.target.closest('.ot-tab');
+    if(tab){
+      var t = tab.getAttribute('data-ot');
+      lab.querySelectorAll('.ot-tab').forEach(function(x){ x.setAttribute('aria-selected', x === tab ? 'true' : 'false'); });
+      document.getElementById('otPaneStage').hidden = (t !== 'stage');
+      document.getElementById('otPaneRehab').hidden = (t !== 'rehab');
+      return;
+    }
+    var sb = e.target.closest('[data-os]');
+    if(sb){ curStage = +sb.getAttribute('data-os'); renderLabStage(); return; }
+    var pb = e.target.closest('[data-op]');
+    if(pb){ curPath = pb.getAttribute('data-op'); renderLabRehab(); return; }
+  });
+  renderLabStage(); renderLabRehab();
+
+  // --- 3. 全9症例の状況ビジュアルカード（ネタバレせず患者の状態・時期・着眼点を図解） ---
+  var STAGE_NAMES = ['急性期', '回復期前期', '回復期後期', '維持期（生活期）'];
+  var CASE_VIS = [
+    {
+      st: 1, tag: '病棟・入院4週目',
+      svg: function(){
+        return '<svg class="ot-svg" viewBox="0 0 520 110" role="img" aria-label="1人目：昼夜逆転と薬増量後の状況図">' +
+          '<rect x="4" y="4" width="512" height="102" rx="8" fill="var(--panel)" stroke="var(--line)"/>' +
+          '<rect x="20" y="18" width="146" height="74" rx="8" fill="var(--accent-soft)" stroke="var(--accent)"/>' +
+          '<text x="93" y="42" text-anchor="middle" font-size="11" font-weight="700" class="sa">幻聴が落ち着いた</text>' +
+          '<text x="93" y="62" text-anchor="middle" font-size="10.5">急性期を抜けた段階</text>' +
+          '<text x="93" y="80" text-anchor="middle" font-size="10" class="sm">「何をしても疲れる」</text>' +
+          '<rect x="184" y="18" width="152" height="74" rx="8" fill="var(--ot-lamp-soft)" stroke="var(--lamp)"/>' +
+          '<text x="260" y="42" text-anchor="middle" font-size="11" font-weight="700" class="sw">生活リズムの乱れ</text>' +
+          '<text x="260" y="62" text-anchor="middle" font-size="10.5">日中ほぼ横になる</text>' +
+          '<text x="260" y="80" text-anchor="middle" font-size="10" class="sm">昼夜逆転しかけ</text>' +
+          '<rect x="354" y="18" width="146" height="74" rx="8" fill="var(--seal-soft)" stroke="var(--seal)"/>' +
+          '<text x="427" y="42" text-anchor="middle" font-size="11" font-weight="700" class="sn">服薬の変化</text>' +
+          '<text x="427" y="62" text-anchor="middle" font-size="10.5">リスペリドン</text>' +
+          '<text x="427" y="80" text-anchor="middle" font-size="10.5" font-weight="700">1週前に増量</text>' +
+        '</svg>';
+      }
+    },
+    {
+      st: 2, tag: '外来・休職4か月',
+      svg: function(){
+        return '<svg class="ot-svg" viewBox="0 0 520 110" role="img" aria-label="2人目：休職4か月の持久力と焦りの状況図">' +
+          '<rect x="4" y="4" width="512" height="102" rx="8" fill="var(--panel)" stroke="var(--line)"/>' +
+          '<text x="24" y="34" font-size="11" font-weight="700">今の持久力（図書館）</text>' +
+          '<rect x="164" y="22" width="210" height="16" rx="8" fill="var(--paper)" stroke="var(--line)"/>' +
+          '<rect x="164" y="22" width="60" height="16" rx="8" fill="var(--lamp)"/>' +
+          '<text x="384" y="34" font-size="11" font-weight="700" class="sw">2時間で疲労</text>' +
+          '<text x="24" y="64" font-size="11" font-weight="700">フルタイム勤務</text>' +
+          '<rect x="164" y="52" width="210" height="16" rx="8" fill="var(--paper)" stroke="var(--line)"/>' +
+          '<rect x="164" y="52" width="210" height="16" rx="8" fill="var(--accent)" opacity=".35"/>' +
+          '<text x="384" y="64" font-size="11" font-weight="700" class="sa">週5日×8時間</text>' +
+          '<text x="260" y="92" text-anchor="middle" font-size="11" font-weight="700" class="sn">気持ちの焦り：「来月から復職したい」とのギャップをどう確かめる？</text>' +
+        '</svg>';
+      }
+    },
+    {
+      st: 1, tag: '認知症治療病棟・2週目',
+      svg: function(){
+        return '<svg class="ot-svg" viewBox="0 0 520 110" role="img" aria-label="3人目：夕方不穏と3日前睡眠薬追加の状況図">' +
+          '<rect x="4" y="4" width="512" height="102" rx="8" fill="var(--panel)" stroke="var(--line)"/>' +
+          '<rect x="20" y="18" width="150" height="74" rx="8" fill="var(--ok-soft)" stroke="var(--ok)"/>' +
+          '<text x="95" y="42" text-anchor="middle" font-size="11" font-weight="700" class="so">残っている得意</text>' +
+          '<text x="95" y="62" text-anchor="middle" font-size="10.5">昔は農家・畑仕事</text>' +
+          '<text x="95" y="80" text-anchor="middle" font-size="10.5">洗濯物たたみが得意</text>' +
+          '<rect x="186" y="18" width="148" height="74" rx="8" fill="var(--ot-lamp-soft)" stroke="var(--lamp)"/>' +
+          '<text x="260" y="42" text-anchor="middle" font-size="11" font-weight="700" class="sw">困りごとの時間帯</text>' +
+          '<text x="260" y="62" text-anchor="middle" font-size="10.5">夕方になると</text>' +
+          '<text x="260" y="80" text-anchor="middle" font-size="10.5">「家に帰る」と不穏</text>' +
+          '<rect x="350" y="18" width="150" height="74" rx="8" fill="var(--seal-soft)" stroke="var(--seal)"/>' +
+          '<text x="425" y="42" text-anchor="middle" font-size="11" font-weight="700" class="sn">最近の処方変化</text>' +
+          '<text x="425" y="62" text-anchor="middle" font-size="10.5">3日前に</text>' +
+          '<text x="425" y="80" text-anchor="middle" font-size="10.5" font-weight="700">睡眠薬を追加</text>' +
+        '</svg>';
+      }
+    },
+    {
+      st: 2, tag: '病棟・離脱期終了後',
+      svg: function(){
+        return '<svg class="ot-svg" viewBox="0 0 520 110" role="img" aria-label="4人目：断酒後の空白時間とふらつきの状況図">' +
+          '<rect x="4" y="4" width="512" height="102" rx="8" fill="var(--panel)" stroke="var(--line)"/>' +
+          '<rect x="20" y="18" width="224" height="74" rx="8" fill="var(--ot-lamp-soft)" stroke="var(--lamp)"/>' +
+          '<text x="132" y="42" text-anchor="middle" font-size="11" font-weight="700" class="sw">断酒後の「空白の時間」</text>' +
+          '<text x="132" y="62" text-anchor="middle" font-size="10.5">「夜と休日に何をすれば…」</text>' +
+          '<text x="132" y="80" text-anchor="middle" font-size="10" class="sm">飲酒に代わる日課・仲間づくり</text>' +
+          '<rect x="262" y="18" width="238" height="74" rx="8" fill="var(--seal-soft)" stroke="var(--seal)"/>' +
+          '<text x="381" y="42" text-anchor="middle" font-size="11" font-weight="700" class="sn">身体・環境面の注意</text>' +
+          '<text x="381" y="62" text-anchor="middle" font-size="10.5">肝機能障害・ふらつきあり</text>' +
+          '<text x="381" y="80" text-anchor="middle" font-size="10" class="sm">アルコール含有物・記憶の観察も</text>' +
+        '</svg>';
+      }
+    },
+    {
+      st: 3, tag: '外来・就労支援前',
+      svg: function(){
+        return '<svg class="ot-svg" viewBox="0 0 520 110" role="img" aria-label="5人目：職場が続かない特性評価の状況図">' +
+          '<rect x="4" y="4" width="512" height="102" rx="8" fill="var(--panel)" stroke="var(--line)"/>' +
+          '<rect x="20" y="20" width="144" height="70" rx="8" fill="var(--seal-soft)" stroke="var(--seal)"/>' +
+          '<text x="92" y="45" text-anchor="middle" font-size="11" font-weight="700" class="sn">これまでの経過</text>' +
+          '<text x="92" y="68" text-anchor="middle" font-size="10.5">2職場とも3か月で退職</text>' +
+          '<path d="M170,55 h28" stroke="var(--accent)" stroke-width="2.2"/>' +
+          '<polygon points="204,55 195,50 195,60" fill="var(--accent)"/>' +
+          '<rect x="210" y="20" width="140" height="70" rx="8" fill="var(--accent-soft)" stroke="var(--accent)"/>' +
+          '<text x="280" y="45" text-anchor="middle" font-size="11" font-weight="700" class="sa">今の課題</text>' +
+          '<text x="280" y="68" text-anchor="middle" font-size="10.5">得意・苦手が不明</text>' +
+          '<path d="M356,55 h28" stroke="var(--ok)" stroke-width="2.2"/>' +
+          '<polygon points="390,55 381,50 381,60" fill="var(--ok)"/>' +
+          '<rect x="396" y="20" width="104" height="70" rx="8" fill="var(--ok-soft)" stroke="var(--ok)"/>' +
+          '<text x="448" y="45" text-anchor="middle" font-size="11" font-weight="700" class="so">ゴール</text>' +
+          '<text x="448" y="68" text-anchor="middle" font-size="10.5">特性と配慮を言語化</text>' +
+        '</svg>';
+      }
+    },
+    {
+      st: 3, tag: '長期入院28年→退院支援',
+      svg: function(){
+        return '<svg class="ot-svg" viewBox="0 0 520 110" role="img" aria-label="6人目：28年入院からグループホーム退院への橋">' +
+          '<rect x="4" y="4" width="512" height="102" rx="8" fill="var(--panel)" stroke="var(--line)"/>' +
+          '<rect x="20" y="22" width="110" height="66" rx="8" fill="var(--paper)" stroke="var(--line)"/>' +
+          '<text x="75" y="48" text-anchor="middle" font-size="11" font-weight="700">病棟生活</text>' +
+          '<text x="75" y="68" text-anchor="middle" font-size="10.5" class="sm">入院28年</text>' +
+          '<path d="M136,55 h228" stroke="var(--accent)" stroke-width="2.4" stroke-dasharray="5 3"/>' +
+          '<polygon points="370,55 361,50 361,60" fill="var(--accent)"/>' +
+          '<rect x="162" y="16" width="176" height="32" rx="16" fill="var(--accent-soft)" stroke="var(--accent)"/>' +
+          '<text x="250" y="36" text-anchor="middle" font-size="10.5" font-weight="700" class="sa">買物・調理・金銭・服薬</text>' +
+          '<rect x="172" y="64" width="156" height="28" rx="6" fill="var(--seal-soft)" stroke="var(--seal)"/>' +
+          '<text x="250" y="82" text-anchor="middle" font-size="10" font-weight="700" class="sn">注意：ときどき飲水が多い</text>' +
+          '<rect x="376" y="22" width="124" height="66" rx="8" fill="var(--ok-soft)" stroke="var(--ok)"/>' +
+          '<text x="438" y="48" text-anchor="middle" font-size="11" font-weight="700" class="so">グループホーム</text>' +
+          '<text x="438" y="68" text-anchor="middle" font-size="10.5">地域での暮らし</text>' +
+        '</svg>';
+      }
+    },
+    {
+      st: 1, tag: '神経性やせ症・再栄養途中',
+      svg: function(){
+        return '<svg class="ot-svg" viewBox="0 0 520 110" role="img" aria-label="7人目：BMI回復途中と身体リスクの状況図">' +
+          '<rect x="4" y="4" width="512" height="102" rx="8" fill="var(--panel)" stroke="var(--line)"/>' +
+          '<rect x="20" y="18" width="154" height="74" rx="8" fill="var(--ok-soft)" stroke="var(--ok)"/>' +
+          '<text x="97" y="42" text-anchor="middle" font-size="11" font-weight="700" class="so">BMIの回復途中</text>' +
+          '<text x="97" y="64" text-anchor="middle" font-size="13" font-weight="700">14.2 → 15.6</text>' +
+          '<text x="97" y="82" text-anchor="middle" font-size="9.5" class="sm">まだ低体重</text>' +
+          '<rect x="188" y="18" width="148" height="74" rx="8" fill="var(--seal-soft)" stroke="var(--seal)"/>' +
+          '<text x="262" y="42" text-anchor="middle" font-size="11" font-weight="700" class="sn">身体の注意点</text>' +
+          '<text x="262" y="63" text-anchor="middle" font-size="10.5">徐脈あり</text>' +
+          '<text x="262" y="81" text-anchor="middle" font-size="10.5">骨密度の低下</text>' +
+          '<rect x="350" y="18" width="150" height="74" rx="8" fill="var(--ot-lamp-soft)" stroke="var(--lamp)"/>' +
+          '<text x="425" y="42" text-anchor="middle" font-size="11" font-weight="700" class="sw">本人の訴え</text>' +
+          '<text x="425" y="63" text-anchor="middle" font-size="10.5">「何かしていないと</text>' +
+          '<text x="425" y="81" text-anchor="middle" font-size="10.5">落ち着かない」</text>' +
+        '</svg>';
+      }
+    },
+    {
+      st: 2, tag: '双極症・退院前（リチウム内服）',
+      svg: function(){
+        return '<svg class="ot-svg" viewBox="0 0 520 110" role="img" aria-label="8人目：双極症の波とリチウム血中濃度の状況図">' +
+          '<rect x="4" y="4" width="512" height="102" rx="8" fill="var(--panel)" stroke="var(--line)"/>' +
+          '<path d="M24,62 C52,22 76,22 104,62 C126,90 156,84 188,68" fill="none" stroke="var(--accent)" stroke-width="2.8"/>' +
+          '<circle cx="176" cy="73" r="6" fill="var(--lamp)"/>' +
+          '<text x="64" y="24" text-anchor="middle" font-size="10" font-weight="700" class="sn">躁で入院</text>' +
+          '<text x="150" y="96" text-anchor="middle" font-size="10" font-weight="700" class="sw">今：少し沈み・後悔</text>' +
+          '<rect x="214" y="18" width="142" height="74" rx="8" fill="var(--seal-soft)" stroke="var(--seal)"/>' +
+          '<text x="285" y="42" text-anchor="middle" font-size="11" font-weight="700" class="sn">炭酸リチウム内服</text>' +
+          '<text x="285" y="63" text-anchor="middle" font-size="11.5" font-weight="700">先週 0.8 mEq/L</text>' +
+          '<text x="285" y="81" text-anchor="middle" font-size="9.5" class="sm">発汗・脱水に要注意</text>' +
+          '<rect x="370" y="18" width="130" height="74" rx="8" fill="var(--accent-soft)" stroke="var(--accent)"/>' +
+          '<text x="435" y="42" text-anchor="middle" font-size="11" font-weight="700" class="sa">退院後の生活</text>' +
+          '<text x="435" y="63" text-anchor="middle" font-size="10.5">子育てと家事</text>' +
+          '<text x="435" y="81" text-anchor="middle" font-size="10" class="sm">生活リズムと波</text>' +
+        '</svg>';
+      }
+    },
+    {
+      st: 3, tag: '児童精神科外来・小2',
+      svg: function(){
+        return '<svg class="ot-svg" viewBox="0 0 520 110" role="img" aria-label="9人目：ADHD治療薬2か月と学校での困りごと">' +
+          '<rect x="4" y="4" width="512" height="102" rx="8" fill="var(--panel)" stroke="var(--line)"/>' +
+          '<rect x="20" y="18" width="148" height="74" rx="8" fill="var(--ok-soft)" stroke="var(--ok)"/>' +
+          '<text x="94" y="42" text-anchor="middle" font-size="11" font-weight="700" class="so">内服2か月の変化</text>' +
+          '<text x="94" y="62" text-anchor="middle" font-size="10.5">授業中の立ち歩き↓</text>' +
+          '<text x="94" y="80" text-anchor="middle" font-size="9.5" class="sm">朝：徐放錠内服</text>' +
+          '<rect x="184" y="18" width="152" height="74" rx="8" fill="var(--ot-lamp-soft)" stroke="var(--lamp)"/>' +
+          '<text x="260" y="42" text-anchor="middle" font-size="11" font-weight="700" class="sw">残る困りごと</text>' +
+          '<text x="260" y="62" text-anchor="middle" font-size="10.5">字が乱れる・工作苦手</text>' +
+          '<text x="260" y="80" text-anchor="middle" font-size="10" class="sm">姿勢・手先の不器用さ</text>' +
+          '<rect x="352" y="18" width="148" height="74" rx="8" fill="var(--seal-soft)" stroke="var(--seal)"/>' +
+          '<text x="426" y="42" text-anchor="middle" font-size="11" font-weight="700" class="sn">心と体の見守り</text>' +
+          '<text x="426" y="62" text-anchor="middle" font-size="10.5">「ぼくはダメだ」</text>' +
+          '<text x="426" y="80" text-anchor="middle" font-size="9.5" class="sm">自己評価・食欲・成長</text>' +
+        '</svg>';
+      }
+    }
+  ];
+
+  function injectCaseVis(){
+    var card = mainEl.querySelector('.case');
+    if(!card || card.querySelector('.ot-case-vis')) return;
+    var st = window.__ot && window.__ot.S ? window.__ot.S() : null;
+    if(!st || st.ci < 0 || !CASE_VIS[st.ci]) return;
+    var spec = CASE_VIS[st.ci];
+    var memo = card.querySelector('.memo');
+    var body = card.querySelector('.case-body');
+    if(!body) return;
+    var strip = '<div class="ot-meter-strip" aria-label="回復の段階">' + STAGE_NAMES.map(function(nm, i){
+      return '<div class="ot-st-chip'+(i===spec.st?' now':'')+'">'+nm+'</div>';
+    }).join('') + '</div>';
+    var box = document.createElement('div');
+    box.className = 'ot-case-vis';
+    box.innerHTML =
+      '<div class="ot-case-h"><span>患者さんの状態マップ</span><span class="ot-pill">'+esc(spec.tag)+'</span></div>' +
+      strip + spec.svg();
+    if(memo && memo.parentNode === body){
+      body.insertBefore(box, memo.nextSibling);
+    } else {
+      body.insertBefore(box, body.firstChild);
+    }
+  }
+
+  new MutationObserver(injectCaseVis).observe(mainEl, {childList:true});
+  injectCaseVis();
 })();
 </script>
 

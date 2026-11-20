@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="robots" content="noindex, nofollow">
-<meta name="app-version" content="20261120141754">
+<meta name="app-version" content="20261120195434">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
@@ -266,6 +266,69 @@ thead th{font-size:var(--fs-xs); letter-spacing:.08em; color:var(--muted); font-
 tbody th{white-space:nowrap}
 tbody tr:last-child th, tbody tr:last-child td{border-bottom:0}
 .foot{margin-top:28px; font-size:var(--fs-xs); color:var(--muted); max-width:52em}
+
+/* 説明の練習：診察室の伝え方ビフォーアフター・面接の型・全8場面図解（Gemini 担当） */
+:root{
+  --ev-stage:#f7f1f4; --ev-skin:#f5cfb0; --ev-skin-s:#c4946e; --ev-hair:#343846;
+  --ev-doc:#e6eef7; --ev-pt:#6d88b5;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --ev-stage:#231a1f; --ev-skin:#dfb491; --ev-skin-s:#a67d5b; --ev-hair:#222633;
+    --ev-doc:#354054; --ev-pt:#7b9cd1;
+  }
+}
+:root[data-theme="dark"]{
+  --ev-stage:#231a1f; --ev-skin:#dfb491; --ev-skin-s:#a67d5b; --ev-hair:#222633;
+  --ev-doc:#354054; --ev-pt:#7b9cd1;
+}
+.ev-top-row{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.ev-theme-btn{
+  flex:none;display:inline-flex;align-items:center;justify-content:center;gap:5px;
+  min-width:44px;min-height:44px;padding:0 11px;border-radius:999px;
+  border:1.5px solid var(--line);background:var(--panel);color:var(--ink);
+  font:inherit;font-size:var(--fs-xs);font-weight:700;cursor:pointer;white-space:nowrap;touch-action:manipulation;
+}
+.ev-theme-btn:hover{border-color:var(--accent)}
+.ev-theme-btn svg{width:17px;height:17px;fill:none;stroke:currentColor;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
+@media (max-width:420px){.ev-theme-lbl{display:none}.ev-theme-btn{padding:0;width:44px}}
+
+.ev-lab{margin-top:18px;background:var(--panel);border:1.5px solid var(--line);border-radius:10px;overflow:hidden;box-shadow:0 2px 10px color-mix(in srgb, var(--ink) 7%, transparent)}
+.ev-lab-head{display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:nowrap;padding:8px 12px;background:var(--accent-soft);border-bottom:1px solid var(--line)}
+.ev-lab-title{flex:1;min-width:0;display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin:0;font-family:var(--f-display);font-weight:400;font-size:.98rem;line-height:1.3;color:var(--ink)}
+.ev-badge{font-family:var(--f-body);font-size:.7rem;font-weight:700;padding:2px 8px;border-radius:999px;background:var(--accent);color:var(--accent-ink);white-space:nowrap}
+.ev-toggle{min-height:44px;padding:0 12px;border-radius:8px;border:1px solid var(--line);background:var(--panel);color:var(--ink);font:inherit;font-size:var(--fs-xs);font-weight:700;cursor:pointer;touch-action:manipulation;white-space:nowrap}
+.ev-lab-body{padding:14px;display:grid;gap:12px}
+.ev-lab-body[hidden]{display:none!important}
+
+.ev-tabs{display:grid;grid-template-columns:1fr 1fr;gap:6px;padding:4px;background:var(--paper);border:1px solid var(--line);border-radius:9px}
+.ev-tab{min-height:44px;padding:6px 8px;border:0;border-radius:7px;background:transparent;color:var(--muted);font:inherit;font-size:var(--fs-xs);font-weight:700;cursor:pointer;touch-action:manipulation}
+.ev-tab[aria-selected="true"]{background:var(--panel);color:var(--accent);box-shadow:0 1px 4px color-mix(in srgb, var(--ink) 14%, transparent)}
+
+.ev-stage{background:var(--ev-stage);border:1px solid var(--line);border-radius:9px;padding:8px;overflow:hidden}
+.ev-svg{display:block;width:100%;height:auto;max-width:640px;margin:0 auto}
+.ev-svg text{font-family:var(--f-body);fill:var(--ink)}
+.ev-svg .sm{fill:var(--muted)} .ev-svg .sa{fill:var(--accent)} .ev-svg .so{fill:var(--ok)} .ev-svg .sn{fill:var(--seal)} .ev-svg .sw{fill:var(--lamp)}
+
+.ev-row{display:flex;flex-wrap:wrap;gap:6px}
+.ev-btn{flex:1 1 120px;min-height:44px;padding:6px 10px;border-radius:8px;border:1.5px solid var(--line);background:var(--paper);color:var(--ink);font:inherit;font-size:var(--fs-xs);font-weight:700;cursor:pointer;touch-action:manipulation}
+.ev-btn[aria-pressed="true"]{border-color:var(--accent);background:var(--accent-soft);color:var(--accent)}
+.ev-btn.good[aria-pressed="true"]{border-color:var(--ok);background:var(--ok-soft);color:var(--ok)}
+.ev-btn.bad[aria-pressed="true"]{border-color:var(--seal);background:var(--seal-soft);color:var(--seal)}
+.ev-msg{padding:9px 12px;border-radius:8px;font-size:var(--fs-s);font-weight:700;background:var(--ok-soft);border-left:4px solid var(--ok)}
+.ev-msg.bad{background:var(--seal-soft);border-left-color:var(--seal)}
+
+.ev-case{border:1.5px solid var(--line);border-radius:9px;background:var(--ev-stage);padding:12px;display:grid;gap:9px;overflow:hidden}
+.ev-case-h{display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap;font-size:var(--fs-xs);font-weight:700;color:var(--muted)}
+.ev-tag{display:inline-flex;align-items:center;padding:2px 9px;border-radius:999px;background:var(--panel);border:1px solid var(--line);color:var(--accent);font-weight:700}
+.ev-grid{display:grid;grid-template-columns:1fr;gap:8px}
+@media (min-width:580px){.ev-grid{grid-template-columns:repeat(3,1fr)}}
+.ev-card{background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:9px 11px;font-size:var(--fs-xs);display:grid;gap:4px;align-content:start}
+.ev-card b{color:var(--accent);font-size:.82rem}
+.rule a{display:inline-flex;align-items:center;min-height:44px;padding:0 4px}
+@media (prefers-reduced-motion:reduce){
+  .ev-svg *,.ev-btn,.ev-tab,.ev-theme-btn{transition:none!important;animation:none!important}
+}
 </style>
 
 <div class="wrap">
@@ -665,6 +728,557 @@ tbody tr:last-child th, tbody tr:last-child td{border-bottom:0}
     CASES.forEach(function (c, i) { c.qs.forEach(function (q, qi) { S.picks[i][qi] = Math.random() < (r == null ? 1 : r) ? 0 : 1; }); });
     S.ci = -1; render();
   };
+})();
+</script>
+<script>
+/* 説明の練習：診察室の伝え方ビフォーアフター・面接の型・全8場面図解（Gemini 担当） */
+(function(){
+  'use strict';
+  if(window.__evInit) return;
+  window.__evInit = true;
+
+  var root = document.documentElement;
+  var head = document.querySelector('header.top');
+  var board = document.querySelector('section.board');
+  var mainEl = document.getElementById('main');
+  if(!head || !mainEl) return;
+
+  // --- 1. ヘッダーに明暗切替ボタンを追加（localStorage キーは増やさない） ---
+  var eyebrow = head.querySelector('.eyebrow');
+  if(eyebrow && !document.getElementById('evThemeBtn')){
+    var row = document.createElement('div');
+    row.className = 'ev-top-row';
+    eyebrow.parentNode.insertBefore(row, eyebrow);
+    row.appendChild(eyebrow);
+    var tbtn = document.createElement('button');
+    tbtn.type = 'button';
+    tbtn.id = 'evThemeBtn';
+    tbtn.className = 'ev-theme-btn';
+    row.appendChild(tbtn);
+
+    function isDark(){
+      var t = root.getAttribute('data-theme');
+      if(t === 'dark') return true;
+      if(t === 'light') return false;
+      return window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+    }
+    function syncThemeBtn(){
+      var d = isDark();
+      tbtn.setAttribute('aria-label', d ? '明るい表示に切り替え' : '暗い表示に切り替え');
+      tbtn.innerHTML = d
+        ? '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg><span class="ev-theme-lbl">明るく</span>'
+        : '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg><span class="ev-theme-lbl">暗く</span>';
+    }
+    tbtn.addEventListener('click', function(){
+      root.setAttribute('data-theme', isDark() ? 'light' : 'dark');
+      syncThemeBtn();
+    });
+    if(window.matchMedia){
+      var mq = window.matchMedia('(prefers-color-scheme: dark)');
+      if(mq.addEventListener) mq.addEventListener('change', syncThemeBtn);
+    }
+    syncThemeBtn();
+  }
+
+  // --- SVG ヘルパー（診察室の人物・吹き出し・心の壁） ---
+  function esc(s){ return String(s).replace(/[&<>"]/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]; }); }
+
+  function personSvg(x, y, opts){
+    // opts: role ('doc'|'pt'|'fam'), mood ('good'|'tense'|'sad'|'guard'), coatColor, label
+    var coat = opts.coat || (opts.role === 'doc' ? 'var(--ev-doc)' : 'var(--ev-pt)');
+    var face = '';
+    if(opts.mood === 'good'){
+      face = '<path d="M'+(x-10)+','+(y-4)+' q4,-3 8,0 M'+(x+2)+','+(y-4)+' q4,-3 8,0" fill="none" stroke="var(--ink)" stroke-width="1.6" stroke-linecap="round"/>' +
+             '<circle cx="'+(x-6)+'" cy="'+(y+1)+'" r="1.9" fill="var(--ink)"/><circle cx="'+(x+6)+'" cy="'+(y+1)+'" r="1.9" fill="var(--ink)"/>' +
+             '<path d="M'+(x-6)+','+(y+8)+' q6,5 12,0" fill="none" stroke="var(--ink)" stroke-width="1.8" stroke-linecap="round"/>';
+    } else if(opts.mood === 'guard'){
+      face = '<path d="M'+(x-10)+','+(y-5)+' l8,3 M'+(x+10)+','+(y-5)+' l-8,3" fill="none" stroke="var(--ink)" stroke-width="1.8" stroke-linecap="round"/>' +
+             '<circle cx="'+(x-6)+'" cy="'+(y+1)+'" r="1.9" fill="var(--ink)"/><circle cx="'+(x+6)+'" cy="'+(y+1)+'" r="1.9" fill="var(--ink)"/>' +
+             '<line x1="'+(x-6)+'" y1="'+(y+9)+'" x2="'+(x+6)+'" y2="'+(y+9)+'" stroke="var(--ink)" stroke-width="1.9" stroke-linecap="round"/>';
+    } else if(opts.mood === 'sad'){
+      face = '<path d="M'+(x-10)+','+(y-2)+' l8,-3 M'+(x+10)+','+(y-2)+' l-8,-3" fill="none" stroke="var(--ink)" stroke-width="1.6" stroke-linecap="round"/>' +
+             '<circle cx="'+(x-6)+'" cy="'+(y+2)+'" r="1.8" fill="var(--ink)"/><circle cx="'+(x+6)+'" cy="'+(y+2)+'" r="1.8" fill="var(--ink)"/>' +
+             '<path d="M'+(x-6)+','+(y+10)+' q6,-4 12,0" fill="none" stroke="var(--ink)" stroke-width="1.7" stroke-linecap="round"/>';
+    } else {
+      // tense / stern
+      face = '<path d="M'+(x-10)+','+(y-4)+' l7,2 M'+(x+10)+','+(y-4)+' l-7,2" fill="none" stroke="var(--ink)" stroke-width="1.7" stroke-linecap="round"/>' +
+             '<circle cx="'+(x-6)+'" cy="'+(y+1)+'" r="1.9" fill="var(--ink)"/><circle cx="'+(x+6)+'" cy="'+(y+1)+'" r="1.9" fill="var(--ink)"/>' +
+             '<path d="M'+(x-5)+','+(y+9)+' q5,-3 10,0" fill="none" stroke="var(--ink)" stroke-width="1.7" stroke-linecap="round"/>';
+    }
+    var collar = opts.role === 'doc'
+      ? '<path d="M'+(x-10)+','+(y+20)+' l10,16 l10,-16" fill="none" stroke="var(--accent)" stroke-width="2"/><circle cx="'+(x+10)+'" cy="'+(y+36)+'" r="3" fill="var(--accent)"/>'
+      : '';
+    var arms = opts.mood === 'guard'
+      ? '<path d="M'+(x-20)+','+(y+35)+' L'+(x+16)+','+(y+32)+' M'+(x+20)+','+(y+35)+' L'+(x-16)+','+(y+32)+'" stroke="var(--ink)" stroke-width="2.2" stroke-linecap="round" opacity=".55"/>'
+      : '';
+    var hair = opts.role === 'fam'
+      ? '<path d="M'+(x-18)+','+(y-2)+' a18,18 0 0,1 36,0 v10 h-5 v-8 a13,13 0 0,0 -26,0 v8 h-5 z" fill="var(--ev-hair)"/>'
+      : '<path d="M'+(x-17)+','+(y-3)+' a17,17 0 0,1 34,0 c-6,-4 -28,-4 -34,0 z" fill="var(--ev-hair)"/>';
+    return '<g>' +
+      '<path d="M'+(x-28)+','+(y+52)+' c0,-18 10,-30 28,-30 s28,12 28,30 z" fill="'+coat+'" stroke="var(--line)" stroke-width="1.5"/>' +
+      collar + arms +
+      '<circle cx="'+x+'" cy="'+y+'" r="17" fill="var(--ev-skin)" stroke="var(--ev-skin-s)" stroke-width="1.4"/>' +
+      hair + face +
+      '<text x="'+x+'" y="'+(y+68)+'" text-anchor="middle" font-size="11.5" font-weight="700">'+esc(opts.label)+'</text>' +
+    '</g>';
+  }
+
+  function bubbleSvg(x, y, w, h, line1, line2, tone, tailX){
+    var fill = tone === 'good' ? 'var(--ok-soft)' : tone === 'bad' ? 'var(--seal-soft)' : 'var(--panel)';
+    var stroke = tone === 'good' ? 'var(--ok)' : tone === 'bad' ? 'var(--seal)' : 'var(--line)';
+    var tx = tailX;
+    return '<g>' +
+      '<rect x="'+x+'" y="'+y+'" width="'+w+'" height="'+h+'" rx="10" fill="'+fill+'" stroke="'+stroke+'" stroke-width="1.7"/>' +
+      '<polygon points="'+(tx-7)+','+(y+h)+' '+(tx+7)+','+(y+h)+' '+tx+','+(y+h+10)+'" fill="'+fill+'" stroke="'+stroke+'" stroke-width="1.5"/>' +
+      '<line x1="'+(tx-6)+'" y1="'+(y+h)+'" x2="'+(tx+6)+'" y2="'+(y+h)+'" stroke="'+fill+'" stroke-width="2.4"/>' +
+      '<text x="'+(x+w/2)+'" y="'+(y+22)+'" text-anchor="middle" font-size="11.5" font-weight="700">'+esc(line1)+'</text>' +
+      (line2 ? '<text x="'+(x+w/2)+'" y="'+(y+40)+'" text-anchor="middle" font-size="11">'+esc(line2)+'</text>' : '') +
+    '</g>';
+  }
+
+  // --- 2. 上部ラボ：見て分かる 診察室の伝え方ラボ ---
+  var SCENES = [
+    {
+      id: 'diag', btn: '病名の説明',
+      partner: '本人（緊張）', partnerRole: 'pt',
+      bad: {
+        doc: ['「統合失調症と確定です。', '覚悟して聞いてください」'],
+        pt:  ['（頭が真っ白…', 'もう終わりなのかな…）'],
+        docMood: 'tense', ptMood: 'sad', meter: 16,
+        label: '一方的な通告 → 不安で言葉が届かない',
+        msg: '確認なしに病名だけ一方的に伝えると、本人の不安や誤解が置き去りになり、治療への見通しが閉じやすくなります。'
+      },
+      good: {
+        doc: ['「入院のきっかけを今どう', '考えていますか？」'],
+        pt:  ['「少しずつ落ち着きました。', '今後が不安で…」'],
+        docMood: 'good', ptMood: 'good', meter: 88,
+        label: '本人の理解から聞く → 希望と説明が届く',
+        msg: 'まず本人の理解と不安を聞き、「よくある・治療で回復する人が多い」と希望を添えて伝えることで対話が開きます。'
+      }
+    },
+    {
+      id: 'med', btn: '薬をやめたい',
+      partner: '本人（復学後）', partnerRole: 'pt',
+      bad: {
+        doc: ['「やめたら必ず再発します。', '絶対にだめです！」'],
+        pt:  ['（話しても無駄だ…', '黙って飲むのをやめよう）'],
+        docMood: 'tense', ptMood: 'guard', meter: 14,
+        label: '頭ごなしに否定 → 自己中断のリスク↑',
+        msg: '「やめたい」という訴えを否定すると、通院そのものが遠のいたり、主治医に言えず自己中断しやすくなります。'
+      },
+      good: {
+        doc: ['「ここまで頑張りましたね。', 'やめたい理由は？」'],
+        pt:  ['「昼の眠気がつらくて…', '減らせるなら相談したい」'],
+        docMood: 'good', ptMood: 'good', meter: 90,
+        label: '回復を認めて理由を聴く → 共同意思決定',
+        msg: 'まず回復を認め、背景（副作用・負担感）を一緒に確認すると、用量調整や前ぶれサイン表づくりへつなげられます。'
+      }
+    },
+    {
+      id: 'fam', btn: '家族の関わり',
+      partner: '母親（自責・疲労）', partnerRole: 'fam',
+      bad: {
+        doc: ['「育て方の問題かも。', '毎朝7時に必ず起こして」'],
+        pt:  ['（やっぱり私のせい…', '毎日怒鳴り合いで限界…）'],
+        docMood: 'tense', ptMood: 'sad', meter: 12,
+        label: '自責と批判が増幅 → 高EE・疲労悪化',
+        msg: '家族を責めたり無理な厳しさを求めると、家庭内の批判・過干渉（高EE）と介護疲労が強まり、再発リスクも上がります。'
+      },
+      good: {
+        doc: ['「育て方のせいではないです。', '小さな目標から一緒に」'],
+        pt:  ['「少し肩の荷が下りました。', '自分の休みも作ってみます」'],
+        docMood: 'good', ptMood: 'good', meter: 92,
+        label: '自責を和らげる → 穏やかな関わり・休息',
+        msg: '「育て方の病気ではない」と伝え、回復期の疲れやすさを共有しつつ、家族自身の休息と現実的な一歩を一緒に考えます。'
+      }
+    },
+    {
+      id: 'mi', btn: '動機づけ面接',
+      partner: '本人（腕組み）', partnerRole: 'pt',
+      bad: {
+        doc: ['「このままでは死にますよ。', '今日から断酒を！」'],
+        pt:  ['「説教されに来たわけじゃ', 'ない！もう来ない」'],
+        docMood: 'tense', ptMood: 'guard', meter: 10,
+        label: '直面化・説得 → 反発（抵抗）が強まる',
+        msg: 'やめる気がない相手に正論で迫る（直面化）と、「飲まないとやってられない」という反発の言葉を強めてしまいます。'
+      },
+      good: {
+        doc: ['「来てくださったんですね。', 'お酒の良い点と困る点は？」'],
+        pt:  ['「ストレス解消だけど…', '肝臓は少し気になります」'],
+        docMood: 'good', ptMood: 'good', meter: 86,
+        label: '抵抗に逆らわず両価性を扱う → 変わる言葉',
+        msg: '来院を認め、良い点・困る点の両面（両価性）を本人の口から語ってもらうと、自分で変わる理由（チェンジトーク）が育ちます。'
+      }
+    }
+  ];
+
+  function renderSimSvg(scene, mode){
+    var d = scene[mode];
+    var isGood = (mode === 'good');
+    var bridge = isGood
+      ? '<g>' +
+          '<path d="M188,122 Q280,96 372,122" fill="none" stroke="var(--ok)" stroke-width="3" stroke-linecap="round"/>' +
+          '<polygon points="374,122 364,116 366,127" fill="var(--ok)"/>' +
+          '<path d="M372,144 Q280,170 188,144" fill="none" stroke="var(--ok)" stroke-width="3" stroke-linecap="round"/>' +
+          '<polygon points="186,144 196,139 194,150" fill="var(--ok)"/>' +
+          '<rect x="228" y="121" width="104" height="24" rx="12" fill="var(--ok-soft)" stroke="var(--ok)" stroke-width="1.5"/>' +
+          '<text x="280" y="137" text-anchor="middle" font-size="11.5" font-weight="700" class="so">対話が開く</text>' +
+        '</g>'
+      : '<g>' +
+          '<rect x="266" y="88" width="28" height="86" rx="4" fill="var(--seal-soft)" stroke="var(--seal)" stroke-width="2" stroke-dasharray="5 3"/>' +
+          '<line x1="266" y1="108" x2="294" y2="108" stroke="var(--seal)" stroke-width="1.2" opacity=".6"/>' +
+          '<line x1="266" y1="130" x2="294" y2="130" stroke="var(--seal)" stroke-width="1.2" opacity=".6"/>' +
+          '<line x1="266" y1="152" x2="294" y2="152" stroke="var(--seal)" stroke-width="1.2" opacity=".6"/>' +
+          '<path d="M192,130 L256,130" stroke="var(--seal)" stroke-width="2.5" stroke-dasharray="4 3"/>' +
+          '<text x="257" y="124" text-anchor="middle" font-size="14" font-weight="700" class="sn">×</text>' +
+          '<text x="280" y="186" text-anchor="middle" font-size="11" font-weight="700" class="sn">心の壁</text>' +
+        '</g>';
+    var barW = Math.round(320 * d.meter / 100);
+    var barColor = isGood ? 'var(--ok)' : 'var(--seal)';
+    return '<svg class="ev-svg" viewBox="0 0 560 228" role="img" aria-label="'+esc(scene.btn+'の'+d.label)+'">' +
+      '<rect x="8" y="8" width="544" height="212" rx="10" fill="var(--panel)" stroke="var(--line)" stroke-width="1.2"/>' +
+      bubbleSvg(20, 18, 246, 52, d.doc[0], d.doc[1], isGood ? 'good' : 'bad', 102) +
+      bubbleSvg(294, 18, 246, 52, d.pt[0], d.pt[1], isGood ? 'good' : 'bad', 456) +
+      personSvg(102, 114, {role:'doc', mood:d.docMood, label:'主治医'}) +
+      personSvg(456, 114, {role:scene.partnerRole, mood:d.ptMood, label:scene.partner}) +
+      bridge +
+      '<text x="26" y="207" font-size="11" font-weight="700" class="sm">対話の届きやすさ</text>' +
+      '<rect x="130" y="196" width="320" height="14" rx="7" fill="var(--paper)" stroke="var(--line)" stroke-width="1"/>' +
+      '<rect x="130" y="196" width="'+barW+'" height="14" rx="7" fill="'+barColor+'"/>' +
+      '<text x="460" y="207" font-size="11" font-weight="700" fill="'+barColor+'">'+esc(isGood ? '協力しやすい' : '届きにくい')+'</text>' +
+    '</svg>';
+  }
+
+  function renderFwSvg(){
+    return '<svg class="ev-svg" viewBox="0 0 560 164" role="img" aria-label="面接の3つの型：共同意思決定、感情表出、動機づけ面接">' +
+      // 1. SDM
+      '<g>' +
+        '<rect x="6" y="8" width="174" height="148" rx="9" fill="var(--panel)" stroke="var(--line)" stroke-width="1.3"/>' +
+        '<text x="93" y="29" text-anchor="middle" font-size="12" font-weight="700" class="sa">① 共同意思決定 (SDM)</text>' +
+        '<rect x="18" y="42" width="66" height="40" rx="6" fill="var(--accent-soft)" stroke="var(--accent)" stroke-width="1.2"/>' +
+        '<text x="51" y="59" text-anchor="middle" font-size="10.5" font-weight="700">医師</text>' +
+        '<text x="51" y="74" text-anchor="middle" font-size="9.5" class="sm">根拠・見通し</text>' +
+        '<rect x="102" y="42" width="66" height="40" rx="6" fill="var(--ok-soft)" stroke="var(--ok)" stroke-width="1.2"/>' +
+        '<text x="135" y="59" text-anchor="middle" font-size="10.5" font-weight="700">本人</text>' +
+        '<text x="135" y="74" text-anchor="middle" font-size="9.5" class="sm">生活・目標</text>' +
+        '<text x="93" y="67" text-anchor="middle" font-size="13" font-weight="700" class="sa">＋</text>' +
+        '<path d="M93,86 v12" stroke="var(--accent)" stroke-width="2"/>' +
+        '<polygon points="93,104 88,96 98,96" fill="var(--accent)"/>' +
+        '<rect x="26" y="108" width="134" height="34" rx="17" fill="var(--ok-soft)" stroke="var(--ok)" stroke-width="1.5"/>' +
+        '<text x="93" y="129" text-anchor="middle" font-size="11.5" font-weight="700" class="so">一緒に決めて続ける</text>' +
+      '</g>' +
+      // 2. High EE
+      '<g>' +
+        '<rect x="193" y="8" width="174" height="148" rx="9" fill="var(--panel)" stroke="var(--line)" stroke-width="1.3"/>' +
+        '<text x="280" y="29" text-anchor="middle" font-size="12" font-weight="700" class="sn">② 高い感情表出 (高EE)</text>' +
+        '<polygon points="280,46 226,104 334,104" fill="var(--seal-soft)" stroke="var(--seal)" stroke-width="1.4"/>' +
+        '<rect x="252" y="39" width="56" height="20" rx="10" fill="var(--panel)" stroke="var(--seal)" stroke-width="1.2"/>' +
+        '<text x="280" y="53" text-anchor="middle" font-size="10.5" font-weight="700" class="sn">批判</text>' +
+        '<rect x="202" y="92" width="52" height="20" rx="10" fill="var(--panel)" stroke="var(--seal)" stroke-width="1.2"/>' +
+        '<text x="228" y="106" text-anchor="middle" font-size="10.5" font-weight="700" class="sn">敵意</text>' +
+        '<rect x="302" y="92" width="58" height="20" rx="10" fill="var(--panel)" stroke="var(--seal)" stroke-width="1.2"/>' +
+        '<text x="331" y="106" text-anchor="middle" font-size="10.5" font-weight="700" class="sn">過関与</text>' +
+        '<text x="280" y="86" text-anchor="middle" font-size="10.5" font-weight="700">再発 ↑</text>' +
+        '<rect x="206" y="120" width="148" height="26" rx="6" fill="var(--ok-soft)" stroke="var(--ok)" stroke-width="1.2"/>' +
+        '<text x="280" y="137" text-anchor="middle" font-size="10.5" font-weight="700" class="so">責めずに家族の休息へ</text>' +
+      '</g>' +
+      // 3. MI
+      '<g>' +
+        '<rect x="380" y="8" width="174" height="148" rx="9" fill="var(--panel)" stroke="var(--line)" stroke-width="1.3"/>' +
+        '<text x="467" y="29" text-anchor="middle" font-size="12" font-weight="700" class="so">③ 動機づけ面接 (MI)</text>' +
+        '<line x1="406" y1="84" x2="528" y2="74" stroke="var(--ink)" stroke-width="2.5" stroke-linecap="round"/>' +
+        '<polygon points="467,80 457,102 477,102" fill="var(--accent)"/>' +
+        '<rect x="392" y="54" width="64" height="24" rx="5" fill="var(--seal-soft)" stroke="var(--seal)" stroke-width="1.2"/>' +
+        '<text x="424" y="70" text-anchor="middle" font-size="10" font-weight="700">飲みたい</text>' +
+        '<rect x="478" y="44" width="66" height="24" rx="5" fill="var(--ok-soft)" stroke="var(--ok)" stroke-width="1.2"/>' +
+        '<text x="511" y="60" text-anchor="middle" font-size="10" font-weight="700">このまま困る</text>' +
+        '<text x="467" y="116" text-anchor="middle" font-size="10" class="sm">両価性（迷い）を並べる</text>' +
+        '<rect x="393" y="122" width="148" height="24" rx="12" fill="var(--ok-soft)" stroke="var(--ok)" stroke-width="1.3"/>' +
+        '<text x="467" y="138" text-anchor="middle" font-size="10.5" font-weight="700" class="so">変わる言葉を育てる</text>' +
+      '</g>' +
+    '</svg>';
+  }
+
+  var lab = document.createElement('section');
+  lab.className = 'ev-lab';
+  lab.id = 'evLab';
+  lab.setAttribute('aria-label', '見て分かる 診察室の伝え方ラボ');
+  lab.innerHTML =
+    '<div class="ev-lab-head">' +
+      '<h2 class="ev-lab-title"><span class="ev-badge">図解ラボ</span>見て分かる 診察室の伝え方</h2>' +
+      '<button type="button" class="ev-toggle" id="evLabToggle" aria-expanded="true" aria-controls="evLabBody">たたむ</button>' +
+    '</div>' +
+    '<div class="ev-lab-body" id="evLabBody">' +
+      '<div class="ev-tabs" role="tablist" aria-label="図解の切り替え">' +
+        '<button type="button" class="ev-tab" role="tab" data-et="sim" aria-selected="true">伝え方ビフォーアフター</button>' +
+        '<button type="button" class="ev-tab" role="tab" data-et="fw" aria-selected="false">面接の3つの型</button>' +
+      '</div>' +
+      '<div id="evPaneSim">' +
+        '<div class="ev-row" id="evSceneBtns" style="margin-bottom:8px"></div>' +
+        '<div class="ev-row" style="margin-bottom:10px">' +
+          '<button type="button" class="ev-btn bad" data-em="bad" aria-pressed="false">× 避けたい言い方</button>' +
+          '<button type="button" class="ev-btn good" data-em="good" aria-pressed="true">○ 伝わる言い方</button>' +
+        '</div>' +
+        '<div class="ev-stage" id="evSimStage"></div>' +
+        '<p class="ev-msg" id="evSimMsg" style="margin-top:8px"></p>' +
+      '</div>' +
+      '<div id="evPaneFw" hidden>' +
+        '<div class="ev-stage">' + renderFwSvg() + '</div>' +
+        '<div class="ev-grid" style="margin-top:10px">' +
+          '<div class="ev-card"><b>共同意思決定（SDM）</b><span>医師の専門情報と本人の希望を持ち寄り、副作用や対処も先に共有して一緒に治療を選ぶ進め方。</span></div>' +
+          '<div class="ev-card"><b>感情表出（高EE）と家族支援</b><span>批判・敵意・情緒的過関与が高いと再発しやすい。家族を責める指標ではなく、負担と休息を整える視点。</span></div>' +
+          '<div class="ev-card"><b>動機づけ面接（MI）</b><span>説得・直面化を避け、抵抗に逆らわず両価性（迷い）を引き出し、本人から出る「変わる言葉」を育てる。</span></div>' +
+        '</div>' +
+      '</div>' +
+    '</div>';
+
+  if(board && board.parentNode){
+    board.parentNode.insertBefore(lab, board);
+  } else {
+    head.parentNode.insertBefore(lab, head.nextSibling);
+  }
+
+  var curScene = 0, curMode = 'good';
+  var sceneBtnsEl = document.getElementById('evSceneBtns');
+  var simStageEl = document.getElementById('evSimStage');
+  var simMsgEl = document.getElementById('evSimMsg');
+
+  function renderSim(){
+    var sc = SCENES[curScene];
+    sceneBtnsEl.innerHTML = SCENES.map(function(s, i){
+      return '<button type="button" class="ev-btn" data-es="'+i+'" aria-pressed="'+(i===curScene?'true':'false')+'">'+esc(s.btn)+'</button>';
+    }).join('');
+    lab.querySelectorAll('[data-em]').forEach(function(b){
+      b.setAttribute('aria-pressed', b.getAttribute('data-em') === curMode ? 'true' : 'false');
+    });
+    simStageEl.innerHTML = renderSimSvg(sc, curMode);
+    simMsgEl.textContent = sc[curMode].msg;
+    simMsgEl.className = 'ev-msg' + (curMode === 'bad' ? ' bad' : '');
+  }
+
+  lab.addEventListener('click', function(e){
+    var tb = e.target.closest('#evLabToggle');
+    if(tb){
+      var body = document.getElementById('evLabBody');
+      var open = !body.hidden;
+      body.hidden = open;
+      tb.setAttribute('aria-expanded', open ? 'false' : 'true');
+      tb.textContent = open ? 'ひらく' : 'たたむ';
+      return;
+    }
+    var tab = e.target.closest('.ev-tab');
+    if(tab){
+      var which = tab.getAttribute('data-et');
+      lab.querySelectorAll('.ev-tab').forEach(function(x){
+        x.setAttribute('aria-selected', x === tab ? 'true' : 'false');
+      });
+      document.getElementById('evPaneSim').hidden = (which !== 'sim');
+      document.getElementById('evPaneFw').hidden = (which !== 'fw');
+      return;
+    }
+    var sb = e.target.closest('[data-es]');
+    if(sb){ curScene = parseInt(sb.getAttribute('data-es'), 10) || 0; renderSim(); return; }
+    var mb = e.target.closest('[data-em]');
+    if(mb){ curMode = mb.getAttribute('data-em'); renderSim(); return; }
+  });
+  renderSim();
+
+  // --- 3. 全8場面の診察室ビジュアル図解（答えをネタバレせず場面の空気と視点を図解） ---
+  var CASE_VIS = {
+    '1回目': {
+      tag: '外来・退院前（本人＋母親）',
+      note: '緊張して座る本人と隣で見守る母親。まずは誰のどんな理解から話を始めるかが鍵。',
+      svg: function(){
+        return '<svg class="ev-svg" viewBox="0 0 540 144" role="img" aria-label="1回目：本人と母親への病名説明の診察室">' +
+          '<rect x="4" y="4" width="532" height="136" rx="8" fill="var(--panel)" stroke="var(--line)"/>' +
+          personSvg(92, 54, {role:'doc', mood:'good', label:'主治医'}) +
+          '<path d="M148,66 h134" stroke="var(--accent)" stroke-width="2" stroke-dasharray="5 4"/>' +
+          '<rect x="166" y="40" width="98" height="22" rx="11" fill="var(--accent-soft)" stroke="var(--accent)"/>' +
+          '<text x="215" y="55" text-anchor="middle" font-size="10.5" font-weight="700" class="sa">どう切り出す？</text>' +
+          personSvg(342, 54, {role:'pt', mood:'tense', label:'本人（22歳・緊張）'}) +
+          personSvg(462, 54, {role:'fam', mood:'sad', label:'母親（心配）'}) +
+        '</svg>';
+      }
+    },
+    '2回目': {
+      tag: '外来（抗精神病薬の継続）',
+      note: '「副作用が怖い・ずっと飲むのは嫌」という本人の気持ちと、治療の安心をどう並べて話すか。',
+      svg: function(){
+        return '<svg class="ev-svg" viewBox="0 0 540 144" role="img" aria-label="2回目：薬の不安と治療の天秤">' +
+          '<rect x="4" y="4" width="532" height="136" rx="8" fill="var(--panel)" stroke="var(--line)"/>' +
+          personSvg(92, 54, {role:'pt', mood:'sad', label:'本人（不安）'}) +
+          '<rect x="160" y="20" width="160" height="44" rx="8" fill="var(--seal-soft)" stroke="var(--seal)"/>' +
+          '<text x="240" y="39" text-anchor="middle" font-size="11" font-weight="700" class="sn">本人の引っかかり</text>' +
+          '<text x="240" y="55" text-anchor="middle" font-size="10.5">副作用が怖い・ずっと飲む？</text>' +
+          '<rect x="352" y="20" width="166" height="44" rx="8" fill="var(--ok-soft)" stroke="var(--ok)"/>' +
+          '<text x="435" y="39" text-anchor="middle" font-size="11" font-weight="700" class="so">医師と共有したいこと</text>' +
+          '<text x="435" y="55" text-anchor="middle" font-size="10.5">見通し・対処・続けやすい形</text>' +
+          '<path d="M180,98 L496,98" stroke="var(--ink)" stroke-width="2.2"/>' +
+          '<polygon points="338,98 326,120 350,120" fill="var(--accent)"/>' +
+          '<text x="338" y="134" text-anchor="middle" font-size="11" font-weight="700" class="sa">一方的に決めず、一緒にすり合わせる</text>' +
+        '</svg>';
+      }
+    },
+    '3回目': {
+      tag: '半年後・復学（やめたい希望）',
+      note: '症状が落ち着いて復学できた喜びと、「もうやめたい」という希望が同時にある局面。',
+      svg: function(){
+        return '<svg class="ev-svg" viewBox="0 0 540 144" role="img" aria-label="3回目：復学後のやめたい気持ちと再発予防">' +
+          '<rect x="4" y="4" width="532" height="136" rx="8" fill="var(--panel)" stroke="var(--line)"/>' +
+          '<rect x="20" y="24" width="140" height="58" rx="8" fill="var(--ok-soft)" stroke="var(--ok)"/>' +
+          '<text x="90" y="46" text-anchor="middle" font-size="11" font-weight="700" class="so">半年間の歩み</text>' +
+          '<text x="90" y="66" text-anchor="middle" font-size="11">症状ほぼなし・復学！</text>' +
+          '<path d="M166,53 h34" stroke="var(--accent)" stroke-width="2.2"/>' +
+          '<polygon points="206,53 197,48 197,58" fill="var(--accent)"/>' +
+          '<rect x="212" y="24" width="144" height="58" rx="8" fill="var(--accent-soft)" stroke="var(--accent)"/>' +
+          '<text x="284" y="46" text-anchor="middle" font-size="11" font-weight="700" class="sa">本人の言葉</text>' +
+          '<text x="284" y="66" text-anchor="middle" font-size="11">「薬をやめたい」</text>' +
+          '<path d="M362,53 h34" stroke="var(--lamp)" stroke-width="2.2"/>' +
+          '<polygon points="402,53 393,48 393,58" fill="var(--lamp)"/>' +
+          '<rect x="408" y="24" width="112" height="58" rx="8" fill="var(--panel)" stroke="var(--lamp)" stroke-dasharray="4 3"/>' +
+          '<text x="464" y="46" text-anchor="middle" font-size="11" font-weight="700" class="sw">次の一歩は？</text>' +
+          '<text x="464" y="66" text-anchor="middle" font-size="10.5">理由・ペース・備え</text>' +
+          '<text x="270" y="114" text-anchor="middle" font-size="11.5" class="sm">回復を祝いつつ、急な中断と再発リスクをどう共有するか</text>' +
+        '</svg>';
+      }
+    },
+    '4回目': {
+      tag: '家族教室（母親の自責と悩み）',
+      note: '「育て方のせい？」と自分を責めつつ、昼まで寝ている本人につい怒ってしまう母親。',
+      svg: function(){
+        return '<svg class="ev-svg" viewBox="0 0 540 144" role="img" aria-label="4回目：自責感と疲れを抱えた母親への支援">' +
+          '<rect x="4" y="4" width="532" height="136" rx="8" fill="var(--panel)" stroke="var(--line)"/>' +
+          personSvg(92, 54, {role:'fam', mood:'sad', label:'母親（自責・疲労）'}) +
+          '<rect x="166" y="18" width="166" height="44" rx="8" fill="var(--seal-soft)" stroke="var(--seal)"/>' +
+          '<text x="249" y="37" text-anchor="middle" font-size="10.5" font-weight="700" class="sn">抱えている重荷</text>' +
+          '<text x="249" y="53" text-anchor="middle" font-size="10.5">「私の育て方のせい？」</text>' +
+          '<rect x="166" y="74" width="166" height="44" rx="8" fill="var(--seal-soft)" stroke="var(--seal)"/>' +
+          '<text x="249" y="93" text-anchor="middle" font-size="10.5" font-weight="700" class="sn">家庭での悪循環</text>' +
+          '<text x="249" y="109" text-anchor="middle" font-size="10.5">昼まで寝る → つい怒る</text>' +
+          '<path d="M342,68 h34" stroke="var(--ok)" stroke-width="2.4"/>' +
+          '<polygon points="382,68 373,63 373,73" fill="var(--ok)"/>' +
+          '<rect x="388" y="30" width="132" height="76" rx="8" fill="var(--ok-soft)" stroke="var(--ok)"/>' +
+          '<text x="454" y="54" text-anchor="middle" font-size="11" font-weight="700" class="so">家族支援の視点</text>' +
+          '<text x="454" y="74" text-anchor="middle" font-size="10.5">① 自責を和らげる</text>' +
+          '<text x="454" y="92" text-anchor="middle" font-size="10.5">② 楽な関わり・休息</text>' +
+        '</svg>';
+      }
+    },
+    '5回目': {
+      tag: '双極症（波と前ぶれのサイン）',
+      note: '今は安定期。過去2回の躁病エピソードの前に起きた変化と、毎日の生活リズムを振り返る。',
+      svg: function(){
+        return '<svg class="ev-svg" viewBox="0 0 540 144" role="img" aria-label="5回目：双極症の気分の波と前ぶれサイン">' +
+          '<rect x="4" y="4" width="532" height="136" rx="8" fill="var(--panel)" stroke="var(--line)"/>' +
+          '<line x1="28" y1="78" x2="512" y2="78" stroke="var(--line)" stroke-width="1.2" stroke-dasharray="4 4"/>' +
+          '<text x="34" y="28" font-size="10.5" font-weight="700" class="sn">躁（入院2回）</text>' +
+          '<text x="34" y="73" font-size="10.5" class="sm">安定ライン</text>' +
+          '<path d="M36,78 C74,78 96,26 134,26 C172,26 190,108 230,108 C264,108 286,32 324,32 C356,32 376,78 416,78 L506,78" fill="none" stroke="var(--accent)" stroke-width="3" stroke-linecap="round"/>' +
+          '<circle cx="102" cy="52" r="7" fill="var(--lamp)" stroke="var(--panel)" stroke-width="2"/>' +
+          '<circle cx="294" cy="54" r="7" fill="var(--lamp)" stroke="var(--panel)" stroke-width="2"/>' +
+          '<rect x="172" y="16" width="112" height="24" rx="12" fill="var(--panel)" stroke="var(--lamp)" stroke-width="1.4"/>' +
+          '<text x="228" y="32" text-anchor="middle" font-size="10.5" font-weight="700" class="sw">前ぶれサイン</text>' +
+          '<rect x="386" y="92" width="128" height="34" rx="7" fill="var(--ok-soft)" stroke="var(--ok)"/>' +
+          '<text x="450" y="108" text-anchor="middle" font-size="10.5" font-weight="700" class="so">今ここ（安定期）</text>' +
+          '<text x="450" y="121" text-anchor="middle" font-size="9.5">リズム＋早めの約束</text>' +
+        '</svg>';
+      }
+    },
+    '6回目': {
+      tag: 'うつ病（休養・大決定・安全確認）',
+      note: '「周りに迷惑」「会社を辞めて田舎へ」と悲観が強まる時期。体の回復と心の安全を同時に見る。',
+      svg: function(){
+        return '<svg class="ev-svg" viewBox="0 0 540 144" role="img" aria-label="6回目：うつ病のエネルギー低下と大きな決定の一時停止">' +
+          '<rect x="4" y="4" width="532" height="136" rx="8" fill="var(--panel)" stroke="var(--line)"/>' +
+          '<rect x="24" y="26" width="150" height="90" rx="8" fill="var(--seal-soft)" stroke="var(--seal)"/>' +
+          '<text x="99" y="48" text-anchor="middle" font-size="11" font-weight="700" class="sn">エネルギー残量</text>' +
+          '<rect x="46" y="58" width="100" height="26" rx="5" fill="var(--panel)" stroke="var(--ink)" stroke-width="1.5"/>' +
+          '<rect x="146" y="65" width="7" height="12" rx="2" fill="var(--ink)"/>' +
+          '<rect x="50" y="62" width="18" height="18" rx="3" fill="var(--seal)"/>' +
+          '<text x="99" y="104" text-anchor="middle" font-size="10.5">まず回復（休養）</text>' +
+          '<rect x="196" y="26" width="156" height="90" rx="8" fill="var(--panel)" stroke="var(--lamp)" stroke-width="1.5"/>' +
+          '<text x="274" y="48" text-anchor="middle" font-size="11" font-weight="700" class="sw">大きな決定は？</text>' +
+          '<text x="274" y="72" text-anchor="middle" font-size="10.5">退職・転居・離婚</text>' +
+          '<rect x="218" y="84" width="112" height="22" rx="11" fill="var(--accent-soft)" stroke="var(--accent)"/>' +
+          '<text x="274" y="99" text-anchor="middle" font-size="10.5" font-weight="700" class="sa">回復するまで保留</text>' +
+          '<rect x="374" y="26" width="142" height="90" rx="8" fill="var(--ok-soft)" stroke="var(--ok)"/>' +
+          '<text x="445" y="48" text-anchor="middle" font-size="11" font-weight="700" class="so">安全の確認</text>' +
+          '<text x="445" y="74" text-anchor="middle" font-size="10.5">希死念慮は</text>' +
+          '<text x="445" y="94" text-anchor="middle" font-size="10.5" font-weight="700">どう確かめる？</text>' +
+        '</svg>';
+      }
+    },
+    '7回目': {
+      tag: '物忘れ外来（認知症の家族相談）',
+      note: '毎日「財布を盗まれた」と責められ疲弊する娘。説得すると怒りが強まる悪循環をどう解くか。',
+      svg: function(){
+        return '<svg class="ev-svg" viewBox="0 0 540 144" role="img" aria-label="7回目：物盗られの訴えと介護者の疲れ">' +
+          '<rect x="4" y="4" width="532" height="136" rx="8" fill="var(--panel)" stroke="var(--line)"/>' +
+          personSvg(86, 54, {role:'fam', mood:'tense', label:'母（80歳・不安）'}) +
+          '<rect x="148" y="20" width="146" height="44" rx="8" fill="var(--seal-soft)" stroke="var(--seal)"/>' +
+          '<text x="221" y="38" text-anchor="middle" font-size="10.5" font-weight="700" class="sn">しまった場所を忘れる</text>' +
+          '<text x="221" y="54" text-anchor="middle" font-size="10.5">→「盗られた！」の不安</text>' +
+          '<rect x="148" y="76" width="146" height="44" rx="8" fill="var(--panel)" stroke="var(--line)"/>' +
+          '<text x="221" y="94" text-anchor="middle" font-size="10.5" font-weight="700">否定・正論で説明</text>' +
+          '<text x="221" y="110" text-anchor="middle" font-size="10.5" class="sn">→ さらに怒る・悪循環</text>' +
+          personSvg(364, 54, {role:'fam', mood:'sad', label:'娘（介護疲れ）'}) +
+          '<rect x="418" y="26" width="106" height="88" rx="8" fill="var(--ok-soft)" stroke="var(--ok)"/>' +
+          '<text x="471" y="50" text-anchor="middle" font-size="10.5" font-weight="700" class="so">支援の2本柱</text>' +
+          '<text x="471" y="73" text-anchor="middle" font-size="10">① 関わり・環境</text>' +
+          '<text x="471" y="95" text-anchor="middle" font-size="10">② 介護者の休息</text>' +
+        '</svg>';
+      }
+    },
+    '8回目': {
+      tag: '外来・アルコール（受診に乗り気でない）',
+      note: '腕を組み「酒はやめる気はない」と話す50歳男性。説得でぶつからず、心の中の迷いをどう開くか。',
+      svg: function(){
+        return '<svg class="ev-svg" viewBox="0 0 540 144" role="img" aria-label="8回目：腕を組む本人と動機づけ面接の視点">' +
+          '<rect x="4" y="4" width="532" height="136" rx="8" fill="var(--panel)" stroke="var(--line)"/>' +
+          personSvg(94, 54, {role:'pt', mood:'guard', label:'本人（腕組み）'}) +
+          '<rect x="166" y="20" width="170" height="44" rx="8" fill="var(--seal-soft)" stroke="var(--seal)"/>' +
+          '<text x="251" y="38" text-anchor="middle" font-size="10.5" font-weight="700" class="sn">今の表の気持ち</text>' +
+          '<text x="251" y="54" text-anchor="middle" font-size="10.5">「飲まなきゃやってられない」</text>' +
+          '<rect x="166" y="76" width="170" height="44" rx="8" fill="var(--ok-soft)" stroke="var(--ok)"/>' +
+          '<text x="251" y="94" text-anchor="middle" font-size="10.5" font-weight="700" class="so">奥にある心配の種</text>' +
+          '<text x="251" y="110" text-anchor="middle" font-size="10.5">肝機能障害・妻の心配・来院</text>' +
+          '<path d="M346,68 h28" stroke="var(--accent)" stroke-width="2.2"/>' +
+          '<polygon points="380,68 371,63 371,73" fill="var(--accent)"/>' +
+          '<rect x="386" y="28" width="134" height="82" rx="8" fill="var(--accent-soft)" stroke="var(--accent)"/>' +
+          '<text x="453" y="52" text-anchor="middle" font-size="11" font-weight="700" class="sa">面接のねらい</text>' +
+          '<text x="453" y="74" text-anchor="middle" font-size="10.5">反発を強めず</text>' +
+          '<text x="453" y="94" text-anchor="middle" font-size="10.5" font-weight="700">迷い→変わる言葉</text>' +
+        '</svg>';
+      }
+    }
+  };
+
+  function injectCaseVisual(){
+    var card = mainEl.querySelector('.case');
+    if(!card || card.querySelector('.ev-case')) return;
+    var clockEl = card.querySelector('.clock');
+    var key = clockEl ? clockEl.textContent.trim() : '';
+    var spec = CASE_VIS[key];
+    if(!spec) return;
+    var memoBox = card.querySelector('.memo-box');
+    var body = card.querySelector('.case-body');
+    if(!body) return;
+    var box = document.createElement('div');
+    box.className = 'ev-case';
+    box.innerHTML =
+      '<div class="ev-case-h"><span>診察室の状況図</span><span class="ev-tag">'+esc(spec.tag)+'</span></div>' +
+      spec.svg() +
+      '<p class="muted" style="font-size:var(--fs-xs)">'+esc(spec.note)+'</p>';
+    if(memoBox && memoBox.parentNode === body){
+      body.insertBefore(box, memoBox.nextSibling);
+    } else {
+      body.insertBefore(box, body.firstChild);
+    }
+  }
+
+  var mo = new MutationObserver(function(){ injectCaseVisual(); });
+  mo.observe(mainEl, {childList: true, subtree: true});
+  injectCaseVisual();
 })();
 </script>
 

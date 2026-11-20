@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="robots" content="noindex, nofollow">
-<meta name="app-version" content="20261120141754">
+<meta name="app-version" content="20261120195434">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
@@ -266,6 +266,145 @@ thead th{font-size:var(--fs-xs); letter-spacing:.08em; color:var(--muted); font-
 tbody th{white-space:nowrap}
 tbody tr:last-child th, tbody tr:last-child td{border-bottom:0}
 .foot{margin-top:28px; font-size:var(--fs-xs); color:var(--muted); max-width:52em}
+
+/* リエゾン当番：見て分かる画面・せん妄変動グラフ・再現アニメ・全8症例図解（Gemini 担当） */
+:root{
+  --lv-stage:#eff5f4; --lv-stage-2:#e2eeec; --lv-night:rgba(31,56,92,.14);
+  --lv-dusk:rgba(196,122,28,.13); --lv-warn:rgba(192,53,43,.11);
+  --lv-skin:#f5cfb0; --lv-skin-stroke:#c69672; --lv-hair:#3e4756; --lv-gray:#7b8494;
+  --lv-gown:#5a97b8; --lv-bed:#d2dce6; --lv-grid:rgba(27,33,51,.12);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --lv-stage:#192526; --lv-stage-2:#203032; --lv-night:rgba(127,214,207,.13);
+    --lv-dusk:rgba(231,178,78,.14); --lv-warn:rgba(236,106,95,.18);
+    --lv-skin:#dfb491; --lv-skin-stroke:#a97f5d; --lv-hair:#252c38; --lv-gray:#a6b1c2;
+    --lv-gown:#6eb8cc; --lv-bed:#303d4d; --lv-grid:rgba(227,231,241,.14);
+  }
+}
+:root[data-theme="dark"]{
+  --lv-stage:#192526; --lv-stage-2:#203032; --lv-night:rgba(127,214,207,.13);
+  --lv-dusk:rgba(231,178,78,.14); --lv-warn:rgba(236,106,95,.18);
+  --lv-skin:#dfb491; --lv-skin-stroke:#a97f5d; --lv-hair:#252c38; --lv-gray:#a6b1c2;
+  --lv-gown:#6eb8cc; --lv-bed:#303d4d; --lv-grid:rgba(227,231,241,.14);
+}
+
+.lv-top-row{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.lv-theme-btn{
+  flex:none;display:inline-flex;align-items:center;justify-content:center;gap:5px;
+  min-width:44px;min-height:44px;padding:0 11px;border-radius:999px;
+  border:1.5px solid var(--line);background:var(--panel);color:var(--ink);
+  font:inherit;font-size:var(--fs-xs);font-weight:700;cursor:pointer;white-space:nowrap;touch-action:manipulation;
+}
+.lv-theme-btn:hover{border-color:var(--accent)}
+.lv-theme-btn svg{width:17px;height:17px;fill:none;stroke:currentColor;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
+@media (max-width:420px){.lv-theme-lbl{display:none}.lv-theme-btn{padding:0;width:44px}}
+
+/* 上部：せん妄ラボ */
+.lv-lab{
+  margin-top:18px;background:var(--panel);border:1.5px solid var(--line);
+  border-radius:10px;overflow:hidden;box-shadow:0 2px 10px color-mix(in srgb, var(--ink) 7%, transparent);
+}
+.lv-lab-head{
+  display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:nowrap;
+  padding:8px 12px;background:var(--accent-soft);border-bottom:1px solid var(--line);
+}
+.lv-lab-title{
+  flex:1;min-width:0;display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin:0;
+  font-family:var(--f-display);font-weight:400;font-size:.98rem;line-height:1.3;color:var(--ink);
+}
+.lv-badge{
+  font-family:var(--f-body);font-size:.7rem;font-weight:700;padding:2px 8px;border-radius:999px;
+  background:var(--accent);color:var(--accent-ink);white-space:nowrap;
+}
+.lv-toggle{
+  min-height:44px;padding:0 12px;border-radius:8px;border:1px solid var(--line);
+  background:var(--panel);color:var(--ink);font:inherit;font-size:var(--fs-xs);font-weight:700;
+  cursor:pointer;touch-action:manipulation;white-space:nowrap;
+}
+.lv-toggle:hover{border-color:var(--accent)}
+.lv-lab-body{padding:14px;display:grid;gap:12px}
+.lv-lab-body[hidden]{display:none!important}
+
+.lv-tabs{display:grid;grid-template-columns:1fr 1fr;gap:6px;padding:4px;background:var(--paper);border:1px solid var(--line);border-radius:9px}
+.lv-tab{
+  min-height:44px;padding:6px 8px;border:0;border-radius:7px;background:transparent;
+  color:var(--muted);font:inherit;font-size:var(--fs-s);font-weight:700;cursor:pointer;touch-action:manipulation;line-height:1.3;
+}
+.lv-tab[aria-selected="true"]{background:var(--panel);color:var(--accent);box-shadow:0 1px 4px color-mix(in srgb, var(--ink) 14%, transparent)}
+
+.lv-stage{background:var(--lv-stage);border:1px solid var(--line);border-radius:9px;padding:8px;overflow:hidden}
+.lv-svg{display:block;width:100%;height:auto;max-width:100%}
+.lv-svg text{font-family:var(--f-body);fill:var(--ink)}
+.lv-svg .svg-muted{fill:var(--muted)} .lv-svg .svg-accent{fill:var(--accent)}
+.lv-svg .svg-ok{fill:var(--ok)} .lv-svg .svg-seal{fill:var(--seal)} .lv-svg .svg-lamp{fill:var(--lamp)}
+
+.lv-ctrl{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.lv-play{
+  min-height:44px;padding:0 14px;border:0;border-radius:8px;
+  background:var(--accent);color:var(--accent-ink);font:inherit;font-size:var(--fs-s);font-weight:700;
+  cursor:pointer;touch-action:manipulation;white-space:nowrap;
+}
+.lv-btn-sub{
+  min-height:44px;padding:0 12px;border-radius:8px;border:1.5px solid var(--line);
+  background:var(--paper);color:var(--ink);font:inherit;font-size:var(--fs-xs);font-weight:700;
+  cursor:pointer;touch-action:manipulation;
+}
+.lv-btn-sub[aria-pressed="true"]{border-color:var(--accent);background:var(--accent-soft);color:var(--accent)}
+.lv-time-pill{font-family:var(--f-display);font-size:1.15rem;color:var(--lamp);min-width:4.4em;font-variant-numeric:tabular-nums}
+.lv-range-wrap{flex:1 1 160px;display:flex;align-items:center;min-height:44px}
+.lv-range{width:100%;height:8px;accent-color:var(--accent);cursor:pointer}
+.lv-msg{
+  padding:9px 12px;border-radius:8px;font-size:var(--fs-s);font-weight:700;
+  background:var(--accent-soft);border-left:4px solid var(--accent);
+}
+.lv-msg.warn{background:var(--seal-soft);border-left-color:var(--seal)}
+.lv-note{font-size:var(--fs-xs);color:var(--muted);line-height:1.55}
+
+/* 2カラム比較カード */
+.lv-two{display:grid;grid-template-columns:1fr;gap:10px}
+@media (min-width:620px){.lv-two{grid-template-columns:1fr 1fr}}
+.lv-card{background:var(--panel);border:1.5px solid var(--line);border-radius:9px;padding:10px 12px;display:grid;gap:6px;align-content:start;font-size:var(--fs-xs)}
+.lv-card h4{margin:0;font-size:.86rem;display:flex;align-items:center;justify-content:space-between;gap:6px}
+.lv-card.is-hyper{border-color:var(--seal)} .lv-card.is-hyper h4{color:var(--seal)}
+.lv-card.is-hypo{border-color:var(--accent)} .lv-card.is-hypo h4{color:var(--accent)}
+
+/* 症例ビジュアルカード */
+.lv-case{border:1.5px solid var(--line);border-radius:9px;background:var(--lv-stage);padding:12px;display:grid;gap:10px;overflow:hidden}
+.lv-case-h{display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap;font-size:var(--fs-xs);font-weight:700;color:var(--muted)}
+.lv-tag{display:inline-flex;align-items:center;padding:2px 9px;border-radius:999px;background:var(--panel);border:1px solid var(--line);color:var(--accent);font-weight:700}
+.lv-reveal{padding:8px 11px;border-radius:8px;background:var(--ok-soft);border:1px solid var(--ok);font-size:var(--fs-xs);line-height:1.55;animation:lvFade .3s ease-out}
+.lv-reveal b{color:var(--ok)}
+.lv-reveal.warn{background:var(--seal-soft);border-color:var(--seal)} .lv-reveal.warn b{color:var(--seal)}
+.lv-chips{display:flex;flex-wrap:wrap;gap:6px}
+.lv-chip{padding:3px 9px;border-radius:999px;font-size:.76rem;font-weight:700;background:var(--panel);border:1px solid var(--line)}
+.lv-chip.bad{background:var(--seal-soft);border-color:var(--seal);color:var(--seal)}
+.lv-chip.ok{background:var(--ok-soft);border-color:var(--ok);color:var(--ok)}
+
+/* アニメーション */
+.lv-draw{stroke-dasharray:660;stroke-dashoffset:660;animation:lvDraw 1.2s ease-out forwards}
+.lv-agitate{transform-box:fill-box;transform-origin:50% 80%;animation:lvAgitate .85s ease-in-out infinite alternate}
+.lv-pull{transform-box:fill-box;transform-origin:20% 50%;animation:lvPull .9s ease-in-out infinite alternate}
+.lv-nod{transform-box:fill-box;transform-origin:50% 70%;animation:lvNod 2.8s ease-in-out infinite}
+.lv-tremor{animation:lvTremor .18s linear infinite alternate}
+.lv-pulse{animation:lvPulse 1.5s ease-in-out infinite}
+.lv-shake-limb{transform-box:fill-box;transform-origin:center;animation:lvLimb .45s ease-in-out infinite alternate}
+.lv-eeg{stroke-dasharray:12 0;animation:lvEeg 2.2s linear infinite}
+
+@keyframes lvDraw{to{stroke-dashoffset:0}}
+@keyframes lvAgitate{from{transform:rotate(-5deg) translateY(0)}to{transform:rotate(6deg) translateY(-4px)}}
+@keyframes lvPull{from{transform:rotate(-10deg)}to{transform:rotate(14deg)}}
+@keyframes lvNod{0%,100%{transform:rotate(0)}50%{transform:rotate(7deg) translateY(2px)}}
+@keyframes lvTremor{from{transform:translateX(-2px)}to{transform:translateX(2px)}}
+@keyframes lvPulse{0%,100%{opacity:1}50%{opacity:.35}}
+@keyframes lvLimb{from{transform:rotate(-16deg)}to{transform:rotate(16deg)}}
+@keyframes lvEeg{from{transform:translateX(0)}to{transform:translateX(-36px)}}
+@keyframes lvFade{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
+
+@media (prefers-reduced-motion: reduce){
+  .lv-draw{stroke-dasharray:none;stroke-dashoffset:0;animation:none}
+  .lv-agitate,.lv-pull,.lv-nod,.lv-tremor,.lv-pulse,.lv-shake-limb,.lv-eeg{animation:none!important}
+}
 </style>
 
 <div class="wrap">
@@ -664,6 +803,454 @@ tbody tr:last-child th, tbody tr:last-child td{border-bottom:0}
     CASES.forEach(function (c, i) { c.qs.forEach(function (q, qi) { S.picks[i][qi] = Math.random() < (r == null ? 1 : r) ? 0 : 1; }); });
     S.ci = -1; render();
   };
+})();
+</script>
+<script>
+/* リエゾン当番：せん妄の1日変動グラフ・過活動型/低活動型再現アニメ・全8症例図解（Gemini 担当） */
+(function () {
+  'use strict';
+  var REDUCE = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var darkMQ = window.matchMedia ? window.matchMedia('(prefers-color-scheme: dark)') : null;
+  var themePref = 'auto';
+
+  function isDark() {
+    if (themePref === 'dark') return true;
+    if (themePref === 'light') return false;
+    return !!(darkMQ && darkMQ.matches);
+  }
+  function syncTheme() {
+    var root = document.documentElement;
+    if (themePref === 'dark' || themePref === 'light') root.setAttribute('data-theme', themePref);
+    else root.removeAttribute('data-theme');
+    var btn = document.getElementById('lvThemeBtn');
+    if (!btn) return;
+    var dk = isDark();
+    btn.setAttribute('aria-label', dk ? '明るい画面に切り替える' : '暗い画面に切り替える');
+    btn.innerHTML = (dk
+      ? '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg><span class="lv-theme-lbl">明るく</span>'
+      : '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg><span class="lv-theme-lbl">暗く</span>');
+  }
+  function mountThemeBtn() {
+    var top = document.querySelector('.top'), eye = top && top.querySelector('.eyebrow');
+    if (!top || !eye || document.getElementById('lvThemeBtn')) return;
+    var row = document.createElement('div');
+    row.className = 'lv-top-row';
+    eye.parentNode.insertBefore(row, eye);
+    row.appendChild(eye);
+    var btn = document.createElement('button');
+    btn.type = 'button'; btn.id = 'lvThemeBtn'; btn.className = 'lv-theme-btn';
+    btn.addEventListener('click', function () { themePref = isDark() ? 'light' : 'dark'; syncTheme(); });
+    row.appendChild(btn);
+    syncTheme();
+    if (darkMQ) { try { darkMQ.addEventListener('change', function () { if (themePref === 'auto') syncTheme(); }); } catch (e) {} }
+  }
+
+  /* ---------- 1. せん妄の1日変動グラフ SVG（0〜24時間、開始=朝6時） ---------- */
+  /* h: 0(=6:00) .. 24(=翌6:00) */
+  function deliriumClarity(h) {
+    /* 朝〜昼(0..9h = 6:00..15:00)は比較的保たれる（やや波あり）、夕方(11h=17:00)から急低下、深夜(15..20h=21:00..2:00)に最悪、朝方にやや回復 */
+    if (h <= 4) return 76 + Math.sin(h) * 5;
+    if (h <= 9) return 72 - (h - 4) * 2 + Math.sin(h * 1.4) * 6;
+    if (h <= 14) return 62 - (h - 9) * 8.5;
+    if (h <= 19) return 20 + Math.sin(h * 1.7) * 7;
+    return 24 + (h - 19) * 8.5;
+  }
+  function fmtClock(h) {
+    var real = (6 + Math.round(h)) % 24;
+    return (real < 10 ? '0' : '') + real + ':00';
+  }
+  function hourDesc(h) {
+    if (h < 6) return { warn: false, txt: '朝〜昼前（' + fmtClock(h) + '）：うとうとしているが、話しかけると受け答えできることも多い。' };
+    if (h < 11) return { warn: false, txt: '昼過ぎ（' + fmtClock(h) + '）：日中は落ち着いて見えやすく、家族や昼勤務では気づかれにくい。' };
+    if (h < 14) return { warn: true, txt: '夕方（' + fmtClock(h) + '）：日が落ちるころから注意が散漫になり、そわそわ・混乱が始まる（夕暮れ症候群）。' };
+    if (h < 21) return { warn: true, txt: '夜間（' + fmtClock(h) + '）：見当識が乱れ「家に帰る」と点滴を抜こうとする・幻視・不穏が最も強くなりやすい時間帯。' };
+    return { warn: false, txt: '明け方（' + fmtClock(h) + '）：強い興奮が少し引き、眠り込む・ぼんやりする。この「日内変動」がせん妄の大きな特徴。' };
+  }
+
+  function deliriumChartSVG(curH, showDem) {
+    var W = 560, H = 205, L = 54, R = 18, T = 22, B = 32;
+    var gw = W - L - R, gh = H - T - B;
+    function X(h) { return L + (h / 24) * gw; }
+    function Y(v) { return T + gh - (v / 100) * gh; }
+
+    /* 夕方(11..13h = 17..19時)と夜間(13..22h = 19..翌4時)の背景帯 */
+    var bands =
+      '<rect x="' + X(11).toFixed(1) + '" y="' + T + '" width="' + (X(13) - X(11)).toFixed(1) + '" height="' + gh + '" fill="var(--lv-dusk)"/>' +
+      '<rect x="' + X(13).toFixed(1) + '" y="' + T + '" width="' + (X(22) - X(13)).toFixed(1) + '" height="' + gh + '" fill="var(--lv-night)"/>' +
+      '<text x="' + X(5.5).toFixed(1) + '" y="' + (T + 14) + '" text-anchor="middle" font-size="11" class="svg-muted">☀ 昼（比較的おだやか）</text>' +
+      '<text x="' + X(12).toFixed(1) + '" y="' + (T + 14) + '" text-anchor="middle" font-size="10.5" font-weight="700" class="svg-lamp">夕方</text>' +
+      '<text x="' + X(17.5).toFixed(1) + '" y="' + (T + 14) + '" text-anchor="middle" font-size="11" font-weight="700" class="svg-seal">🌙 夜間（悪化しやすい）</text>';
+
+    var grid =
+      '<line x1="' + L + '" y1="' + Y(80).toFixed(1) + '" x2="' + (W - R) + '" y2="' + Y(80).toFixed(1) + '" stroke="var(--lv-grid)"/>' +
+      '<line x1="' + L + '" y1="' + Y(50).toFixed(1) + '" x2="' + (W - R) + '" y2="' + Y(50).toFixed(1) + '" stroke="var(--lv-grid)" stroke-dasharray="3 3"/>' +
+      '<line x1="' + L + '" y1="' + Y(20).toFixed(1) + '" x2="' + (W - R) + '" y2="' + Y(20).toFixed(1) + '" stroke="var(--lv-grid)"/>' +
+      '<text x="' + (L - 6) + '" y="' + (Y(82) + 4).toFixed(1) + '" text-anchor="end" font-size="10.5" class="svg-ok">はっきり</text>' +
+      '<text x="' + (L - 6) + '" y="' + (Y(20) + 4).toFixed(1) + '" text-anchor="end" font-size="10.5" class="svg-seal">混乱</text>';
+
+    var ticks = [0, 6, 12, 18, 24].map(function (h) {
+      return '<line x1="' + X(h).toFixed(1) + '" y1="' + T + '" x2="' + X(h).toFixed(1) + '" y2="' + (H - B) + '" stroke="var(--lv-grid)"/>' +
+        '<text x="' + X(h).toFixed(1) + '" y="' + (H - 10) + '" text-anchor="middle" font-size="11" class="svg-muted">' + fmtClock(h) + '</text>';
+    }).join('');
+
+    var pts = [];
+    for (var h = 0; h <= 24; h += 0.5) pts.push((h === 0 ? 'M' : 'L') + X(h).toFixed(1) + ' ' + Y(deliriumClarity(h)).toFixed(1));
+    var demLine = showDem
+      ? '<path d="M' + X(0).toFixed(1) + ' ' + Y(58).toFixed(1) + ' L' + X(24).toFixed(1) + ' ' + Y(56).toFixed(1) + '" fill="none" stroke="var(--accent)" stroke-width="2.4" stroke-dasharray="6 4"/>' +
+        '<text x="' + (X(23.5)).toFixed(1) + '" y="' + (Y(62)).toFixed(1) + '" text-anchor="end" font-size="10.5" font-weight="700" class="svg-accent">認知症（1日の変動は小さい）</text>'
+      : '';
+
+    var cx = X(curH), cy = Y(deliriumClarity(curH));
+    var cursor =
+      '<line x1="' + cx.toFixed(1) + '" y1="' + T + '" x2="' + cx.toFixed(1) + '" y2="' + (H - B) + '" stroke="var(--lamp)" stroke-width="2" stroke-dasharray="3 3"/>' +
+      '<circle cx="' + cx.toFixed(1) + '" cy="' + cy.toFixed(1) + '" r="6.5" fill="var(--seal)" stroke="var(--panel)" stroke-width="2"/>';
+
+    return '<svg class="lv-svg" viewBox="0 0 ' + W + ' ' + H + '" role="img" aria-label="せん妄の1日の変動グラフ">' +
+      bands + grid + ticks + demLine +
+      '<path d="' + pts.join(' ') + '" fill="none" stroke="var(--seal)" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"/>' +
+      cursor +
+      '</svg>';
+  }
+
+  /* 過活動型 vs 低活動型 再現アニメ SVG */
+  function hyperSVG() {
+    return '<svg class="lv-svg" viewBox="0 0 260 156" role="img" aria-label="ベッドから起き上がり点滴を抜こうとする過活動型せん妄の再現アニメ">' +
+      /* 点滴スタンド */
+      '<line x1="214" y1="22" x2="214" y2="144" stroke="var(--lv-gray)" stroke-width="3"/>' +
+      '<rect x="204" y="28" width="20" height="30" rx="5" fill="var(--panel)" stroke="var(--accent)" stroke-width="1.8"/>' +
+      '<rect x="207" y="42" width="14" height="13" rx="2" fill="var(--accent)" opacity=".45"/>' +
+      /* ベッド */
+      '<rect x="20" y="114" width="176" height="24" rx="6" fill="var(--lv-bed)" stroke="var(--line)" stroke-width="1.5"/>' +
+      '<line x1="26" y1="138" x2="26" y2="148" stroke="var(--lv-gray)" stroke-width="4"/><line x1="188" y1="138" x2="188" y2="148" stroke="var(--lv-gray)" stroke-width="4"/>' +
+      /* 起き上がって点滴を引っ張る患者 */
+      '<g class="lv-agitate">' +
+        '<rect x="104" y="72" width="38" height="44" rx="12" fill="var(--lv-gown)"/>' +
+        '<circle cx="123" cy="50" r="19" fill="var(--lv-skin)" stroke="var(--lv-skin-stroke)" stroke-width="2"/>' +
+        '<path d="M105 44 Q123 26 141 44" fill="var(--lv-gray)"/>' +
+        '<path d="M115 48 L120 50 M131 48 L126 50" stroke="var(--lv-hair)" stroke-width="2"/>' +
+        '<ellipse cx="123" cy="59" rx="5" ry="3.5" fill="var(--seal)"/>' +
+        '<g class="lv-pull"><line x1="140" y1="86" x2="182" y2="74" stroke="var(--lv-skin-stroke)" stroke-width="7" stroke-linecap="round"/></g>' +
+      '</g>' +
+      /* 点滴チューブ */
+      '<path d="M214 58 Q206 94 180 76" fill="none" stroke="var(--accent)" stroke-width="2" stroke-dasharray="4 2"/>' +
+      /* 吹き出し */
+      '<rect x="8" y="10" width="96" height="28" rx="12" fill="var(--seal-soft)" stroke="var(--seal)" stroke-width="1.6" class="lv-pulse"/>' +
+      '<text x="56" y="29" text-anchor="middle" font-size="11.5" font-weight="700" class="svg-seal">「家に帰る！」</text>' +
+      '</svg>';
+  }
+  function hypoSVG() {
+    return '<svg class="lv-svg" viewBox="0 0 260 156" role="img" aria-label="ベッドでぼんやりして食事を残し反応が遅い低活動型せん妄の再現アニメ">' +
+      /* ベッドと掛け布団 */
+      '<rect x="20" y="114" width="174" height="24" rx="6" fill="var(--lv-bed)" stroke="var(--line)" stroke-width="1.5"/>' +
+      '<path d="M52 114 Q112 88 184 114 Z" fill="var(--lv-gown)" opacity=".85"/>' +
+      /* ぼんやりうなだれる患者 */
+      '<g class="lv-nod">' +
+        '<circle cx="64" cy="92" r="20" fill="var(--lv-skin)" stroke="var(--lv-skin-stroke)" stroke-width="2"/>' +
+        '<path d="M45 86 Q64 68 83 86" fill="var(--lv-gray)"/>' +
+        '<line x1="56" y1="92" x2="62" y2="92" stroke="var(--lv-hair)" stroke-width="2" stroke-linecap="round"/>' +
+        '<line x1="68" y1="92" x2="74" y2="92" stroke="var(--lv-hair)" stroke-width="2" stroke-linecap="round"/>' +
+      '</g>' +
+      /* 手つかずの食事トレイ */
+      '<rect x="188" y="88" width="58" height="10" rx="3" fill="var(--panel)" stroke="var(--line)" stroke-width="1.5"/>' +
+      '<path d="M196 88 Q208 74 220 88 Z" fill="var(--lamp)" opacity=".7"/>' +
+      '<text x="217" y="112" text-anchor="middle" font-size="10.5" class="svg-muted">食事そのまま</text>' +
+      /* 看護師の呼びかけ vs 遅い反応 */
+      '<rect x="116" y="14" width="128" height="28" rx="11" fill="var(--panel)" stroke="var(--accent)" stroke-width="1.4"/>' +
+      '<text x="180" y="33" text-anchor="middle" font-size="11.5" font-weight="700" class="svg-accent">「お加減いかが？」</text>' +
+      '<rect x="20" y="32" width="84" height="28" rx="11" fill="var(--panel)" stroke="var(--line)" stroke-width="1.4"/>' +
+      '<text x="62" y="51" text-anchor="middle" font-size="12" class="svg-muted">「……はい」</text>' +
+      '</svg>';
+  }
+
+  function mountLab() {
+    var board = document.querySelector('.board');
+    if (!board || document.getElementById('lvLab')) return;
+    var sec = document.createElement('section');
+    sec.className = 'lv-lab'; sec.id = 'lvLab';
+    sec.setAttribute('aria-label', '見て分かるせん妄の変動と病型');
+    sec.innerHTML =
+      '<div class="lv-lab-head">' +
+        '<h2 class="lv-lab-title"><span class="lv-badge">見て分かる</span><span>せん妄：1日の変動 ＆ 2つの病型</span></h2>' +
+        '<button type="button" class="lv-toggle" id="lvLabToggle" aria-expanded="true">たたむ</button>' +
+      '</div>' +
+      '<div class="lv-lab-body" id="lvLabBody">' +
+        '<div class="lv-tabs" role="tablist" aria-label="表示の切り替え">' +
+          '<button type="button" class="lv-tab" role="tab" id="lvTabChart" aria-selected="true" data-tab="chart">1日の変動（夕方〜夜）</button>' +
+          '<button type="button" class="lv-tab" role="tab" id="lvTabTypes" aria-selected="false" data-tab="types">過活動型 vs 低活動型</button>' +
+        '</div>' +
+        '<div id="lvPanelChart">' +
+          '<div class="lv-stage" id="lvChartStage"></div>' +
+          '<div class="lv-ctrl" style="margin-top:10px">' +
+            '<button type="button" class="lv-play" id="lvPlayBtn">▶ 1日を再生</button>' +
+            '<span class="lv-time-pill" id="lvTimeTxt">22:00</span>' +
+            '<label class="lv-range-wrap"><span style="position:absolute;width:1px;height:1px;overflow:hidden">時刻</span><input type="range" class="lv-range" id="lvHourRange" min="0" max="24" step="1" value="16"></label>' +
+            '<button type="button" class="lv-btn-sub" id="lvDemBtn" aria-pressed="true">認知症の線も比べる</button>' +
+          '</div>' +
+          '<p class="lv-msg warn" id="lvHourMsg" style="margin-top:8px"></p>' +
+        '</div>' +
+        '<div id="lvPanelTypes" hidden>' +
+          '<div class="lv-two">' +
+            '<div class="lv-card is-hyper"><h4>過活動型せん妄<span>気づかれやすい</span></h4>' + hyperSVG() + '<p class="lv-note">興奮・不穏・点滴抜去・幻視。夜間や術後に病棟から緊急で呼ばれやすい。</p></div>' +
+            '<div class="lv-card is-hypo"><h4>低活動型せん妄<span>見逃されやすい・実は多い</span></h4>' + hypoSVG() + '<p class="lv-note">ぼんやり・反応が遅い・食事を残す。静かなため<b>「うつ病では？」</b>と誤解されやすい。</p></div>' +
+          '</div>' +
+        '</div>' +
+      '</div>';
+    board.parentNode.insertBefore(sec, board);
+
+    var curH = 16, showDem = true, timer = 0;
+    var range = document.getElementById('lvHourRange');
+    var playBtn = document.getElementById('lvPlayBtn');
+    var demBtn = document.getElementById('lvDemBtn');
+
+    function stopPlay() { if (timer) { clearInterval(timer); timer = 0; } playBtn.textContent = '▶ 1日を再生'; }
+    function renderChart(h) {
+      curH = h; range.value = String(h);
+      document.getElementById('lvTimeTxt').textContent = fmtClock(h);
+      document.getElementById('lvChartStage').innerHTML = deliriumChartSVG(h, showDem);
+      var d = hourDesc(h), m = document.getElementById('lvHourMsg');
+      m.className = 'lv-msg' + (d.warn ? ' warn' : '');
+      m.textContent = d.txt;
+    }
+
+    range.addEventListener('input', function () { stopPlay(); renderChart(+range.value); });
+    demBtn.addEventListener('click', function () {
+      showDem = !showDem; demBtn.setAttribute('aria-pressed', String(showDem)); renderChart(curH);
+    });
+    playBtn.addEventListener('click', function () {
+      if (timer) { stopPlay(); return; }
+      curH = 0; renderChart(0); playBtn.textContent = '⏸ 止める';
+      timer = setInterval(function () {
+        curH += 1;
+        if (curH > 24) { stopPlay(); return; }
+        renderChart(curH);
+      }, REDUCE ? 260 : 340);
+    });
+    sec.querySelector('.lv-tabs').addEventListener('click', function (e) {
+      var b = e.target.closest('.lv-tab'); if (!b) return;
+      var isC = b.getAttribute('data-tab') === 'chart';
+      stopPlay();
+      document.getElementById('lvTabChart').setAttribute('aria-selected', String(isC));
+      document.getElementById('lvTabTypes').setAttribute('aria-selected', String(!isC));
+      document.getElementById('lvPanelChart').hidden = !isC;
+      document.getElementById('lvPanelTypes').hidden = isC;
+    });
+    var tg = document.getElementById('lvLabToggle'), bd = document.getElementById('lvLabBody');
+    tg.addEventListener('click', function () {
+      var open = bd.hidden; bd.hidden = !open;
+      tg.setAttribute('aria-expanded', String(open)); tg.textContent = open ? 'たたむ' : 'ひらく';
+      if (!open) stopPlay();
+    });
+    renderChart(16);
+  }
+
+  /* ---------- 2. 全8症例の専用ビジュアル ---------- */
+  function buildCaseVisual(ci, ansN) {
+    /* 0: 術後せん妄（過活動型） */
+    if (ci === 0) {
+      return '<div class="lv-case-h"><span class="lv-tag">病棟のようす ＆ 誘発薬チェック</span><span>整形外科・術後2日目</span></div>' +
+        '<div class="lv-two">' +
+          '<div class="lv-stage">' + hyperSVG() + '</div>' +
+          '<div class="lv-card"><h4>経過と使われている薬</h4>' +
+            '<p class="lv-note">昼：うとうと → <b>夜：急に悪化</b>（日内変動）</p>' +
+            '<div class="lv-chips">' +
+              '<span class="lv-chip bad">ブロチゾラム（ベンゾ系）</span>' +
+              '<span class="lv-chip bad">ペンタゾシン（疼痛時）</span>' +
+              '<span class="lv-chip">術後の痛み・環境変化</span>' +
+            '</div>' +
+            '<p class="lv-note">せん妄の直接因子・誘発因子が重なっている状態。</p>' +
+          '</div>' +
+        '</div>' +
+        (ansN >= 2 ? '<div class="lv-reveal"><b>基本の順序：</b>①原因の除去（薬の見直し・感染・脱水・痛み）＋環境調整が先。薬は補助で少量の抗精神病薬を短期間（ベンゾ系は避ける）。</div>' : '');
+    }
+
+    /* 1: 低活動型せん妄 */
+    if (ci === 1) {
+      return '<div class="lv-case-h"><span class="lv-tag">静かな病床のようす ＆ 検査サイン</span><span>内科病棟・肺炎5日目</span></div>' +
+        '<div class="lv-two">' +
+          '<div class="lv-stage">' + hypoSVG() + '</div>' +
+          '<div class="lv-card"><h4>見逃さないための手がかり</h4>' +
+            '<div class="lv-chips">' +
+              '<span class="lv-chip bad">Na 128 mEq/L（低Na血症）</span>' +
+              '<span class="lv-chip bad">発熱・肺炎が継続</span>' +
+              '<span class="lv-chip">昨日：普通に話せた → 今日：ぼんやり</span>' +
+            '</div>' +
+            '<p class="lv-note">日や時間帯で大きく変わる点が、うつ病との見分けの鍵。</p>' +
+          '</div>' +
+        '</div>' +
+        (ansN >= 2 ? '<div class="lv-reveal warn"><b>注意：</b>低ナトリウム血症に SSRI を始めると、かえって低Naを悪化させることがあります。まず身体の原因治療を優先！</div>' : '');
+    }
+
+    /* 2: 自殺企図後の評価（氷山図） */
+    if (ci === 2) {
+      return '<div class="lv-case-h"><span class="lv-tag">表面のことば と 水面下の評価</span><span>救命救急センター</span></div>' +
+        '<svg class="lv-svg" viewBox="0 0 560 186" role="img" aria-label="表面のもう大丈夫という言葉の下に希死念慮や計画や支えの確認が必要であることを示す氷山図">' +
+          '<rect x="12" y="70" width="536" height="106" rx="8" fill="var(--accent-soft)"/>' +
+          '<line x1="12" y1="70" x2="548" y2="70" stroke="var(--accent)" stroke-width="2" stroke-dasharray="6 4"/>' +
+          /* 氷山 */
+          '<polygon points="150,24 210,70 90,70" fill="var(--panel)" stroke="var(--line)" stroke-width="2"/>' +
+          '<polygon points="90,70 210,70 248,162 52,162" fill="var(--panel)" stroke="var(--accent)" stroke-width="2" opacity=".9"/>' +
+          '<text x="150" y="54" text-anchor="middle" font-size="11.5" font-weight="700">「もう大丈夫」</text>' +
+          '<text x="150" y="100" text-anchor="middle" font-size="11.5" font-weight="700" class="svg-seal">水面下で確かめること</text>' +
+          '<text x="150" y="124" text-anchor="middle" font-size="10.5" class="svg-muted">過去の自傷・失恋・一人暮らし</text>' +
+          /* 右側チェックカード */
+          '<rect x="278" y="20" width="256" height="40" rx="8" fill="var(--panel)" stroke="var(--line)" stroke-width="1.4"/>' +
+          '<text x="292" y="45" font-size="12" font-weight="700">言葉だけで安全とは決めない</text>' +
+          '<rect x="278" y="82" width="256" height="82" rx="8" fill="' + (ansN >= 1 ? 'var(--seal-soft)' : 'var(--panel)') + '" stroke="' + (ansN >= 1 ? 'var(--seal)' : 'var(--line)') + '" stroke-width="1.6"/>' +
+          '<text x="292" y="104" font-size="12" font-weight="700" class="' + (ansN >= 1 ? 'svg-seal' : 'svg-accent') + '">① 今の希死念慮・計画・手段</text>' +
+          '<text x="292" y="128" font-size="12" font-weight="700">② 過去の企図（強い危険因子）</text>' +
+          '<text x="292" y="152" font-size="12" font-weight="700">③ 孤立と支え・安全計画（手段の制限）</text>' +
+        '</svg>';
+    }
+
+    /* 3: ステロイド精神症状（用量バー＋鑑別の分岐） */
+    if (ci === 3) {
+      return '<div class="lv-case-h"><span class="lv-tag">ステロイド用量と鑑別の分岐</span><span>膠原病内科・SLE増量5日目</span></div>' +
+        '<svg class="lv-svg" viewBox="0 0 560 158" role="img" aria-label="プレドニゾロン60mgは40mg以上の高リスク域にあり精神神経ループスとの鑑別が必要な図">' +
+          '<text x="20" y="24" font-size="12" font-weight="700">プレドニゾロン 1日量（5日前から増量）</text>' +
+          '<rect x="20" y="34" width="520" height="24" rx="8" fill="var(--panel)" stroke="var(--line)"/>' +
+          '<rect x="20" y="34" width="390" height="24" rx="8" fill="var(--seal)"/>' +
+          '<text x="396" y="50" text-anchor="end" font-size="12" font-weight="700" fill="#fff">現在 60 mg/日</text>' +
+          '<line x1="280" y1="28" x2="280" y2="66" stroke="var(--lamp)" stroke-width="2.5" stroke-dasharray="4 3"/>' +
+          '<text x="280" y="80" text-anchor="middle" font-size="11" font-weight="700" class="svg-lamp">40 mg/日〜 発症しやすい目安</text>' +
+          /* 下段：逆向きの鑑別 */
+          '<rect x="20" y="96" width="248" height="52" rx="8" fill="var(--accent-soft)" stroke="var(--accent)" stroke-width="1.5"/>' +
+          '<text x="34" y="117" font-size="12.5" font-weight="700" class="svg-accent">ステロイド誘発性精神障害</text>' +
+          '<text x="34" y="137" font-size="11" class="svg-muted">方向：主治医と相談し減量を検討</text>' +
+          '<text x="280" y="128" text-anchor="middle" font-size="14" font-weight="700" class="svg-seal">⇄</text>' +
+          '<rect x="292" y="96" width="248" height="52" rx="8" fill="' + (ansN >= 2 ? 'var(--seal-soft)' : 'var(--panel)') + '" stroke="' + (ansN >= 2 ? 'var(--seal)' : 'var(--line)') + '" stroke-width="1.5"/>' +
+          '<text x="306" y="117" font-size="12.5" font-weight="700" class="svg-seal">精神神経ループス（SLE本体）</text>' +
+          '<text x="306" y="137" font-size="11" class="svg-muted">方向：原疾患の治療強化（逆向き！）</text>' +
+        '</svg>';
+    }
+
+    /* 4: がん患者の抑うつ（土台図） */
+    if (ci === 4) {
+      return '<div class="lv-case-h"><span class="lv-tag">からだの症状と心の土台</span><span>消化器内科・膵がん治療中</span></div>' +
+        '<svg class="lv-svg" viewBox="0 0 560 154" role="img" aria-label="背中の痛みや不眠の緩和が心のケアの土台になる2層図">' +
+          /* 上段：気持ち */
+          '<rect x="90" y="14" width="380" height="54" rx="10" fill="var(--accent-soft)" stroke="var(--accent)" stroke-width="1.8"/>' +
+          '<text x="280" y="37" text-anchor="middle" font-size="13" font-weight="700" class="svg-accent">心のつらさ・希死念慮・負担感</text>' +
+          '<text x="280" y="57" text-anchor="middle" font-size="11.5" class="svg-muted">「こんなに苦しいなら死にたい」「家族に迷惑を…」</text>' +
+          /* 上向き矢印 */
+          '<path d="M280 86 L280 70 M274 76 L280 70 L286 76" fill="none" stroke="var(--ok)" stroke-width="2.5" stroke-linecap="round"/>' +
+          /* 下段：体の土台 */
+          '<rect x="30" y="90" width="500" height="52" rx="10" fill="' + (ansN >= 1 ? 'var(--ok-soft)' : 'var(--panel)') + '" stroke="' + (ansN >= 1 ? 'var(--ok)' : 'var(--seal)') + '" stroke-width="2"/>' +
+          '<text x="280" y="113" text-anchor="middle" font-size="13" font-weight="700" class="' + (ansN >= 1 ? 'svg-ok' : 'svg-seal') + '">土台：体の症状緩和（緩和ケアチームと連携）</text>' +
+          '<text x="280" y="133" text-anchor="middle" font-size="11.5" class="svg-muted">背中の強い痛み・不眠・食欲低下をまず取る</text>' +
+        '</svg>';
+    }
+
+    /* 5: アルコール離脱せん妄（最終飲酒からの時間軸） */
+    if (ci === 5) {
+      return '<div class="lv-case-h"><span class="lv-tag">最終飲酒からの時間経過</span><span>外科病棟・術後2日目夜（約60時間）</span></div>' +
+        '<svg class="lv-svg" viewBox="0 0 560 164" role="img" aria-label="最終飲酒から約60時間で離脱せん妄のピーク帯にある時間軸グラフ">' +
+          /* 時間帯ゾーン */
+          '<rect x="36" y="24" width="110" height="72" fill="var(--accent-soft)" opacity=".6"/>' +
+          '<rect x="146" y="24" width="110" height="72" fill="var(--lv-dusk)"/>' +
+          '<rect x="256" y="24" width="230" height="72" fill="var(--lv-warn)"/>' +
+          '<text x="91" y="44" text-anchor="middle" font-size="11" class="svg-muted">6〜24時間</text>' +
+          '<text x="91" y="64" text-anchor="middle" font-size="11" font-weight="700">ふるえ・発汗</text>' +
+          '<text x="201" y="44" text-anchor="middle" font-size="11" class="svg-lamp">24〜48時間</text>' +
+          '<text x="201" y="64" text-anchor="middle" font-size="11" font-weight="700">けいれん・幻覚</text>' +
+          '<text x="371" y="44" text-anchor="middle" font-size="11" font-weight="700" class="svg-seal">48〜96時間（2〜4日）</text>' +
+          '<text x="371" y="66" text-anchor="middle" font-size="12" font-weight="700" class="svg-seal">離脱せん妄（振戦せん妄）</text>' +
+          '<text x="371" y="84" text-anchor="middle" font-size="10.5" class="svg-muted">粗いふるえ・頻脈・小動物の幻視</text>' +
+          /* 時間軸と現在60時間ピン */
+          '<line x1="36" y1="108" x2="524" y2="108" stroke="var(--line)" stroke-width="4" stroke-linecap="round"/>' +
+          '<g class="lv-tremor"><circle cx="322" cy="108" r="8" fill="var(--seal)" stroke="var(--panel)" stroke-width="2"/></g>' +
+          '<text x="322" y="132" text-anchor="middle" font-size="12" font-weight="700" class="svg-seal">▲ いま 約60時間</text>' +
+          '<text x="36" y="150" font-size="10.5" class="svg-muted">0h（最終飲酒）</text>' +
+          '<text x="146" y="150" text-anchor="middle" font-size="10.5" class="svg-muted">24h</text>' +
+          '<text x="256" y="150" text-anchor="middle" font-size="10.5" class="svg-muted">48h</text>' +
+          '<text x="486" y="150" text-anchor="middle" font-size="10.5" class="svg-muted">96h</text>' +
+        '</svg>' +
+        (ansN >= 2 ? '<div class="lv-reveal warn"><b>点滴の順番に注意：</b>① まず <b>ビタミン B1</b>（ウェルニッケ脳症の予防） → ② そのあとブドウ糖。鎮静の基本は <b>ベンゾジアゼピン系</b>！</div>' : '');
+    }
+
+    /* 6: 意思決定能力の評価（4つの力カード） */
+    if (ci === 6) {
+      var on = ansN >= 2;
+      return '<div class="lv-case-h"><span class="lv-tag">意思決定能力をみる視点</span><span>腎臓内科・82歳男性</span></div>' +
+        '<svg class="lv-svg" viewBox="0 0 560 150" role="img" aria-label="診断名や点数で決めずこの決定を今判断できるか4つの力でみる図">' +
+          '<rect x="16" y="12" width="528" height="36" rx="8" fill="var(--panel)" stroke="var(--accent)" stroke-width="1.5"/>' +
+          '<text x="280" y="35" text-anchor="middle" font-size="12.5" font-weight="700" class="svg-accent">「この決定（透析）」を「いま」判断できるか（課題ごと・時点ごと）</text>' +
+          '<rect x="16" y="60" width="124" height="76" rx="8" fill="' + (on ? 'var(--ok-soft)' : 'var(--panel)') + '" stroke="' + (on ? 'var(--ok)' : 'var(--line)') + '" stroke-width="1.6"/>' +
+          '<text x="78" y="86" text-anchor="middle" font-size="13" font-weight="700" class="svg-ok">① 理解</text>' +
+          '<text x="78" y="110" text-anchor="middle" font-size="10.5" class="svg-muted">説明の内容が</text><text x="78" y="125" text-anchor="middle" font-size="10.5" class="svg-muted">わかるか</text>' +
+          '<rect x="150" y="60" width="124" height="76" rx="8" fill="' + (on ? 'var(--ok-soft)' : 'var(--panel)') + '" stroke="' + (on ? 'var(--ok)' : 'var(--line)') + '" stroke-width="1.6"/>' +
+          '<text x="212" y="86" text-anchor="middle" font-size="13" font-weight="700" class="svg-ok">② 認識</text>' +
+          '<text x="212" y="110" text-anchor="middle" font-size="10.5" class="svg-muted">自分のこととして</text><text x="212" y="125" text-anchor="middle" font-size="10.5" class="svg-muted">受け止めるか</text>' +
+          '<rect x="284" y="60" width="124" height="76" rx="8" fill="' + (on ? 'var(--ok-soft)' : 'var(--panel)') + '" stroke="' + (on ? 'var(--ok)' : 'var(--line)') + '" stroke-width="1.6"/>' +
+          '<text x="346" y="86" text-anchor="middle" font-size="13" font-weight="700" class="svg-ok">③ 論理的思考</text>' +
+          '<text x="346" y="110" text-anchor="middle" font-size="10.5" class="svg-muted">比べて理由を</text><text x="346" y="125" text-anchor="middle" font-size="10.5" class="svg-muted">述べられるか</text>' +
+          '<rect x="418" y="60" width="126" height="76" rx="8" fill="' + (on ? 'var(--ok-soft)' : 'var(--panel)') + '" stroke="' + (on ? 'var(--ok)' : 'var(--line)') + '" stroke-width="1.6"/>' +
+          '<text x="481" y="86" text-anchor="middle" font-size="13" font-weight="700" class="svg-ok">④ 選択の表明</text>' +
+          '<text x="481" y="110" text-anchor="middle" font-size="10.5" class="svg-muted">自分の選択を</text><text x="481" y="125" text-anchor="middle" font-size="10.5" class="svg-muted">はっきり示すか</text>' +
+        '</svg>';
+    }
+
+    /* 7: PNES（ビデオ脳波モニター風） */
+    if (ci === 7) {
+      return '<div class="lv-case-h"><span class="lv-tag">ビデオ脳波モニター（同時記録）</span><span>脳神経内科・29歳女性</span></div>' +
+        '<div class="lv-two">' +
+          '<div class="lv-card"><h4>📹 発作時のビデオ映像</h4>' +
+            '<svg class="lv-svg" viewBox="0 0 240 112" role="img" aria-label="目を固く閉じ手足を非同期に激しく動かす様子">' +
+              '<rect x="12" y="80" width="216" height="20" rx="5" fill="var(--lv-bed)" stroke="var(--line)"/>' +
+              '<circle cx="62" cy="56" r="18" fill="var(--lv-skin)" stroke="var(--lv-skin-stroke)" stroke-width="2"/>' +
+              '<path d="M53 54 L60 56 L53 58 M71 54 L64 56 L71 58" fill="none" stroke="var(--lv-hair)" stroke-width="2" stroke-linecap="round"/>' +
+              '<rect x="82" y="48" width="66" height="28" rx="10" fill="var(--lv-gown)"/>' +
+              '<line class="lv-shake-limb" x1="146" y1="54" x2="196" y2="38" stroke="var(--lv-skin-stroke)" stroke-width="7" stroke-linecap="round"/>' +
+              '<line class="lv-shake-limb" style="animation-delay:.22s" x1="146" y1="68" x2="196" y2="82" stroke="var(--lv-skin-stroke)" stroke-width="7" stroke-linecap="round"/>' +
+              '<text x="120" y="22" text-anchor="middle" font-size="11.5" font-weight="700" class="svg-seal">目は固く閉じ・手足を激しく動かす</text>' +
+            '</svg>' +
+          '</div>' +
+          '<div class="lv-card"><h4>📈 同時刻の脳波（正常）</h4>' +
+            '<svg class="lv-svg" viewBox="0 0 240 112" role="img" aria-label="発作中も発作波がなく規則的な正常脳波の模式図">' +
+              '<rect x="6" y="10" width="228" height="72" rx="6" fill="var(--lv-stage)" stroke="var(--ok)" stroke-width="1.5"/>' +
+              '<clipPath id="lvEegClip"><rect x="10" y="12" width="220" height="68"/></clipPath>' +
+              '<g clip-path="url(#lvEegClip)">' +
+                '<path class="lv-eeg" d="M0 32 Q9 26 18 32 T36 32 T54 32 T72 32 T90 32 T108 32 T126 32 T144 32 T162 32 T180 32 T198 32 T216 32 T234 32 T252 32 T270 32" fill="none" stroke="var(--ok)" stroke-width="2"/>' +
+                '<path class="lv-eeg" d="M0 58 Q9 52 18 58 T36 58 T54 58 T72 58 T90 58 T108 58 T126 58 T144 58 T162 58 T180 58 T198 58 T216 58 T234 58 T252 58 T270 58" fill="none" stroke="var(--accent)" stroke-width="2"/>' +
+              '</g>' +
+              '<text x="120" y="102" text-anchor="middle" font-size="11.5" font-weight="700" class="svg-ok">発作中も発作波なし（正常）</text>' +
+            '</svg>' +
+          '</div>' +
+        '</div>' +
+        (ansN >= 2 ? '<div class="lv-reveal"><b>伝え方と薬：</b>「本物の発作でわざとではなく、心理療法などで治療できる」と伝える。てんかん合併がなければ抗てんかん薬はゆっくり減量。</div>' : '');
+    }
+    return '';
+  }
+
+  function currentCaseIndex() {
+    var slots = document.querySelectorAll('#slots .slot');
+    for (var i = 0; i < slots.length; i++) if (slots[i].getAttribute('aria-current') === 'step') return i;
+    return -1;
+  }
+  function injectCaseVisual() {
+    var main = document.getElementById('main');
+    var body = main && main.querySelector('.case-body');
+    var memo = body && body.querySelector('.memo-box');
+    if (!body || !memo) return;
+    var ci = currentCaseIndex(); if (ci < 0) return;
+    var ansN = main.querySelectorAll('.q .why').length;
+    var box = body.querySelector('.lv-case');
+    if (!box) { box = document.createElement('div'); box.className = 'lv-case'; body.insertBefore(box, memo); }
+    box.innerHTML = buildCaseVisual(ci, ansN);
+  }
+
+  function init() {
+    mountThemeBtn();
+    mountLab();
+    injectCaseVisual();
+    var main = document.getElementById('main');
+    if (main && window.MutationObserver) {
+      new MutationObserver(function () {
+        if (!main.querySelector('.lv-case') && main.querySelector('.case-body')) injectCaseVisual();
+      }).observe(main, { childList: true });
+    }
+  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
+  else init();
 })();
 </script>
 

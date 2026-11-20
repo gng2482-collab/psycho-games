@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="robots" content="noindex, nofollow">
-<meta name="app-version" content="20261120141754">
+<meta name="app-version" content="20261120195434">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
@@ -266,6 +266,59 @@ thead th{font-size:var(--fs-xs); letter-spacing:.08em; color:var(--muted); font-
 tbody th{white-space:nowrap}
 tbody tr:last-child th, tbody tr:last-child td{border-bottom:0}
 .foot{margin-top:28px; font-size:var(--fs-xs); color:var(--muted); max-width:52em}
+
+/* 鑑定と医療観察法：医療観察法フローマップ・責任能力2軸図・全8症例図解（Gemini 担当） */
+:root{ --kv-stage:#f0f3f6; --kv-node:#ffffff; }
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){ --kv-stage:#161c24; --kv-node:#1e2632; } }
+:root[data-theme="dark"]{ --kv-stage:#161c24; --kv-node:#1e2632; }
+.rule a{display:inline-flex;align-items:center;min-height:44px;padding:0 4px}
+
+.kv-top-row{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.kv-theme-btn{
+  flex:none;display:inline-flex;align-items:center;justify-content:center;gap:5px;
+  min-width:44px;min-height:44px;padding:0 11px;border-radius:999px;
+  border:1.5px solid var(--line);background:var(--panel);color:var(--ink);
+  font:inherit;font-size:var(--fs-xs);font-weight:700;cursor:pointer;white-space:nowrap;touch-action:manipulation;
+}
+.kv-theme-btn:hover{border-color:var(--accent)}
+.kv-theme-btn svg{width:17px;height:17px;fill:none;stroke:currentColor;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
+@media (max-width:420px){.kv-theme-lbl{display:none}.kv-theme-btn{padding:0;width:44px}}
+
+.kv-lab{margin-top:18px;background:var(--panel);border:1.5px solid var(--line);border-radius:10px;overflow:hidden;box-shadow:0 2px 10px color-mix(in srgb, var(--ink) 7%, transparent)}
+.kv-lab-head{display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:nowrap;padding:8px 12px;background:var(--accent-soft);border-bottom:1px solid var(--line)}
+.kv-lab-title{flex:1;min-width:0;display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin:0;font-family:var(--f-display);font-weight:400;font-size:.98rem;line-height:1.3;color:var(--ink)}
+.kv-badge{font-family:var(--f-body);font-size:.7rem;font-weight:700;padding:2px 8px;border-radius:999px;background:var(--accent);color:var(--accent-ink);white-space:nowrap}
+.kv-toggle{min-height:44px;padding:0 12px;border-radius:8px;border:1px solid var(--line);background:var(--panel);color:var(--ink);font:inherit;font-size:var(--fs-xs);font-weight:700;cursor:pointer;touch-action:manipulation;white-space:nowrap}
+.kv-lab-body{padding:14px;display:grid;gap:12px}
+.kv-lab-body[hidden]{display:none!important}
+
+.kv-tabs{display:grid;grid-template-columns:1fr 1fr;gap:6px;padding:4px;background:var(--paper);border:1px solid var(--line);border-radius:9px}
+.kv-tab{min-height:44px;padding:6px 8px;border:0;border-radius:7px;background:transparent;color:var(--muted);font:inherit;font-size:var(--fs-xs);font-weight:700;cursor:pointer;touch-action:manipulation}
+.kv-tab[aria-selected="true"]{background:var(--panel);color:var(--accent);box-shadow:0 1px 4px color-mix(in srgb, var(--ink) 14%, transparent)}
+
+.kv-stage{background:var(--kv-stage);border:1px solid var(--line);border-radius:9px;padding:8px;overflow:hidden}
+.kv-svg{display:block;width:100%;height:auto;max-width:660px;margin:0 auto}
+.kv-svg text{font-family:var(--f-body);fill:var(--ink)}
+.kv-svg .sm{fill:var(--muted)} .kv-svg .sa{fill:var(--accent)} .kv-svg .so{fill:var(--ok)} .kv-svg .sn{fill:var(--seal)} .kv-svg .sw{fill:var(--lamp)}
+
+.kv-steps{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+@media (min-width:640px){.kv-steps{grid-template-columns:repeat(6,1fr)}}
+.kv-sbtn{min-height:44px;padding:5px 6px;border-radius:8px;border:1.5px solid var(--line);background:var(--paper);color:var(--ink);font:inherit;font-size:.74rem;font-weight:700;cursor:pointer;touch-action:manipulation;line-height:1.25}
+.kv-sbtn[aria-pressed="true"]{border-color:var(--accent);background:var(--accent-soft);color:var(--accent)}
+.kv-detail{padding:10px 12px;border-radius:8px;background:var(--paper);border:1.5px solid var(--accent);display:grid;gap:4px;font-size:var(--fs-s)}
+.kv-detail b{color:var(--accent)}
+.kv-btns{display:flex;flex-wrap:wrap;gap:6px}
+.kv-btn{flex:1 1 130px;min-height:44px;padding:6px 10px;border-radius:8px;border:1.5px solid var(--line);background:var(--paper);color:var(--ink);font:inherit;font-size:var(--fs-xs);font-weight:700;cursor:pointer;touch-action:manipulation}
+.kv-btn[aria-pressed="true"]{border-color:var(--accent);background:var(--accent-soft);color:var(--accent)}
+
+.kv-case{border:1.5px solid var(--line);border-radius:9px;background:var(--kv-stage);padding:12px;display:grid;gap:9px;overflow:hidden}
+.kv-case-h{display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap;font-size:var(--fs-xs);font-weight:700;color:var(--muted)}
+.kv-tag{display:inline-flex;align-items:center;padding:2px 9px;border-radius:999px;background:var(--panel);border:1px solid var(--line);color:var(--accent);font-weight:700}
+.kv-chips{display:flex;flex-wrap:wrap;gap:6px}
+.kv-chip{padding:3px 9px;border-radius:999px;font-size:.76rem;font-weight:700;background:var(--panel);border:1px solid var(--line)}
+.kv-chip.on{background:var(--accent-soft);border-color:var(--accent);color:var(--accent)}
+.kv-chip.warn{background:var(--seal-soft);border-color:var(--seal);color:var(--seal)}
+.kv-chip.ok{background:var(--ok-soft);border-color:var(--ok);color:var(--ok)}
 </style>
 
 <div class="wrap">
@@ -664,6 +717,191 @@ tbody tr:last-child th, tbody tr:last-child td{border-bottom:0}
     CASES.forEach(function (c, i) { c.qs.forEach(function (q, qi) { S.picks[i][qi] = Math.random() < (r == null ? 1 : r) ? 0 : 1; }); });
     S.ci = -1; render();
   };
+})();
+</script>
+<script>
+/* 鑑定と医療観察法：医療観察法フローマップ・責任能力2軸図・全8症例図解（Gemini 担当） */
+(function () {
+  'use strict';
+  var darkMQ = window.matchMedia ? window.matchMedia('(prefers-color-scheme: dark)') : null;
+  var themePref = 'auto';
+  function isDark() { return themePref === 'dark' ? true : themePref === 'light' ? false : !!(darkMQ && darkMQ.matches); }
+  function syncTheme() {
+    var r = document.documentElement;
+    if (themePref === 'dark' || themePref === 'light') r.setAttribute('data-theme', themePref);
+    else r.removeAttribute('data-theme');
+    var b = document.getElementById('kvThemeBtn'); if (!b) return;
+    var dk = isDark();
+    b.setAttribute('aria-label', dk ? '明るい画面に切り替える' : '暗い画面に切り替える');
+    b.innerHTML = dk
+      ? '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg><span class="kv-theme-lbl">明るく</span>'
+      : '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg><span class="kv-theme-lbl">暗く</span>';
+  }
+  function mountTheme() {
+    var top = document.querySelector('.top'), eye = top && top.querySelector('.eyebrow');
+    if (!top || !eye || document.getElementById('kvThemeBtn')) return;
+    var row = document.createElement('div'); row.className = 'kv-top-row';
+    eye.parentNode.insertBefore(row, eye); row.appendChild(eye);
+    var b = document.createElement('button'); b.type = 'button'; b.id = 'kvThemeBtn'; b.className = 'kv-theme-btn';
+    b.addEventListener('click', function () { themePref = isDark() ? 'light' : 'dark'; syncTheme(); });
+    row.appendChild(b); syncTheme();
+    if (darkMQ) { try { darkMQ.addEventListener('change', function () { if (themePref === 'auto') syncTheme(); }); } catch (e) {} }
+  }
+
+  /* ---------- 1. 医療観察法 6段階フローマップ ---------- */
+  var FLOW = [
+    { short: '①対象行為', title: '① 対象行為（6つ）＋ 心神喪失／耗弱', who: '起訴前鑑定・公判鑑定', period: '不起訴・無罪・執行猶予など',
+      desc: '殺人・放火・強盗・不同意性交等・不同意わいせつ・傷害（未遂含む）の6つ。窃盗など対象外行為や実刑確定は医療観察法の対象外（精神保健福祉法や刑事施設へ）。' },
+    { short: '②申立て', title: '② 検察官による申立て（33条）', who: '検察官 → 地方裁判所', period: '不起訴・無罪確定のあと',
+      desc: '検察官が地方裁判所に申し立てます（警察官通報23条や検察官通報24条とは別手続き）。' },
+    { short: '③鑑定入院', title: '③ 鑑定入院', who: '鑑定人（医師）・生活環境調査（社会復帰調整官）', period: '原則2か月以内（延長1か月まで）',
+      desc: '地方裁判所の命令で鑑定入院。精神障害の有無と医療の必要性（疾病性・治療反応性・社会復帰要因）を調べ、必要な治療も始めます。' },
+    { short: '④審判', title: '④ 審判・処遇決定（42条）', who: '合議体：裁判官1名＋精神保健審判員1名（＋参与員の意見）', period: '3つの決定のいずれか',
+      desc: '①入院決定 ②通院決定 ③不処遇（この法律による医療を行わない）を決定。措置入院の決定はここでは出しません。' },
+    { short: '⑤入院処遇', title: '⑤ 指定入院医療機関（多職種チーム）', who: '医師・看護・PSW・OT・心理職＋社会復帰調整官', period: '上限なし・6か月ごとに継続確認',
+      desc: '多職種チームで病識・内省・クライシスプラン作成を進め、外出・外泊を経て退院許可の申立てへ。社会復帰調整官が地域の住まい・支援を調整。' },
+    { short: '⑥通院処遇', title: '⑥ 指定通院医療機関・精神保健観察', who: '通院先主治医・訪問看護・社会復帰調整官', period: '原則3年（延長は通じて2年まで）',
+      desc: '地域で生活しながらケア会議とクライシスプランで再発を予防。通院中でも要件を満たせば精神保健福祉法の入院（任意・医療保護など）を使えます。' }
+  ];
+
+  function flowMapSVG(idx) {
+    var xs = [12, 108, 204, 300, 396, 492];
+    var labels = [['① 対象行為', '6行為・不起訴等'], ['② 申立て', '検察官→地裁'], ['③ 鑑定入院', '2か月(+1か月)'], ['④ 審判', '裁判官+審判員'], ['⑤ 入院処遇', '上限なし/6m確認'], ['⑥ 通院処遇', '原則3年(+2年)']];
+    var out = '';
+    for (var i = 0; i < 6; i++) {
+      var on = i === idx, passed = i < idx;
+      if (i < 5) out += '<path d="M' + (xs[i] + 84) + ' 50 L' + (xs[i + 1] - 2) + ' 50" stroke="' + (passed ? 'var(--accent)' : 'var(--line)') + '" stroke-width="' + (passed ? 3 : 2) + '"/>';
+      out += '<rect x="' + xs[i] + '" y="22" width="84" height="56" rx="8" fill="' + (on ? 'var(--accent-soft)' : 'var(--kv-node)') + '" stroke="' + (on ? 'var(--accent)' : passed ? 'var(--ok)' : 'var(--line)') + '" stroke-width="' + (on ? 2.8 : 1.5) + '"/>' +
+        '<text x="' + (xs[i] + 42) + '" y="45" text-anchor="middle" font-size="11" font-weight="700" class="' + (on ? 'sa' : '') + '">' + labels[i][0] + '</text>' +
+        '<text x="' + (xs[i] + 42) + '" y="64" text-anchor="middle" font-size="9.2" class="sm">' + labels[i][1] + '</text>';
+    }
+    /* 下段：対象外・精神保健福祉法の併走レーン */
+    out += '<rect x="12" y="96" width="564" height="32" rx="7" fill="var(--panel)" stroke="var(--line)" stroke-dasharray="4 3"/>' +
+      '<text x="294" y="116" text-anchor="middle" font-size="10.8" class="sm">※ 窃盗などの対象外行為・通院処遇中の悪化時 → 精神保健福祉法（任意・医療保護・措置）の入院も利用可能</text>';
+    return '<svg class="kv-svg" viewBox="0 0 588 140" role="img" aria-label="医療観察法の手続き6段階フロー図">' + out + '</svg>';
+  }
+
+  /* ---------- 2. 責任能力（刑法39条）の2軸 ---------- */
+  var RESP = {
+    full: { title: '完全責任能力（有罪・刑罰）', b: 92, c: 92, col: 'var(--ok)', msg: '精神障害があっても、犯行当時に善悪を見分け行動を抑える力が保たれていれば完全責任能力。診断名だけでは決まりません。' },
+    dim: { title: '心神耗弱（刑の減軽・執行猶予など）', b: 42, c: 36, col: 'var(--lamp)', msg: '弁識能力または制御能力が「著しく減退」した状態。重大な他害行為で不起訴・執行猶予等なら医療観察法の対象（実刑なら刑事施設）。' },
+    loss: { title: '心神喪失（不起訴・無罪）', b: 12, c: 8, col: 'var(--seal)', msg: '弁識能力または制御能力が「欠如」した状態。法律判断は裁判所（起訴前は検察官）が行い、鑑定医は医学的意見を出します。' }
+  };
+  function respSVG(k) {
+    var d = RESP[k] || RESP.loss;
+    return '<svg class="kv-svg" viewBox="0 0 560 132" role="img" aria-label="弁識能力と制御能力の2軸メーター">' +
+      '<text x="16" y="24" font-size="13" font-weight="700" fill="' + d.col + '">' + d.title + '</text>' +
+      '<text x="16" y="54" font-size="12" font-weight="700">① 弁識能力（善悪の見分け）</text>' +
+      '<rect x="210" y="40" width="330" height="20" rx="6" fill="var(--panel)" stroke="var(--line)"/>' +
+      '<rect x="210" y="40" width="' + Math.round(330 * d.b / 100) + '" height="20" rx="6" fill="' + d.col + '"/>' +
+      '<text x="16" y="92" font-size="12" font-weight="700">② 制御能力（行動を抑える力）</text>' +
+      '<rect x="210" y="78" width="330" height="20" rx="6" fill="var(--panel)" stroke="var(--line)"/>' +
+      '<rect x="210" y="78" width="' + Math.round(330 * d.c / 100) + '" height="20" rx="6" fill="' + d.col + '"/>' +
+      '<text x="16" y="122" font-size="11" class="sm">※ どちらか一方でも欠ければ心神喪失、著しく減っていれば心神耗弱（最終判断は裁判所）</text>' +
+      '</svg>';
+  }
+
+  function mountLab() {
+    var board = document.querySelector('.board');
+    if (!board || document.getElementById('kvLab')) return;
+    var sec = document.createElement('section');
+    sec.className = 'kv-lab'; sec.id = 'kvLab';
+    sec.innerHTML =
+      '<div class="kv-lab-head">' +
+        '<h2 class="kv-lab-title"><span class="kv-badge">触って分かる</span><span>医療観察法の流れ ＆ 責任能力</span></h2>' +
+        '<button type="button" class="kv-toggle" id="kvToggle" aria-expanded="true">たたむ</button>' +
+      '</div>' +
+      '<div class="kv-lab-body" id="kvBody">' +
+        '<div class="kv-tabs" role="tablist">' +
+          '<button type="button" class="kv-tab" role="tab" data-kt="flow" aria-selected="true">医療観察法の流れ図</button>' +
+          '<button type="button" class="kv-tab" role="tab" data-kt="resp" aria-selected="false">責任能力の2つの軸</button>' +
+        '</div>' +
+        '<div id="kvFlow">' +
+          '<div class="kv-stage" id="kvFlowStage"></div>' +
+          '<div class="kv-steps" id="kvStepBtns" style="margin-top:8px">' + FLOW.map(function (f, i) { return '<button type="button" class="kv-sbtn" data-ks="' + i + '" aria-pressed="' + (i === 0) + '">' + f.short + '</button>'; }).join('') + '</div>' +
+          '<div class="kv-detail" id="kvFlowDet" style="margin-top:8px"></div>' +
+        '</div>' +
+        '<div id="kvResp" hidden>' +
+          '<div class="kv-stage" id="kvRespStage"></div>' +
+          '<div class="kv-btns" id="kvRespBtns" style="margin-top:8px">' +
+            '<button type="button" class="kv-btn" data-kr="full" aria-pressed="false">完全責任能力</button>' +
+            '<button type="button" class="kv-btn" data-kr="dim" aria-pressed="false">心神耗弱</button>' +
+            '<button type="button" class="kv-btn" data-kr="loss" aria-pressed="true">心神喪失</button>' +
+          '</div>' +
+          '<div class="kv-detail" id="kvRespDet" style="margin-top:8px"></div>' +
+        '</div>' +
+      '</div>';
+    board.parentNode.insertBefore(sec, board);
+
+    function renderFlow(i) {
+      var f = FLOW[i] || FLOW[0];
+      document.getElementById('kvFlowStage').innerHTML = flowMapSVG(i);
+      document.getElementById('kvFlowDet').innerHTML = '<b>' + f.title + '</b><span>担当：' + f.who + ' ／ 目安：' + f.period + '</span><span>' + f.desc + '</span>';
+      var bs = document.querySelectorAll('#kvStepBtns .kv-sbtn');
+      for (var k = 0; k < bs.length; k++) bs[k].setAttribute('aria-pressed', String(k === i));
+    }
+    function renderResp(k) {
+      var d = RESP[k] || RESP.loss;
+      document.getElementById('kvRespStage').innerHTML = respSVG(k);
+      document.getElementById('kvRespDet').innerHTML = '<b>' + d.title + '</b><span>' + d.msg + '</span>';
+      var bs = document.querySelectorAll('#kvRespBtns .kv-btn');
+      for (var i = 0; i < bs.length; i++) bs[i].setAttribute('aria-pressed', String(bs[i].getAttribute('data-kr') === k));
+    }
+    document.getElementById('kvStepBtns').addEventListener('click', function (e) { var b = e.target.closest('[data-ks]'); if (b) renderFlow(+b.getAttribute('data-ks')); });
+    document.getElementById('kvRespBtns').addEventListener('click', function (e) { var b = e.target.closest('[data-kr]'); if (b) renderResp(b.getAttribute('data-kr')); });
+    sec.querySelector('.kv-tabs').addEventListener('click', function (e) {
+      var b = e.target.closest('[data-kt]'); if (!b) return;
+      var isF = b.getAttribute('data-kt') === 'flow';
+      var ts = sec.querySelectorAll('.kv-tab');
+      for (var i = 0; i < ts.length; i++) ts[i].setAttribute('aria-selected', String((i === 0) === isF));
+      document.getElementById('kvFlow').hidden = !isF; document.getElementById('kvResp').hidden = isF;
+    });
+    var tg = document.getElementById('kvToggle'), bd = document.getElementById('kvBody');
+    tg.addEventListener('click', function () { var o = bd.hidden; bd.hidden = !o; tg.setAttribute('aria-expanded', String(o)); tg.textContent = o ? 'たたむ' : 'ひらく'; });
+    renderFlow(0); renderResp('loss');
+  }
+
+  /* 各症例が全体ロードマップのどこにいるか＋要点図 */
+  var CASE_STAGE = [0, 1, -1, 2, 3, 4, 5, 5];
+  function caseVis(ci, ansN) {
+    var st = CASE_STAGE[ci];
+    var stageBar = st >= 0
+      ? flowMapSVG(st)
+      : '<svg class="kv-svg" viewBox="0 0 560 92" role="img" aria-label="窃盗は医療観察法の対象外のため精神保健福祉法のルートを使う分岐図">' +
+          '<rect x="14" y="16" width="150" height="58" rx="8" fill="var(--panel)" stroke="var(--line)"/><text x="89" y="41" text-anchor="middle" font-size="12" font-weight="700">窃盗（万引き）</text><text x="89" y="60" text-anchor="middle" font-size="10.5" class="sm">心神耗弱・不起訴</text>' +
+          '<path d="M164 45 L212 45" stroke="var(--seal)" stroke-width="2.5"/>' +
+          '<rect x="214" y="16" width="150" height="58" rx="8" fill="var(--seal-soft)" stroke="var(--seal)" stroke-width="1.6"/><text x="289" y="41" text-anchor="middle" font-size="12" font-weight="700" class="sn">医療観察法：対象外</text><text x="289" y="60" text-anchor="middle" font-size="10" class="sm">重大な他害6行為に入らない</text>' +
+          '<path d="M364 45 L402 45" stroke="var(--ok)" stroke-width="2.5"/>' +
+          '<rect x="404" y="16" width="144" height="58" rx="8" fill="var(--ok-soft)" stroke="var(--ok)" stroke-width="1.8"/><text x="476" y="41" text-anchor="middle" font-size="12" font-weight="700" class="so">精神保健福祉法へ</text><text x="476" y="60" text-anchor="middle" font-size="10" class="sm">医療保護・措置(24条通報)</text>' +
+        '</svg>';
+    var extra = '';
+    if (ci === 3 && ansN >= 2) extra = '<div class="kv-chips"><span class="kv-chip on">審判の合議体：裁判官1名＋精神保健審判員1名</span><span class="kv-chip">参与員（PSW等）の意見</span></div>';
+    if (ci === 4 && ansN >= 1) extra = '<div class="kv-chips"><span class="kv-chip on">① 疾病性</span><span class="kv-chip on">② 治療反応性</span><span class="kv-chip warn">③ 社会復帰要因</span></div>';
+    if (ci === 5) extra = '<div class="kv-chips"><span class="kv-chip ok">医師</span><span class="kv-chip ok">看護師</span><span class="kv-chip ok">PSW</span><span class="kv-chip ok">作業療法士</span><span class="kv-chip ok">心理職</span><span class="kv-chip on">＋ 社会復帰調整官</span></div>';
+    if (ci === 7) extra = '<div class="kv-chips"><span class="kv-chip warn">サイン：不眠・電波の話</span><span class="kv-chip on">→ プランに沿って即共有・早期診察</span><span class="kv-chip ok">目的：本人の社会復帰</span></div>';
+    return '<div class="kv-case-h"><span class="kv-tag">手続きの現在地</span><span>' + (st >= 0 ? FLOW[st].short : '対象外の分岐') + '</span></div>' + stageBar + extra;
+  }
+
+  function curIdx() {
+    var sl = document.querySelectorAll('#slots .slot');
+    for (var i = 0; i < sl.length; i++) if (sl[i].getAttribute('aria-current') === 'step') return i;
+    return -1;
+  }
+  function injectCase() {
+    var main = document.getElementById('main'), body = main && main.querySelector('.case-body'), memo = body && body.querySelector('.memo-box');
+    if (!body || !memo || body.querySelector('.kv-case')) return;
+    var ci = curIdx(); if (ci < 0) return;
+    var box = document.createElement('div'); box.className = 'kv-case';
+    box.innerHTML = caseVis(ci, main.querySelectorAll('.q .why').length);
+    body.insertBefore(box, memo);
+  }
+  function init() {
+    mountTheme(); mountLab(); injectCase();
+    var m = document.getElementById('main');
+    if (m && window.MutationObserver) new MutationObserver(injectCase).observe(m, { childList: true });
+  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
+  else init();
 })();
 </script>
 
