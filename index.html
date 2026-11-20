@@ -13,108 +13,481 @@
 <title>精神科試験ゲーム</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=BIZ+UDPGothic:wght@400;700&family=DotGothic16&display=swap">
 <style>
-/* Layout: いま遊ぶ人 → ゲームの棚 → iPad に入れる方法、の縦一列。最大幅980px */
+/* Layout: 最新版の確認帯 → 動きのある見出し → いま遊ぶ人 → ゲームの棚 → 折りたたみ説明。最大幅980px */
 :root{
-  --paper:#eef1ec; --panel:#fafbf7; --ink:#1b2321; --muted:#5a6661; --line:#c9d2cb;
-  --accent:#1d5f74; --accent-ink:#fff; --seal:#bb3333; --gold:#a8720c;
-  --accent-soft:color-mix(in srgb, var(--accent) 10%, var(--panel));
+  --paper:#eef1ec; --panel:#fafbf7; --ink:#1b2321; --muted:#52605b; --line:#c9d2cb;
+  --accent:#1d5f74; --accent-ink:#fff; --seal:#c03940; --gold:#a8720c;
+  --accent-soft:color-mix(in srgb, var(--accent) 11%, var(--panel));
+  --shadow:0 3px 10px rgba(24,38,34,.07);
+  --shadow-lg:0 10px 24px rgba(24,38,34,.12);
   --f-display:"DotGothic16","BIZ UDPGothic","Hiragino Sans",system-ui,sans-serif;
   --f-body:"BIZ UDPGothic","Hiragino Sans","Hiragino Kaku Gothic ProN",system-ui,sans-serif;
   color-scheme:light;
   padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
 }
 @media (prefers-color-scheme: dark){
-  :root{--paper:#111816; --panel:#18201d; --ink:#e2e9e5; --muted:#97a49e; --line:#2c3833; --accent:#62b9d1; --accent-ink:#0f1513; --seal:#ec6a5f; --gold:#e2b54b; color-scheme:dark}
+  :root{
+    --paper:#111816; --panel:#18221e; --ink:#e5ece8; --muted:#9aa8a2; --line:#2d3c36;
+    --accent:#64bdd6; --accent-ink:#0d1513; --seal:#ef6f68; --gold:#e7bc55;
+    --accent-soft:color-mix(in srgb, var(--accent) 15%, var(--panel));
+    --shadow:0 3px 12px rgba(0,0,0,.32);
+    --shadow-lg:0 12px 28px rgba(0,0,0,.48);
+    color-scheme:dark;
+  }
 }
 *,*::before,*::after{box-sizing:border-box}
 html{-webkit-text-size-adjust:100%}
-body{margin:0; background:var(--paper); color:var(--ink); font-family:var(--f-body); font-size:16px; line-height:1.75;
-  padding-left:max(16px, env(safe-area-inset-left,0px)); padding-right:max(16px, env(safe-area-inset-right,0px)); padding-block:0 48px}
+body{
+  margin:0; background:var(--paper); color:var(--ink); font-family:var(--f-body); font-size:16px; line-height:1.7;
+  padding-left:max(14px, env(safe-area-inset-left,0px));
+  padding-right:max(14px, env(safe-area-inset-right,0px));
+  padding-block:12px 52px;
+  overflow-x:hidden;
+}
 [hidden]{display:none!important}
 :focus-visible{outline:3px solid var(--accent); outline-offset:2px}
 p{margin:0}
-.wrap{max-width:980px; margin:0 auto}
-header{padding-block:34px 4px; display:grid; gap:10px}
-.eyebrow{font-size:.78rem; letter-spacing:.16em; color:var(--muted)}
-h1{font-family:var(--f-display); font-weight:400; margin:0; font-size:clamp(2rem, 7vw, 3rem); letter-spacing:.08em; line-height:1.15; text-shadow:3px 3px 0 var(--line)}
+.wrap{max-width:980px; margin:0 auto; display:grid; gap:18px}
+
+/* 最上部：最新版の確認帯（開いてすぐ目に入る場所） */
+.ver-bar{
+  background:var(--panel);
+  border:1px solid var(--line);
+  border-radius:12px;
+  padding:10px 14px;
+  display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:8px 14px;
+  box-shadow:var(--shadow);
+}
+.ver-info{display:grid; gap:2px; min-width:0; flex:1 1 240px}
+.ver-meta{display:flex; flex-wrap:wrap; align-items:center; gap:6px; font-size:.88rem; font-weight:700; color:var(--ink)}
+.ver-dot{width:8px; height:8px; border-radius:999px; background:#2e9e6f; flex:none; box-shadow:0 0 0 3px color-mix(in srgb, #2e9e6f 25%, transparent)}
+.ver-sub{font-size:.78rem; color:var(--muted); line-height:1.45}
+.ver-btn{
+  font:inherit; font-size:.9rem; font-weight:700;
+  min-height:44px; padding:8px 16px;
+  border:1.5px solid var(--accent); border-radius:999px;
+  background:var(--accent-soft); color:var(--accent);
+  cursor:pointer; display:inline-flex; align-items:center; justify-content:center; gap:6px;
+  transition:transform .16s ease, background-color .16s ease, color .16s ease, box-shadow .16s ease;
+  white-space:nowrap;
+}
+.ver-btn:hover{background:var(--accent); color:var(--accent-ink); box-shadow:0 4px 12px color-mix(in srgb, var(--accent) 30%, transparent)}
+.ver-btn:active{transform:scale(.97)}
+
+/* 動きのある見出し（ヒーロー） */
+.hero{
+  position:relative; overflow:hidden;
+  background:
+    radial-gradient(circle at 86% 18%, color-mix(in srgb, var(--accent) 16%, transparent) 0%, transparent 48%),
+    radial-gradient(circle at 12% 88%, color-mix(in srgb, var(--gold) 12%, transparent) 0%, transparent 45%),
+    var(--panel);
+  border:1px solid var(--line);
+  border-radius:16px;
+  padding:24px 20px 22px;
+  box-shadow:var(--shadow);
+  isolation:isolate;
+}
+.hero::before{
+  content:""; position:absolute; inset:0; z-index:-2; pointer-events:none; opacity:.45;
+  background-image:
+    linear-gradient(to right, color-mix(in srgb, var(--line) 55%, transparent) 1px, transparent 1px),
+    linear-gradient(to bottom, color-mix(in srgb, var(--line) 55%, transparent) 1px, transparent 1px);
+  background-size:24px 24px;
+}
+.hero-art{
+  position:absolute; inset:0; z-index:-1; pointer-events:none; overflow:hidden;
+}
+.hero-art svg{width:100%; height:100%; display:block}
+.hero-wave{
+  fill:none; stroke:var(--accent); stroke-width:2.4; stroke-linecap:round; stroke-linejoin:round;
+  opacity:.28; stroke-dasharray:14 0;
+}
+.hero-wave-glow{
+  fill:none; stroke:var(--accent); stroke-width:3.2; stroke-linecap:round; stroke-linejoin:round;
+  opacity:.65; stroke-dasharray:120 760;
+  animation:eegFlow 5.5s linear infinite;
+}
+.hero-wave-2{
+  fill:none; stroke:var(--gold); stroke-width:1.6; stroke-linecap:round;
+  opacity:.25; stroke-dasharray:80 680;
+  animation:eegFlow 7.2s linear infinite reverse;
+}
+.hero-mol{
+  transform-origin:810px 68px;
+  animation:molSpin 26s linear infinite;
+  opacity:.24;
+}
+.hero-float{
+  animation:cardBob 4.6s ease-in-out infinite;
+  opacity:.22;
+}
+.hero-inner{display:grid; gap:10px; position:relative; z-index:1; max-width:680px}
+.eyebrow{
+  display:inline-flex; align-items:center; gap:6px; justify-self:start;
+  font-size:.78rem; font-weight:700; letter-spacing:.12em;
+  color:var(--accent);
+  background:var(--accent-soft);
+  border:1px solid color-mix(in srgb, var(--accent) 28%, transparent);
+  border-radius:999px; padding:2px 11px;
+}
+h1{
+  font-family:var(--f-display); font-weight:400; margin:0;
+  font-size:clamp(1.9rem, 6.4vw, 2.95rem); letter-spacing:.07em; line-height:1.15;
+  text-shadow:3px 3px 0 color-mix(in srgb, var(--line) 85%, transparent);
+}
+.hero-lead{font-size:.94rem; color:var(--ink); opacity:.92}
+.hero-actions{display:flex; flex-wrap:wrap; align-items:center; gap:8px 10px; margin-top:4px}
+.start-btn{
+  font:inherit; font-size:.94rem; font-weight:700;
+  min-height:46px; padding:8px 18px;
+  border:0; border-radius:999px;
+  background:linear-gradient(135deg, #c63e48, #d95b3c);
+  color:#fff; cursor:pointer;
+  display:inline-flex; align-items:center; gap:8px;
+  box-shadow:0 4px 14px rgba(198,62,72,.32);
+  transition:transform .16s ease, box-shadow .16s ease, filter .16s ease;
+}
+.start-btn:hover{transform:translateY(-2px); box-shadow:0 7px 18px rgba(198,62,72,.4); filter:brightness(1.04)}
+.start-btn:active{transform:translateY(0) scale(.98)}
+.start-btn .pulse-dot{
+  width:8px; height:8px; border-radius:999px; background:#fff;
+  box-shadow:0 0 0 0 rgba(255,255,255,.8);
+  animation:pulseRing 2.2s ease-out infinite;
+}
+.hero-stat{
+  font-size:.84rem; font-weight:700; color:var(--muted);
+  background:color-mix(in srgb, var(--paper) 82%, transparent);
+  border:1px solid var(--line); border-radius:999px;
+  padding:6px 12px; display:inline-flex; align-items:center; gap:6px;
+}
+.hero-stat strong{color:var(--accent)}
+
 h2{font-family:var(--f-display); font-weight:400; font-size:1.3rem; margin:0; letter-spacing:.05em}
-section{margin-top:26px; display:grid; gap:10px}
-.who{background:var(--panel); border:1px solid var(--line); border-radius:6px; padding:14px 16px; display:grid; gap:10px}
+section{display:grid; gap:10px}
+
+/* いま遊ぶ人（スリムで押しやすいバー） */
+.who{
+  background:var(--panel); border:1px solid var(--line); border-radius:12px;
+  padding:12px 16px; display:grid; gap:8px; box-shadow:var(--shadow);
+}
+.who-head{display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:8px 12px}
+.who-head h2{font-size:1.08rem; display:inline-flex; align-items:center; gap:6px}
 .seg{display:flex; flex-wrap:wrap; gap:6px}
-.seg button{font:inherit; font-size:1rem; min-height:48px; padding:6px 18px; border:1px solid var(--line); border-radius:6px; background:var(--paper); color:var(--ink); cursor:pointer}
-.seg button[aria-pressed="true"]{background:var(--accent); color:var(--accent-ink); border-color:var(--accent); font-weight:700}
-.note{font-size:.88rem; color:var(--muted)}
-.ver-line{margin:18px 0 0}
-.ver-btn{font:inherit; font-size:.85rem; min-height:36px; padding:4px 12px; border:1px solid var(--line); border-radius:6px; background:var(--panel); color:var(--ink); cursor:pointer}
-.danger{font:inherit; font-size:.9rem; min-height:44px; padding:6px 14px; border:1px solid var(--seal); color:var(--seal); background:transparent; border-radius:6px; cursor:pointer; justify-self:start}
+.seg button{
+  font:inherit; font-size:.94rem; min-height:44px; padding:6px 16px;
+  border:1.5px solid var(--line); border-radius:999px;
+  background:var(--paper); color:var(--ink); cursor:pointer;
+  transition:transform .14s ease, background-color .15s ease, border-color .15s ease;
+}
+.seg button:hover{border-color:var(--accent)}
+.seg button:active{transform:scale(.96)}
+.seg button[aria-pressed="true"]{
+  background:var(--accent); color:var(--accent-ink); border-color:var(--accent); font-weight:700;
+  box-shadow:0 2px 8px color-mix(in srgb, var(--accent) 28%, transparent);
+}
+.note{font-size:.86rem; color:var(--muted)}
+.danger{
+  font:inherit; font-size:.88rem; min-height:44px; padding:6px 14px;
+  border:1.5px solid var(--seal); color:var(--seal); background:transparent;
+  border-radius:8px; cursor:pointer; justify-self:start;
+  transition:background-color .15s ease, color .15s ease;
+}
 .danger.armed{background:var(--seal); color:#fff}
-.shelf{list-style:none; margin:0; padding:0; display:grid; grid-template-columns:repeat(auto-fill, minmax(260px, 1fr)); gap:10px}
-.game{font:inherit; text-align:left; cursor:pointer; width:100%; display:grid; gap:4px; align-content:start; text-decoration:none; color:var(--ink); background:var(--panel); border:1px solid var(--line); border-radius:6px; padding:12px 14px 14px; min-height:120px; height:100%; position:relative}
-.game:hover{border-color:var(--accent)}
-/* おすすめのグループ：赤い札と太い枠 */
-.game.rec{border:2px solid #c0404a;box-shadow:0 3px 0 rgba(192,64,74,.25)}
-.game .rec-b{position:absolute;top:-10px;right:12px;background:#c0404a;color:#fff;font-weight:700;font-size:.8rem;border-radius:999px;padding:1px 10px;line-height:1.6;box-shadow:0 2px 0 rgba(0,0,0,.15)}
-.game .nm{font-family:var(--f-display); font-size:1.3rem; letter-spacing:.04em; line-height:1.3}
-.game .ds{font-size:.88rem; color:var(--muted)}
-.game .cnt{font-size:.78rem; color:var(--accent); font-weight:700}
-.fuda{display:flex; flex-wrap:wrap; gap:4px; margin-top:4px}
-.fuda span{font-size:.72rem; border-radius:3px; padding:0 6px; line-height:1.7; border:1px solid currentColor}
-.f-sp{color:var(--accent)}
+
+/* ゲーム棚 */
+.shelf-head{display:flex; flex-wrap:wrap; align-items:baseline; justify-content:space-between; gap:6px 12px}
+.shelf-sub{font-size:.84rem; color:var(--muted)}
+.shelf{
+  list-style:none; margin:0; padding:0;
+  display:grid; grid-template-columns:repeat(auto-fill, minmax(272px, 1fr)); gap:13px;
+}
+.shelf li{display:flex}
+
+/* グループカード（色・アイコン・弾む手ごたえ・進捗） */
+.game{
+  --gc:var(--accent);
+  --gc-soft:color-mix(in srgb, var(--gc) 12%, var(--panel));
+  --gc-line:color-mix(in srgb, var(--gc) 36%, var(--line));
+  font:inherit; text-align:left; cursor:pointer; width:100%;
+  display:grid; grid-template-rows:auto 1fr auto; gap:8px; align-content:start;
+  text-decoration:none; color:var(--ink);
+  background:var(--panel);
+  border:1.5px solid var(--line);
+  border-top:4px solid var(--gc);
+  border-radius:14px;
+  padding:14px 15px 14px;
+  min-height:152px; position:relative;
+  box-shadow:var(--shadow);
+  transition:transform .2s cubic-bezier(.22,1.28,.36,1), box-shadow .2s ease, border-color .2s ease;
+}
+.game:hover{
+  transform:translateY(-4px);
+  border-color:var(--gc-line);
+  box-shadow:var(--shadow-lg), 0 0 0 1px var(--gc-line);
+}
+.game:active{transform:translateY(-1px) scale(.985)}
+.game:hover .g-ico{transform:scale(1.08) rotate(-3deg)}
+
+/* おすすめのグループ：目を引く赤い札と光彩 */
+.game.rec{
+  border:2px solid #c63e48;
+  border-top:5px solid #c63e48;
+  background:linear-gradient(180deg, color-mix(in srgb, #c63e48 8%, var(--panel)) 0%, var(--panel) 48%);
+  box-shadow:0 5px 16px rgba(198,62,72,.18);
+}
+.game.rec:hover{
+  box-shadow:0 12px 26px rgba(198,62,72,.26), 0 0 0 1px rgba(198,62,72,.45);
+}
+.game .rec-b{
+  position:absolute; top:-12px; right:12px;
+  background:linear-gradient(135deg, #c63e48, #df5a3e);
+  color:#fff; font-weight:700; font-size:.78rem;
+  border-radius:999px; padding:2px 11px; line-height:1.6;
+  box-shadow:0 3px 8px rgba(198,62,72,.35);
+  letter-spacing:.03em;
+}
+.g-top{display:flex; align-items:flex-start; gap:11px}
+.g-ico{
+  width:46px; height:46px; flex:none; border-radius:12px;
+  background:var(--gc-soft); color:var(--gc);
+  border:1px solid color-mix(in srgb, var(--gc) 25%, transparent);
+  display:grid; place-items:center;
+  transition:transform .22s cubic-bezier(.22,1.4,.36,1);
+}
+.g-ico svg{width:28px; height:28px; display:block}
+.g-head{display:grid; gap:2px; min-width:0; flex:1}
+.game .nm{font-family:var(--f-display); font-size:1.22rem; letter-spacing:.03em; line-height:1.3; word-break:keep-all; overflow-wrap:anywhere}
+.g-meta{display:flex; flex-wrap:wrap; align-items:center; gap:6px; margin-top:2px}
+.game .cnt{
+  font-size:.76rem; color:var(--gc); font-weight:700;
+  background:var(--gc-soft); border-radius:999px; padding:1px 8px; line-height:1.6;
+}
+.g-prog-badge{
+  font-size:.74rem; font-weight:700; color:var(--ink);
+  background:color-mix(in srgb, var(--gold) 18%, var(--panel));
+  border:1px solid color-mix(in srgb, var(--gold) 45%, transparent);
+  border-radius:999px; padding:0 8px; line-height:1.65;
+}
+.game .ds{font-size:.86rem; color:var(--muted); line-height:1.55}
+.g-foot{display:grid; gap:6px}
+.g-bar{height:5px; border-radius:999px; background:color-mix(in srgb, var(--line) 65%, transparent); overflow:hidden}
+.g-bar i{display:block; height:100%; border-radius:999px; background:var(--gc); transition:width .35s ease}
+.fuda{display:flex; flex-wrap:wrap; gap:4px}
+.fuda span{font-size:.72rem; border-radius:4px; padding:0 6px; line-height:1.7; border:1px solid currentColor}
+.f-sp{color:var(--gc); font-weight:700}
 .f-ss{color:var(--muted); border-style:dashed!important}
-/* 編を選ぶシート */
-.sheet-bg{position:fixed; inset:0; background:rgba(20,28,34,.45); z-index:20; display:flex; align-items:flex-end; justify-content:center}
-.sheet{background:var(--paper); width:min(720px,100%); max-height:86vh; overflow:auto; border-radius:14px 14px 0 0; padding:16px max(16px,env(safe-area-inset-left,0px)) calc(18px + env(safe-area-inset-bottom,0px)); display:grid; gap:10px; box-shadow:0 -8px 30px rgba(0,0,0,.25)}
-.sheet h2{font-size:1.4rem}
-.sheet .x{justify-self:end; font:inherit; min-height:44px; min-width:44px; border:1px solid var(--line); border-radius:6px; background:var(--panel); color:var(--ink); cursor:pointer}
-.sheet ul{list-style:none; margin:0; padding:0; display:grid; gap:8px}
-.ed{display:grid; gap:2px; text-decoration:none; color:var(--ink); background:var(--panel); border:1px solid var(--line); border-radius:6px; padding:12px 14px; min-height:44px}
-.ed:hover{border-color:var(--accent)}
-.ed b{font-size:1.1rem}
-.ed span{font-size:.88rem; color:var(--muted)}
-.ss-box{border:1px dashed var(--line); border-radius:6px; padding:10px 12px; font-size:.88rem; color:var(--muted); display:grid; gap:4px}
+
+/* グループごとの色分け（ライト／ダーク両対応） */
+.g-imaging{--gc:#2563a6}
+.g-eeg-sleep{--gc:#0f7b72}
+.g-side-effect-runner{--gc:#c43b4b}
+.g-exposure-runner{--gc:#c46616}
+.g-law{--gc:#4854a8}
+.g-pharmacology{--gc:#7b43a8}
+.g-psych-testing{--gc:#14788c}
+.g-symptoms{--gc:#b03b74}
+.g-clinical-duty{--gc:#2c7d48}
+.g-psychotherapy{--gc:#a67312}
+.g-case-report{--gc:#b8402e}
+@media (prefers-color-scheme: dark){
+  .g-imaging{--gc:#6ea8f0}
+  .g-eeg-sleep{--gc:#54ccb9}
+  .g-side-effect-runner{--gc:#f07884}
+  .g-exposure-runner{--gc:#f09c4d}
+  .g-law{--gc:#939ef0}
+  .g-pharmacology{--gc:#be8cf0}
+  .g-psych-testing{--gc:#5cc4db}
+  .g-symptoms{--gc:#e87fb2}
+  .g-clinical-duty{--gc:#69c788}
+  .g-psychotherapy{--gc:#e6b850}
+  .g-case-report{--gc:#eb7d6a}
+}
+
+/* 編を選ぶボトムシート */
+.sheet-bg{
+  position:fixed; inset:0; background:rgba(16,24,22,.52); backdrop-filter:blur(3px);
+  z-index:20; display:flex; align-items:flex-end; justify-content:center;
+  animation:fadeIn .16s ease;
+}
+.sheet{
+  --gc:var(--accent);
+  background:var(--paper); width:min(720px,100%); max-height:86vh; overflow:auto;
+  border-radius:18px 18px 0 0; border-top:4px solid var(--gc);
+  padding:16px max(16px,env(safe-area-inset-left,0px)) calc(20px + env(safe-area-inset-bottom,0px));
+  display:grid; gap:12px; box-shadow:0 -10px 32px rgba(0,0,0,.3);
+  animation:sheetUp .2s cubic-bezier(.22,1,.36,1);
+}
+.sheet-top{display:flex; align-items:flex-start; justify-content:space-between; gap:12px}
+.sheet-title-wrap{display:flex; align-items:center; gap:12px; min-width:0}
+.sheet h2{font-size:1.38rem; line-height:1.3}
+.sheet .x{
+  flex:none; font:inherit; font-size:1.05rem; min-height:44px; min-width:44px;
+  border:1.5px solid var(--line); border-radius:10px;
+  background:var(--panel); color:var(--ink); cursor:pointer;
+}
+.sheet .x:hover{border-color:var(--accent)}
+.sheet ul{list-style:none; margin:0; padding:0; display:grid; gap:9px}
+.ed{
+  display:flex; align-items:center; justify-content:space-between; gap:12px;
+  text-decoration:none; color:var(--ink); background:var(--panel);
+  border:1.5px solid var(--line); border-radius:12px; padding:13px 15px; min-height:56px;
+  transition:transform .16s ease, border-color .16s ease, box-shadow .16s ease;
+}
+.ed:hover{border-color:var(--gc); transform:translateX(3px); box-shadow:var(--shadow)}
+.ed-body{display:grid; gap:2px; min-width:0}
+.ed-row{display:flex; flex-wrap:wrap; align-items:center; gap:6px}
+.ed b{font-size:1.06rem}
+.ed-done{
+  font-size:.72rem; font-weight:700; color:var(--gc);
+  background:color-mix(in srgb, var(--gc) 14%, var(--panel));
+  border:1px solid color-mix(in srgb, var(--gc) 35%, transparent);
+  border-radius:999px; padding:0 8px; line-height:1.6;
+}
+.ed span{font-size:.86rem; color:var(--muted)}
+.ed-go{
+  flex:none; font-size:.95rem; font-weight:700; color:var(--gc);
+  width:32px; height:32px; border-radius:999px;
+  background:color-mix(in srgb, var(--gc) 12%, var(--panel));
+  display:grid; place-items:center;
+}
+.ss-box{
+  border:1.5px dashed var(--line); border-radius:10px; padding:11px 13px;
+  font-size:.86rem; color:var(--muted); display:grid; gap:4px;
+  background:color-mix(in srgb, var(--panel) 60%, transparent);
+}
 .ss-box b{color:var(--ink)}
-.how{background:var(--panel); border:1px solid var(--line); border-radius:6px; padding:14px 16px}
-.how ol{margin:0; padding-left:1.4em; display:grid; gap:4px}
+
+/* 折りたたみ説明（下部にスッキリ収納） */
+.guides{display:grid; gap:10px; margin-top:6px}
+.how{
+  background:var(--panel); border:1px solid var(--line); border-radius:12px;
+  overflow:hidden;
+}
+.how summary{
+  list-style:none; cursor:pointer;
+  min-height:48px; padding:10px 16px;
+  display:flex; align-items:center; justify-content:space-between; gap:10px;
+  user-select:none;
+}
+.how summary::-webkit-details-marker{display:none}
+.how summary h2{font-size:1.06rem}
+.how summary::after{
+  content:"＋"; font-size:1.1rem; font-weight:700; color:var(--accent);
+  width:28px; height:28px; border-radius:999px;
+  background:var(--accent-soft); display:grid; place-items:center; flex:none;
+  transition:transform .2s ease;
+}
+.how[open] summary::after{content:"－"}
+.how-body{padding:0 16px 14px; border-top:1px dashed var(--line); padding-top:12px}
+.how ol{margin:0; padding-left:1.4em; display:grid; gap:5px; font-size:.92rem}
+.how p{font-size:.92rem}
 .how b{color:var(--accent)}
+
+/* アニメーション */
+@keyframes eegFlow{from{stroke-dashoffset:0}to{stroke-dashoffset:-880}}
+@keyframes molSpin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
+@keyframes cardBob{0%,100%{transform:translateY(0)}50%{transform:translateY(-5px)}}
+@keyframes pulseRing{0%{box-shadow:0 0 0 0 rgba(255,255,255,.75)}70%{box-shadow:0 0 0 9px rgba(255,255,255,0)}100%{box-shadow:0 0 0 0 rgba(255,255,255,0)}}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+@keyframes sheetUp{from{transform:translateY(22px);opacity:.6}to{transform:translateY(0);opacity:1}}
+
+@media (max-width:520px){
+  .hero{padding:18px 15px 18px}
+  .shelf{grid-template-columns:1fr}
+  .ver-btn{width:100%}
+}
+@media (prefers-reduced-motion: reduce){
+  *,*::before,*::after{
+    animation:none!important;
+    transition:none!important;
+  }
+}
 </style>
-<meta name="app-version" content="20261120195434">
+<meta name="app-version" content="20261120211838">
 <script src="ipad-update.js" defer></script>
 </head>
 <body>
 <div class="wrap">
-  <header>
-    <p class="eyebrow">精神科専門医試験の勉強に</p>
-    <h1>精神科試験ゲーム</h1>
-    <p>グループを押して、遊ぶ編を選んでください。ゲームの中の「← ゲーム一覧」で、ここに戻れます。</p>
+  <div class="ver-bar" role="region" aria-label="版の確かめ">
+    <div class="ver-info">
+      <div class="ver-meta"><span class="ver-dot" aria-hidden="true"></span><span>この版：<span id="ipadVer"></span></span></div>
+      <p class="ver-sub">新しい版が出ると、この一覧を開いたときに自動で入れ替わります。ゲームの途中なら右上に「新しい版あり」が出ます。</p>
+    </div>
+    <button type="button" class="ver-btn" data-upd="manual">↻ 新しい版を確かめる</button>
+  </div>
+
+  <header class="hero">
+    <div class="hero-art" aria-hidden="true">
+      <svg viewBox="0 0 920 220" preserveAspectRatio="xMidYMid slice">
+        <!-- 回転する薬の分子モチーフ -->
+        <g class="hero-mol" stroke="currentColor" stroke-width="2" fill="none" style="color:var(--accent)">
+          <polygon points="810,36 838,52 838,84 810,100 782,84 782,52"/>
+          <circle cx="810" cy="68" r="14"/>
+          <line x1="838" y1="52" x2="862" y2="38"/><circle cx="866" cy="36" r="5" fill="currentColor"/>
+          <line x1="782" y1="84" x2="758" y2="98"/><circle cx="754" cy="100" r="5" fill="currentColor"/>
+          <line x1="810" y1="100" x2="810" y2="124"/><circle cx="810" cy="128" r="4" fill="currentColor"/>
+        </g>
+        <!-- 少し揺れるカードモチーフ -->
+        <g class="hero-float" stroke="currentColor" stroke-width="1.8" fill="none" style="color:var(--gold)">
+          <rect x="692" y="28" width="44" height="58" rx="7" transform="rotate(-8 714 57)"/>
+          <line x1="702" y1="46" x2="724" y2="43"/>
+          <line x1="704" y1="56" x2="726" y2="53"/>
+          <circle cx="716" cy="70" r="5"/>
+        </g>
+        <!-- 流れる脳波ライン -->
+        <path class="hero-wave" d="M-20,178 L40,178 L58,166 L72,188 L88,154 L104,196 L118,176 L158,176 L172,169 L186,184 L200,168 L214,185 L228,176 L280,176 L296,136 L310,198 L328,160 L346,182 L366,176 L430,176 L446,166 L462,186 L478,166 L494,186 L510,176 L580,176 L596,144 L610,196 L628,164 L646,182 L670,176 L736,176 L752,167 L768,185 L784,167 L800,185 L816,176 L940,176"/>
+        <path class="hero-wave-glow" d="M-20,178 L40,178 L58,166 L72,188 L88,154 L104,196 L118,176 L158,176 L172,169 L186,184 L200,168 L214,185 L228,176 L280,176 L296,136 L310,198 L328,160 L346,182 L366,176 L430,176 L446,166 L462,186 L478,166 L494,186 L510,176 L580,176 L596,144 L610,196 L628,164 L646,182 L670,176 L736,176 L752,167 L768,185 L784,167 L800,185 L816,176 L940,176"/>
+        <path class="hero-wave-2" d="M-20,198 Q40,188 100,198 T220,198 T340,198 T460,198 T580,198 T700,198 T820,198 T940,198"/>
+      </svg>
+    </div>
+    <div class="hero-inner">
+      <p class="eyebrow">精神科専門医試験の勉強に</p>
+      <h1>精神科試験ゲーム</h1>
+      <p class="hero-lead">グループを押して、遊ぶ編を選んでください。ゲームの中の「← ゲーム一覧」で、ここに戻れます。</p>
+      <div class="hero-actions">
+        <button type="button" class="start-btn" id="recJump"><span class="pulse-dot" aria-hidden="true"></span>はじめての人はここから（おすすめ）</button>
+        <span class="hero-stat" id="totalStat"></span>
+      </div>
+    </div>
   </header>
 
   <section class="who" aria-labelledby="whoh">
-    <h2 id="whoh">いま遊ぶ人</h2>
-    <div class="seg" id="players"></div>
+    <div class="who-head">
+      <h2 id="whoh">いま遊ぶ人</h2>
+      <div class="seg" id="players"></div>
+    </div>
     <p class="note" id="whoNote"></p>
     <button type="button" class="danger" id="clearBtn" hidden></button>
   </section>
 
   <section aria-labelledby="shelfh">
-    <h2 id="shelfh">ゲーム（11のグループ）</h2>
+    <div class="shelf-head">
+      <h2 id="shelfh">ゲーム（11のグループ）</h2>
+      <span class="shelf-sub">カードを押すと編を選べます</span>
+    </div>
     <ul class="shelf" id="shelf"></ul>
   </section>
 
-  <section class="how" id="howAdd" aria-labelledby="howh">
-    <h2 id="howh">iPad のホーム画面に入れる</h2>
-    <ol>
-      <li>この画面を <b>Safari</b> で開きます。</li>
-      <li>右上の <b>共有ボタン</b>（四角から上向きの矢印）を押します。</li>
-      <li><b>「ホーム画面に追加」</b>を押し、右上の「追加」を押します。</li>
-      <li>ホーム画面にアイコンができます。次からはそこから開くと、アプリのように全画面で動きます。一度開けば、ネットにつながらなくても遊べます。</li>
-    </ol>
-  </section>
+  <div class="guides">
+    <details class="how" id="howAdd">
+      <summary><h2 id="howh">iPad のホーム画面に入れる</h2></summary>
+      <div class="how-body">
+        <ol>
+          <li>この画面を <b>Safari</b> で開きます。</li>
+          <li>右上の <b>共有ボタン</b>（四角から上向きの矢印）を押します。</li>
+          <li><b>「ホーム画面に追加」</b>を押し、右上の「追加」を押します。</li>
+          <li>ホーム画面にアイコンができます。次からはそこから開くと、アプリのように全画面で動きます。一度開けば、ネットにつながらなくても遊べます。</li>
+        </ol>
+      </div>
+    </details>
 
-  <section class="how" aria-labelledby="lendh">
-    <h2 id="lendh">人に貸すとき</h2>
-    <p>「いま遊ぶ人」をゲストにしてから渡すと、自分の記録と混ざりません。ほかのアプリを触られたくないときは、iPad の<b>アクセスガイド</b>を使うと、このアプリだけに固定できます（設定 → アクセシビリティ → アクセスガイド をオンにし、アプリを開いてトップボタンかホームボタンを3回押す）。</p>
-  </section>
-  <p class="note ver-line">この版：<span id="ipadVer"></span>　<button type="button" class="ver-btn" data-upd="manual">↻ 新しい版を確かめる</button><br>新しい版が出ると、この一覧を開いたときに自動で入れ替わります。ゲームの途中なら右上に「新しい版あり」が出ます。</p>
+    <details class="how">
+      <summary><h2 id="lendh">人に貸すとき</h2></summary>
+      <div class="how-body">
+        <p>「いま遊ぶ人」をゲストにしてから渡すと、自分の記録と混ざりません。ほかのアプリを触られたくないときは、iPad の<b>アクセスガイド</b>を使うと、このアプリだけに固定できます（設定 → アクセシビリティ → アクセスガイド をオンにし、アプリを開いてトップボタンかホームボタンを3回押す）。</p>
+      </div>
+    </details>
+  </div>
 </div>
 <div class="sheet-bg" id="sheetBg" hidden><div class="sheet" role="dialog" aria-modal="true" aria-labelledby="sheetH" id="sheet"></div></div>
 <script>
@@ -127,7 +500,110 @@ section{margin-top:26px; display:grid; gap:10px}
   function esc(s) { return String(s).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); }
   var cur = get('ipad-player') || 'me', armed = false;
 
+  /* グループごとの自作 SVG アイコン */
+  var ICONS = {
+    'imaging': '<svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="16" cy="16" r="11"/><path d="M16 7c-4 0-7 3.5-7 8.5S12 24 16 24s7-3.5 7-8.5S20 7 16 7Z" opacity=".45"/><path d="M16 9v14M11.5 13.5c1.5.5 2.5 1.5 2.5 2.5s-1 2-2.5 2.5M20.5 13.5c-1.5.5-2.5 1.5-2.5 2.5s1 2 2.5 2.5"/></svg>',
+    'eeg-sleep': '<svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="M3 19h5l2.5-7 3 13 3.5-15 3 12 2-3h7"/><path d="M23.5 6.5a4.5 4.5 0 1 0 3.5 7 4 4 0 0 1-3.5-7Z" fill="currentColor" stroke="none" opacity=".7"/></svg>',
+    'side-effect-runner': '<svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="19" cy="7.5" r="2.5"/><path d="M12 14l4-2.5 4 2.5 3.5-1.5M16 11.5l-2 6 4.5 2.5 1.5 6M14 17.5l-4.5 4.5-3.5-1"/><rect x="5" y="6" width="6" height="3.2" rx="1.6" transform="rotate(-30 8 7.6)"/></svg>',
+    'exposure-runner': '<svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="6" width="20" height="16" rx="4"/><path d="M6 15h20M11 22l-2 4M21 22l2 4"/><circle cx="11" cy="18.5" r="1.2" fill="currentColor"/><circle cx="21" cy="18.5" r="1.2" fill="currentColor"/><path d="M11 10.5h10"/></svg>',
+    'law': '<svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 6v19M10 25h12M7 10h18"/><path d="M7 10l-3 7h6l-3-7ZM25 10l-3 7h6l-3-7Z"/></svg>',
+    'pharmacology': '<svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="16,6 24,10.5 24,19.5 16,24 8,19.5 8,10.5"/><circle cx="16" cy="15" r="3.5"/><path d="M24 10.5l4-2M8 19.5l-4 2M16 24v4"/></svg>',
+    'psych-testing': '<svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="6" width="9" height="9" rx="2"/><rect x="17" y="6" width="9" height="9" rx="2"/><rect x="6" y="17" width="9" height="9" rx="2"/><path d="M17.5 21.5l2.5 2.5 5.5-5.5"/></svg>',
+    'symptoms': '<svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="14" cy="14" r="7.5"/><path d="M19.5 19.5L26 26"/><path d="M11 13.5h6M14 10.5v6"/></svg>',
+    'clinical-duty': '<svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="7" y="5" width="18" height="22" rx="3"/><path d="M12 5v3h8V5M11 14h10M11 19h6M16 11v6"/></svg>',
+    'psychotherapy': '<svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="16" cy="10" r="5"/><circle cx="10.5" cy="20.5" r="5"/><circle cx="21.5" cy="20.5" r="5"/></svg>',
+    'case-report': '<svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 5h11l5 5v17H8V5Z"/><path d="M19 5v5h5M11 14h8M11 18h6"/><path d="M18 22l6-6 2 2-6 6-3 1 1-3Z"/></svg>'
+  };
+
+  /* 既存の記録を読むだけ（新しく書かない）：各編が使う localStorage キーの対応 */
+  var SAVE_KEYS = {
+    ct: ['ct-zukan-v1'],
+    mri: ['mri-cases-v1', 'mri-sq-best'],
+    eeg: ['eeg-zukan-v1', 'eeg-story-v1', 'eeg-found-v1', 'eeg-daily-v1', 'eeg-dojo-best', 'eeg-conf-best'],
+    psg: ['psg-cases-v1', 'psg-ev-best'],
+    ect: ['ect-collection-v1', 'ect-best-v1'],
+    fukusayo: ['fukusayo-runner-v1'],
+    fukusayo_diag: ['fukusayo-diag-v1'],
+    bakuro: ['bakuro-runner-v1'],
+    bakuro_car: [],
+    touchoku: ['touchoku-hanko-v1', 'touchoku-nyuin-best'],
+    byoto: ['byoto-hanko-v1', 'byoto-asa-best'],
+    kantei: ['kantei-hanko-v1', 'kantei-best'],
+    yakuri: ['pharm-lab-v1'],
+    shoho: ['shoho-check-hanko-v1', 'shoho-check-best'],
+    kensa: ['kensa-order-v1'],
+    scale: ['scale-dojo-v1'],
+    shoko: ['shoko-hunter-v1'],
+    quest: ['shinsatsu-quest-v1'],
+    hattatsu: ['hattatsu-hanko-v1', 'hattatsu-best'],
+    liaison: ['liaison-hanko-v1', 'liaison-best'],
+    ot: ['ot-day-v1', 'ot-day-best'],
+    setsumei: ['setsumei-hanko-v1', 'setsumei-best'],
+    cbt: ['cbt-dojo-v1'],
+    report: ['report-tensaku-v1']
+  };
+
+  function getForPlayer(k) { return get(cur === 'me' ? k : 'p:' + cur + ':' + k); }
+  function hasProgressVal(raw) {
+    if (!raw) return false;
+    var t = raw.trim();
+    if (!t || t === '{}' || t === '[]' || t === '0' || t === 'null' || t === 'false') return false;
+    if (t[0] === '{' || t[0] === '[') {
+      try {
+        var o = JSON.parse(t);
+        if (Array.isArray(o)) return o.length > 0;
+        if (o && typeof o === 'object') {
+          var ks = Object.keys(o);
+          if (!ks.length) return false;
+          for (var i = 0; i < ks.length; i++) {
+            var v = o[ks[i]];
+            if (Array.isArray(v) && v.length > 0) return true;
+            if (typeof v === 'number' && v > 0) return true;
+            if (typeof v === 'boolean' && v) return true;
+            if (v && typeof v === 'object' && Object.keys(v).length > 0) return true;
+          }
+          return false;
+        }
+      } catch (e) { return true; }
+    }
+    return true;
+  }
+  function itemPlayed(id) {
+    var ks = SAVE_KEYS[id]; if (!ks || !ks.length) return false;
+    for (var i = 0; i < ks.length; i++) if (hasProgressVal(getForPlayer(ks[i]))) return true;
+    return false;
+  }
+
   function guestKeys(p) { var ks = []; try { for (var i = 0; i < localStorage.length; i++) { var k = localStorage.key(i); if (k && k.indexOf('p:' + p + ':') === 0) ks.push(k); } } catch (e) {} return ks; }
+
+  /* サブスペ編が開いているか（フック）。各ゲームが将来 localStorage に 'subspec-unlock-<グループ>' = '1' を書けば開く */
+  function subspecOpen(g) { return get('subspec-unlock-' + g.id) === '1'; }
+
+  function renderShelf() {
+    var totalItems = 0, totalPlayed = 0;
+    document.getElementById('shelf').innerHTML = GROUPS.map(function (g, i) {
+      var played = 0;
+      g.items.forEach(function (it) { totalItems++; if (itemPlayed(it.id)) { played++; totalPlayed++; } });
+      var pct = g.items.length ? Math.round((played / g.items.length) * 100) : 0;
+      var fuda = '<span class="f-sp">専門医</span>' + g.subspec.map(function (s) { return '<span class="f-ss">' + (subspecOpen(g) ? '' : '🔒 ') + 'その先：' + esc(s.name) + '</span>'; }).join('');
+      var ico = ICONS[g.id] || ICONS['clinical-duty'];
+      var progBadge = played > 0 ? '<span class="g-prog-badge">★ ' + played + '/' + g.items.length + ' プレイ済</span>' : '';
+      var progBar = played > 0 ? '<div class="g-bar" aria-hidden="true"><i style="width:' + pct + '%"></i></div>' : '';
+      return '<li><button type="button" class="game g-' + esc(g.id) + (g.rec ? ' rec' : '') + '" data-g="' + i + '">' +
+        (g.rec ? '<span class="rec-b">おすすめ！</span>' : '') +
+        '<div class="g-top"><span class="g-ico" aria-hidden="true">' + ico + '</span><div class="g-head"><span class="nm">' + esc(g.name) + '</span><div class="g-meta"><span class="cnt">' + g.items.length + ' 編</span>' + progBadge + '</div></div></div>' +
+        '<span class="ds">' + esc(g.desc) + '</span>' +
+        '<div class="g-foot">' + progBar + '<span class="fuda">' + fuda + '</span></div>' +
+        '</button></li>';
+    }).join('');
+    var stat = document.getElementById('totalStat');
+    if (stat) {
+      stat.innerHTML = totalPlayed > 0
+        ? '全 ' + totalItems + ' 編中 <strong>' + totalPlayed + ' 編</strong> プレイ済み'
+        : '全 ' + totalItems + ' 編・' + GROUPS.length + ' グループ';
+    }
+  }
+
   function render() {
     document.getElementById('players').innerHTML = PLAYERS.map(function (p) {
       return '<button type="button" data-p="' + esc(p[0]) + '" aria-pressed="' + (p[0] === cur) + '">' + esc(p[1]) + '</button>';
@@ -140,6 +616,7 @@ section{margin-top:26px; display:grid; gap:10px}
       btn.hidden = n === 0; btn.textContent = armed ? 'もう一度押すと消します' : cur + ' の記録を消す（次の人に渡す前に）';
       btn.classList.toggle('armed', armed);
     }
+    renderShelf();
   }
   document.getElementById('players').addEventListener('click', function (e) {
     var b = e.target.closest('button'); if (!b) return;
@@ -151,24 +628,32 @@ section{margin-top:26px; display:grid; gap:10px}
     armed = false; render();
     document.getElementById('whoNote').textContent = cur + ' の記録を消しました。';
   });
-  /* サブスペ編が開いているか（フック）。各ゲームが将来 localStorage に 'subspec-unlock-<グループ>' = '1' を書けば開く */
-  function subspecOpen(g) { return get('subspec-unlock-' + g.id) === '1'; }
-  document.getElementById('shelf').innerHTML = GROUPS.map(function (g, i) {
-    var fuda = '<span class="f-sp">専門医</span>' + g.subspec.map(function (s) { return '<span class="f-ss">' + (subspecOpen(g) ? '' : '🔒 ') + 'その先：' + esc(s.name) + '</span>'; }).join('');
-    return '<li><button type="button" class="game' + (g.rec ? ' rec' : '') + '" data-g="' + i + '">' + (g.rec ? '<span class="rec-b">おすすめ！</span>' : '') +
-      '<span class="nm">' + esc(g.name) + '</span><span class="ds">' + esc(g.desc) + '</span><span class="cnt">' + g.items.length + ' 編</span><span class="fuda">' + fuda + '</span></button></li>';
-  }).join('');
+
   var sheetBg = document.getElementById('sheetBg'), sheet = document.getElementById('sheet'), lastBtn = null;
   function openGroup(i) {
     var g = GROUPS[i]; if (!g) return;
-    sheet.innerHTML = '<button type="button" class="x" data-close aria-label="閉じる">✕</button><h2 id="sheetH">' + esc(g.name) + '</h2><p class="note">' + esc(g.desc) + '</p><ul>' +
-      g.items.map(function (it) { return '<li><a class="ed" href="' + esc(it.file) + '"><b>' + esc(it.name) + '</b><span>' + esc(it.desc) + '</span></a></li>'; }).join('') + '</ul>' +
+    var ico = ICONS[g.id] || ICONS['clinical-duty'];
+    sheet.className = 'sheet g-' + g.id;
+    sheet.innerHTML =
+      '<div class="sheet-top"><div class="sheet-title-wrap"><span class="g-ico" aria-hidden="true">' + ico + '</span><div><h2 id="sheetH">' + esc(g.name) + '</h2><p class="note">' + esc(g.desc) + '</p></div></div><button type="button" class="x" data-close aria-label="閉じる">✕</button></div><ul>' +
+      g.items.map(function (it) {
+        var done = itemPlayed(it.id) ? '<span class="ed-done">プレイ済</span>' : '';
+        return '<li><a class="ed" href="' + esc(it.file) + '"><div class="ed-body"><div class="ed-row"><b>' + esc(it.name) + '</b>' + done + '</div><span>' + esc(it.desc) + '</span></div><span class="ed-go" aria-hidden="true">→</span></a></li>';
+      }).join('') + '</ul>' +
       (g.subspec.length ? '<div class="ss-box"><b>その先（サブスペシャルティ）</b>' + g.subspec.map(function (s) { return '<span>' + (subspecOpen(g) ? '' : '🔒 ') + esc(s.name) + '：' + esc(s.what) + '（準備中）</span>'; }).join('') + '</div>' : '');
-    sheetBg.hidden = false; sheet.querySelector('.ed').focus();
+    sheetBg.hidden = false;
+    var firstEd = sheet.querySelector('.ed'); if (firstEd) firstEd.focus();
     try { history.replaceState(null, '', '#g=' + g.id); } catch (e) {}
   }
   function closeGroup() { sheetBg.hidden = true; try { history.replaceState(null, '', location.pathname); } catch (e) {} if (lastBtn) lastBtn.focus(); }
   document.getElementById('shelf').addEventListener('click', function (e) { var b = e.target.closest('[data-g]'); if (!b) return; lastBtn = b; openGroup(+b.getAttribute('data-g')); });
+  var recJump = document.getElementById('recJump');
+  if (recJump) {
+    var recIdx = -1;
+    for (var ri = 0; ri < GROUPS.length; ri++) if (GROUPS[ri].rec) { recIdx = ri; break; }
+    if (recIdx < 0) recJump.hidden = true;
+    else recJump.addEventListener('click', function () { lastBtn = recJump; openGroup(recIdx); });
+  }
   sheetBg.addEventListener('click', function (e) { if (e.target === sheetBg || e.target.closest('[data-close]')) closeGroup(); });
   document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && !sheetBg.hidden) closeGroup(); });
   // 「← ゲーム一覧」から戻ったとき（#g=グループ）は、そのグループの編を開いておく
