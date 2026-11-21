@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="robots" content="noindex, nofollow">
-<meta name="app-version" content="20261120215735">
+<meta name="app-version" content="20261121144333">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
@@ -267,46 +267,84 @@ tbody th{white-space:nowrap}
 tbody tr:last-child th, tbody tr:last-child td{border-bottom:0}
 .foot{margin-top:28px; font-size:var(--fs-xs); color:var(--muted); max-width:52em}
 
-/* 発達歴を読む：見て分かる画面・アニメ・成長曲線（Gemini 担当） */
+/* 発達歴を読む：見て分かる画面・アニメ・成長曲線・全画面モード（Gemini 担当） */
 :root{
-  --hv-stage:#f1f5fa; --hv-stage-2:#e5edf6; --hv-band:rgba(47,111,160,.17);
-  --hv-band-edge:rgba(47,111,160,.52); --hv-warn-bg:rgba(192,53,43,.11);
-  --hv-skin:#f5cfb0; --hv-skin-stroke:#c69672; --hv-hair:#2f374a;
-  --hv-shirt:#3b7eb5; --hv-shirt2:#3d8e6b; --hv-mom:#8f5e99;
-  --hv-grid:rgba(27,33,51,.12); --hv-bruise-new:#6a359c; --hv-bruise-old:#b3882a;
+  --hv-stage:#f4f7fb; --hv-stage-2:#e6eef7;
+  --hv-mat:#fbf7ef; --hv-mat-edge:#dfd3be;
+  --hv-band:rgba(47,111,160,.16); --hv-band-edge:rgba(47,111,160,.52);
+  --hv-warn-bg:rgba(192,53,43,.10);
+  --hv-skin:#fde2c8; --hv-skin-shade:#f2c49e; --hv-skin-stroke:#b07850;
+  --hv-blush:#f4978e; --hv-eye:#2a1f18; --hv-mouth:#a84e46;
+  --hv-hair:#4a3525; --hv-hair-hi:#6d513b; --hv-hair-mom:#39281e;
+  --hv-shirt:#69b3e0; --hv-shirt-dk:#3d87b8;
+  --hv-shirt2:#68c198; --hv-shirt2-dk:#3c946d;
+  --hv-shirt3:#f29b76; --hv-shirt3-dk:#c96f4a;
+  --hv-diaper:#fffdf7; --hv-diaper-line:#d5cab8;
+  --hv-mom:#a77ab8; --hv-mom-dk:#7d538e;
+  --hv-wood:#dfc39d; --hv-wood-dk:#a68254;
+  --hv-grid:rgba(27,33,51,.12); --hv-bruise:#7b4b94; --hv-bruise-2:#625a8c;
 }
 @media (prefers-color-scheme: dark){
   :root:not([data-theme="light"]){
-    --hv-stage:#1c2434; --hv-stage-2:#232e42; --hv-band:rgba(140,196,239,.20);
-    --hv-band-edge:rgba(140,196,239,.55); --hv-warn-bg:rgba(236,106,95,.18);
-    --hv-skin:#dfb491; --hv-skin-stroke:#a97f5d; --hv-hair:#1f2535;
-    --hv-shirt:#69aee3; --hv-shirt2:#5fc495; --hv-mom:#b886c4;
-    --hv-grid:rgba(227,231,241,.14); --hv-bruise-new:#b47ef0; --hv-bruise-old:#e2b855;
+    --hv-stage:#1a2232; --hv-stage-2:#222d42;
+    --hv-mat:#252d3d; --hv-mat-edge:#3b465e;
+    --hv-band:rgba(140,196,239,.20); --hv-band-edge:rgba(140,196,239,.56);
+    --hv-warn-bg:rgba(236,106,95,.18);
+    --hv-skin:#eabfa0; --hv-skin-shade:#d3a280; --hv-skin-stroke:#8e5c39;
+    --hv-blush:#e27d75; --hv-eye:#1e1510; --hv-mouth:#8f3c35;
+    --hv-hair:#322217; --hv-hair-hi:#523b29; --hv-hair-mom:#281b12;
+    --hv-shirt:#5ca8d8; --hv-shirt-dk:#377ba8;
+    --hv-shirt2:#58b48a; --hv-shirt2-dk:#32825e;
+    --hv-shirt3:#e28a65; --hv-shirt3-dk:#b05d3a;
+    --hv-diaper:#e8e3d9; --hv-diaper-line:#aba190;
+    --hv-mom:#b489c4; --hv-mom-dk:#855c96;
+    --hv-wood:#8f724c; --hv-wood-dk:#5e482d;
+    --hv-grid:rgba(227,231,241,.14); --hv-bruise:#b98ce0; --hv-bruise-2:#958ad1;
   }
 }
 :root[data-theme="dark"]{
-  --hv-stage:#1c2434; --hv-stage-2:#232e42; --hv-band:rgba(140,196,239,.20);
-  --hv-band-edge:rgba(140,196,239,.55); --hv-warn-bg:rgba(236,106,95,.18);
-  --hv-skin:#dfb491; --hv-skin-stroke:#a97f5d; --hv-hair:#1f2535;
-  --hv-shirt:#69aee3; --hv-shirt2:#5fc495; --hv-mom:#b886c4;
-  --hv-grid:rgba(227,231,241,.14); --hv-bruise-new:#b47ef0; --hv-bruise-old:#e2b855;
+  --hv-stage:#1a2232; --hv-stage-2:#222d42;
+  --hv-mat:#252d3d; --hv-mat-edge:#3b465e;
+  --hv-band:rgba(140,196,239,.20); --hv-band-edge:rgba(140,196,239,.56);
+  --hv-warn-bg:rgba(236,106,95,.18);
+  --hv-skin:#eabfa0; --hv-skin-shade:#d3a280; --hv-skin-stroke:#8e5c39;
+  --hv-blush:#e27d75; --hv-eye:#1e1510; --hv-mouth:#8f3c35;
+  --hv-hair:#322217; --hv-hair-hi:#523b29; --hv-hair-mom:#281b12;
+  --hv-shirt:#5ca8d8; --hv-shirt-dk:#377ba8;
+  --hv-shirt2:#58b48a; --hv-shirt2-dk:#32825e;
+  --hv-shirt3:#e28a65; --hv-shirt3-dk:#b05d3a;
+  --hv-diaper:#e8e3d9; --hv-diaper-line:#aba190;
+  --hv-mom:#b489c4; --hv-mom-dk:#855c96;
+  --hv-wood:#8f724c; --hv-wood-dk:#5e482d;
+  --hv-grid:rgba(227,231,241,.14); --hv-bruise:#b98ce0; --hv-bruise-2:#958ad1;
 }
 
-/* ヘッダーの明暗切替ボタン＆リンク高さ44px保証 */
+/* ヘッダーの明暗切替＋全画面ボタン＆リンク高さ44px保証 */
 .top{position:relative}
-.hv-top-row{display:flex;align-items:center;justify-content:space-between;gap:10px}
-.hv-theme-btn{
+.hv-top-row{display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap}
+.hv-top-btns{display:flex;align-items:center;gap:8px;margin-left:auto}
+.hv-max-meta{display:none;align-items:center;gap:8px;font-size:var(--fs-s);font-weight:700;color:var(--ink)}
+.hv-max-meta .hv-max-app{font-family:var(--f-display);font-size:1.05rem;color:var(--accent)}
+.hv-max-meta .hv-max-pos{font-size:var(--fs-xs);padding:2px 8px;border-radius:999px;background:var(--accent-soft);color:var(--accent);border:1px solid var(--line)}
+.hv-theme-btn,.hv-max-btn{
   flex:none;display:inline-flex;align-items:center;justify-content:center;gap:5px;
-  min-width:44px;min-height:44px;padding:0 11px;border-radius:999px;
+  min-width:44px;min-height:44px;padding:0 12px;border-radius:999px;
   border:1.5px solid var(--line);background:var(--panel);color:var(--ink);
   font:inherit;font-size:var(--fs-xs);font-weight:700;cursor:pointer;white-space:nowrap;
-  touch-action:manipulation;transition:border-color .15s,transform .1s;
+  touch-action:manipulation;transition:border-color .15s,background .15s,transform .1s;
 }
-.hv-theme-btn:hover{border-color:var(--accent)}
-.hv-theme-btn:active{transform:scale(.96)}
+.hv-max-btn{border-color:var(--accent);background:var(--accent);color:var(--accent-ink)}
+.hv-max-btn[aria-pressed="true"]{background:var(--panel);color:var(--accent);border-width:2px}
+.hv-theme-btn:hover,.hv-max-btn:hover{filter:brightness(1.06);border-color:var(--accent)}
+.hv-theme-btn:active,.hv-max-btn:active{transform:scale(.96)}
 .hv-theme-btn svg{width:17px;height:17px;fill:none;stroke:currentColor;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round;flex:none}
 .rule a{display:inline-flex;align-items:center;min-height:44px;padding:0 4px;vertical-align:baseline}
-@media (max-width:420px){.hv-theme-lbl{display:none}.hv-theme-btn{padding:0;width:44px}}
+@media (max-width:480px){
+  .hv-theme-lbl{display:none}
+  .hv-theme-btn{padding:0;width:44px}
+  .hv-max-meta .hv-max-app{display:none}
+  .hv-max-btn{padding:0 10px}
+}
 
 /* 上部：母子手帳ラボ（発達目安アニメ＆成長曲線） */
 .hv-lab{
@@ -346,7 +384,7 @@ tbody tr:last-child th, tbody tr:last-child td{border-bottom:0}
 /* 舞台＆SVG共通 */
 .hv-stage{
   position:relative;background:var(--hv-stage);border:1px solid var(--line);
-  border-radius:9px;padding:8px;overflow:hidden;
+  border-radius:9px;padding:6px;overflow:hidden;
 }
 .hv-svg{display:block;width:100%;height:auto;max-width:100%}
 .hv-svg text{font-family:var(--f-body);fill:var(--ink)}
@@ -390,7 +428,7 @@ tbody tr:last-child th, tbody tr:last-child td{border-bottom:0}
 .hv-lane b{display:block;font-size:.76rem;color:var(--accent);margin-bottom:2px}
 .hv-lane.warn{border-color:var(--seal);background:var(--seal-soft)}
 .hv-lane.warn b{color:var(--seal)}
-.hv-note{font-size:var(--fs-xs);color:var(--muted);line-height:1.55}
+.hv-note{font-size:var(--fs-xs);color:var(--muted);line-height:1.5}
 
 /* 成長曲線タブ */
 .hv-curves{display:flex;flex-wrap:wrap;gap:6px}
@@ -408,14 +446,19 @@ tbody tr:last-child th, tbody tr:last-child td{border-bottom:0}
 .hv-curve-msg.warn{background:var(--seal-soft);border-left-color:var(--seal)}
 .hv-curve-msg.mid{background:var(--accent-soft);border-left-color:var(--accent)}
 
+/* 症例2列ラッパー（通常時は縦並び、全画面時は2列または上下分割） */
+.hv-col-case,.hv-col-q{display:grid;gap:14px;min-width:0}
+.hv-qnav{display:none}
+.hv-qnext{display:none}
+
 /* 症例専用ビジュアルカード（8症例それぞれ） */
 .hv-case{
   border:1.5px solid var(--line);border-radius:9px;background:var(--hv-stage);
-  padding:12px;display:grid;gap:10px;overflow:hidden;
+  padding:10px 12px;display:grid;gap:8px;overflow:visible;
 }
 .hv-case-h{
   display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap;
-  font-size:var(--fs-xs);font-weight:700;color:var(--muted);letter-spacing:.04em;
+  font-size:var(--fs-xs);font-weight:700;color:var(--muted);letter-spacing:.03em;
 }
 .hv-case-tag{
   display:inline-flex;align-items:center;gap:5px;padding:2px 9px;border-radius:999px;
@@ -430,85 +473,232 @@ tbody tr:last-child th, tbody tr:last-child td{border-bottom:0}
 .hv-act-btn:hover{background:var(--accent-soft)}
 .hv-act-btn:active{transform:scale(.97)}
 .hv-act-btn[aria-pressed="true"]{background:var(--accent);color:var(--accent-ink)}
-.hv-case-grid{display:grid;grid-template-columns:1fr;gap:10px}
-@media (min-width:620px){.hv-case-grid{grid-template-columns:1.2fr 1fr;align-items:stretch}}
+.hv-case-grid{display:grid;grid-template-columns:1fr;gap:8px}
+@media (min-width:620px){.hv-case-grid{grid-template-columns:1.15fr 1fr;align-items:stretch}}
 .hv-subcard{
-  background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:10px 12px;
+  background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:8px 10px;
   display:grid;gap:6px;align-content:start;font-size:var(--fs-xs);
 }
 .hv-subcard h4{margin:0;font-size:.82rem;color:var(--accent);display:flex;align-items:center;gap:6px}
 
-/* 解説連動のハイライト帯（答えた後にだけ点灯） */
+/* 解説連動のハイライト帯 */
 .hv-reveal{
-  padding:8px 11px;border-radius:8px;background:var(--ok-soft);border:1px solid var(--ok);
-  font-size:var(--fs-xs);line-height:1.55;color:var(--ink);animation:hvFade .3s ease-out;
+  padding:7px 10px;border-radius:8px;background:var(--ok-soft);border:1px solid var(--ok);
+  font-size:var(--fs-xs);line-height:1.5;color:var(--ink);animation:hvFade .3s ease-out;
 }
 .hv-reveal b{color:var(--ok)}
 .hv-reveal.warn{background:var(--seal-soft);border-color:var(--seal)}
 .hv-reveal.warn b{color:var(--seal)}
 
-/* 読字体験（症例4） */
+/* 読字観察カード（症例4） */
 .hv-read-box{
   background:var(--panel);border:1.5px solid var(--line);border-radius:8px;
-  padding:12px 14px;font-size:1rem;line-height:1.85;min-height:92px;
+  padding:10px 12px;font-size:.9rem;line-height:1.7;
 }
-.hv-read-box.hard{letter-spacing:.01em;line-height:1.55}
-.hv-read-box.hard .wob{display:inline-block;animation:hvWob 1.4s ease-in-out infinite alternate}
-.hv-read-box.hard .wob:nth-child(even){animation-delay:.35s}
-.hv-read-box.hard .fade-w{opacity:.42}
-.hv-read-box.assist{font-size:1.15rem;line-height:2.1;letter-spacing:.06em;border-color:var(--ok);background:var(--ok-soft)}
-.hv-read-box.assist .hl{background:color-mix(in srgb, var(--lamp) 35%, transparent);border-radius:4px;padding:1px 3px}
+.hv-read-box.hard{border-color:var(--seal);background:var(--seal-soft)}
+.hv-read-box.assist{border-color:var(--ok);background:var(--ok-soft)}
+.hv-read-box .skip-tag{
+  display:inline-block;padding:0 5px;margin:0 2px;border-radius:4px;
+  background:var(--panel);border:1px dashed var(--seal);color:var(--seal);font-size:.76rem;font-weight:700;
+}
+.hv-read-box .hl{background:color-mix(in srgb, var(--lamp) 32%, transparent);border-radius:4px;padding:1px 4px;font-weight:700}
 
 /* むずむずメーター（症例5：前駆衝動） */
-.hv-urge{display:grid;gap:6px;background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:10px 12px}
-.hv-urge-bar{height:12px;border-radius:999px;background:var(--paper);border:1px solid var(--line);overflow:hidden}
+.hv-urge{display:grid;gap:6px;background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:8px 10px}
+.hv-urge-bar{height:11px;border-radius:999px;background:var(--paper);border:1px solid var(--line);overflow:hidden}
 .hv-urge-bar i{display:block;height:100%;width:18%;background:linear-gradient(90deg,var(--lamp),var(--seal));transition:width .25s}
 
 /* 段階的ステップ（症例6：場面緘黙） */
-.hv-steps{display:grid;grid-template-columns:repeat(2,1fr);gap:6px}
+.hv-steps{display:grid;grid-template-columns:repeat(2,1fr);gap:5px}
 @media (min-width:560px){.hv-steps{grid-template-columns:repeat(4,1fr)}}
 .hv-step{
-  padding:7px 8px;border-radius:7px;background:var(--panel);border:1px solid var(--line);
-  font-size:.76rem;line-height:1.4;text-align:center;
+  padding:5px 6px;border-radius:7px;background:var(--panel);border:1px solid var(--line);
+  font-size:.74rem;line-height:1.35;text-align:center;
 }
-.hv-step b{display:block;font-family:var(--f-display);color:var(--accent);font-size:.82rem}
+.hv-step b{display:block;font-family:var(--f-display);color:var(--accent);font-size:.78rem}
 
-/* 検査年齢バー（症例1） */
-.hv-agebar{display:grid;grid-template-columns:5fr 11fr 6fr;gap:4px;font-size:.72rem;text-align:center;font-weight:700}
-.hv-agebar span{padding:5px 4px;border-radius:6px;background:var(--panel);border:1px solid var(--line)}
-.hv-agebar .hit{background:var(--ok-soft);border-color:var(--ok);color:var(--ok)}
+/* ================= 全画面モード（html.is-max） ================= */
+html.is-max,html.is-max body{
+  height:100dvh!important;max-height:100dvh!important;overflow:hidden!important;
+  margin:0!important;padding:0!important;overscroll-behavior:none;
+}
+html.is-max .ipad-bar,
+html.is-max .top .eyebrow,
+html.is-max .top h1,
+html.is-max .top .lead,
+html.is-max .top .rule,
+html.is-max #hvLab,
+html.is-max .board,
+html.is-max .hanko,
+html.is-max .ref{display:none!important}
 
-/* アニメーション */
-.hv-draw{stroke-dasharray:620;stroke-dashoffset:620;animation:hvDraw 1.2s ease-out forwards}
-.hv-spin{transform-box:fill-box;transform-origin:center;animation:hvSpin 1.1s linear infinite}
-.hv-bob{animation:hvBob 1.3s ease-in-out infinite alternate}
-.hv-walk-l{transform-box:fill-box;transform-origin:50% 0;animation:hvLegL .7s ease-in-out infinite alternate}
-.hv-walk-r{transform-box:fill-box;transform-origin:50% 0;animation:hvLegR .7s ease-in-out infinite alternate}
-.hv-pulse{animation:hvPulse 1.5s ease-in-out infinite}
-.hv-wave{transform-box:fill-box;transform-origin:left center;animation:hvWave 1.4s ease-out infinite}
-.hv-blink{transform-box:fill-box;transform-origin:center;animation:hvBlink 2.2s infinite}
-.hv-headtic{transform-box:fill-box;transform-origin:50% 85%;animation:hvHeadTic 2.6s infinite}
-.hv-fidget{animation:hvFidget 1.8s ease-in-out infinite}
-.hv-tv-note{animation:hvFloat 1.1s ease-out infinite}
+html.is-max .wrap{
+  max-width:none;width:100%;height:100dvh;margin:0;
+  padding:max(4px,env(safe-area-inset-top,0px)) max(10px,env(safe-area-inset-right,0px)) max(6px,env(safe-area-inset-bottom,0px)) max(10px,env(safe-area-inset-left,0px));
+  display:grid;grid-template-rows:auto minmax(0,1fr);gap:4px;overflow:hidden;
+}
+html.is-max .top{padding:0;margin:0;display:block}
+html.is-max .hv-top-row{min-height:44px;padding:0 2px;flex-wrap:nowrap}
+html.is-max .hv-max-meta{display:inline-flex;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+html.is-max #main{min-height:0;height:100%;display:flex;flex-direction:column;overflow:hidden}
+html.is-max .case{
+  margin:0;flex:1;min-height:0;display:grid;grid-template-rows:auto minmax(0,1fr);
+  overflow:hidden;border-width:1.5px;
+}
+html.is-max .case-top{
+  padding:6px 14px;border-bottom:1.5px solid var(--line);
+  display:flex;align-items:baseline;gap:4px 12px;flex-wrap:wrap;
+}
+html.is-max .clock{font-size:1.25rem}
+html.is-max .where{font-size:var(--fs-xs)}
+html.is-max .case-top h2{flex-basis:auto;margin:0;font-size:1.05rem}
+html.is-max .stamp{width:56px;height:56px;top:4px;right:10px;z-index:5}
+html.is-max .stamp .s1{font-size:.82rem}
+html.is-max .stamp .s2{font-size:.5rem}
+
+/* 全画面：横長（PC・iPad横）は左に症例と絵、右に問い・選択肢・解説 */
+@media (min-width:760px) and (orientation:landscape), (min-width:900px){
+  html.is-max .case-body{
+    padding:10px 14px;min-height:0;height:100%;
+    display:grid;grid-template-columns:1.12fr 1fr;gap:14px;align-items:stretch;overflow:hidden;
+  }
+  html.is-max .hv-col-case{
+    min-height:0;overflow-y:auto;overscroll-behavior:contain;
+    display:flex;flex-direction:column;gap:8px;padding-right:4px;
+  }
+  html.is-max .hv-col-case > *,html.is-max .hv-col-q > *{flex-shrink:0}
+  html.is-max .hv-col-q{
+    min-height:0;overflow-y:auto;overscroll-behavior:contain;
+    display:flex;flex-direction:column;gap:8px;border-left:1.5px solid var(--line);padding-left:14px;
+  }
+}
+
+/* 全画面：縦長（iPhone・iPad縦）は上に症例と絵、下に問い・選択肢・解説 */
+@media (max-width:899px) and (orientation:portrait), (max-width:759px){
+  html.is-max .case-body{
+    padding:6px 10px;min-height:0;height:100%;
+    display:grid;grid-template-rows:minmax(0,42%) minmax(0,58%);gap:6px;overflow:hidden;
+  }
+  html.is-max .hv-col-case{
+    min-height:0;overflow-y:auto;overscroll-behavior:contain;
+    display:flex;flex-direction:column;gap:5px;border-bottom:1.5px solid var(--line);padding-bottom:5px;
+  }
+  html.is-max .hv-col-case > *,html.is-max .hv-col-q > *{flex-shrink:0}
+  html.is-max .hv-col-q{
+    min-height:0;overflow-y:auto;overscroll-behavior:contain;
+    display:flex;flex-direction:column;gap:5px;
+  }
+}
+
+/* 全画面内の各要素のコンパクト調整（1画面に余裕で収める） */
+html.is-max .story{font-size:.84rem;line-height:1.48;max-width:none}
+html.is-max .hv-case{padding:6px 8px;gap:5px}
+html.is-max .hv-case > .hv-svg{max-height:175px;width:auto;margin:0 auto}
+html.is-max .hv-case-grid .hv-svg{max-height:130px;width:auto;margin:0 auto}
+html.is-max .memo-box{font-size:.78rem}
+html.is-max .memo-cap{padding:3px 8px;font-size:.7rem}
+html.is-max .memo dt,html.is-max .memo dd{padding:3px 8px;line-height:1.35}
+
+/* 全画面：1問ずつ表示＋上の問切替バー */
+html.is-max .hv-qnav{
+  display:flex;align-items:center;gap:6px;flex-wrap:wrap;
+  padding-bottom:4px;border-bottom:1px dashed var(--line);
+}
+html.is-max .hv-qtab{
+  min-height:44px;padding:4px 12px;border-radius:8px;border:1.5px solid var(--line);
+  background:var(--paper);color:var(--muted);font:inherit;font-size:var(--fs-xs);font-weight:700;
+  cursor:pointer;display:inline-flex;align-items:center;gap:5px;touch-action:manipulation;
+}
+html.is-max .hv-qtab[aria-current="step"]{border-color:var(--accent);background:var(--accent-soft);color:var(--accent)}
+html.is-max .hv-qtab.is-done{color:var(--ok);border-color:color-mix(in srgb,var(--ok) 45%,var(--line))}
+html.is-max .hv-qtab.is-miss{color:var(--seal);border-color:color-mix(in srgb,var(--seal) 45%,var(--line))}
+html.is-max .hv-qtab:disabled{opacity:.45;cursor:default}
+
+html.is-max section.q{border-top:0;padding-top:2px;gap:6px}
+html.is-max section.q:not(.hv-q-active){display:none!important}
+html.is-max .q-h{font-size:.96rem;line-height:1.35}
+html.is-max .opts{gap:5px}
+html.is-max .opt{min-height:44px;padding:6px 10px;font-size:.84rem;line-height:1.38}
+html.is-max .why{font-size:.8rem;line-height:1.45;padding:4px 0 4px 10px;max-width:none}
+html.is-max .why .law{margin-top:2px;font-size:.72rem}
+html.is-max .done-q{font-size:.8rem;margin:0}
+html.is-max .hv-qnext{
+  display:inline-flex;align-items:center;justify-content:center;
+  min-height:44px;padding:6px 18px;
+}
+html.is-max .next{min-height:44px;padding:6px 18px;font-size:.86rem}
+
+/* スマホ縦の全画面ではさらにコンパクトにして解説と「次へ」が1画面に必ず同時に見えるようにする */
+@media (max-width:600px){
+  html.is-max .case-body{grid-template-rows:minmax(0,33%) minmax(0,67%)}
+  html.is-max .story{font-size:.76rem;line-height:1.38}
+  html.is-max .hv-case{padding:4px 6px;gap:4px}
+  html.is-max .hv-case > .hv-svg{max-height:104px}
+  html.is-max .hv-case-grid{grid-template-columns:1fr 1fr;gap:4px}
+  html.is-max .hv-case-grid .hv-svg{max-height:84px}
+  html.is-max .hv-subcard{padding:4px 6px;gap:2px}
+  html.is-max .hv-subcard h4{font-size:.72rem}
+  html.is-max .memo-box{font-size:.72rem}
+  html.is-max .hv-qnav{gap:4px;padding-bottom:2px}
+  html.is-max .hv-qtab{min-height:44px;padding:2px 9px;font-size:.74rem}
+  html.is-max .q-h{font-size:.86rem}
+  html.is-max .opts{gap:4px}
+  html.is-max .opt{min-height:44px;padding:4px 8px;font-size:.78rem;line-height:1.3}
+  html.is-max .why{font-size:.74rem;line-height:1.36;padding:3px 0 3px 8px}
+}
+
+/* 全画面時の結果画面 */
+html.is-max .result{
+  margin:0;flex:1;min-height:0;overflow-y:auto;overscroll-behavior:contain;
+  padding:14px 16px;gap:10px;
+}
+
+/* なめらかなアニメーション（ゆっくり始まり、ゆっくり止まる cubic-bezier） */
+.hv-draw{stroke-dasharray:620;stroke-dashoffset:620;animation:hvDraw .45s cubic-bezier(.4,0,.2,1) forwards}
+.hv-spin{transform-box:fill-box;transform-origin:center;animation:hvSpin 1.3s linear infinite}
+.hv-bob{animation:hvBob 2.2s cubic-bezier(.45,.05,.55,.95) infinite}
+.hv-breathe{transform-box:fill-box;transform-origin:center bottom;animation:hvBreathe 2.6s cubic-bezier(.45,.05,.55,.95) infinite}
+.hv-track-toy{animation:hvTrackToy 3.4s cubic-bezier(.45,.05,.55,.95) infinite}
+.hv-track-eye{animation:hvTrackEye 3.4s cubic-bezier(.45,.05,.55,.95) infinite}
+.hv-neck-lift{transform-box:fill-box;transform-origin:75% 75%;animation:hvNeckLift 2.8s cubic-bezier(.45,.05,.55,.95) infinite}
+.hv-arm-pass{transform-box:fill-box;transform-origin:20% 20%;animation:hvArmPass 2.4s cubic-bezier(.45,.05,.55,.95) infinite}
+.hv-joint-look{transform-box:fill-box;transform-origin:50% 85%;animation:hvJointLook 3.2s cubic-bezier(.45,.05,.55,.95) infinite}
+.hv-walk-l{transform-box:fill-box;transform-origin:50% 10%;animation:hvLegL 1.1s cubic-bezier(.45,.05,.55,.95) infinite}
+.hv-walk-r{transform-box:fill-box;transform-origin:50% 10%;animation:hvLegR 1.1s cubic-bezier(.45,.05,.55,.95) infinite}
+.hv-arm-l{transform-box:fill-box;transform-origin:50% 15%;animation:hvLegR 1.1s cubic-bezier(.45,.05,.55,.95) infinite}
+.hv-arm-r{transform-box:fill-box;transform-origin:50% 15%;animation:hvLegL 1.1s cubic-bezier(.45,.05,.55,.95) infinite}
+.hv-tail{transform-box:fill-box;transform-origin:0% 80%;animation:hvTail .7s cubic-bezier(.45,.05,.55,.95) infinite}
+.hv-pulse{animation:hvPulse 2s cubic-bezier(.45,.05,.55,.95) infinite}
+.hv-wave{transform-box:fill-box;transform-origin:left center;animation:hvWave 1.8s cubic-bezier(.4,0,.2,1) infinite}
+.hv-blink{transform-box:fill-box;transform-origin:center;animation:hvBlink 2.4s cubic-bezier(.45,.05,.55,.95) infinite}
+.hv-headtic{transform-box:fill-box;transform-origin:50% 88%;animation:hvHeadTic 2.8s cubic-bezier(.45,.05,.55,.95) infinite}
+.hv-fidget{animation:hvFidget 2.4s cubic-bezier(.45,.05,.55,.95) infinite}
+.hv-tv-note{animation:hvFloat 1.5s cubic-bezier(.4,0,.2,1) infinite}
 .hv-fade{animation:hvFade .3s ease-out}
 
 @keyframes hvDraw{to{stroke-dashoffset:0}}
 @keyframes hvSpin{to{transform:rotate(360deg)}}
-@keyframes hvBob{from{transform:translateY(0)}to{transform:translateY(-4px)}}
-@keyframes hvLegL{from{transform:rotate(-16deg)}to{transform:rotate(16deg)}}
-@keyframes hvLegR{from{transform:rotate(16deg)}to{transform:rotate(-16deg)}}
-@keyframes hvPulse{0%,100%{opacity:1}50%{opacity:.4}}
-@keyframes hvWave{0%{opacity:.9;transform:scale(.7)}100%{opacity:0;transform:scale(1.35)}}
-@keyframes hvBlink{0%,72%,82%,100%{transform:scaleY(1)}76%,79%{transform:scaleY(.12)}}
-@keyframes hvHeadTic{0%,64%,76%,100%{transform:rotate(0)}68%{transform:rotate(-13deg)}72%{transform:rotate(9deg)}}
-@keyframes hvFidget{0%,100%{transform:translateX(0)}35%{transform:translateX(14px)}70%{transform:translateX(-8px)}}
-@keyframes hvFloat{0%{opacity:0;transform:translate(0,6px)}40%{opacity:1}100%{opacity:0;transform:translate(-18px,-12px)}}
-@keyframes hvWob{from{transform:translateY(-1.5px) rotate(-2deg)}to{transform:translateY(1.5px) rotate(2deg)}}
-@keyframes hvFade{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
+@keyframes hvBob{0%,100%{transform:translateY(0)}50%{transform:translateY(-3.5px)}}
+@keyframes hvBreathe{0%,100%{transform:scale(1,1)}50%{transform:scale(1.015,.985) translateY(-1.5px)}}
+@keyframes hvTrackToy{0%,100%{transform:translateX(-16px) rotate(-6deg)}50%{transform:translateX(16px) rotate(6deg)}}
+@keyframes hvTrackEye{0%,100%{transform:translateX(-2.2px)}50%{transform:translateX(2.2px)}}
+@keyframes hvNeckLift{0%,100%{transform:rotate(0deg) translateY(0)}50%{transform:rotate(4deg) translateY(-2.5px)}}
+@keyframes hvArmPass{0%,100%{transform:rotate(-8deg)}50%{transform:rotate(12deg)}}
+@keyframes hvJointLook{0%,35%,100%{transform:rotate(0deg)}55%,80%{transform:rotate(-10deg)}}
+@keyframes hvLegL{0%,100%{transform:rotate(-18deg)}50%{transform:rotate(18deg)}}
+@keyframes hvLegR{0%,100%{transform:rotate(18deg)}50%{transform:rotate(-18deg)}}
+@keyframes hvTail{0%,100%{transform:rotate(-14deg)}50%{transform:rotate(18deg)}}
+@keyframes hvPulse{0%,100%{opacity:1}50%{opacity:.48}}
+@keyframes hvWave{0%{opacity:.85;transform:scale(.78)}100%{opacity:0;transform:scale(1.32)}}
+@keyframes hvBlink{0%,66%,84%,100%{transform:scaleY(1)}73%,77%{transform:scaleY(.1)}}
+@keyframes hvHeadTic{0%,58%,82%,100%{transform:rotate(0)}65%{transform:rotate(-11deg)}73%{transform:rotate(8deg)}}
+@keyframes hvFidget{0%,100%{transform:translateX(0)}40%{transform:translateX(12px)}75%{transform:translateX(-6px)}}
+@keyframes hvFloat{0%{opacity:0;transform:translate(0,5px)}40%{opacity:1}100%{opacity:0;transform:translate(-16px,-12px)}}
+@keyframes hvFade{from{opacity:0;transform:translateY(3px)}to{opacity:1;transform:none}}
 
 @media (prefers-reduced-motion: reduce){
   .hv-draw{stroke-dasharray:none;stroke-dashoffset:0;animation:none}
-  .hv-spin,.hv-bob,.hv-walk-l,.hv-walk-r,.hv-pulse,.hv-wave,.hv-blink,.hv-headtic,.hv-fidget,.hv-tv-note,.hv-read-box.hard .wob{animation:none!important}
+  .hv-spin,.hv-bob,.hv-breathe,.hv-track-toy,.hv-track-eye,.hv-neck-lift,.hv-arm-pass,.hv-joint-look,.hv-walk-l,.hv-walk-r,.hv-arm-l,.hv-arm-r,.hv-tail,.hv-pulse,.hv-wave,.hv-blink,.hv-headtic,.hv-fidget,.hv-tv-note{animation:none!important}
 }
 </style>
 
@@ -932,7 +1122,7 @@ var CASES = [
 })();
 </script>
 <script>
-/* 発達歴を読む：見て分かる母子手帳（成長曲線・月齢アニメ）＋全8症例の図解（Gemini 担当） */
+/* 発達歴を読む：見て分かる母子手帳（成長曲線・月齢アニメ）＋全8症例の図解＋全画面モード（Gemini 担当） */
 (function () {
   'use strict';
   var REDUCE = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -944,6 +1134,10 @@ var CASES = [
     if (themePref === 'light') return false;
     return !!(darkMQ && darkMQ.matches);
   }
+  function isMax() {
+    return document.documentElement.classList.contains('is-max');
+  }
+
   function syncTheme() {
     var root = document.documentElement;
     if (themePref === 'dark' || themePref === 'light') root.setAttribute('data-theme', themePref);
@@ -957,8 +1151,48 @@ var CASES = [
       : '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg><span class="hv-theme-lbl">暗く</span>');
   }
 
-  /* ヘッダー右上に明暗切替ボタンを差し込む */
-  function mountThemeBtn() {
+  function syncMaxBtn() {
+    var btn = document.getElementById('hvMaxBtn');
+    if (!btn) return;
+    var on = isMax();
+    btn.setAttribute('aria-pressed', on ? 'true' : 'false');
+    btn.textContent = on ? '✕ 全画面を終了' : '⛶ 全画面';
+    btn.setAttribute('aria-label', on ? '全画面を終了して元の画面に戻す' : '全画面にして1画面に収める');
+    updateMaxMeta();
+  }
+
+  function setMax(on) {
+    var de = document.documentElement;
+    de.classList.toggle('is-max', !!on);
+    var natv = document.fullscreenElement || document.webkitFullscreenElement;
+    var standalone = (window.matchMedia && window.matchMedia('(display-mode: standalone)').matches) || navigator.standalone;
+    var coarse = !!(window.matchMedia && window.matchMedia('(pointer: coarse)').matches);
+    if (on && !natv && !standalone && !coarse) {
+      var rq = de.requestFullscreen || de.webkitRequestFullscreen;
+      if (rq) { try { var p = rq.call(de); if (p && p.catch) p.catch(function () {}); } catch (e) {} }
+    } else if (!on && natv) {
+      var ex = document.exitFullscreen || document.webkitExitFullscreen;
+      if (ex) { try { var p2 = ex.call(document); if (p2 && p2.catch) p2.catch(function () {}); } catch (e) {} }
+    }
+    syncMaxBtn();
+    injectCaseVisual();
+  }
+
+  function updateMaxMeta() {
+    var posEl = document.getElementById('hvMaxPos');
+    if (!posEl) return;
+    var ci = currentCaseIndex();
+    if (ci < 0) {
+      posEl.textContent = '外来の記録（まとめ）';
+      return;
+    }
+    var slots = document.querySelectorAll('#slots .slot');
+    var slotTxt = slots[ci] ? (slots[ci].querySelector('.t') ? slots[ci].querySelector('.t').textContent : '') : '';
+    posEl.textContent = (ci + 1) + '人目 / ' + (slots.length || 8) + '人（' + slotTxt + '）';
+  }
+
+  /* ヘッダー右上に全画面ボタン＆明暗切替ボタンを差し込む */
+  function mountTopBtns() {
     var top = document.querySelector('.top');
     var eye = top && top.querySelector('.eyebrow');
     if (!top || !eye || document.getElementById('hvThemeBtn')) return;
@@ -966,56 +1200,99 @@ var CASES = [
     row.className = 'hv-top-row';
     eye.parentNode.insertBefore(row, eye);
     row.appendChild(eye);
-    var btn = document.createElement('button');
-    btn.type = 'button';
-    btn.id = 'hvThemeBtn';
-    btn.className = 'hv-theme-btn';
-    btn.addEventListener('click', function () {
+
+    var meta = document.createElement('div');
+    meta.className = 'hv-max-meta';
+    meta.innerHTML = '<span class="hv-max-app">発達歴を読む</span><span class="hv-max-pos" id="hvMaxPos">1人目 / 8人</span>';
+    row.appendChild(meta);
+
+    var btns = document.createElement('div');
+    btns.className = 'hv-top-btns';
+
+    var maxBtn = document.createElement('button');
+    maxBtn.type = 'button';
+    maxBtn.id = 'hvMaxBtn';
+    maxBtn.className = 'hv-max-btn';
+    maxBtn.addEventListener('click', function () { setMax(!isMax()); });
+    btns.appendChild(maxBtn);
+
+    var themeBtn = document.createElement('button');
+    themeBtn.type = 'button';
+    themeBtn.id = 'hvThemeBtn';
+    themeBtn.className = 'hv-theme-btn';
+    themeBtn.addEventListener('click', function () {
       themePref = isDark() ? 'light' : 'dark';
       syncTheme();
     });
-    row.appendChild(btn);
+    btns.appendChild(themeBtn);
+    row.appendChild(btns);
+
     syncTheme();
+    syncMaxBtn();
     if (darkMQ) { try { darkMQ.addEventListener('change', function () { if (themePref === 'auto') syncTheme(); }); } catch (e) {} }
+    function onFsChange() {
+      var nat = !!(document.fullscreenElement || document.webkitFullscreenElement);
+      if (!nat && isMax()) {
+        document.documentElement.classList.remove('is-max');
+        syncMaxBtn();
+        injectCaseVisual();
+      }
+    }
+    document.addEventListener('fullscreenchange', onFsChange);
+    document.addEventListener('webkitfullscreenchange', onFsChange);
+    document.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape' && isMax()) {
+        e.preventDefault();
+        setMax(false);
+      }
+    });
   }
+
+  /* 不具合・感想フォーム用の現在地 */
+  window.__feedbackWhere = function () {
+    var ci = currentCaseIndex();
+    if (ci < 0) return 'まとめ（結果）';
+    var h2 = document.getElementById('caseh');
+    return '症例' + (ci + 1) + (h2 ? ' ' + h2.textContent : '') + (isMax() ? '（全画面）' : '');
+  };
 
   /* ---------- 1. 上部：母子手帳ラボ（月齢アニメ ＋ 成長曲線） ---------- */
   var STAGES = [
     { min: 0, max: 2, key: 'nb', label: '生後0〜2か月',
-      motor: '仰向けで手足を動かす（まだ首はすわらない）',
-      lang: '泣く・あやすと声が出る',
-      soc: '顔をじっと見る（追視）・あやし笑い',
+      motor: '仰向けで手足をゆるやかに動かす（生理的屈曲・まだ首はすわらない）',
+      lang: '泣く・あやすと喉の奥から小さな声が出る',
+      soc: '顔をじっと見つめ、動くものを目で追う（追視）・あやし笑い',
       sign: '' },
     { min: 3, max: 6, key: 'neck', label: '3〜4か月ごろ：首すわり',
-      motor: '首がすわり、うつぶせで頭を持ち上げる',
-      lang: '「あー」「うー」とクーイング',
-      soc: 'あやすと声を出して笑う',
-      sign: '' },
+      motor: '首がすわり、腹ばいで前腕をついて頭と胸をしっかり持ち上げる',
+      lang: '「あー」「うー」と機嫌よく声を出す（クーイング）',
+      soc: 'あやすと声を出して笑う・人の顔に視線を合わせる',
+      sign: '4か月ごろの目安：首がすわらない・目が合いにくいときは健診で相談' },
     { min: 7, max: 9, key: 'sit', label: '7か月ごろ：おすわり',
-      motor: '支えなしで座り、おもちゃを持ちかえる',
-      lang: '「ばばば」などの喃語（なんご）',
-      soc: '人見知り・親の顔を見て安心する',
+      motor: '支えなしで安定して座り、おもちゃを片手から反対の手へ持ちかえる',
+      lang: '「ばばば」「まんま」などの喃語（なんご）が出る',
+      soc: '人見知りが始まる・親の顔を見て安心する',
       sign: '' },
     { min: 10, max: 13, key: 'point', label: '1歳前後：初語・指さし・共同注意',
-      motor: 'つかまり立ち・伝い歩き〜ひとり歩き始め',
-      lang: '初語（「ママ」「ブーブー」など意味のある1語）',
-      soc: '指さし・名前を呼ぶと振り向く・視線の共有（共同注意）',
+      motor: 'つかまり立ち・伝い歩き〜ひとり歩きが始まる',
+      lang: '初語（「ママ」「ブーブー」など意味のある最初の1語）',
+      soc: '指さしで興味を伝え、相手の顔と対象を交互に見て注意を共有（共同注意）',
       sign: '' },
-    { min: 14, max: 21, key: 'walk', label: '1歳〜1歳半：ひとり歩き',
-      motor: 'ひとりで安定して歩く（目安は1歳〜1歳半）',
-      lang: '意味のある単語が少しずつ増える',
-      soc: '指さしで興味を伝え、おとなの指さしの先を見る',
-      sign: '1歳半チェック：ひとり歩きしない／指さしや呼名反応がない → 詳しく評価' },
+    { min: 14, max: 21, key: 'walk', label: '1歳〜1歳6か月：ひとり歩き',
+      motor: 'ひとりで安定して歩く（目安は1歳〜1歳6か月）',
+      lang: '意味のあることば（単語）が少しずつ増える',
+      soc: '指さしで興味を共有し、大人の指さしの先を見る・呼名で振り向く',
+      sign: '1歳6か月の相談目安：ひとり歩きしない／意味のあることばがない／指さしや呼名反応がない → 詳しく評価' },
     { min: 22, max: 31, key: 'two', label: '2歳ごろ：二語文',
-      motor: '走る・階段を上る',
-      lang: '二語文（「ワンワン きた」「ママ みて」）',
-      soc: '簡単なやりとり・まねっこ遊び',
-      sign: '2歳チェック：単語が出ない → まず聴力（難聴の除外）を確かめる' },
+      motor: '小走り・階段を1段ずつ上る',
+      lang: '二語文（「ワンワン きた」「ママ みて」など2語をつなぐ）',
+      soc: '簡単なやりとり・大人の動作のまねっこ遊び',
+      sign: '2歳の相談目安：意味のあることば（単語）がない／二語文が出ない → まず聴力（難聴の除外）と発達を確認' },
     { min: 32, max: 36, key: 'play', label: '3歳ごろ：会話とごっこ遊び',
-      motor: '両足でジャンプ・三輪車',
-      lang: '二語文〜三語文でやりとりできる',
-      soc: 'ごっこ遊び・友だちと関わる',
-      sign: '3歳チェック：二語文が出ない → 聴力の確認と発達検査' }
+      motor: '両足でジャンプ・三輪車をこぐ',
+      lang: '二語文〜三語文でやりとりし、自分の名前や年齢を言う',
+      soc: '友だちとごっこ遊び（見立て・役割交代）を楽しむ',
+      sign: '3歳の相談目安：二語文が出ない・指示が通りにくい → 聴力の確認と発達検査（新版K式など）' }
   ];
 
   function stageOf(m) {
@@ -1030,166 +1307,418 @@ var CASES = [
     return r ? y + '歳' + r + 'か月' : y + '歳';
   }
 
-  /* 月齢ごとの赤ちゃん・子ども SVG（完全自作・ダークモード対応） */
+  /* 月齢ごとの赤ちゃん・子ども SVG（頭・首・胴・腕・脚がつながった自然な比率・自作ベクター） */
   function babyStageSVG(m) {
     var st = stageOf(m);
-    var head = 'fill="var(--hv-skin)" stroke="var(--hv-skin-stroke)" stroke-width="2"';
-    var hair = 'fill="var(--hv-hair)"';
+    var sk = 'fill="var(--hv-skin)" stroke="var(--hv-skin-stroke)" stroke-width="1.7" stroke-linejoin="round"';
+    var skS = 'fill="var(--hv-skin-shade)" stroke="var(--hv-skin-stroke)" stroke-width="1.6" stroke-linejoin="round"';
+    var hr = 'fill="var(--hv-hair)"';
+    var sh1 = 'fill="var(--hv-shirt)" stroke="var(--hv-shirt-dk)" stroke-width="1.6" stroke-linejoin="round"';
+    var sh2 = 'fill="var(--hv-shirt2)" stroke="var(--hv-shirt2-dk)" stroke-width="1.6" stroke-linejoin="round"';
+    var sh3 = 'fill="var(--hv-shirt3)" stroke="var(--hv-shirt3-dk)" stroke-width="1.6" stroke-linejoin="round"';
+    var dp = 'fill="var(--hv-diaper)" stroke="var(--hv-diaper-line)" stroke-width="1.5"';
     var scene = '';
+
     if (st.key === 'nb') {
-      /* 仰向け */
+      /* 0〜2か月：仰向け・生理的屈曲位・ガラガラを目で追う（追視） */
       scene =
-        '<rect x="70" y="156" width="230" height="18" rx="9" fill="var(--panel)" stroke="var(--line)" stroke-width="1.5"/>' +
-        '<g class="hv-bob">' +
-          '<ellipse cx="185" cy="144" rx="46" ry="18" fill="var(--hv-shirt)"/>' +
-          '<circle cx="132" cy="134" r="22" ' + head + '/>' +
-          '<path d="M114 126 Q130 110 148 122" fill="none" stroke="var(--hv-hair)" stroke-width="4" stroke-linecap="round"/>' +
-          '<circle cx="128" cy="132" r="2.2" fill="var(--hv-hair)"/><circle cx="140" cy="132" r="2.2" fill="var(--hv-hair)"/>' +
-          '<path d="M130 140 Q135 144 140 140" fill="none" stroke="var(--hv-hair)" stroke-width="1.8" stroke-linecap="round"/>' +
-          '<line x1="175" y1="134" x2="188" y2="112" stroke="var(--hv-skin-stroke)" stroke-width="7" stroke-linecap="round"/>' +
-          '<line x1="224" y1="142" x2="246" y2="128" stroke="var(--hv-skin-stroke)" stroke-width="7" stroke-linecap="round"/>' +
+        /* ベビーマット */
+        '<rect x="38" y="146" width="268" height="24" rx="12" fill="var(--hv-mat)" stroke="var(--hv-mat-edge)" stroke-width="1.8"/>' +
+        '<ellipse cx="172" cy="154" rx="108" ry="6" fill="var(--hv-skin-shade)" opacity=".22"/>' +
+        /* 吊りおもちゃ（左右にゆっくり揺れて赤ちゃんが追視する） */
+        '<g class="hv-track-toy">' +
+          '<line x1="154" y1="8" x2="154" y2="38" stroke="var(--muted)" stroke-width="1.6" stroke-dasharray="3 2"/>' +
+          '<circle cx="154" cy="46" r="11" fill="var(--seal)" stroke="var(--panel)" stroke-width="1.5"/>' +
+          '<circle cx="138" cy="54" r="7.5" fill="var(--lamp)" stroke="var(--panel)" stroke-width="1.3"/>' +
+          '<circle cx="170" cy="54" r="7.5" fill="var(--ok)" stroke="var(--panel)" stroke-width="1.3"/>' +
         '</g>' +
-        '<text x="330" y="96" font-size="14" font-weight="700" class="svg-accent">仰向け・追視</text>' +
-        '<text x="330" y="118" font-size="12" class="svg-muted">動く顔を目で追う</text>';
+        /* 赤ちゃん全身（約3頭身・仰向け・頭と首と胴と四肢がつながる） */
+        '<g class="hv-breathe">' +
+          /* 奥の脚（膝を軽く曲げた生理的屈曲） */
+          '<path d="M222 134 C236 122, 250 120, 258 130 C264 136, 260 144, 248 144 C238 144, 232 138, 222 142 Z" ' + skS + '/>' +
+          /* おむつ（骨盤〜股関節） */
+          '<path d="M196 122 C214 118, 232 124, 234 138 C234 150, 212 154, 194 148 Z" ' + dp + '/>' +
+          /* 手前の脚（太もも→膝→ふくらはぎ→足先まで一体） */
+          '<path d="M214 138 C230 126, 248 126, 256 138 C264 142, 268 150, 256 153 C246 155, 240 147, 232 146 C222 148, 214 148, 208 144 Z" ' + sk + '/>' +
+          /* ロンパース胴体＋首のつながり */
+          '<path d="M132 126 C138 114, 152 112, 174 114 C194 116, 206 122, 208 136 C208 148, 192 152, 168 152 C148 152, 134 144, 132 126 Z" ' + sh1 + '/>' +
+          '<path d="M138 118 C144 126, 144 136, 138 144" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round"/>' +
+          /* 奥の腕（肩→肘→手） */
+          '<path d="M156 116 C160 100, 170 94, 178 98 C184 101, 180 110, 172 112 C166 114, 164 118, 160 120 Z" ' + skS + '/>' +
+          /* 首から頭部（ぷっくりした頬と後頭部） */
+          '<path d="M126 124 C134 122, 140 124, 140 132 C138 138, 130 140, 124 136 Z" ' + skS + '/>' +
+          '<path d="M82 118 C80 96, 98 80, 120 82 C138 84, 148 98, 146 116 C145 126, 142 136, 132 142 C118 148, 96 146, 86 134 C82 129, 82 123, 82 118 Z" ' + sk + '/>' +
+          /* 耳 */
+          '<ellipse cx="114" cy="138" rx="6" ry="4.5" ' + sk + '/>' +
+          /* 赤ちゃんの柔らかい髪の毛 */
+          '<path d="M84 112 C84 92, 104 80, 124 84 C112 88, 98 92, 92 104 C88 110, 86 114, 84 112 Z" ' + hr + '/>' +
+          '<path d="M104 83 Q112 75 120 81" fill="none" stroke="var(--hv-hair)" stroke-width="2.2" stroke-linecap="round"/>' +
+          /* 頬の赤み・目（追視で動く）・口 */
+          '<ellipse cx="128" cy="118" rx="5.5" ry="3.8" fill="var(--hv-blush)" opacity=".65"/>' +
+          '<g class="hv-track-eye">' +
+            '<circle cx="122" cy="104" r="3.4" fill="var(--hv-eye)"/>' +
+            '<circle cx="123" cy="102.8" r="1.2" fill="#fff"/>' +
+            '<circle cx="135" cy="107" r="3.1" fill="var(--hv-eye)"/>' +
+            '<circle cx="136" cy="105.8" r="1.1" fill="#fff"/>' +
+          '</g>' +
+          '<path d="M117 97 Q122 94 126 97" fill="none" stroke="var(--hv-hair)" stroke-width="1.4" stroke-linecap="round"/>' +
+          '<path d="M132 117 Q136 121 140 117" fill="none" stroke="var(--hv-mouth)" stroke-width="1.8" stroke-linecap="round"/>' +
+          /* 手前の腕（肩から肘を曲げて手を胸の上に） */
+          '<path d="M150 128 C148 114, 156 104, 166 106 C173 108, 173 116, 166 119 C161 121, 159 128, 160 134 C158 138, 151 136, 150 128 Z" ' + sk + '/>' +
+        '</g>' +
+        /* 追視の視線ライン */
+        '<path d="M132 96 L150 62" stroke="var(--accent)" stroke-width="1.6" stroke-dasharray="4 3" opacity=".75"/>' +
+        /* 説明カード */
+        '<rect x="304" y="48" width="244" height="94" rx="10" fill="var(--panel)" stroke="var(--accent)" stroke-width="1.5"/>' +
+        '<text x="316" y="74" font-size="13.5" font-weight="700" class="svg-accent">生後0〜2か月：追視・あやし笑い</text>' +
+        '<text x="316" y="96" font-size="11.5" class="svg-muted">仰向けで手足を自然に曲げ（生理的屈曲）、</text>' +
+        '<text x="316" y="114" font-size="11.5" class="svg-muted">動く顔やおもちゃを目で追います</text>' +
+        '<text x="316" y="132" font-size="11.5" font-weight="700" class="svg-accent">※首はまだすわらない時期</text>';
+
     } else if (st.key === 'neck') {
-      /* 首すわり（うつ伏せで頭をグッと上げる） */
+      /* 3〜4か月：首すわり（腹ばいで前腕をマットにつき、胸と首・頭をしっかり持ち上げる赤ちゃん） */
       scene =
-        '<line x1="60" y1="166" x2="310" y2="166" stroke="var(--line)" stroke-width="2"/>' +
-        '<g class="hv-bob">' +
-          '<ellipse cx="198" cy="148" rx="52" ry="17" fill="var(--hv-shirt)"/>' +
-          '<path d="M150 156 L136 164 M168 156 L160 164" stroke="var(--hv-skin-stroke)" stroke-width="8" stroke-linecap="round"/>' +
-          '<circle cx="138" cy="112" r="24" ' + head + '/>' +
-          '<path d="M118 104 Q138 84 158 104" ' + hair + '/>' +
-          '<circle cx="130" cy="112" r="2.5" fill="var(--hv-hair)"/><circle cx="144" cy="112" r="2.5" fill="var(--hv-hair)"/>' +
-          '<path d="M133 121 Q138 125 143 121" fill="none" stroke="var(--hv-hair)" stroke-width="1.8" stroke-linecap="round"/>' +
-          '<path d="M104 122 L104 94 M98 100 L104 92 L110 100" fill="none" stroke="var(--ok)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>' +
+        /* プレイマット */
+        '<rect x="34" y="150" width="282" height="20" rx="10" fill="var(--hv-mat)" stroke="var(--hv-mat-edge)" stroke-width="1.8"/>' +
+        '<ellipse cx="182" cy="157" rx="112" ry="5.5" fill="var(--hv-skin-shade)" opacity=".25"/>' +
+        /* 前方のおもちゃ（おきあがりこぼし） */
+        '<g transform="translate(64,118)">' +
+          '<ellipse cx="16" cy="24" rx="13" ry="15" fill="var(--seal)" stroke="var(--panel)" stroke-width="1.5"/>' +
+          '<circle cx="16" cy="10" r="9" fill="var(--hv-skin)" stroke="var(--hv-skin-stroke)" stroke-width="1.4"/>' +
+          '<circle cx="13" cy="9" r="1.5" fill="var(--hv-eye)"/><circle cx="19" cy="9" r="1.5" fill="var(--hv-eye)"/>' +
+          '<ellipse cx="16" cy="27" rx="7" ry="6" fill="var(--lamp)"/>' +
         '</g>' +
-        '<rect x="318" y="64" width="212" height="68" rx="10" fill="var(--panel)" stroke="var(--ok)" stroke-width="1.5"/>' +
-        '<text x="332" y="90" font-size="14" font-weight="700" class="svg-ok">首すわり（3〜4か月）</text>' +
-        '<text x="332" y="114" font-size="12" class="svg-muted">頭をしっかり起こせる</text>';
+        /* 腹ばいの赤ちゃん全身（頭・首・肩・前腕支持・背中・おむつ・脚がすべて自然につながる） */
+        '<g class="hv-neck-lift">' +
+          /* 奥の脚（膝から足先が軽く曲がる） */
+          '<path d="M242 134 C258 132, 272 124, 280 116 C286 112, 292 118, 286 126 C278 136, 264 144, 244 144 Z" ' + skS + '/>' +
+          /* 手前の脚（太もも→膝→足首→足先） */
+          '<path d="M236 138 C254 138, 270 132, 282 122 C289 118, 295 125, 288 133 C276 146, 258 152, 234 150 Z" ' + sk + '/>' +
+          /* ぷっくりしたおむつのお尻 */
+          '<path d="M204 120 C222 114, 244 120, 246 136 C246 148, 228 152, 206 150 Z" ' + dp + '/>' +
+          /* ロンパースの胴体（お腹はマットにつき、胸から肩へなめらかに起き上がる） */
+          '<path d="M132 108 C144 102, 164 110, 184 116 C198 120, 212 120, 216 134 C218 146, 202 152, 178 152 C156 152, 140 144, 130 128 C126 120, 126 112, 132 108 Z" ' + sh1 + '/>' +
+          /* 襟と袖の白い縁取り */
+          '<path d="M130 110 C136 118, 146 122, 154 118" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round"/>' +
+          /* 奥の前腕（肘から手首をマットについて上体を支える） */
+          '<path d="M134 122 C126 132, 118 142, 102 144 C94 144, 94 151, 104 151 C122 151, 134 144, 142 130 Z" ' + skS + '/>' +
+          /* 首から頭への自然なつながり */
+          '<path d="M126 98 C136 98, 144 106, 142 118 C136 122, 126 120, 122 110 Z" ' + sk + '/>' +
+          /* 大きな赤ちゃんの頭（3.5頭身・ぷっくりした頬・後頭部の丸み） */
+          '<path d="M100 72 C100 50, 120 36, 144 40 C164 44, 174 62, 168 82 C164 96, 152 106, 136 106 C122 106, 108 102, 102 90 C99 84, 100 78, 100 72 Z" ' + sk + '/>' +
+          /* 耳（内側曲線つき） */
+          '<ellipse cx="144" cy="82" rx="6" ry="7.5" ' + sk + '/>' +
+          '<path d="M143 79 Q146 82 143 85" fill="none" stroke="var(--hv-skin-stroke)" stroke-width="1.2" stroke-linecap="round"/>' +
+          /* 髪の毛（前髪と頭頂部のつむじ毛） */
+          '<path d="M102 68 C102 46, 124 34, 148 39 C164 43, 172 56, 168 74 C162 60, 152 52, 138 52 C124 52, 112 58, 102 68 Z" ' + hr + '/>' +
+          '<path d="M128 38 Q134 30 142 36" fill="none" stroke="var(--hv-hair)" stroke-width="2.2" stroke-linecap="round"/>' +
+          /* 頬の赤み・輝く目・眉・笑顔の口 */
+          '<ellipse cx="114" cy="84" rx="6" ry="4" fill="var(--hv-blush)" opacity=".7"/>' +
+          '<path d="M110 64 Q116 60 122 63" fill="none" stroke="var(--hv-hair)" stroke-width="1.6" stroke-linecap="round"/>' +
+          '<circle cx="115" cy="73" r="3.8" fill="var(--hv-eye)"/>' +
+          '<circle cx="113.8" cy="71.6" r="1.3" fill="#fff"/>' +
+          '<path d="M102 78 Q99 80 102 82" fill="none" stroke="var(--hv-skin-stroke)" stroke-width="1.5" stroke-linecap="round"/>' +
+          '<path d="M107 91 Q113 96 120 91" fill="none" stroke="var(--hv-mouth)" stroke-width="2" stroke-linecap="round"/>' +
+          /* 手前の肩→上腕→肘→前腕→小さな手（マットをしっかり押して胸を支える！） */
+          '<path d="M144 114 C154 114, 158 124, 152 138 L146 146 L116 148 C108 148, 108 155, 118 155 L152 154 C158 154, 162 148, 162 140 C164 126, 158 112, 144 114 Z" ' + sk + '/>' +
+          '<ellipse cx="148" cy="118" rx="9" ry="7" ' + sh1 + '/>' +
+        '</g>' +
+        /* 頭を持ち上げる角度ガイド矢印 */
+        '<path d="M84 96 C78 78, 82 58, 92 46" fill="none" stroke="var(--ok)" stroke-width="2.4" stroke-linecap="round"/>' +
+        '<path d="M85 48 L93 44 L94 53" fill="none" stroke="var(--ok)" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>' +
+        '<text x="72" y="38" text-anchor="middle" font-size="11" font-weight="700" class="svg-ok">頭を45〜90°保持</text>' +
+        /* 説明カード */
+        '<rect x="320" y="42" width="222" height="106" rx="10" fill="var(--panel)" stroke="var(--ok)" stroke-width="1.6"/>' +
+        '<text x="334" y="68" font-size="14" font-weight="700" class="svg-ok">首すわり（3〜4か月ごろ）</text>' +
+        '<text x="334" y="90" font-size="12" class="svg-muted">・腹ばいで前腕をつき頭と胸を上げる</text>' +
+        '<text x="334" y="108" font-size="12" class="svg-muted">・引き起こしで頭が遅れずについてくる</text>' +
+        '<text x="334" y="126" font-size="12" class="svg-muted">・「あー」「うー」とクーイング・笑い</text>';
+
     } else if (st.key === 'sit') {
-      /* おすわり */
+      /* 7か月：おすわり（支えなしで背筋を伸ばして座り、両手でおもちゃを持ちかえる） */
       scene =
-        '<line x1="60" y1="166" x2="310" y2="166" stroke="var(--line)" stroke-width="2"/>' +
-        '<g class="hv-bob">' +
-          '<rect x="150" y="116" width="44" height="44" rx="14" fill="var(--hv-shirt)"/>' +
-          '<path d="M152 158 L124 162 M192 158 L220 162" stroke="var(--hv-shirt)" stroke-width="11" stroke-linecap="round"/>' +
-          '<circle cx="172" cy="88" r="24" ' + head + '/>' +
-          '<path d="M150 82 Q172 58 194 82" ' + hair + '/>' +
-          '<circle cx="164" cy="88" r="2.5" fill="var(--hv-hair)"/><circle cx="180" cy="88" r="2.5" fill="var(--hv-hair)"/>' +
-          '<path d="M167 97 Q172 102 177 97" fill="none" stroke="var(--hv-hair)" stroke-width="2" stroke-linecap="round"/>' +
-          '<line x1="152" y1="126" x2="128" y2="132" stroke="var(--hv-skin-stroke)" stroke-width="7" stroke-linecap="round"/>' +
-          '<line x1="192" y1="126" x2="216" y2="124" stroke="var(--hv-skin-stroke)" stroke-width="7" stroke-linecap="round"/>' +
-          '<circle cx="222" cy="122" r="9" fill="var(--lamp)"/>' +
+        '<rect x="44" y="152" width="260" height="18" rx="9" fill="var(--hv-mat)" stroke="var(--hv-mat-edge)" stroke-width="1.8"/>' +
+        '<ellipse cx="174" cy="158" rx="86" ry="5" fill="var(--hv-skin-shade)" opacity=".25"/>' +
+        '<g class="hv-breathe">' +
+          /* 開脚座位の両脚（太もも→膝→ふくらはぎ→足先が床でバランスをとる） */
+          '<path d="M154 138 C134 136, 114 142, 108 150 C104 156, 114 162, 126 158 C138 154, 150 152, 164 150 Z" ' + sk + '/>' +
+          '<path d="M194 138 C214 136, 234 142, 240 150 C244 156, 234 162, 222 158 C210 154, 198 152, 184 150 Z" ' + sk + '/>' +
+          /* おむつパンツ */
+          '<path d="M148 128 C148 148, 200 148, 200 128 Z" ' + dp + '/>' +
+          /* 胴体（ロンパース・背筋がすっと伸びた座位） */
+          '<path d="M150 88 C150 80, 198 80, 198 88 L202 132 C202 140, 146 140, 146 132 Z" ' + sh1 + '/>' +
+          /* 襟とスタイ（よだれかけ） */
+          '<path d="M156 84 C156 100, 192 100, 192 84 Z" fill="#fff" stroke="var(--hv-diaper-line)" stroke-width="1.4"/>' +
+          /* 首 */
+          '<rect x="166" y="74" width="16" height="14" rx="6" ' + sk + '/>' +
+          /* 頭部（丸みのある頬と両耳） */
+          '<ellipse cx="142" cy="56" rx="5.5" ry="7" ' + sk + '/>' +
+          '<ellipse cx="206" cy="56" rx="5.5" ry="7" ' + sk + '/>' +
+          '<path d="M144 52 C144 30, 160 18, 174 18 C188 18, 204 30, 204 52 C204 68, 192 80, 174 80 C156 80, 144 68, 144 52 Z" ' + sk + '/>' +
+          '<path d="M144 48 C144 26, 162 16, 174 16 C186 16, 204 26, 204 48 C196 36, 184 32, 174 32 C164 32, 152 36, 144 48 Z" ' + hr + '/>' +
+          '<ellipse cx="156" cy="60" rx="5.5" ry="3.5" fill="var(--hv-blush)" opacity=".68"/>' +
+          '<ellipse cx="192" cy="60" rx="5.5" ry="3.5" fill="var(--hv-blush)" opacity=".68"/>' +
+          '<circle cx="162" cy="51" r="3.5" fill="var(--hv-eye)"/><circle cx="160.8" cy="49.7" r="1.2" fill="#fff"/>' +
+          '<circle cx="186" cy="51" r="3.5" fill="var(--hv-eye)"/><circle cx="184.8" cy="49.7" r="1.2" fill="#fff"/>' +
+          '<path d="M157 43 Q162 40 167 43 M181 43 Q186 40 191 43" fill="none" stroke="var(--hv-hair)" stroke-width="1.5" stroke-linecap="round"/>' +
+          '<path d="M168 65 Q174 71 180 65" fill="none" stroke="var(--hv-mouth)" stroke-width="2" stroke-linecap="round"/>' +
+          /* 左腕（肩→肘→手） */
+          '<path d="M150 90 C134 94, 126 108, 138 116 C146 122, 158 118, 164 114" fill="none" stroke="var(--hv-skin-stroke)" stroke-width="12" stroke-linecap="round" stroke-linejoin="round"/>' +
+          '<path d="M150 90 C134 94, 126 108, 138 116 C146 122, 158 118, 164 114" fill="none" stroke="var(--hv-skin)" stroke-width="9" stroke-linecap="round" stroke-linejoin="round"/>' +
+          /* 右腕＋おもちゃ（持ちかえアニメ） */
+          '<g class="hv-arm-pass">' +
+            '<path d="M198 90 C214 94, 222 108, 208 116 C200 120, 188 118, 180 114" fill="none" stroke="var(--hv-skin-stroke)" stroke-width="12" stroke-linecap="round" stroke-linejoin="round"/>' +
+            '<path d="M198 90 C214 94, 222 108, 208 116 C200 120, 188 118, 180 114" fill="none" stroke="var(--hv-skin)" stroke-width="9" stroke-linecap="round" stroke-linejoin="round"/>' +
+            '<circle cx="173" cy="113" r="11" fill="none" stroke="var(--lamp)" stroke-width="4.5"/>' +
+            '<circle cx="173" cy="102" r="4" fill="var(--seal)"/>' +
+          '</g>' +
         '</g>' +
-        '<rect x="318" y="64" width="212" height="68" rx="10" fill="var(--panel)" stroke="var(--accent)" stroke-width="1.5"/>' +
-        '<text x="332" y="90" font-size="14" font-weight="700" class="svg-accent">おすわり（7か月ごろ）</text>' +
-        '<text x="332" y="114" font-size="12" class="svg-muted">両手が自由におもちゃへ</text>';
+        /* 喃語吹き出し */
+        '<rect x="52" y="22" width="80" height="28" rx="12" fill="var(--panel)" stroke="var(--accent)" stroke-width="1.5"/>' +
+        '<text x="92" y="40" text-anchor="middle" font-size="12.5" font-weight="700" class="svg-accent">「ばばば♪」</text>' +
+        /* 説明カード */
+        '<rect x="316" y="44" width="226" height="104" rx="10" fill="var(--panel)" stroke="var(--accent)" stroke-width="1.5"/>' +
+        '<text x="330" y="70" font-size="14" font-weight="700" class="svg-accent">おすわり（7か月ごろ）</text>' +
+        '<text x="330" y="92" font-size="12" class="svg-muted">・支えなしで座り、両手が自由に使える</text>' +
+        '<text x="330" y="110" font-size="12" class="svg-muted">・おもちゃを片手から反対の手へ持ちかえる</text>' +
+        '<text x="330" y="128" font-size="12" class="svg-muted">・「ばばば」などの喃語・人見知り</text>';
+
     } else if (st.key === 'point') {
-      /* 1歳前後：初語・指さし・共同注意（視線の共有） */
+      /* 1歳前後：初語・指さし・共同注意（三項関係：子ども⇔興味の対象⇔母親） */
       scene =
-        '<line x1="40" y1="170" x2="520" y2="170" stroke="var(--line)" stroke-width="2"/>' +
-        /* 子ども（指さし） */
-        '<g class="hv-bob">' +
-          '<rect x="128" y="106" width="38" height="44" rx="12" fill="var(--hv-shirt)"/>' +
-          '<line x1="138" y1="150" x2="136" y2="168" stroke="var(--hv-hair)" stroke-width="7" stroke-linecap="round"/>' +
-          '<line x1="156" y1="150" x2="158" y2="168" stroke="var(--hv-hair)" stroke-width="7" stroke-linecap="round"/>' +
-          '<circle cx="147" cy="80" r="22" ' + head + '/>' +
-          '<path d="M126 74 Q147 52 168 74" ' + hair + '/>' +
-          '<circle cx="154" cy="79" r="2.5" fill="var(--hv-hair)"/>' +
-          '<path d="M150 88 Q155 92 160 88" fill="none" stroke="var(--hv-hair)" stroke-width="1.8" stroke-linecap="round"/>' +
-          '<line x1="164" y1="118" x2="210" y2="96" stroke="var(--hv-skin-stroke)" stroke-width="7" stroke-linecap="round"/>' +
+        '<line x1="32" y1="168" x2="528" y2="168" stroke="var(--line)" stroke-width="2"/>' +
+        /* 1歳の子ども（約3.8頭身・立位で指さし＋お母さんの方を振り返る） */
+        '<g class="hv-breathe">' +
+          /* 両脚と靴 */
+          '<path d="M126 138 L124 162 M146 138 L148 162" stroke="var(--hv-skin-stroke)" stroke-width="10" stroke-linecap="round"/>' +
+          '<path d="M126 138 L124 162 M146 138 L148 162" stroke="var(--hv-skin)" stroke-width="7.5" stroke-linecap="round"/>' +
+          '<ellipse cx="126" cy="164" rx="8" ry="4.5" fill="var(--hv-shirt-dk)"/>' +
+          '<ellipse cx="150" cy="164" rx="8" ry="4.5" fill="var(--hv-shirt-dk)"/>' +
+          /* 半ズボンとシャツ */
+          '<path d="M118 124 L154 124 L156 142 L116 142 Z" fill="var(--hv-shirt-dk)" stroke="var(--hv-shirt-dk)" stroke-width="1.5" stroke-linejoin="round"/>' +
+          '<path d="M118 90 C118 82, 154 82, 154 90 L156 126 L116 126 Z" ' + sh1 + '/>' +
+          /* 左腕 */
+          '<path d="M120 94 C110 102, 110 114, 114 120" fill="none" stroke="var(--hv-skin-stroke)" stroke-width="9.5" stroke-linecap="round"/>' +
+          '<path d="M120 94 C110 102, 110 114, 114 120" fill="none" stroke="var(--hv-skin)" stroke-width="7" stroke-linecap="round"/>' +
+          /* 右腕（対象をまっすぐ指さす！） */
+          '<path d="M150 94 L196 76" stroke="var(--hv-skin-stroke)" stroke-width="10" stroke-linecap="round"/>' +
+          '<path d="M150 94 L196 76" stroke="var(--hv-skin)" stroke-width="7.5" stroke-linecap="round"/>' +
+          /* 指さしの人差し指 */
+          '<path d="M196 76 L208 71" stroke="var(--hv-skin-stroke)" stroke-width="5.5" stroke-linecap="round"/>' +
+          '<path d="M196 76 L208 71" stroke="var(--hv-skin)" stroke-width="3.6" stroke-linecap="round"/>' +
+          /* 首と頭部（対象とお母さんを交互に見るアニメ） */
+          '<g class="hv-joint-look">' +
+            '<rect x="130" y="76" width="12" height="12" rx="5" ' + sk + '/>' +
+            '<path d="M114 58 C114 40, 126 30, 138 30 C152 30, 162 40, 162 58 C162 72, 152 80, 138 80 C124 80, 114 72, 114 58 Z" ' + sk + '/>' +
+            '<ellipse cx="122" cy="60" rx="4.5" ry="6" ' + sk + '/>' +
+            '<path d="M114 54 C114 36, 126 28, 140 28 C152 28, 162 36, 162 52 C154 42, 144 39, 134 40 C124 41, 118 46, 114 54 Z" ' + hr + '/>' +
+            '<ellipse cx="148" cy="63" rx="4.5" ry="3" fill="var(--hv-blush)" opacity=".7"/>' +
+            '<circle cx="149" cy="54" r="3.2" fill="var(--hv-eye)"/><circle cx="150" cy="52.8" r="1.1" fill="#fff"/>' +
+            '<path d="M144 68 Q150 73 155 68" fill="none" stroke="var(--hv-mouth)" stroke-width="1.8" stroke-linecap="round"/>' +
+          '</g>' +
         '</g>' +
         /* 初語吹き出し */
-        '<rect x="64" y="22" width="114" height="32" rx="14" fill="var(--panel)" stroke="var(--accent)" stroke-width="1.8"/>' +
-        '<text x="121" y="43" text-anchor="middle" font-size="13" font-weight="700" class="svg-accent">「ママ！あ！」</text>' +
-        /* 対象物（赤いボール／ちょうちょ） */
-        '<circle cx="290" cy="68" r="16" fill="var(--seal)" class="hv-pulse"/>' +
-        '<text x="290" y="98" text-anchor="middle" font-size="11" class="svg-muted">興味の対象</text>' +
-        /* おとな（一緒に見る） */
-        '<rect x="394" y="88" width="48" height="68" rx="16" fill="var(--hv-mom)"/>' +
-        '<circle cx="418" cy="60" r="24" ' + head + '/>' +
-        '<path d="M394 56 Q418 28 442 56" ' + hair + '/>' +
-        '<circle cx="408" cy="60" r="2.5" fill="var(--hv-hair)"/>' +
-        /* 共同注意の視線三角形（点線） */
-        '<line x1="166" y1="78" x2="272" y2="68" stroke="var(--ok)" stroke-width="2.5" stroke-dasharray="5 4"/>' +
-        '<line x1="396" y1="62" x2="310" y2="68" stroke="var(--ok)" stroke-width="2.5" stroke-dasharray="5 4"/>' +
-        '<line x1="170" y1="76" x2="392" y2="62" stroke="var(--accent)" stroke-width="1.8" stroke-dasharray="3 4"/>' +
-        '<rect x="214" y="122" width="150" height="32" rx="8" fill="var(--ok-soft)" stroke="var(--ok)" stroke-width="1.5"/>' +
-        '<text x="289" y="143" text-anchor="middle" font-size="12.5" font-weight="700" class="svg-ok">共同注意（視線の共有）</text>';
+        '<rect x="16" y="4" width="114" height="26" rx="11" fill="var(--panel)" stroke="var(--accent)" stroke-width="1.8"/>' +
+        '<text x="73" y="21" text-anchor="middle" font-size="12" font-weight="700" class="svg-accent">「ママ！ワンワン！」</text>' +
+        /* 興味の対象（可愛い犬のぬいぐるみ／風船） */
+        '<g class="hv-bob">' +
+          '<circle cx="272" cy="54" r="20" fill="var(--seal)" stroke="var(--panel)" stroke-width="2"/>' +
+          '<ellipse cx="266" cy="48" rx="4" ry="6" fill="#fff" opacity=".45"/>' +
+          '<path d="M272 74 Q268 92 274 106" fill="none" stroke="var(--muted)" stroke-width="1.5"/>' +
+        '</g>' +
+        '<text x="272" y="122" text-anchor="middle" font-size="11.5" font-weight="700" class="svg-seal">興味の対象</text>' +
+        /* 母親（膝をついて子どもの目線に合わせ、指さしの先を一緒に見る） */
+        '<g>' +
+          '<path d="M402 92 C402 82, 442 82, 442 92 L448 166 L396 166 Z" fill="var(--hv-mom)" stroke="var(--hv-mom-dk)" stroke-width="1.6" stroke-linejoin="round"/>' +
+          '<path d="M412 88 L422 104 L432 88" fill="#fff" stroke="var(--hv-mom-dk)" stroke-width="1.2"/>' +
+          /* 母親の腕（子どもに手を添える／指さしに応じる） */
+          '<path d="M402 98 C384 106, 372 96, 358 86" fill="none" stroke="var(--hv-mom-dk)" stroke-width="11" stroke-linecap="round"/>' +
+          '<path d="M402 98 C384 106, 372 96, 358 86" fill="none" stroke="var(--hv-mom)" stroke-width="8.5" stroke-linecap="round"/>' +
+          '<circle cx="355" cy="84" r="5.5" ' + sk + '/>' +
+          /* 母親の首・顔・髪 */
+          '<rect x="416" y="72" width="12" height="14" rx="5" ' + sk + '/>' +
+          '<path d="M396 52 C396 34, 408 24, 422 24 C436 24, 448 34, 448 52 C448 68, 436 78, 422 78 C408 78, 396 68, 396 52 Z" ' + sk + '/>' +
+          '<path d="M396 50 C396 30, 410 20, 424 20 C440 20, 452 34, 450 58 C450 70, 444 78, 438 76 C442 64, 442 46, 432 40 C420 34, 406 38, 396 50 Z" fill="var(--hv-hair-mom)"/>' +
+          '<circle cx="448" cy="58" r="10" fill="var(--hv-hair-mom)"/>' +
+          '<ellipse cx="408" cy="60" rx="4.5" ry="2.8" fill="var(--hv-blush)" opacity=".6"/>' +
+          '<circle cx="408" cy="51" r="3" fill="var(--hv-eye)"/><circle cx="407" cy="49.8" r="1" fill="#fff"/>' +
+          '<path d="M404 43 Q409 40 414 43" fill="none" stroke="var(--hv-hair-mom)" stroke-width="1.5" stroke-linecap="round"/>' +
+          '<path d="M404 65 Q410 70 416 65" fill="none" stroke="var(--hv-mouth)" stroke-width="1.8" stroke-linecap="round"/>' +
+        '</g>' +
+        '<rect x="404" y="4" width="134" height="26" rx="11" fill="var(--panel)" stroke="var(--ok)" stroke-width="1.5"/>' +
+        '<text x="471" y="21" text-anchor="middle" font-size="12" font-weight="700" class="svg-ok">「ほんとだ、赤いね！」</text>' +
+        /* 共同注意の三項関係トライアングル */
+        '<line x1="164" y1="54" x2="248" y2="54" stroke="var(--ok)" stroke-width="2.4" stroke-dasharray="5 4"/>' +
+        '<line x1="394" y1="52" x2="296" y2="54" stroke="var(--ok)" stroke-width="2.4" stroke-dasharray="5 4"/>' +
+        '<path d="M166 64 Q280 96 394 62" fill="none" stroke="var(--accent)" stroke-width="2" stroke-dasharray="4 4"/>' +
+        '<rect x="182" y="132" width="202" height="30" rx="8" fill="var(--ok-soft)" stroke="var(--ok)" stroke-width="1.5"/>' +
+        '<text x="283" y="151" text-anchor="middle" font-size="11.5" font-weight="700" class="svg-ok">共同注意（三項関係で注意を共有）</text>';
+
     } else if (st.key === 'walk') {
-      /* ひとり歩き */
+      /* 1歳〜1歳6か月：ひとり歩き（自然な幼児比率・腕と脚が交互にスイング） */
       scene =
-        '<line x1="40" y1="170" x2="520" y2="170" stroke="var(--line)" stroke-width="2"/>' +
+        '<line x1="36" y1="168" x2="300" y2="168" stroke="var(--line)" stroke-width="2"/>' +
+        '<ellipse cx="164" cy="168" rx="46" ry="5" fill="var(--hv-skin-shade)" opacity=".25"/>' +
         '<g class="hv-bob">' +
-          '<rect x="160" y="96" width="40" height="44" rx="12" fill="var(--hv-shirt)"/>' +
-          '<line class="hv-walk-l" x1="172" y1="138" x2="162" y2="168" stroke="var(--hv-hair)" stroke-width="8" stroke-linecap="round"/>' +
-          '<line class="hv-walk-r" x1="188" y1="138" x2="198" y2="168" stroke="var(--hv-hair)" stroke-width="8" stroke-linecap="round"/>' +
-          '<line x1="160" y1="108" x2="136" y2="96" stroke="var(--hv-skin-stroke)" stroke-width="7" stroke-linecap="round"/>' +
-          '<line x1="200" y1="108" x2="224" y2="96" stroke="var(--hv-skin-stroke)" stroke-width="7" stroke-linecap="round"/>' +
-          '<circle cx="180" cy="70" r="23" ' + head + '/>' +
-          '<path d="M158 64 Q180 42 202 64" ' + hair + '/>' +
-          '<circle cx="172" cy="70" r="2.5" fill="var(--hv-hair)"/><circle cx="188" cy="70" r="2.5" fill="var(--hv-hair)"/>' +
-          '<path d="M174 79 Q180 84 186 79" fill="none" stroke="var(--hv-hair)" stroke-width="2" stroke-linecap="round"/>' +
+          /* 奥の腕（交互スイング） */
+          '<g class="hv-arm-l">' +
+            '<path d="M170 90 C184 96, 194 104, 198 112" fill="none" stroke="var(--hv-skin-stroke)" stroke-width="10" stroke-linecap="round"/>' +
+            '<path d="M170 90 C184 96, 194 104, 198 112" fill="none" stroke="var(--hv-skin)" stroke-width="7.5" stroke-linecap="round"/>' +
+          '</g>' +
+          /* 奥の脚（太もも→膝→すね→靴） */
+          '<g class="hv-walk-r">' +
+            '<path d="M168 128 C174 142, 180 152, 184 162" fill="none" stroke="var(--hv-skin-stroke)" stroke-width="11" stroke-linecap="round"/>' +
+            '<path d="M168 128 C174 142, 180 152, 184 162" fill="none" stroke="var(--hv-skin)" stroke-width="8.5" stroke-linecap="round"/>' +
+            '<ellipse cx="188" cy="163" rx="9.5" ry="5" fill="var(--hv-shirt-dk)" stroke="var(--panel)" stroke-width="1"/>' +
+          '</g>' +
+          /* 手前の脚 */
+          '<g class="hv-walk-l">' +
+            '<path d="M152 128 C146 142, 140 152, 136 162" fill="none" stroke="var(--hv-skin-stroke)" stroke-width="11" stroke-linecap="round"/>' +
+            '<path d="M152 128 C146 142, 140 152, 136 162" fill="none" stroke="var(--hv-skin)" stroke-width="8.5" stroke-linecap="round"/>' +
+            '<ellipse cx="140" cy="163" rx="9.5" ry="5" fill="var(--hv-shirt)" stroke="var(--hv-shirt-dk)" stroke-width="1.4"/>' +
+          '</g>' +
+          /* オーバーオール＆シャツの胴体 */
+          '<path d="M140 86 C140 78, 180 78, 180 86 L182 130 C182 136, 138 136, 138 130 Z" ' + sh1 + '/>' +
+          '<path d="M140 116 L180 116 L180 132 C180 136, 140 136, 140 132 Z" fill="var(--hv-shirt-dk)"/>' +
+          /* 手前の腕（バランスをとる幼児の腕姿勢） */
+          '<g class="hv-arm-r">' +
+            '<path d="M146 90 C132 96, 122 104, 118 112" fill="none" stroke="var(--hv-skin-stroke)" stroke-width="10" stroke-linecap="round"/>' +
+            '<path d="M146 90 C132 96, 122 104, 118 112" fill="none" stroke="var(--hv-skin)" stroke-width="7.5" stroke-linecap="round"/>' +
+          '</g>' +
+          /* 首と頭部 */
+          '<rect x="154" y="72" width="12" height="12" rx="5" ' + sk + '/>' +
+          '<path d="M134 52 C134 32, 148 22, 162 22 C178 22, 190 34, 190 52 C190 68, 178 78, 162 78 C146 78, 134 68, 134 52 Z" ' + sk + '/>' +
+          '<ellipse cx="142" cy="55" rx="5" ry="6.5" ' + sk + '/>' +
+          '<path d="M134 48 C134 28, 148 20, 164 20 C178 20, 190 30, 190 48 C182 36, 170 33, 158 34 C146 35, 138 40, 134 48 Z" ' + hr + '/>' +
+          '<ellipse cx="174" cy="58" rx="5" ry="3.2" fill="var(--hv-blush)" opacity=".7"/>' +
+          '<circle cx="174" cy="48" r="3.4" fill="var(--hv-eye)"/><circle cx="175" cy="46.8" r="1.2" fill="#fff"/>' +
+          '<path d="M168 40 Q174 37 179 40" fill="none" stroke="var(--hv-hair)" stroke-width="1.5" stroke-linecap="round"/>' +
+          '<path d="M168 64 Q174 69 180 64" fill="none" stroke="var(--hv-mouth)" stroke-width="1.9" stroke-linecap="round"/>' +
         '</g>' +
-        '<path d="M236 164 L274 164 M266 158 L274 164 L266 170" fill="none" stroke="var(--ok)" stroke-width="2.5" stroke-linecap="round"/>' +
-        '<rect x="304" y="54" width="226" height="84" rx="10" fill="var(--panel)" stroke="var(--accent)" stroke-width="1.5"/>' +
-        '<text x="318" y="80" font-size="14" font-weight="700" class="svg-accent">ひとり歩き（1歳〜1歳半）</text>' +
-        '<text x="318" y="103" font-size="12" class="svg-muted">1歳半で歩けない・指さしなしは</text>' +
-        '<text x="318" y="122" font-size="12" font-weight="700" class="svg-seal">気になるサイン</text>';
+        /* 進行方向の矢印 */
+        '<path d="M214 156 L262 156 M253 149 L262 156 L253 163" fill="none" stroke="var(--ok)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>' +
+        /* 1歳6か月健診チェックカード（チャッピー査読反映） */
+        '<rect x="294" y="34" width="250" height="120" rx="10" fill="var(--panel)" stroke="var(--accent)" stroke-width="1.6"/>' +
+        '<text x="308" y="58" font-size="13.5" font-weight="700" class="svg-accent">ひとり歩き（1歳〜1歳6か月）</text>' +
+        '<text x="308" y="80" font-size="11.5" font-weight="700" class="svg-seal">【1歳6か月健診の相談目安】</text>' +
+        '<text x="308" y="99" font-size="11.5" class="svg-muted">・ひとり歩きしない（運動の遅れ）</text>' +
+        '<text x="308" y="117" font-size="11.5" class="svg-muted">・意味のあることば（単語）がない</text>' +
+        '<text x="308" y="135" font-size="11.5" class="svg-muted">・指さしや呼名への振り向きがない</text>';
+
     } else if (st.key === 'two') {
-      /* 2歳：二語文 */
+      /* 2歳：二語文（トコトコ歩いてきた犬を見て「ワンワン」「きた！」と2語文で伝える） */
       scene =
-        '<line x1="40" y1="170" x2="520" y2="170" stroke="var(--line)" stroke-width="2"/>' +
-        '<g class="hv-bob">' +
-          '<rect x="130" y="92" width="40" height="48" rx="12" fill="var(--hv-shirt2)"/>' +
-          '<line x1="142" y1="140" x2="140" y2="168" stroke="var(--hv-hair)" stroke-width="8" stroke-linecap="round"/>' +
-          '<line x1="158" y1="140" x2="160" y2="168" stroke="var(--hv-hair)" stroke-width="8" stroke-linecap="round"/>' +
-          '<circle cx="150" cy="66" r="22" ' + head + '/>' +
-          '<path d="M128 60 Q150 38 172 60" ' + hair + '/>' +
-          '<circle cx="157" cy="66" r="2.4" fill="var(--hv-hair)"/>' +
-          '<line x1="170" y1="106" x2="210" y2="112" stroke="var(--hv-skin-stroke)" stroke-width="7" stroke-linecap="round"/>' +
+        '<line x1="36" y1="168" x2="318" y2="168" stroke="var(--line)" stroke-width="2"/>' +
+        /* 2歳児（約4.2頭身） */
+        '<g class="hv-breathe">' +
+          '<path d="M106 130 L104 162 M126 130 L128 162" stroke="var(--hv-skin-stroke)" stroke-width="10" stroke-linecap="round"/>' +
+          '<path d="M106 130 L104 162 M126 130 L128 162" stroke="var(--hv-skin)" stroke-width="7.5" stroke-linecap="round"/>' +
+          '<ellipse cx="105" cy="164" rx="8.5" ry="4.5" fill="var(--hv-shirt2-dk)"/>' +
+          '<ellipse cx="130" cy="164" rx="8.5" ry="4.5" fill="var(--hv-shirt2-dk)"/>' +
+          '<path d="M98 118 L134 118 L136 136 L96 136 Z" fill="var(--hv-shirt2-dk)" stroke="var(--hv-shirt2-dk)" stroke-width="1.4" stroke-linejoin="round"/>' +
+          '<path d="M98 80 C98 72, 134 72, 134 80 L136 120 L96 120 Z" ' + sh2 + '/>' +
+          /* 左腕 */
+          '<path d="M100 86 C90 96, 90 108, 94 114" fill="none" stroke="var(--hv-skin-stroke)" stroke-width="9.5" stroke-linecap="round"/>' +
+          '<path d="M100 86 C90 96, 90 108, 94 114" fill="none" stroke="var(--hv-skin)" stroke-width="7" stroke-linecap="round"/>' +
+          /* 右腕（犬の方を指さす） */
+          '<path d="M132 86 C148 92, 162 98, 174 104" fill="none" stroke="var(--hv-skin-stroke)" stroke-width="9.5" stroke-linecap="round"/>' +
+          '<path d="M132 86 C148 92, 162 98, 174 104" fill="none" stroke="var(--hv-skin)" stroke-width="7" stroke-linecap="round"/>' +
+          /* 首と頭 */
+          '<rect x="110" y="66" width="12" height="12" rx="5" ' + sk + '/>' +
+          '<path d="M92 46 C92 28, 104 18, 118 18 C132 18, 144 28, 144 46 C144 62, 132 72, 118 72 C104 72, 92 62, 92 46 Z" ' + sk + '/>' +
+          '<path d="M92 42 C92 24, 106 16, 120 16 C134 16, 144 26, 144 42 C136 32, 124 28, 112 30 C102 31, 96 36, 92 42 Z" ' + hr + '/>' +
+          '<ellipse cx="128" cy="52" rx="4.5" ry="3" fill="var(--hv-blush)" opacity=".7"/>' +
+          '<circle cx="129" cy="43" r="3.2" fill="var(--hv-eye)"/><circle cx="130" cy="41.8" r="1.1" fill="#fff"/>' +
+          '<path d="M123 57 Q129 63 135 57" fill="none" stroke="var(--hv-mouth)" stroke-width="1.9" stroke-linecap="round"/>' +
         '</g>' +
-        /* 二語文の2つのブロック吹き出し */
-        '<rect x="206" y="24" width="96" height="36" rx="12" fill="var(--accent-soft)" stroke="var(--accent)" stroke-width="1.8"/>' +
-        '<text x="254" y="47" text-anchor="middle" font-size="14" font-weight="700" class="svg-accent">ワンワン</text>' +
-        '<text x="314" y="47" text-anchor="middle" font-size="16" font-weight="700" class="svg-ok">＋</text>' +
-        '<rect x="326" y="24" width="76" height="36" rx="12" fill="var(--ok-soft)" stroke="var(--ok)" stroke-width="1.8"/>' +
-        '<text x="364" y="47" text-anchor="middle" font-size="14" font-weight="700" class="svg-ok">きた！</text>' +
-        /* わんわんシルエット */
-        '<ellipse cx="270" cy="146" rx="22" ry="13" fill="var(--lamp)"/>' +
-        '<circle cx="290" cy="134" r="11" fill="var(--lamp)"/>' +
-        '<line x1="256" y1="156" x2="256" y2="168" stroke="var(--lamp)" stroke-width="5" stroke-linecap="round"/>' +
-        '<line x1="282" y1="156" x2="282" y2="168" stroke="var(--lamp)" stroke-width="5" stroke-linecap="round"/>' +
-        '<rect x="336" y="88" width="194" height="62" rx="10" fill="var(--panel)" stroke="var(--line)" stroke-width="1.5"/>' +
-        '<text x="350" y="112" font-size="13.5" font-weight="700" class="svg-ok">二語文（2歳ごろ）</text>' +
-        '<text x="350" y="134" font-size="11.5" class="svg-muted">2歳で単語なし→まず聴力</text>';
+        /* 可愛い小型犬（柴犬風：頭・垂れ耳・首輪・胴・4本脚・振るしっぽ） */
+        '<g class="hv-bob">' +
+          /* しっぽ */
+          '<path class="hv-tail" d="M276 134 C288 122, 294 126, 286 138" fill="none" stroke="#d8923c" stroke-width="6" stroke-linecap="round"/>' +
+          /* 脚 */
+          '<path d="M232 146 L230 164 M242 146 L244 164 M264 146 L262 164 M272 146 L274 164" stroke="#b57426" stroke-width="5.5" stroke-linecap="round"/>' +
+          /* 胴体 */
+          '<path d="M224 134 C224 122, 278 122, 278 136 C278 148, 224 148, 224 134 Z" fill="#e6a147" stroke="#b57426" stroke-width="1.6"/>' +
+          /* 首輪 */
+          '<path d="M222 124 L234 134" stroke="var(--seal)" stroke-width="4" stroke-linecap="round"/>' +
+          /* 頭と耳 */
+          '<path d="M204 114 C204 100, 220 94, 232 102 C240 108, 238 124, 226 128 C212 130, 204 124, 204 114 Z" fill="#e6a147" stroke="#b57426" stroke-width="1.6"/>' +
+          '<path d="M204 118 C204 112, 214 112, 218 118 C218 124, 206 126, 204 118 Z" fill="#fff9eb"/>' +
+          '<path d="M224 98 C230 90, 238 94, 234 104 Z" fill="#b57426"/>' +
+          '<circle cx="214" cy="110" r="2.3" fill="var(--hv-eye)"/>' +
+          '<circle cx="204" cy="116" r="2.5" fill="var(--hv-eye)"/>' +
+        '</g>' +
+        /* 二語文の2ブロック吹き出し */
+        '<rect x="156" y="14" width="92" height="34" rx="11" fill="var(--accent-soft)" stroke="var(--accent)" stroke-width="1.8"/>' +
+        '<text x="202" y="36" text-anchor="middle" font-size="13.5" font-weight="700" class="svg-accent">ワンワン</text>' +
+        '<text x="260" y="36" text-anchor="middle" font-size="16" font-weight="700" class="svg-ok">＋</text>' +
+        '<rect x="272" y="14" width="76" height="34" rx="11" fill="var(--ok-soft)" stroke="var(--ok)" stroke-width="1.8"/>' +
+        '<text x="310" y="36" text-anchor="middle" font-size="13.5" font-weight="700" class="svg-ok">きた！</text>' +
+        /* 2歳チェックカード（チャッピー査読反映） */
+        '<rect x="302" y="62" width="246" height="96" rx="10" fill="var(--panel)" stroke="var(--ok)" stroke-width="1.5"/>' +
+        '<text x="314" y="86" font-size="13.5" font-weight="700" class="svg-ok">二語文（2歳ごろ）</text>' +
+        '<text x="314" y="106" font-size="11.5" font-weight="700" class="svg-seal">【2歳の相談目安】</text>' +
+        '<text x="314" y="124" font-size="11" class="svg-muted">・意味のあることば（単語）や二語文が出ない</text>' +
+        '<text x="314" y="142" font-size="11" class="svg-muted">→ まず聴力（難聴の除外）と発達を確認</text>';
+
     } else {
-      /* 3歳：ごっこ遊び・やりとり */
+      /* 3歳：会話とごっこ遊び（2人の3歳児がままごとテーブルでお皿とコップをやりとり） */
       scene =
-        '<line x1="40" y1="170" x2="520" y2="170" stroke="var(--line)" stroke-width="2"/>' +
-        '<g class="hv-bob">' +
-          '<rect x="136" y="92" width="38" height="48" rx="12" fill="var(--hv-shirt)"/>' +
-          '<line x1="146" y1="140" x2="146" y2="168" stroke="var(--hv-hair)" stroke-width="7" stroke-linecap="round"/>' +
-          '<line x1="164" y1="140" x2="164" y2="168" stroke="var(--hv-hair)" stroke-width="7" stroke-linecap="round"/>' +
-          '<circle cx="155" cy="66" r="22" ' + head + '/>' +
-          '<path d="M133 60 Q155 38 177 60" ' + hair + '/>' +
+        '<line x1="32" y1="168" x2="348" y2="168" stroke="var(--line)" stroke-width="2"/>' +
+        /* 左の子（男の子・お皿を差し出す） */
+        '<g class="hv-breathe">' +
+          '<path d="M92 136 L90 162 M110 136 L112 162" stroke="var(--hv-skin-stroke)" stroke-width="9.5" stroke-linecap="round"/>' +
+          '<path d="M92 136 L90 162 M110 136 L112 162" stroke="var(--hv-skin)" stroke-width="7" stroke-linecap="round"/>' +
+          '<ellipse cx="90" cy="164" rx="8" ry="4" fill="var(--hv-shirt-dk)"/>' +
+          '<ellipse cx="113" cy="164" rx="8" ry="4" fill="var(--hv-shirt-dk)"/>' +
+          '<path d="M84 92 C84 84, 118 84, 118 92 L120 136 L82 136 Z" ' + sh1 + '/>' +
+          '<rect x="96" y="78" width="10" height="12" rx="4" ' + sk + '/>' +
+          '<path d="M78 58 C78 40, 90 30, 102 30 C116 30, 126 40, 126 58 C126 72, 116 82, 102 82 C88 82, 78 72, 78 58 Z" ' + sk + '/>' +
+          '<path d="M78 54 C78 36, 90 28, 104 28 C118 28, 126 38, 126 54 C118 44, 108 40, 96 42 C86 43, 82 48, 78 54 Z" ' + hr + '/>' +
+          '<ellipse cx="112" cy="64" rx="4.5" ry="2.8" fill="var(--hv-blush)" opacity=".68"/>' +
+          '<circle cx="112" cy="55" r="3" fill="var(--hv-eye)"/><circle cx="113" cy="53.8" r="1" fill="#fff"/>' +
+          '<path d="M107 69 Q112 74 118 69" fill="none" stroke="var(--hv-mouth)" stroke-width="1.8" stroke-linecap="round"/>' +
+          /* 差し出す腕 */
+          '<path d="M114 100 C128 106, 140 108, 152 108" fill="none" stroke="var(--hv-skin-stroke)" stroke-width="9" stroke-linecap="round"/>' +
+          '<path d="M114 100 C128 106, 140 108, 152 108" fill="none" stroke="var(--hv-skin)" stroke-width="6.5" stroke-linecap="round"/>' +
         '</g>' +
-        '<g class="hv-bob" style="animation-delay:.4s">' +
-          '<rect x="266" y="92" width="38" height="48" rx="12" fill="var(--hv-shirt2)"/>' +
-          '<line x1="276" y1="140" x2="276" y2="168" stroke="var(--hv-hair)" stroke-width="7" stroke-linecap="round"/>' +
-          '<line x1="294" y1="140" x2="294" y2="168" stroke="var(--hv-hair)" stroke-width="7" stroke-linecap="round"/>' +
-          '<circle cx="285" cy="66" r="22" ' + head + '/>' +
-          '<path d="M263 60 Q285 38 307 60" ' + hair + '/>' +
+        /* ままごとテーブルとお皿・ティーポット */
+        '<rect x="142" y="122" width="96" height="10" rx="4" fill="var(--hv-wood)" stroke="var(--hv-wood-dk)" stroke-width="1.5"/>' +
+        '<line x1="156" y1="132" x2="152" y2="166" stroke="var(--hv-wood-dk)" stroke-width="4" stroke-linecap="round"/>' +
+        '<line x1="224" y1="132" x2="228" y2="166" stroke="var(--hv-wood-dk)" stroke-width="4" stroke-linecap="round"/>' +
+        '<ellipse cx="166" cy="118" rx="14" ry="4.5" fill="#fff" stroke="var(--accent)" stroke-width="1.4"/>' +
+        '<circle cx="166" cy="113" r="5.5" fill="var(--seal)"/>' +
+        '<rect x="198" y="106" width="16" height="15" rx="4" fill="var(--lamp)" stroke="var(--panel)" stroke-width="1.2"/>' +
+        /* 右の子（女の子・お団子ヘア・受け取る） */
+        '<g class="hv-breathe" style="animation-delay:.5s">' +
+          '<path d="M266 136 L264 162 M284 136 L286 162" stroke="var(--hv-skin-stroke)" stroke-width="9.5" stroke-linecap="round"/>' +
+          '<path d="M266 136 L264 162 M284 136 L286 162" stroke="var(--hv-skin)" stroke-width="7" stroke-linecap="round"/>' +
+          '<ellipse cx="264" cy="164" rx="8" ry="4" fill="var(--hv-shirt3-dk)"/>' +
+          '<ellipse cx="286" cy="164" rx="8" ry="4" fill="var(--hv-shirt3-dk)"/>' +
+          '<path d="M258 92 C258 84, 292 84, 292 92 L296 136 L254 136 Z" ' + sh3 + '/>' +
+          '<rect x="270" y="78" width="10" height="12" rx="4" ' + sk + '/>' +
+          '<circle cx="302" cy="54" r="9" ' + hr + '/>' +
+          '<path d="M252 58 C252 40, 264 30, 276 30 C290 30, 300 40, 300 58 C300 72, 290 82, 276 82 C262 82, 252 72, 252 58 Z" ' + sk + '/>' +
+          '<path d="M252 54 C252 36, 264 28, 278 28 C292 28, 300 38, 300 56 C290 45, 278 41, 266 43 C258 44, 254 49, 252 54 Z" ' + hr + '/>' +
+          '<ellipse cx="264" cy="64" rx="4.5" ry="2.8" fill="var(--hv-blush)" opacity=".68"/>' +
+          '<circle cx="264" cy="55" r="3" fill="var(--hv-eye)"/><circle cx="263" cy="53.8" r="1" fill="#fff"/>' +
+          '<path d="M260 69 Q265 74 271 69" fill="none" stroke="var(--hv-mouth)" stroke-width="1.8" stroke-linecap="round"/>' +
+          /* 受け取る腕 */
+          '<path d="M260 100 C246 106, 234 108, 222 108" fill="none" stroke="var(--hv-skin-stroke)" stroke-width="9" stroke-linecap="round"/>' +
+          '<path d="M260 100 C246 106, 234 108, 222 108" fill="none" stroke="var(--hv-skin)" stroke-width="6.5" stroke-linecap="round"/>' +
         '</g>' +
-        '<rect x="88" y="18" width="110" height="30" rx="12" fill="var(--panel)" stroke="var(--accent)" stroke-width="1.5"/>' +
-        '<text x="143" y="38" text-anchor="middle" font-size="12.5" font-weight="700" class="svg-accent">「はい どうぞ」</text>' +
-        '<rect x="242" y="18" width="116" height="30" rx="12" fill="var(--panel)" stroke="var(--ok)" stroke-width="1.5"/>' +
-        '<text x="300" y="38" text-anchor="middle" font-size="12.5" font-weight="700" class="svg-ok">「ありがとう！」</text>' +
-        '<rect x="366" y="76" width="166" height="72" rx="10" fill="var(--panel)" stroke="var(--line)" stroke-width="1.5"/>' +
-        '<text x="380" y="102" font-size="13.5" font-weight="700" class="svg-accent">3歳：ごっこ遊び</text>' +
-        '<text x="380" y="122" font-size="11.5" class="svg-muted">3歳で二語文なしは</text>' +
-        '<text x="380" y="138" font-size="11.5" font-weight="700" class="svg-seal">聴力＋発達検査</text>';
+        /* 会話吹き出し */
+        '<rect x="34" y="2" width="114" height="24" rx="10" fill="var(--panel)" stroke="var(--accent)" stroke-width="1.5"/>' +
+        '<text x="91" y="18" text-anchor="middle" font-size="11.5" font-weight="700" class="svg-accent">「ケーキ どうぞ！」</text>' +
+        '<rect x="218" y="2" width="116" height="24" rx="10" fill="var(--panel)" stroke="var(--ok)" stroke-width="1.5"/>' +
+        '<text x="276" y="18" text-anchor="middle" font-size="11.5" font-weight="700" class="svg-ok">「ありがとう♪」</text>' +
+        /* 3歳説明カード */
+        '<rect x="346" y="44" width="198" height="108" rx="10" fill="var(--panel)" stroke="var(--accent)" stroke-width="1.5"/>' +
+        '<text x="358" y="68" font-size="13.5" font-weight="700" class="svg-accent">3歳：会話とごっこ遊び</text>' +
+        '<text x="358" y="88" font-size="11.5" class="svg-muted">・見立て遊び・友だちと役割交代</text>' +
+        '<text x="358" y="106" font-size="11.5" class="svg-muted">・二〜三語文で会話のやりとり</text>' +
+        '<text x="358" y="126" font-size="11.5" font-weight="700" class="svg-seal">・3歳で二語文なしは聴力＋</text>' +
+        '<text x="358" y="142" font-size="11.5" font-weight="700" class="svg-seal">　発達検査（新版K式など）</text>';
     }
 
     /* 下部の月齢目盛りバー */
@@ -1208,11 +1737,11 @@ var CASES = [
     return '<svg class="hv-svg" viewBox="0 0 560 212" role="img" aria-label="' + st.label + '">' + scene + bar + '</svg>';
   }
 
-  /* 成長曲線（体重の帯・0〜24か月）SVG */
+  /* 成長曲線（体重の帯・0〜24か月）SVG（チャッピー査読反映：教材用の仮の帯と明示） */
   var CURVE_DATA = {
     normal: {
       cls: '', color: 'var(--ok)',
-      msg: '標準：成長曲線の帯に沿ってなめらかに伸びています（安心の目安）。',
+      msg: '帯に沿う増加：成長曲線の帯に沿ってなめらかに増えています（経過で追うことが大切）。',
       pts: [[0, 3.1], [3, 6.4], [6, 8.0], [9, 8.8], [12, 9.5], [18, 10.7], [24, 11.9]]
     },
     small: {
@@ -1222,7 +1751,7 @@ var CASES = [
     },
     drop: {
       cls: 'warn', color: 'var(--seal)',
-      msg: '要注意：6か月以降に横ばいとなり、帯を横切って下に外れています。病気・栄養・ネグレクトを考えます。',
+      msg: '要注意：6か月ごろから増えず横ばいとなり、帯を下に外れています。病気・栄養・ネグレクトを評価します。',
       pts: [[0, 3.1], [3, 6.2], [6, 7.6], [9, 7.4], [12, 7.2], [15, 7.1]]
     }
   };
@@ -1230,13 +1759,12 @@ var CASES = [
   function growthCurveSVG(mode, maxMonth, compact) {
     maxMonth = maxMonth || 24;
     var W = 560, H = compact ? 205 : 228;
-    var L = 52, R = 20, T = 20, B = 34;
+    var L = 52, R = 20, T = 22, B = 34;
     var gw = W - L - R, gh = H - T - B;
     var maxKg = maxMonth <= 12 ? 12 : 15;
     function X(m) { return L + (m / maxMonth) * gw; }
     function Y(kg) { return T + gh - ((kg - 1) / (maxKg - 1)) * gh; }
 
-    /* 標準帯の模式点（3〜97パーセンタイル相当） */
     var bandM = maxMonth <= 12 ? [0, 3, 6, 9, 12] : [0, 3, 6, 9, 12, 18, 24];
     var upper = { 0: 3.9, 3: 7.7, 6: 9.7, 9: 10.8, 12: 11.6, 18: 12.9, 24: 14.2 };
     var mid = { 0: 3.1, 3: 6.3, 6: 7.9, 9: 8.8, 12: 9.5, 18: 10.7, 24: 11.9 };
@@ -1271,16 +1799,16 @@ var CASES = [
       var x6 = X(6), last = pts[pts.length - 1];
       warnZone =
         '<rect x="' + x6.toFixed(1) + '" y="' + T + '" width="' + (W - R - x6).toFixed(1) + '" height="' + gh + '" fill="var(--hv-warn-bg)"/>' +
-        '<text x="' + (X(last[0]) - 6).toFixed(1) + '" y="' + (Y(last[1]) + 20).toFixed(1) + '" text-anchor="end" font-size="12" font-weight="700" class="svg-seal">帯から外れている！</text>';
+        '<text x="' + (X(last[0]) - 6).toFixed(1) + '" y="' + (Y(last[1]) + 20).toFixed(1) + '" text-anchor="end" font-size="11.5" font-weight="700" class="svg-seal">6か月以降増えず帯を下に外れる</text>';
     }
 
-    return '<svg class="hv-svg" viewBox="0 0 ' + W + ' ' + H + '" role="img" aria-label="体重の成長曲線（模式グラフ）">' +
+    return '<svg class="hv-svg" viewBox="0 0 ' + W + ' ' + H + '" role="img" aria-label="体重の成長曲線（教材用の仮の帯）">' +
       grid + warnZone +
       '<polygon points="' + poly + '" fill="var(--hv-band)"/>' +
       '<polyline points="' + upLine + '" fill="none" stroke="var(--hv-band-edge)" stroke-width="1.2"/>' +
       '<polyline points="' + midLine + '" fill="none" stroke="var(--hv-band-edge)" stroke-width="1.2" stroke-dasharray="4 4"/>' +
       '<polyline points="' + loLine + '" fill="none" stroke="var(--hv-band-edge)" stroke-width="1.2"/>' +
-      '<text x="' + (W - R - 4) + '" y="' + (Y(upper[maxMonth]) + 14).toFixed(1) + '" text-anchor="end" font-size="10.5" font-weight="700" class="svg-accent">標準の帯（模式）</text>' +
+      '<text x="' + (L + 6) + '" y="' + (T + 13) + '" font-size="10.5" font-weight="700" class="svg-accent">教材用の仮の帯（※母子手帳の男女別基準値ではありません）</text>' +
       '<path class="hv-draw" d="' + pathD + '" fill="none" stroke="' + cfg.color + '" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"/>' +
       dots +
       '</svg>';
@@ -1311,15 +1839,16 @@ var CASES = [
             '<label class="hv-range-wrap"><span style="position:absolute;width:1px;height:1px;overflow:hidden">月齢</span><input type="range" class="hv-range" id="hvAgeRange" min="0" max="36" value="4"></label>' +
           '</div>' +
           '<div class="hv-jumps" id="hvJumps" style="margin-top:8px">' +
+            '<button type="button" class="hv-jump" data-m="1">0〜2か月 追視</button>' +
             '<button type="button" class="hv-jump" data-m="4">3〜4か月 首すわり</button>' +
             '<button type="button" class="hv-jump" data-m="7">7か月 おすわり</button>' +
             '<button type="button" class="hv-jump" data-m="12">1歳 初語・指さし</button>' +
-            '<button type="button" class="hv-jump" data-m="18">1歳半 ひとり歩き</button>' +
+            '<button type="button" class="hv-jump" data-m="18">1歳6か月 ひとり歩き</button>' +
             '<button type="button" class="hv-jump" data-m="24">2歳 二語文</button>' +
             '<button type="button" class="hv-jump" data-m="36">3歳 ごっこ遊び</button>' +
           '</div>' +
           '<div class="hv-lanes" id="hvLanes" style="margin-top:8px"></div>' +
-          '<p class="hv-note" style="margin-top:6px">※ 発達の目安には個人差があり、試験勉強用の模式図です。つまみを動かして月齢ごとの変化を比べられます。</p>' +
+          '<p class="hv-note" style="margin-top:6px">※ 発達の目安には個人差があり、試験勉強用の模式図です。つまみを動かして月齢ごとの姿勢とやりとりの変化を比べられます。</p>' +
         '</div>' +
         '<div id="hvPanelCurve" hidden>' +
           '<div class="hv-stage" id="hvCurveStage"></div>' +
@@ -1329,7 +1858,7 @@ var CASES = [
             '<button type="button" class="hv-cbtn is-bad" data-c="drop" aria-pressed="false">帯から外れていく（要注意）</button>' +
           '</div>' +
           '<p class="hv-curve-msg" id="hvCurveMsg" style="margin-top:8px"></p>' +
-          '<p class="hv-note" style="margin-top:6px">※ 学習用の模式グラフです。実際の診療では母子手帳の性別ごとの身体発育曲線を使います。</p>' +
+          '<p class="hv-note" style="margin-top:6px">※ グラフの帯は教材用の仮の帯（男女共通の模式図）で、母子手帳の基準値には使えません。実際の診療では母子手帳の男女別の公表曲線（乳幼児身体発育曲線）で経過を読みます。</p>' +
         '</div>' +
       '</div>';
     board.parentNode.insertBefore(sec, board);
@@ -1350,7 +1879,7 @@ var CASES = [
       var lanes = '<div class="hv-lane"><b>運動</b>' + st.motor + '</div>' +
         '<div class="hv-lane"><b>ことば</b>' + st.lang + '</div>' +
         '<div class="hv-lane"><b>やりとり</b>' + st.soc + '</div>';
-      if (st.sign) lanes += '<div class="hv-lane warn" style="grid-column:1/-1"><b>気になるサイン</b>' + st.sign + '</div>';
+      if (st.sign) lanes += '<div class="hv-lane warn" style="grid-column:1/-1"><b>相談・評価の目安</b>' + st.sign + '</div>';
       document.getElementById('hvLanes').innerHTML = lanes;
       var js = document.querySelectorAll('#hvJumps .hv-jump');
       for (var i = 0; i < js.length; i++) {
@@ -1390,7 +1919,6 @@ var CASES = [
       renderCurve(b.getAttribute('data-c'));
     });
 
-    /* タブ切替 */
     sec.querySelector('.hv-tabs').addEventListener('click', function (e) {
       var b = e.target.closest('.hv-tab'); if (!b) return;
       var isAge = b.getAttribute('data-tab') === 'age';
@@ -1402,7 +1930,6 @@ var CASES = [
       if (!isAge) renderCurve('normal');
     });
 
-    /* たたむ／ひらく */
     var tg = document.getElementById('hvLabToggle');
     var bd = document.getElementById('hvLabBody');
     tg.addEventListener('click', function () {
@@ -1417,270 +1944,486 @@ var CASES = [
     renderCurve('normal');
   }
 
-  /* ---------- 2. 全8症例それぞれの専用ビジュアル ---------- */
+  /* ---------- 2. 全8症例それぞれの専用ビジュアル（自然な人体比率＋査読7件反映） ---------- */
   var caseState = { c0Tv: false, c4Mode: 'hear', c5Urge: 22 };
 
   function buildCaseVisual(ci, ansN) {
-    /* 0: 1歳6か月 名前を呼んでも振り向かない（共同注意・聴力） */
+    var sk = 'fill="var(--hv-skin)" stroke="var(--hv-skin-stroke)" stroke-width="1.6" stroke-linejoin="round"';
+    var hr = 'fill="var(--hv-hair)"';
+    var sh1 = 'fill="var(--hv-shirt)" stroke="var(--hv-shirt-dk)" stroke-width="1.5" stroke-linejoin="round"';
+    var sh2 = 'fill="var(--hv-shirt2)" stroke="var(--hv-shirt2-dk)" stroke-width="1.5" stroke-linejoin="round"';
+    var sh3 = 'fill="var(--hv-shirt3)" stroke="var(--hv-shirt3-dk)" stroke-width="1.5" stroke-linejoin="round"';
+
+    /* 0: 1歳6か月 名前を呼んでも振り向かない（共同注意・呼名反応・聴力確認） */
     if (ci === 0) {
       var tv = caseState.c0Tv;
       return '<div class="hv-case-h"><span class="hv-case-tag">診察室のようす（再現アニメ）</span><span>1歳6か月・男の子</span></div>' +
-        '<svg class="hv-svg" viewBox="0 0 560 195" role="img" aria-label="呼びかけには振り向かずミニカーのタイヤを回し続ける様子">' +
-          '<line x1="20" y1="170" x2="540" y2="170" stroke="var(--line)" stroke-width="2"/>' +
-          /* 母の呼びかけ */
-          '<rect x="44" y="84" width="44" height="68" rx="14" fill="var(--hv-mom)"/>' +
-          '<circle cx="66" cy="58" r="21" fill="var(--hv-skin)" stroke="var(--hv-skin-stroke)" stroke-width="2"/>' +
-          '<path d="M45 54 Q66 28 87 54" fill="var(--hv-hair)"/>' +
-          '<rect x="96" y="24" width="124" height="30" rx="12" fill="var(--panel)" stroke="var(--accent)" stroke-width="1.5"/>' +
-          '<text x="158" y="44" text-anchor="middle" font-size="12.5" font-weight="700" class="svg-accent">「〇〇くん！」</text>' +
-          '<path class="hv-wave" d="M102 68 Q114 78 102 88 M112 62 Q128 78 112 94" fill="none" stroke="var(--accent)" stroke-width="2.2" stroke-linecap="round"/>' +
-          /* 男の子（通常はミニカーに夢中、TV音で右を向く） */
-          '<g transform="translate(' + (tv ? 94 : 0) + ',0)" style="transition:transform .45s ease">' +
-            '<rect x="224" y="106" width="38" height="44" rx="12" fill="var(--hv-shirt)"/>' +
-            '<circle cx="243" cy="82" r="20" fill="var(--hv-skin)" stroke="var(--hv-skin-stroke)" stroke-width="2"/>' +
-            '<path d="M223 77 Q243 56 263 77" fill="var(--hv-hair)"/>' +
-            '<circle cx="' + (tv ? 252 : 248) + '" cy="' + (tv ? 80 : 88) + '" r="2.3" fill="var(--hv-hair)"/>' +
-            (tv
-              ? '<text x="243" y="48" text-anchor="middle" font-size="12" font-weight="700" class="svg-lamp">ハッ！（CMの音）</text>'
-              : '<text x="243" y="48" text-anchor="middle" font-size="11.5" class="svg-muted">振り向かない…</text>') +
+        '<svg class="hv-svg" viewBox="0 0 560 186" role="img" aria-label="母親の呼びかけには振り向かずミニカーのタイヤを回し続け、テレビのCM音には反応する様子">' +
+          '<line x1="20" y1="164" x2="540" y2="164" stroke="var(--line)" stroke-width="2"/>' +
+          /* 母親（左・優しい表情で手を振りながら名前を呼ぶ） */
+          '<g>' +
+            '<path d="M40 94 C40 84, 78 84, 78 94 L84 162 L34 162 Z" fill="var(--hv-mom)" stroke="var(--hv-mom-dk)" stroke-width="1.6"/>' +
+            '<path d="M50 90 L59 104 L68 90" fill="#fff" stroke="var(--hv-mom-dk)" stroke-width="1.2"/>' +
+            '<path d="M76 98 C90 94, 102 86, 110 78" fill="none" stroke="var(--hv-mom-dk)" stroke-width="10" stroke-linecap="round"/>' +
+            '<path d="M76 98 C90 94, 102 86, 110 78" fill="none" stroke="var(--hv-mom)" stroke-width="7.5" stroke-linecap="round"/>' +
+            '<circle cx="112" cy="76" r="5" ' + sk + '/>' +
+            '<rect x="53" y="76" width="11" height="12" rx="4" ' + sk + '/>' +
+            '<path d="M36 56 C36 38, 48 28, 60 28 C74 28, 84 38, 84 56 C84 70, 74 80, 60 80 C46 80, 36 70, 36 56 Z" ' + sk + '/>' +
+            '<path d="M36 54 C36 34, 48 24, 62 24 C76 24, 86 36, 84 58 C78 44, 68 38, 56 40 C44 41, 39 47, 36 54 Z" fill="var(--hv-hair-mom)"/>' +
+            '<circle cx="34" cy="58" r="8" fill="var(--hv-hair-mom)"/>' +
+            '<circle cx="71" cy="54" r="2.8" fill="var(--hv-eye)"/><circle cx="72" cy="53" r="1" fill="#fff"/>' +
+            '<path d="M66 46 Q71 43 76 46" fill="none" stroke="var(--hv-hair-mom)" stroke-width="1.4" stroke-linecap="round"/>' +
+            '<ellipse cx="70" cy="67" rx="4" ry="3" fill="var(--hv-mouth)"/>' +
           '</g>' +
-          /* ミニカーと回転タイヤ */
-          '<rect x="266" y="142" width="44" height="17" rx="6" fill="var(--seal)"/>' +
-          '<g class="hv-spin"><circle cx="277" cy="161" r="8.5" fill="var(--hv-hair)" stroke="var(--panel)" stroke-width="2"/><line x1="277" y1="153" x2="277" y2="169" stroke="var(--panel)" stroke-width="2"/></g>' +
-          '<g class="hv-spin"><circle cx="299" cy="161" r="8.5" fill="var(--hv-hair)" stroke="var(--panel)" stroke-width="2"/><line x1="299" y1="153" x2="299" y2="169" stroke="var(--panel)" stroke-width="2"/></g>' +
-          '<text x="288" y="186" text-anchor="middle" font-size="10.5" class="svg-muted">タイヤをずっと回す</text>' +
+          '<rect x="92" y="14" width="118" height="28" rx="11" fill="var(--panel)" stroke="var(--accent)" stroke-width="1.6"/>' +
+          '<text x="151" y="32" text-anchor="middle" font-size="12.5" font-weight="700" class="svg-accent">「〇〇くん！」</text>' +
+          '<path class="hv-wave" d="M122 54 Q134 64 122 74 M132 48 Q148 64 132 80" fill="none" stroke="var(--accent)" stroke-width="2.2" stroke-linecap="round"/>' +
+          /* 1歳6か月の男の子（しゃがんでミニカーのタイヤを回す／TV音でTV側へ振り向く） */
+          '<g transform="translate(' + (tv ? 58 : 0) + ',0)" style="transition:transform .45s cubic-bezier(.4,0,.2,1)">' +
+            /* しゃがんだ脚と靴 */
+            '<path d="M236 144 C224 146, 218 154, 226 160 L254 160 C260 160, 260 152, 250 148 Z" fill="var(--hv-shirt-dk)"/>' +
+            '<ellipse cx="228" cy="161" rx="8" ry="4" fill="var(--hv-hair)"/>' +
+            '<ellipse cx="252" cy="161" rx="8" ry="4" fill="var(--hv-hair)"/>' +
+            /* 前かがみの胴体 */
+            '<path d="M224 106 C224 98, 256 98, 258 108 L260 146 L222 146 Z" ' + sh1 + '/>' +
+            /* 腕（ミニカーのタイヤに手を伸ばす） */
+            '<path d="M252 114 C264 122, 274 130, 282 136" fill="none" stroke="var(--hv-skin-stroke)" stroke-width="9" stroke-linecap="round"/>' +
+            '<path d="M252 114 C264 122, 274 130, 282 136" fill="none" stroke="var(--hv-skin)" stroke-width="6.5" stroke-linecap="round"/>' +
+            /* 首と頭 */
+            '<rect x="236" y="92" width="11" height="11" rx="4" ' + sk + '/>' +
+            '<path d="M218 74 C218 56, 230 46, 244 46 C258 46, 270 56, 270 74 C270 88, 258 98, 244 98 C230 98, 218 88, 218 74 Z" ' + sk + '/>' +
+            '<ellipse cx="226" cy="76" rx="4.5" ry="6" ' + sk + '/>' +
+            '<path d="M218 70 C218 52, 230 44, 246 44 C260 44, 270 54, 270 70 C260 58, 250 55, 238 56 C228 57, 222 62, 218 70 Z" ' + hr + '/>' +
+            '<ellipse cx="256" cy="80" rx="4.5" ry="2.8" fill="var(--hv-blush)" opacity=".65"/>' +
+            '<circle cx="' + (tv ? 260 : 256) + '" cy="' + (tv ? 72 : 78) + '" r="3.1" fill="var(--hv-eye)"/>' +
+            '<circle cx="' + (tv ? 261 : 257) + '" cy="' + (tv ? 71 : 77) + '" r="1" fill="#fff"/>' +
+            '<path d="M252 88 L260 88" stroke="var(--hv-mouth)" stroke-width="1.8" stroke-linecap="round"/>' +
+            '<rect x="206" y="14" width="128" height="24" rx="8" fill="var(--panel)" stroke="' + (tv ? 'var(--lamp)' : 'var(--line)') + '" stroke-width="1.3"/>' +
+            (tv
+              ? '<text x="270" y="30" text-anchor="middle" font-size="11.5" font-weight="700" class="svg-lamp">ハッ！（CM音に走る）</text>'
+              : '<text x="270" y="30" text-anchor="middle" font-size="11.5" class="svg-muted">呼んでも振り向かない</text>') +
+          '</g>' +
+          /* ひっくり返したミニカーと回転タイヤ */
+          '<path d="M280 144 L328 144 C332 144, 334 156, 328 158 L280 158 C274 156, 276 144, 280 144 Z" fill="var(--seal)" stroke="var(--panel)" stroke-width="1.2"/>' +
+          '<g class="hv-spin"><circle cx="291" cy="138" r="8.5" fill="var(--hv-hair)" stroke="var(--panel)" stroke-width="1.8"/><line x1="291" y1="130" x2="291" y2="146" stroke="var(--panel)" stroke-width="1.8"/><line x1="283" y1="138" x2="299" y2="138" stroke="var(--panel)" stroke-width="1.8"/></g>' +
+          '<g class="hv-spin"><circle cx="317" cy="138" r="8.5" fill="var(--hv-hair)" stroke="var(--panel)" stroke-width="1.8"/><line x1="317" y1="130" x2="317" y2="146" stroke="var(--panel)" stroke-width="1.8"/><line x1="309" y1="138" x2="325" y2="138" stroke="var(--panel)" stroke-width="1.8"/></g>' +
+          '<text x="304" y="179" text-anchor="middle" font-size="10.5" font-weight="700" class="svg-muted">タイヤをずっと回し続ける</text>' +
           /* テレビ */
-          '<rect x="438" y="72" width="84" height="58" rx="8" fill="var(--panel)" stroke="' + (tv ? 'var(--lamp)' : 'var(--line)') + '" stroke-width="2.2"/>' +
-          '<rect x="446" y="80" width="68" height="40" rx="4" fill="' + (tv ? 'var(--accent-soft)' : 'var(--hv-stage-2)') + '"/>' +
-          '<text x="480" y="105" text-anchor="middle" font-size="13" font-weight="700" class="' + (tv ? 'svg-lamp' : 'svg-muted') + '">' + (tv ? '♪ CM音 ♪' : 'TV') + '</text>' +
-          '<line x1="464" y1="130" x2="496" y2="130" stroke="var(--line)" stroke-width="4" stroke-linecap="round"/>' +
-          (tv ? '<text class="hv-tv-note" x="424" y="86" font-size="18" class="svg-lamp">♪</text><text class="hv-tv-note" x="412" y="106" font-size="14" class="svg-accent" style="animation-delay:.3s">♫</text>' : '') +
-          /* 問1解答後に共同注意の×ライン */
-          (ansN >= 1 ? '<line x1="94" y1="74" x2="226" y2="82" stroke="var(--seal)" stroke-width="2.2" stroke-dasharray="5 4"/><text x="160" y="96" text-anchor="middle" font-size="11.5" font-weight="700" class="svg-seal">視線・呼名反応が弱い</text>' : '') +
+          '<rect x="424" y="128" width="108" height="34" rx="4" fill="var(--hv-wood)" stroke="var(--hv-wood-dk)" stroke-width="1.4"/>' +
+          '<rect x="434" y="62" width="88" height="60" rx="8" fill="var(--panel)" stroke="' + (tv ? 'var(--lamp)' : 'var(--line)') + '" stroke-width="2.2"/>' +
+          '<rect x="441" y="69" width="74" height="42" rx="4" fill="' + (tv ? 'var(--accent-soft)' : 'var(--hv-stage-2)') + '"/>' +
+          '<text x="478" y="95" text-anchor="middle" font-size="13" font-weight="700" class="' + (tv ? 'svg-lamp' : 'svg-muted') + '">' + (tv ? '♪ CM音 ♪' : 'TV') + '</text>' +
+          (tv ? '<text class="hv-tv-note" x="422" y="76" font-size="18" class="svg-lamp">♪</text><text class="hv-tv-note" x="408" y="96" font-size="14" class="svg-accent" style="animation-delay:.3s">♫</text>' : '') +
+          (ansN >= 1 ? '<line x1="90" y1="68" x2="214" y2="74" stroke="var(--seal)" stroke-width="2.2" stroke-dasharray="5 4"/><rect x="92" y="102" width="128" height="20" rx="6" fill="var(--panel)" stroke="var(--seal)" stroke-width="1.2"/><text x="156" y="116" text-anchor="middle" font-size="10.5" font-weight="700" class="svg-seal">指さし・呼名反応が乏しい</text>' : '') +
         '</svg>' +
         '<div class="hv-case-act">' +
-          '<button type="button" class="hv-act-btn" data-act="c0tv" aria-pressed="' + tv + '">' + (tv ? 'ミニカーに戻す' : '📺 CMの音を再現してみる') + '</button>' +
-          '<span class="hv-note">運動：順調（1歳1か月で歩行） ／ ことば：まだ ／ やりとり：指さし・呼名なし</span>' +
+          '<button type="button" class="hv-act-btn" data-act="c0tv" aria-pressed="' + tv + '">' + (tv ? 'ミニカー遊びに戻す' : '📺 CMの音を再現してみる') + '</button>' +
+          '<span class="hv-note">運動：順調（首すわり3か月・歩行1歳1か月）／ ことば：意味のある語なし ／ やりとり：指さし・呼名反応なし</span>' +
         '</div>' +
-        (ansN >= 2 ? '<div class="hv-reveal warn"><b>ポイント：</b>大きなCM音に走ってきても聴力が正常とは限りません。まず聴力検査で難聴を除外します。</div>' : '');
+        (ansN >= 2 ? '<div class="hv-reveal warn"><b>初期評価のポイント：</b>テレビのCM音に反応しても会話音域が十分に聞こえているとは限らないため、まず聴力検査を確かめ、並行して発達相談・療育へつなぎます。</div>' : '');
     }
 
-    /* 1: 3歳 ことばだけが遅い（理解・やりとり vs 表出） */
+    /* 1: 3歳 ことばだけが遅い（理解・やりとり vs 表出＋新版K式を5歳で区切らない検査年齢帯） */
     if (ci === 1) {
-      return '<div class="hv-case-h"><span class="hv-case-tag">3領域の発達バランス（3歳）</span><span>理解・やりとりと「話すことば」の差</span></div>' +
-        '<svg class="hv-svg" viewBox="0 0 560 175" role="img" aria-label="理解とやりとりは育っているが表出のことばだけが遅れている棒グラフ">' +
-          '<line x1="150" y1="22" x2="150" y2="146" stroke="var(--line)" stroke-width="1.5"/>' +
-          /* 2歳目安ライン */
-          '<line x1="360" y1="18" x2="360" y2="146" stroke="var(--lamp)" stroke-width="1.8" stroke-dasharray="5 4"/>' +
-          '<text x="360" y="162" text-anchor="middle" font-size="11" font-weight="700" class="svg-lamp">2歳目安（二語文）</text>' +
-          /* 3歳目安ライン */
-          '<line x1="480" y1="18" x2="480" y2="146" stroke="var(--accent)" stroke-width="1.8" stroke-dasharray="4 4"/>' +
-          '<text x="480" y="162" text-anchor="middle" font-size="11" font-weight="700" class="svg-accent">いま 3歳</text>' +
-          /* 理解 */
-          '<text x="140" y="48" text-anchor="end" font-size="13" font-weight="700">理解（聞いて動く）</text>' +
-          '<rect x="150" y="30" width="320" height="26" rx="6" fill="var(--ok)"/>' +
-          '<text x="160" y="48" font-size="12" font-weight="700" fill="#fff">指示を理解して動ける</text>' +
-          /* やりとり */
-          '<text x="140" y="88" text-anchor="end" font-size="13" font-weight="700">やりとり・遊び</text>' +
-          '<rect x="150" y="70" width="310" height="26" rx="6" fill="var(--accent)"/>' +
-          '<text x="160" y="88" font-size="12" font-weight="700" fill="#fff">指さし・ごっこ遊び・友だち好き</text>' +
-          /* 表出 */
-          '<text x="140" y="128" text-anchor="end" font-size="13" font-weight="700" class="svg-seal">表出（話すことば）</text>' +
-          '<rect x="150" y="110" width="136" height="26" rx="6" fill="var(--seal)"/>' +
-          '<text x="294" y="128" font-size="12" font-weight="700" class="svg-seal">単語10個・二語文なし</text>' +
-        '</svg>' +
-        (ansN >= 2 ? '<div class="hv-reveal"><b>年齢に合う検査の帯（いま3歳）：</b><div class="hv-agebar" style="margin-top:6px"><span class="hit">0〜5歳：新版K式など（発達検査）◀ ここ</span><span>5歳〜：WISC-V</span><span>16歳〜：WAIS-IV</span></div></div>' : '');
+      return '<div class="hv-case-h"><span class="hv-case-tag">3歳・理解とやりとり vs 表出 ＆ 検査の対象年齢</span><span>3歳・女の子</span></div>' +
+        '<svg class="hv-svg" viewBox="0 0 560 194" role="img" aria-label="指さしや簡単な指示理解とごっこ遊びはできるが話すことばが遅れている3歳児と、新版K式・WISC-V・WAIS-IVの対象年齢帯">' +
+          /* 左側：指さしと指示理解ができる3歳女の子のイラスト */
+          '<rect x="12" y="10" width="166" height="174" rx="9" fill="var(--panel)" stroke="var(--line)" stroke-width="1.3"/>' +
+          '<text x="95" y="28" text-anchor="middle" font-size="11.5" font-weight="700" class="svg-accent">診察室での様子（3歳）</text>' +
+          '<g class="hv-breathe">' +
+            '<path d="M74 134 L72 162 M92 134 L94 162" stroke="var(--hv-skin-stroke)" stroke-width="9" stroke-linecap="round"/>' +
+            '<path d="M74 134 L72 162 M92 134 L94 162" stroke="var(--hv-skin)" stroke-width="6.5" stroke-linecap="round"/>' +
+            '<ellipse cx="72" cy="163" rx="7.5" ry="4" fill="var(--hv-shirt3-dk)"/>' +
+            '<ellipse cx="94" cy="163" rx="7.5" ry="4" fill="var(--hv-shirt3-dk)"/>' +
+            '<path d="M66 92 C66 84, 100 84, 100 92 L104 136 L62 136 Z" ' + sh3 + '/>' +
+            '<rect x="78" y="79" width="10" height="11" rx="4" ' + sk + '/>' +
+            '<circle cx="56" cy="58" r="7.5" ' + hr + '/><circle cx="110" cy="58" r="7.5" ' + hr + '/>' +
+            '<path d="M60 60 C60 42, 70 32, 83 32 C96 32, 106 42, 106 60 C106 74, 96 83, 83 83 C70 83, 60 74, 60 60 Z" ' + sk + '/>' +
+            '<path d="M60 56 C60 38, 70 30, 83 30 C96 30, 106 38, 106 56 C98 45, 90 42, 83 42 C74 42, 66 46, 60 56 Z" ' + hr + '/>' +
+            '<circle cx="76" cy="58" r="2.8" fill="var(--hv-eye)"/><circle cx="75" cy="57" r="1" fill="#fff"/>' +
+            '<circle cx="92" cy="58" r="2.8" fill="var(--hv-eye)"/><circle cx="91" cy="57" r="1" fill="#fff"/>' +
+            '<ellipse cx="70" cy="65" rx="4" ry="2.5" fill="var(--hv-blush)" opacity=".65"/>' +
+            '<ellipse cx="98" cy="65" rx="4" ry="2.5" fill="var(--hv-blush)" opacity=".65"/>' +
+            '<path d="M79 70 Q84 75 89 70" fill="none" stroke="var(--hv-mouth)" stroke-width="1.8" stroke-linecap="round"/>' +
+            /* 右手で指さし、左手でくまのぬいぐるみを持つ */
+            '<path d="M98 98 L132 82" stroke="var(--hv-skin-stroke)" stroke-width="8.5" stroke-linecap="round"/>' +
+            '<path d="M98 98 L132 82" stroke="var(--hv-skin)" stroke-width="6" stroke-linecap="round"/>' +
+            '<path d="M68 98 C54 104, 48 112, 54 118" fill="none" stroke="var(--hv-skin-stroke)" stroke-width="8.5" stroke-linecap="round"/>' +
+            '<path d="M68 98 C54 104, 48 112, 54 118" fill="none" stroke="var(--hv-skin)" stroke-width="6" stroke-linecap="round"/>' +
+            /* くまのぬいぐるみ */
+            '<circle cx="46" cy="110" r="5" fill="#c58b52"/><circle cx="60" cy="110" r="5" fill="#c58b52"/>' +
+            '<circle cx="53" cy="116" r="10" fill="#d89e64" stroke="#9c6b3b" stroke-width="1.3"/>' +
+            '<circle cx="50" cy="114" r="1.5" fill="var(--hv-eye)"/><circle cx="56" cy="114" r="1.5" fill="var(--hv-eye)"/>' +
+          '</g>' +
+          '<rect x="114" y="54" width="58" height="22" rx="8" fill="var(--ok-soft)" stroke="var(--ok)" stroke-width="1.2"/>' +
+          '<text x="143" y="69" text-anchor="middle" font-size="10.5" font-weight="700" class="svg-ok">指さし◎</text>' +
+          '<text x="95" y="178" text-anchor="middle" font-size="10.5" class="svg-muted">単語10個・二語文なし</text>' +
+
+          /* 右上：3領域バランス棒グラフ */
+          '<text x="192" y="24" font-size="11.5" font-weight="700" class="svg-accent">① 領域ごとの様子（表出の遅れが目立つ）</text>' +
+          '<text x="272" y="45" text-anchor="end" font-size="11.5" font-weight="700">理解（指示）</text>' +
+          '<rect x="280" y="32" width="234" height="18" rx="5" fill="var(--ok)"/>' +
+          '<text x="288" y="45" font-size="10.5" font-weight="700" fill="#fff">簡単な指示を理解して動ける</text>' +
+          '<text x="272" y="69" text-anchor="end" font-size="11.5" font-weight="700">やりとり・遊び</text>' +
+          '<rect x="280" y="56" width="228" height="18" rx="5" fill="var(--accent)"/>' +
+          '<text x="288" y="69" font-size="10.5" font-weight="700" fill="#fff">指さしで伝える・ごっこ遊び</text>' +
+          '<text x="272" y="93" text-anchor="end" font-size="11.5" font-weight="700" class="svg-seal">話すことば</text>' +
+          '<rect x="280" y="80" width="96" height="18" rx="5" fill="var(--seal)"/>' +
+          '<text x="384" y="93" font-size="11" font-weight="700" class="svg-seal">単語10個・二語文なし（2歳目安）</text>' +
+
+          /* 右下：検査の対象年齢の帯（チャッピー査読反映：新版K式を5歳で区切らない） */
+          '<text x="192" y="116" font-size="11.5" font-weight="700" class="svg-accent">② 検査の対象年齢（いま 3歳 ★）</text>' +
+          /* 3歳縦ライン */
+          '<line x1="252" y1="120" x2="252" y2="184" stroke="var(--ok)" stroke-width="2" stroke-dasharray="3 2"/>' +
+          /* 新版K式（0歳〜成人まで連続した帯・5歳で区切らない） */
+          '<rect x="192" y="124" width="356" height="18" rx="5" fill="var(--ok-soft)" stroke="var(--ok)" stroke-width="1.6"/>' +
+          '<text x="200" y="137" font-size="10.5" font-weight="700" class="svg-ok">新版K式発達検査（乳幼児〜成人：この3歳で使える ★）</text>' +
+          /* WISC-V（5歳0か月〜16歳11か月） */
+          '<rect x="286" y="145" width="168" height="17" rx="5" fill="var(--panel)" stroke="var(--line)" stroke-width="1.3"/>' +
+          '<text x="294" y="157" font-size="10" class="svg-muted">WISC-V（5歳0か月〜16歳11か月）</text>' +
+          /* WAIS-IV（16歳0か月〜90歳11か月） */
+          '<rect x="370" y="165" width="178" height="17" rx="5" fill="var(--panel)" stroke="var(--line)" stroke-width="1.3"/>' +
+          '<text x="376" y="177" font-size="9.4" class="svg-muted">WAIS-IV（16歳0か月〜90歳11か月）</text>' +
+          '<text x="192" y="178" font-size="10" font-weight="700" class="svg-ok">0歳　 3歳★　5歳</text>' +
+        '</svg>';
     }
 
-    /* 2: 1歳 体重が増えない赤ちゃん（成長曲線＋新旧あざ） */
+    /* 2: 1歳 体重が増えない赤ちゃん（成長曲線＋あざの色に新旧の意味を持たせない所見図） */
     if (ci === 2) {
-      return '<div class="hv-case-h"><span class="hv-case-tag">母子手帳の体重曲線 ＆ 身体所見</span><span>1歳・男の子</span></div>' +
+      return '<div class="hv-case-h"><span class="hv-case-tag">体重の経過 ＆ 身体所見の記録</span><span>1歳・男の子</span></div>' +
         '<div class="hv-case-grid">' +
           '<div class="hv-stage">' + growthCurveSVG('drop', 12, true) + '</div>' +
           '<div class="hv-subcard">' +
-            '<h4>診察・母子手帳の所見</h4>' +
-            '<svg class="hv-svg" viewBox="0 0 264 132" role="img" aria-label="腕と背中に新しいあざと古いあざがある模式図">' +
-              /* 後ろ姿シルエット */
-              '<circle cx="64" cy="30" r="16" fill="var(--hv-skin)" stroke="var(--hv-skin-stroke)" stroke-width="1.8"/>' +
-              '<rect x="40" y="48" width="48" height="58" rx="14" fill="var(--panel)" stroke="var(--line)" stroke-width="1.8"/>' +
-              '<rect x="26" y="54" width="14" height="36" rx="7" fill="var(--hv-skin)" stroke="var(--hv-skin-stroke)" stroke-width="1.5"/>' +
-              '<rect x="88" y="54" width="14" height="36" rx="7" fill="var(--hv-skin)" stroke="var(--hv-skin-stroke)" stroke-width="1.5"/>' +
-              /* 新旧のあざ（紫＝新しい、黄褐＝古い） */
-              '<ellipse cx="33" cy="70" rx="5" ry="7" fill="var(--hv-bruise-new)" class="hv-pulse"/>' +
-              '<ellipse cx="70" cy="74" rx="8" ry="6" fill="var(--hv-bruise-old)"/>' +
-              '<circle cx="122" cy="40" r="6" fill="var(--hv-bruise-new)"/>' +
-              '<text x="134" y="44" font-size="11.5" font-weight="700">新しいあざ（腕）</text>' +
-              '<circle cx="122" cy="64" r="6" fill="var(--hv-bruise-old)"/>' +
-              '<text x="134" y="68" font-size="11.5" font-weight="700">古いあざ（背中）</text>' +
-              '<text x="116" y="94" font-size="11.5" font-weight="700" class="svg-seal">予防接種：途中から空白</text>' +
-              '<text x="116" y="116" font-size="11.5" class="svg-muted">つかまり立ち：まだ</text>' +
+            '<h4>身体所見と母子手帳の確認</h4>' +
+            '<svg class="hv-svg" viewBox="0 0 268 148" role="img" aria-label="腕と背中に形の違う複数のあざがある身体所見の模式図">' +
+              /* 赤ちゃんの背面全身イラスト（頭・首・肩・背中・腕・おむつ・脚が自然につながる） */
+              '<path d="M44 110 C38 122, 36 134, 42 140 C48 144, 54 136, 54 122 L54 110 Z" ' + sk + '/>' +
+              '<path d="M72 110 C78 122, 80 134, 74 140 C68 144, 62 136, 62 122 L62 110 Z" ' + sk + '/>' +
+              '<path d="M40 100 C40 122, 76 122, 76 100 Z" fill="var(--hv-diaper)" stroke="var(--hv-diaper-line)" stroke-width="1.4"/>' +
+              /* 背中（肩から腰までの自然な曲線） */
+              '<path d="M42 54 C38 56, 36 74, 40 104 L76 104 C80 74, 78 56, 74 54 C66 50, 50 50, 42 54 Z" ' + sk + '/>' +
+              /* 左腕・右腕（肩から肘・手首へつながる） */
+              '<path d="M40 56 C28 62, 22 78, 26 92 C28 97, 34 96, 34 90 C32 78, 36 68, 42 64 Z" ' + sk + '/>' +
+              '<path d="M76 56 C88 62, 94 78, 90 92 C88 97, 82 96, 82 90 C84 78, 80 68, 74 64 Z" ' + sk + '/>' +
+              /* 首と後頭部・耳 */
+              '<rect x="52" y="44" width="12" height="10" rx="4" ' + sk + '/>' +
+              '<ellipse cx="38" cy="30" rx="4" ry="5.5" ' + sk + '/>' +
+              '<ellipse cx="78" cy="30" rx="4" ry="5.5" ' + sk + '/>' +
+              '<circle cx="58" cy="28" r="19" ' + sk + '/>' +
+              '<path d="M40 26 C40 12, 50 8, 58 8 C66 8, 76 12, 76 26 C72 34, 44 34, 40 26 Z" ' + hr + '/>' +
+              /* 腕のあざ・背中のあざ（色に新旧の意味を持たせず部位と複数の形を示す） */
+              '<ellipse cx="29" cy="74" rx="4.5" ry="6.5" fill="var(--hv-bruise)" class="hv-pulse"/>' +
+              '<ellipse cx="31" cy="84" rx="3.5" ry="4" fill="var(--hv-bruise)"/>' +
+              '<ellipse cx="54" cy="70" rx="7" ry="4.5" transform="rotate(-15 54 70)" fill="var(--hv-bruise-2)"/>' +
+              '<ellipse cx="64" cy="84" rx="5.5" ry="4" transform="rotate(20 64 84)" fill="var(--hv-bruise)"/>' +
+              /* 引き出し線と凡例（チャッピー査読反映） */
+              '<line x1="34" y1="74" x2="108" y2="32" stroke="var(--seal)" stroke-width="1.2" stroke-dasharray="3 2"/>' +
+              '<circle cx="114" cy="32" r="5" fill="var(--hv-bruise)"/>' +
+              '<text x="124" y="36" font-size="11" font-weight="700">腕のあざ（複数）</text>' +
+              '<line x1="64" y1="76" x2="108" y2="56" stroke="var(--seal)" stroke-width="1.2" stroke-dasharray="3 2"/>' +
+              '<circle cx="114" cy="56" r="5" fill="var(--hv-bruise-2)"/>' +
+              '<text x="124" y="60" font-size="11" font-weight="700">背中のあざ（複数・形が違う）</text>' +
+              '<text x="108" y="80" font-size="10" class="svg-muted">※色から受傷時期は判定できない</text>' +
+              '<rect x="108" y="90" width="152" height="48" rx="6" fill="var(--hv-stage)" stroke="var(--line)"/>' +
+              '<text x="116" y="108" font-size="10.8" font-weight="700" class="svg-seal">・予防接種：途中から未接種</text>' +
+              '<text x="116" y="126" font-size="10.8" class="svg-muted">・1歳でつかまり立ちまだ</text>' +
             '</svg>' +
           '</div>' +
         '</div>' +
-        (ansN >= 2 ? '<div class="hv-reveal warn"><b>児童虐待防止法：</b>確証を待たず「疑い」の段階で児童相談所などに通告します（守秘義務より優先）。</div>' : '');
+        (ansN >= 2 ? '<div class="hv-reveal warn"><b>児童虐待防止法第6条：</b>あざの部位・数と発達段階に照らした説明の矛盾、体重増加不良から虐待・ネグレクトを疑い、確証を待たず速やかに児童相談所などへ通告します。</div>' : '');
     }
 
-    /* 3: 7歳 授業中に立ち歩く（2場面＋12歳タイムライン） */
+    /* 3: 7歳 授業中に立ち歩く（学校・家庭の2場面イラスト＋12歳前の要件と複数場面の要件を別々に明示） */
     if (ci === 3) {
-      return '<div class="hv-case-h"><span class="hv-case-tag">2つの場面 ＆ 時期の整理</span><span>7歳・小学1年生</span></div>' +
+      return '<div class="hv-case-h"><span class="hv-case-tag">ADHDの評価：時期の要件と場面の要件</span><span>7歳・小学1年生</span></div>' +
         '<div class="hv-case-grid">' +
-          '<div class="hv-subcard"><h4>🏫 場面1：学校</h4>' +
-            '<svg class="hv-svg" viewBox="0 0 240 104" role="img" aria-label="教室の席から立ち歩く様子">' +
-              '<rect x="20" y="64" width="54" height="22" rx="4" fill="var(--hv-stage-2)" stroke="var(--line)"/>' +
-              '<rect x="160" y="64" width="54" height="22" rx="4" fill="var(--hv-stage-2)" stroke="var(--line)"/>' +
+          '<div class="hv-subcard"><h4>🏫 場面1：学校（授業中）</h4>' +
+            '<svg class="hv-svg" viewBox="0 0 248 112" role="img" aria-label="学校の授業中に席を立って歩く7歳男児の様子">' +
+              /* 黒板と机 */
+              '<rect x="14" y="10" width="76" height="36" rx="3" fill="#2d5a44" stroke="var(--hv-wood-dk)" stroke-width="2"/>' +
+              '<line x1="24" y1="24" x2="68" y2="24" stroke="#fff" stroke-width="1.5" opacity=".7"/>' +
+              '<rect x="20" y="68" width="52" height="24" rx="3" fill="var(--hv-wood)" stroke="var(--hv-wood-dk)" stroke-width="1.4"/>' +
+              '<rect x="174" y="68" width="52" height="24" rx="3" fill="var(--hv-wood)" stroke="var(--hv-wood-dk)" stroke-width="1.4"/>' +
+              /* 席から立ち歩く男の子（5.5頭身・頭・首・胴・腕・脚がつながる） */
               '<g class="hv-fidget">' +
-                '<rect x="102" y="42" width="26" height="32" rx="8" fill="var(--hv-shirt)"/>' +
-                '<circle cx="115" cy="26" r="14" fill="var(--hv-skin)" stroke="var(--hv-skin-stroke)" stroke-width="1.5"/>' +
-                '<path d="M101 23 Q115 8 129 23" fill="var(--hv-hair)"/>' +
+                '<path d="M114 70 L108 92 M126 70 L134 92" stroke="var(--hv-skin-stroke)" stroke-width="7" stroke-linecap="round"/>' +
+                '<path d="M114 70 L108 92 M126 70 L134 92" stroke="var(--hv-skin)" stroke-width="5" stroke-linecap="round"/>' +
+                '<path d="M110 58 L130 58 L132 72 L108 72 Z" fill="var(--hv-shirt-dk)"/>' +
+                '<path d="M110 36 C110 31, 130 31, 130 36 L132 60 L108 60 Z" ' + sh1 + '/>' +
+                '<path d="M110 40 L98 52 M130 40 L144 48" stroke="var(--hv-skin-stroke)" stroke-width="6.5" stroke-linecap="round"/>' +
+                '<path d="M110 40 L98 52 M130 40 L144 48" stroke="var(--hv-skin)" stroke-width="4.5" stroke-linecap="round"/>' +
+                '<circle cx="120" cy="21" r="12" ' + sk + '/>' +
+                '<path d="M108 19 C108 9, 118 6, 126 8 C132 10, 134 16, 132 21 C126 14, 116 14, 108 19 Z" ' + hr + '/>' +
+                '<circle cx="125" cy="21" r="2" fill="var(--hv-eye)"/>' +
               '</g>' +
-              '<text x="120" y="98" text-anchor="middle" font-size="11" font-weight="700" class="svg-accent">立ち歩き・順番待ち困難・忘れ物</text>' +
+              '<text x="124" y="106" text-anchor="middle" font-size="10.8" font-weight="700" class="svg-accent">立ち歩き・順番を待てない・忘れ物</text>' +
             '</svg>' +
           '</div>' +
-          '<div class="hv-subcard"><h4>🏠 場面2：家庭</h4>' +
-            '<svg class="hv-svg" viewBox="0 0 240 104" role="img" aria-label="宿題からすぐ別のことに気が逸れる様子">' +
-              '<rect x="22" y="54" width="66" height="30" rx="5" fill="var(--panel)" stroke="var(--line)" stroke-width="1.5"/>' +
-              '<text x="55" y="73" text-anchor="middle" font-size="11" class="svg-muted">宿題</text>' +
-              '<path d="M96 60 Q130 30 162 56" fill="none" stroke="var(--lamp)" stroke-width="2.5" stroke-dasharray="4 3"/>' +
-              '<circle cx="184" cy="64" r="18" fill="var(--lamp)" opacity=".28"/>' +
-              '<text x="184" y="68" text-anchor="middle" font-size="11" font-weight="700" class="svg-lamp">別の遊び</text>' +
-              '<text x="120" y="98" text-anchor="middle" font-size="11" font-weight="700" class="svg-lamp">宿題が続かない・幼児期から多動</text>' +
+          '<div class="hv-subcard"><h4>🏠 場面2：家庭（宿題中）</h4>' +
+            '<svg class="hv-svg" viewBox="0 0 248 112" role="img" aria-label="家庭で宿題を始めてもすぐ別のおもちゃに手が伸びる様子">' +
+              /* 勉強机と宿題ノート */
+              '<rect x="18" y="62" width="84" height="30" rx="4" fill="var(--hv-wood)" stroke="var(--hv-wood-dk)" stroke-width="1.4"/>' +
+              '<rect x="34" y="52" width="44" height="12" rx="2" fill="#fff" stroke="var(--line)" stroke-width="1.2"/>' +
+              '<text x="56" y="61" text-anchor="middle" font-size="8.5" class="svg-muted">宿題</text>' +
+              /* 男の子（宿題から体をひねっておもちゃへ手を伸ばす） */
+              '<g class="hv-bob">' +
+                '<path d="M102 42 C102 36, 124 36, 124 42 L126 74 L100 74 Z" ' + sh1 + '/>' +
+                '<path d="M122 46 L154 50" stroke="var(--hv-skin-stroke)" stroke-width="7" stroke-linecap="round"/>' +
+                '<path d="M122 46 L154 50" stroke="var(--hv-skin)" stroke-width="5" stroke-linecap="round"/>' +
+                '<circle cx="114" cy="25" r="12.5" ' + sk + '/>' +
+                '<path d="M102 22 C102 12, 112 9, 122 11 C127 13, 128 19, 126 24 C120 17, 110 17, 102 22 Z" ' + hr + '/>' +
+                '<circle cx="120" cy="25" r="2" fill="var(--hv-eye)"/>' +
+              '</g>' +
+              '<path d="M74 44 Q122 20 166 40" fill="none" stroke="var(--lamp)" stroke-width="2" stroke-dasharray="4 3"/>' +
+              /* 別のおもちゃ（ロボット／ゲーム） */
+              '<rect x="166" y="42" width="54" height="46" rx="8" fill="var(--panel)" stroke="var(--lamp)" stroke-width="1.6"/>' +
+              '<circle cx="193" cy="58" r="10" fill="var(--lamp)" opacity=".3"/>' +
+              '<text x="193" y="79" text-anchor="middle" font-size="10" font-weight="700" class="svg-lamp">別の遊びへ</text>' +
+              '<text x="124" y="106" text-anchor="middle" font-size="10.8" font-weight="700" class="svg-lamp">宿題が続かない・幼児期から多動</text>' +
             '</svg>' +
           '</div>' +
         '</div>' +
-        '<svg class="hv-svg" viewBox="0 0 560 56" role="img" aria-label="幼児期から7歳まで続き12歳より前であることを示す時間軸">' +
-          '<line x1="36" y1="26" x2="524" y2="26" stroke="var(--line)" stroke-width="5" stroke-linecap="round"/>' +
-          '<line x1="90" y1="26" x2="290" y2="26" stroke="var(--accent)" stroke-width="7" stroke-linecap="round"/>' +
-          '<circle cx="90" cy="26" r="6" fill="var(--accent)"/><text x="90" y="48" text-anchor="middle" font-size="11" font-weight="700">幼児期から</text>' +
-          '<circle cx="290" cy="26" r="7" fill="var(--ok)" stroke="var(--panel)" stroke-width="2"/><text x="290" y="48" text-anchor="middle" font-size="11" font-weight="700" class="svg-ok">現在 7歳</text>' +
-          '<line x1="430" y1="10" x2="430" y2="38" stroke="var(--seal)" stroke-width="2" stroke-dasharray="3 3"/>' +
-          '<text x="430" y="50" text-anchor="middle" font-size="11" font-weight="700" class="svg-seal">12歳ライン</text>' +
-        '</svg>' +
-        (ansN >= 1 ? '<div class="hv-reveal"><b>DSM-5 の柱：</b>「12歳より前から」×「2つ以上の場面（学校・家庭）」×「生活の支障」を合わせて確認します。</div>' : '');
+        /* チャッピー査読反映：「12歳より前にいくつかの症状」と「現在は2つ以上の場面」を別々の枠で明示 */
+        '<svg class="hv-svg" viewBox="0 0 560 66" role="img" aria-label="要件1は12歳より前にいくつかの症状、要件2は現在2つ以上の場面で症状と支障">' +
+          '<rect x="4" y="4" width="276" height="58" rx="8" fill="var(--panel)" stroke="var(--line)" stroke-width="1.3"/>' +
+          '<text x="14" y="21" font-size="10.8" font-weight="700" class="svg-accent">要件①：12歳より前にいくつかの症状</text>' +
+          '<line x1="22" y1="38" x2="258" y2="38" stroke="var(--line)" stroke-width="4" stroke-linecap="round"/>' +
+          '<line x1="36" y1="38" x2="144" y2="38" stroke="var(--accent)" stroke-width="6" stroke-linecap="round"/>' +
+          '<circle cx="36" cy="38" r="5" fill="var(--accent)"/><text x="42" y="55" text-anchor="middle" font-size="10" font-weight="700">幼児期〜</text>' +
+          '<circle cx="144" cy="38" r="6" fill="var(--ok)" stroke="var(--panel)" stroke-width="1.5"/><text x="144" y="55" text-anchor="middle" font-size="10" font-weight="700" class="svg-ok">現在7歳</text>' +
+          '<line x1="222" y1="26" x2="222" y2="48" stroke="var(--seal)" stroke-width="2" stroke-dasharray="3 2"/>' +
+          '<text x="222" y="56" text-anchor="middle" font-size="10" font-weight="700" class="svg-seal">12歳未満</text>' +
+
+          '<rect x="288" y="4" width="268" height="58" rx="8" fill="var(--panel)" stroke="var(--line)" stroke-width="1.3"/>' +
+          '<text x="298" y="21" font-size="10.8" font-weight="700" class="svg-ok">要件②：現在は2つ以上の場面で症状と支障</text>' +
+          '<rect x="302" y="29" width="104" height="24" rx="6" fill="var(--accent-soft)" stroke="var(--accent)"/><text x="354" y="45" text-anchor="middle" font-size="10.5" font-weight="700" class="svg-accent">場面A：学校</text>' +
+          '<text x="418" y="45" text-anchor="middle" font-size="13" font-weight="700" class="svg-ok">＋</text>' +
+          '<rect x="430" y="29" width="112" height="24" rx="6" fill="var(--ok-soft)" stroke="var(--ok)"/><text x="486" y="45" text-anchor="middle" font-size="10.5" font-weight="700" class="svg-ok">場面B：家庭など</text>' +
+        '</svg>';
     }
 
-    /* 4: 9歳 音読がとても遅い（聞く vs 音読の体験切替＋合理的配慮） */
+    /* 4: 9歳 音読がとても遅い（チャッピー査読反映：文字の見え方を変える代わりに、読み終えるまでの時間や読み飛ばし・読み違いなど観察結果を示す） */
     if (ci === 4) {
       var m4 = caseState.c4Mode;
       var readHtml = '';
       if (m4 === 'hear') {
-        readHtml = '<div class="hv-read-box"><b>👂 耳で聞く（得意）：</b><br>「りんごが 5こ、みかんが 3こ あります。あわせて なんこでしょう？」<br><span style="color:var(--ok);font-weight:700">→ 聞いて理解すれば、すぐ「8こ！」と解ける</span></div>';
+        readHtml = '<div class="hv-read-box"><b>👂 耳で聞いて解くとき（観察された様子）：</b><br>' +
+          '先生が文章題を読み上げると、「りんご5こと みかん3こだから、あわせて <b>8こ！</b>」とすぐに理解して答えられます（会話や聞いて理解する力は年齢相応）。</div>';
       } else if (m4 === 'read') {
-        readHtml = '<div class="hv-read-box hard"><b>📖 文字を音読する（困難のイメージ※模式表現）：</b><br>' +
-          'り<span class="wob">ん</span>ご<span class="wob">が</span> 5こ、<span class="wob">み</span>か<span class="fade-w">んが</span> 3こ あ<span class="wob">り</span>ま<span class="wob">す</span>。' +
-          'あ<span class="wob">れ</span>せ<span class="fade-w">て</span> な<span class="wob">ん</span>こ<span class="wob">で</span>しょ<span class="fade-w">う</span>？<br>' +
-          '<span style="color:var(--seal);font-size:.82rem;font-weight:700">※ 字の読み飛ばし・似た字の読み違い・行のズレが起きやすい様子を誇張した模型です</span></div>';
+        readHtml = '<div class="hv-read-box hard"><b>📖 教科書を音読するとき（この症例で観察された結果）：</b><br>' +
+          '「り・ん・ご・が… 5こ、み・か…<span class="skip-tag">読み飛ばし</span> 3こ、あ・り・ま・す。あ・<span class="skip-tag">れ（似た字の読み違い）</span>・せ・て……」<br>' +
+          '<span style="color:var(--seal);font-size:.8rem;font-weight:700">→ 1文字ずつ拾い読みになり、読み飛ばし・似た字の読み違いが起き、読み終えるまでにとても時間がかかって疲弊する</span></div>';
       } else {
-        readHtml = '<div class="hv-read-box assist"><b>✨ 合理的配慮（拡大・分かち書き・音声読み上げ）：</b><br>' +
-          '<span class="hl">りんごが 5こ</span>、　みかんが 3こ あります。　あわせて なんこ でしょう？<br>' +
-          '<span style="color:var(--ok);font-size:.85rem;font-weight:700">→ 読み上げ・拡大・ルビで「本来の考える力」を発揮できる！</span></div>';
+        readHtml = '<div class="hv-read-box assist"><b>✨ 合理的配慮（デジタル教科書の読み上げ・ルビ・拡大・時間延長）：</b><br>' +
+          '<span class="hl">🔊 音声読み上げ ＋ 分かち書き・拡大</span> で文字を読む負担を減らすと、本来の理解力を生かして学ぶ機会を守れます。</div>';
       }
-      return '<div class="hv-case-h"><span class="hv-case-tag">見え方・聞き方のちがい（体験）</span><span>9歳・小学3年生</span></div>' +
+      return '<div class="hv-case-h"><span class="hv-case-tag">聞いて理解 vs 音読の観察所見（9歳）</span><span>9歳・小学3年生</span></div>' +
         '<div class="hv-case-act">' +
           '<button type="button" class="hv-act-btn" data-act="c4hear" aria-pressed="' + (m4 === 'hear') + '">👂 聞いて解く（得意）</button>' +
-          '<button type="button" class="hv-act-btn" data-act="c4read" aria-pressed="' + (m4 === 'read') + '">📖 音読する（苦手）</button>' +
-          (ansN >= 3 ? '<button type="button" class="hv-act-btn" data-act="c4assist" aria-pressed="' + (m4 === 'assist') + '">✨ 合理的配慮をみる</button>' : '') +
+          '<button type="button" class="hv-act-btn" data-act="c4read" aria-pressed="' + (m4 === 'read') + '">📖 音読の観察結果（苦手）</button>' +
+          '<button type="button" class="hv-act-btn" data-act="c4assist" aria-pressed="' + (m4 === 'assist') + '">✨ 合理的配慮</button>' +
         '</div>' +
         readHtml +
-        '<svg class="hv-svg" viewBox="0 0 560 76" role="img" aria-label="会話と聴覚理解は高く音読だけが低いギャップ図">' +
-          '<text x="128" y="28" text-anchor="end" font-size="12" font-weight="700">会話・聞く理解</text>' +
-          '<rect x="136" y="14" width="340" height="20" rx="5" fill="var(--ok)"/><text x="484" y="29" font-size="11.5" font-weight="700" class="svg-ok">年齢相応</text>' +
-          '<text x="128" y="60" text-anchor="end" font-size="12" font-weight="700" class="svg-seal">音読の速さ・正確さ</text>' +
-          '<rect x="136" y="46" width="110" height="20" rx="5" fill="var(--seal)"/><text x="254" y="61" font-size="11.5" font-weight="700" class="svg-seal">ここだけが著しく困難</text>' +
+        '<svg class="hv-svg" viewBox="0 0 560 98" role="img" aria-label="会話と聴覚理解に比べて音読の正確さと読み終えるまでの時間に大きな困難がある観察所見図">' +
+          /* 左に9歳女の子の表情と教科書のイラスト（首・耳・手がつながる） */
+          '<g transform="translate(8,4)">' +
+            '<rect x="4" y="4" width="124" height="86" rx="8" fill="var(--panel)" stroke="var(--line)"/>' +
+            '<path d="M42 62 C42 54, 86 54, 86 62 L90 88 L38 88 Z" ' + sh3 + '/>' +
+            '<rect x="59" y="48" width="10" height="10" rx="3" ' + sk + '/>' +
+            '<ellipse cx="46" cy="36" rx="3.5" ry="5" ' + sk + '/><ellipse cx="82" cy="36" rx="3.5" ry="5" ' + sk + '/>' +
+            '<circle cx="64" cy="34" r="17" ' + sk + '/>' +
+            '<path d="M47 32 C47 16, 56 12, 66 12 C76 12, 83 18, 81 34 C75 24, 68 21, 58 22 C50 23, 48 27, 47 32 Z" ' + hr + '/>' +
+            '<circle cx="58" cy="34" r="2.3" fill="var(--hv-eye)"/><circle cx="70" cy="34" r="2.3" fill="var(--hv-eye)"/>' +
+            (m4 === 'read'
+              ? '<path d="M54 27 L60 29 M74 27 L68 29" stroke="var(--hv-hair)" stroke-width="1.5" stroke-linecap="round"/><path d="M59 44 Q64 40 69 44" fill="none" stroke="var(--hv-mouth)" stroke-width="1.6" stroke-linecap="round"/>'
+              : '<path d="M58 42 Q64 48 70 42" fill="none" stroke="var(--hv-mouth)" stroke-width="1.8" stroke-linecap="round"/>') +
+            '<rect x="46" y="64" width="36" height="22" rx="2" fill="#fff" stroke="var(--accent)" stroke-width="1.4"/>' +
+            '<circle cx="46" cy="76" r="4" ' + sk + '/><circle cx="82" cy="76" r="4" ' + sk + '/>' +
+          '</g>' +
+          /* 右に観察された力の比較と読み終えるまでの時間 */
+          '<text x="248" y="25" text-anchor="end" font-size="11.5" font-weight="700">会話・聞いて理解</text>' +
+          '<rect x="256" y="12" width="216" height="18" rx="5" fill="var(--ok)"/><text x="478" y="25" font-size="11" font-weight="700" class="svg-ok">年齢相応</text>' +
+          '<text x="248" y="54" text-anchor="end" font-size="11.5" font-weight="700" class="svg-seal">音読の正確さ</text>' +
+          '<rect x="256" y="41" width="78" height="18" rx="5" fill="var(--seal)"/><text x="342" y="54" font-size="11" font-weight="700" class="svg-seal">読み飛ばし・似た字の読み違い</text>' +
+          '<text x="248" y="83" text-anchor="end" font-size="11.5" font-weight="700" class="svg-seal">読み終える時間</text>' +
+          '<rect x="256" y="70" width="290" height="18" rx="5" fill="var(--seal-soft)" stroke="var(--seal)" stroke-width="1.4"/>' +
+          '<text x="264" y="83" font-size="10.4" font-weight="700" class="svg-seal">⏱ 非常に時間がかかる（学校に行きたくないと疲弊）</text>' +
         '</svg>';
     }
 
-    /* 5: 10歳 まばたきと咳払いが止まらない（チックアニメ＋むずむずメーター＋期間） */
+    /* 5: 10歳 まばたきと咳払いが止まらない（チック再現アニメ＋前駆衝動＋チャッピー査読反映の経過タイムライン） */
     if (ci === 5) {
       var u = caseState.c5Urge;
-      return '<div class="hv-case-h"><span class="hv-case-tag">チックの動き ＆ 前駆衝動（むずむず）</span><span>10歳・男の子</span></div>' +
+      return '<div class="hv-case-h"><span class="hv-case-tag">チックの動き・前駆衝動 ＆ 経過の時間軸</span><span>10歳・男の子</span></div>' +
         '<div class="hv-case-grid">' +
           '<div class="hv-stage">' +
-            '<svg class="hv-svg" viewBox="0 0 280 156" role="img" aria-label="強いまばたき・首ふりと咳払いの再現アニメ">' +
+            '<svg class="hv-svg" viewBox="0 0 280 152" role="img" aria-label="強いまばたき・首ふりの運動チックと咳払いの音声チックの再現アニメ">' +
               '<g class="hv-headtic">' +
-                '<rect x="108" y="106" width="64" height="42" rx="16" fill="var(--hv-shirt)"/>' +
-                '<circle cx="140" cy="70" r="34" fill="var(--hv-skin)" stroke="var(--hv-skin-stroke)" stroke-width="2"/>' +
-                '<path d="M106 64 Q140 24 174 64" fill="var(--hv-hair)"/>' +
-                '<g class="hv-blink"><ellipse cx="127" cy="70" rx="4.5" ry="5" fill="var(--hv-hair)"/><ellipse cx="153" cy="70" rx="4.5" ry="5" fill="var(--hv-hair)"/></g>' +
-                '<path d="M133 85 Q140 82 147 85" fill="none" stroke="var(--hv-hair)" stroke-width="2" stroke-linecap="round"/>' +
+                /* 肩〜胸・襟付きシャツ・首（頭と胴が自然につながる） */
+                '<path d="M84 114 C84 100, 180 100, 180 114 L188 148 L76 148 Z" ' + sh1 + '/>' +
+                '<path d="M116 102 L132 118 L148 102" fill="#fff" stroke="var(--hv-shirt-dk)" stroke-width="1.3"/>' +
+                '<rect x="122" y="86" width="20" height="18" rx="7" ' + sk + '/>' +
+                /* 両耳と頭部 */
+                '<ellipse cx="94" cy="60" rx="5.5" ry="7.5" ' + sk + '/>' +
+                '<ellipse cx="170" cy="60" rx="5.5" ry="7.5" ' + sk + '/>' +
+                '<path d="M96 54 C96 28, 112 16, 132 16 C152 16, 168 28, 168 54 C168 76, 152 92, 132 92 C112 92, 96 76, 96 54 Z" ' + sk + '/>' +
+                '<path d="M96 50 C96 24, 112 14, 132 14 C152 14, 168 24, 168 50 C158 36, 146 31, 132 32 C118 32, 104 38, 96 50 Z" ' + hr + '/>' +
+                /* 眉と強いまばたきアニメ */
+                '<path d="M110 46 Q118 43 125 46 M139 46 Q146 43 154 46" fill="none" stroke="var(--hv-hair)" stroke-width="1.8" stroke-linecap="round"/>' +
+                '<g class="hv-blink">' +
+                  '<ellipse cx="118" cy="56" rx="4.2" ry="4.8" fill="var(--hv-eye)"/><circle cx="116.8" cy="54.5" r="1.3" fill="#fff"/>' +
+                  '<ellipse cx="146" cy="56" rx="4.2" ry="4.8" fill="var(--hv-eye)"/><circle cx="144.8" cy="54.5" r="1.3" fill="#fff"/>' +
+                '</g>' +
+                '<ellipse cx="109" cy="66" rx="5" ry="3" fill="var(--hv-blush)" opacity=".6"/>' +
+                '<ellipse cx="155" cy="66" rx="5" ry="3" fill="var(--hv-blush)" opacity=".6"/>' +
+                '<path d="M125 76 Q132 73 139 76" fill="none" stroke="var(--hv-mouth)" stroke-width="2" stroke-linecap="round"/>' +
+                /* 首ふりモーション線 */
+                '<path d="M78 44 Q72 56 78 68 M186 44 Q192 56 186 68" fill="none" stroke="var(--accent)" stroke-width="2" stroke-linecap="round"/>' +
               '</g>' +
-              '<rect x="184" y="24" width="84" height="32" rx="12" fill="var(--panel)" stroke="var(--seal)" stroke-width="1.6" class="hv-pulse"/>' +
-              '<text x="226" y="45" text-anchor="middle" font-size="13" font-weight="700" class="svg-seal">「ん、ん」</text>' +
-              '<text x="16" y="34" font-size="11" font-weight="700" class="svg-accent">運動：まばたき・首ふり</text>' +
-              '<text x="16" y="148" font-size="11" class="svg-muted">音声：咳払い</text>' +
+              /* 音声チック（咳払い）吹き出し */
+              '<rect x="186" y="12" width="86" height="30" rx="11" fill="var(--panel)" stroke="var(--seal)" stroke-width="1.6" class="hv-pulse"/>' +
+              '<text x="229" y="32" text-anchor="middle" font-size="12.5" font-weight="700" class="svg-seal">「ん、ん」</text>' +
+              '<text x="10" y="24" font-size="10.8" font-weight="700" class="svg-accent">運動：まばたき・首ふり</text>' +
+              '<text x="190" y="56" font-size="10.5" font-weight="700" class="svg-seal">音声：咳払い</text>' +
             '</svg>' +
           '</div>' +
           '<div class="hv-urge">' +
-            '<div style="display:flex;justify-content:space-between;align-items:center;font-size:.8rem;font-weight:700"><span>むずむず（前駆衝動）</span><span style="color:' + (u >= 75 ? 'var(--seal)' : 'var(--lamp)') + '">' + u + '%</span></div>' +
+            '<div style="display:flex;justify-content:space-between;align-items:center;font-size:.78rem;font-weight:700"><span>チック前の「むずむず」（前駆衝動）</span><span style="color:' + (u >= 75 ? 'var(--seal)' : 'var(--lamp)') + '">' + u + '%</span></div>' +
             '<div class="hv-urge-bar"><i style="width:' + u + '%"></i></div>' +
-            '<button type="button" class="hv-act-btn" data-act="c5hold">' + (u >= 80 ? '限界！チックが出て少し楽になる' : '😣 止めようと「がまん」してみる') + '</button>' +
-            '<span class="hv-note">経過：運動チック <b>2年</b>（8歳〜）／ 音声チック <b>1年半</b>（どちらも1年以上）</span>' +
+            '<button type="button" class="hv-act-btn" data-act="c5hold">' + (u >= 80 ? 'チックが出て一時的にむずむずが下がる' : '😣 止めようと「がまん」してみる') + '</button>' +
+            /* チャッピー査読反映：最初の運動チックから2年（初発から1年超）／音声チックは途中から出現と示す時間軸 */
+            '<svg class="hv-svg" viewBox="0 0 250 56" role="img" aria-label="8歳での最初の運動チック発症から2年が経過し、途中1年半前から音声チックが加わった時間軸">' +
+              '<text x="4" y="13" font-size="9.8" font-weight="700" class="svg-accent">最初の運動チックから2年（初発から1年超）</text>' +
+              '<line x1="16" y1="24" x2="234" y2="24" stroke="var(--accent)" stroke-width="5" stroke-linecap="round"/>' +
+              '<circle cx="16" cy="24" r="5" fill="var(--accent)"/><text x="24" y="36" font-size="9" font-weight="700">8歳：運動チック初発</text>' +
+              '<line x1="72" y1="44" x2="234" y2="44" stroke="var(--seal)" stroke-width="4.5" stroke-linecap="round"/>' +
+              '<circle cx="72" cy="44" r="4.5" fill="var(--seal)"/><text x="80" y="54" font-size="9" class="svg-seal">途中（1年半前〜）：音声チックも出現</text>' +
+              '<circle cx="234" cy="24" r="5.5" fill="var(--ok)"/><text x="246" y="14" text-anchor="end" font-size="9.5" font-weight="700" class="svg-ok">現在10歳</text>' +
+            '</svg>' +
           '</div>' +
-        '</div>' +
-        (ansN >= 2 ? '<div class="hv-reveal"><b>家族へのポイント：</b>わざとではなく、叱ったり注意したりすると緊張で悪化しやすくなります。思春期以降に軽くなることが多いです。</div>' : '');
+        '</div>';
     }
 
-    /* 6: 6歳 幼稚園では一言も話さない（家 vs 幼稚園＋スモールステップ） */
+    /* 6: 6歳 幼稚園では一言も話さない（家 vs 幼稚園の上半身人物イラスト＋段階的曝露ステップ） */
     if (ci === 6) {
-      return '<div class="hv-case-h"><span class="hv-case-tag">場面ごとのちがい（家 vs 幼稚園）</span><span>6歳・女の子</span></div>' +
+      return '<div class="hv-case-h"><span class="hv-case-tag">場面によるちがい（家 vs 幼稚園）</span><span>6歳・女の子</span></div>' +
         '<div class="hv-case-grid">' +
-          '<div class="hv-subcard"><h4>🏠 家（安心・よく話す）</h4>' +
-            '<svg class="hv-svg" viewBox="0 0 240 100" role="img" aria-label="家では笑顔でよく話し歌っている様子">' +
-              '<circle cx="62" cy="48" r="20" fill="var(--hv-skin)" stroke="var(--hv-skin-stroke)" stroke-width="1.8"/>' +
-              '<path d="M42 44 Q62 20 82 44" fill="var(--hv-hair)"/>' +
-              '<path d="M55 54 Q62 60 69 54" fill="none" stroke="var(--hv-hair)" stroke-width="2" stroke-linecap="round"/>' +
-              '<rect x="96" y="20" width="128" height="34" rx="12" fill="var(--ok-soft)" stroke="var(--ok)" stroke-width="1.5"/>' +
-              '<text x="160" y="42" text-anchor="middle" font-size="12.5" font-weight="700" class="svg-ok">♪ よく話し歌う</text>' +
-              '<text x="98" y="74" font-size="11" class="svg-muted">不安</text>' +
-              '<rect x="128" y="64" width="94" height="10" rx="5" fill="var(--paper)" stroke="var(--line)"/>' +
-              '<rect x="128" y="64" width="18" height="10" rx="5" fill="var(--ok)"/>' +
+          '<div class="hv-subcard"><h4>🏠 家（安心・よく話し歌う）</h4>' +
+            '<svg class="hv-svg" viewBox="0 0 248 112" role="img" aria-label="家ではリラックスして笑顔でよく話し歌っている6歳女児">' +
+              /* 女の子の上半身（頭・首・肩・腕・服がつながる） */
+              '<g class="hv-breathe">' +
+                '<path d="M32 76 C32 66, 84 66, 84 76 L88 106 L28 106 Z" ' + sh3 + '/>' +
+                '<path d="M34 80 L18 66 M82 80 L98 66" stroke="var(--hv-skin-stroke)" stroke-width="7.5" stroke-linecap="round"/>' +
+                '<path d="M34 80 L18 66 M82 80 L98 66" stroke="var(--hv-skin)" stroke-width="5.5" stroke-linecap="round"/>' +
+                '<rect x="52" y="58" width="12" height="12" rx="4" ' + sk + '/>' +
+                '<circle cx="58" cy="38" r="21" ' + sk + '/>' +
+                '<path d="M37 36 C37 18, 48 14, 58 14 C68 14, 79 18, 79 36 C79 52, 74 58, 72 56 C74 42, 70 28, 58 28 C46 28, 42 42, 44 56 C42 58, 37 52, 37 36 Z" ' + hr + '/>' +
+                '<ellipse cx="47" cy="43" rx="4" ry="2.5" fill="var(--hv-blush)" opacity=".7"/>' +
+                '<ellipse cx="69" cy="43" rx="4" ry="2.5" fill="var(--hv-blush)" opacity=".7"/>' +
+                '<circle cx="50" cy="36" r="2.6" fill="var(--hv-eye)"/><circle cx="49" cy="35" r="0.9" fill="#fff"/>' +
+                '<circle cx="66" cy="36" r="2.6" fill="var(--hv-eye)"/><circle cx="65" cy="35" r="0.9" fill="#fff"/>' +
+                '<path d="M52 46 Q58 54 64 46 Z" fill="var(--hv-mouth)"/>' +
+              '</g>' +
+              '<rect x="104" y="16" width="134" height="36" rx="11" fill="var(--ok-soft)" stroke="var(--ok)" stroke-width="1.5"/>' +
+              '<text x="171" y="38" text-anchor="middle" font-size="12" font-weight="700" class="svg-ok">♪ よくしゃべり歌う</text>' +
+              '<text x="106" y="76" font-size="11" font-weight="700" class="svg-muted">緊張・不安</text>' +
+              '<rect x="106" y="84" width="126" height="11" rx="5.5" fill="var(--paper)" stroke="var(--line)"/>' +
+              '<rect x="106" y="84" width="22" height="11" rx="5.5" fill="var(--ok)"/>' +
             '</svg>' +
           '</div>' +
-          '<div class="hv-subcard"><h4>🏫 幼稚園（2年間・無言）</h4>' +
-            '<svg class="hv-svg" viewBox="0 0 240 100" role="img" aria-label="幼稚園では強い不安で話せずうなずきや指さしで伝える様子">' +
-              '<circle cx="62" cy="48" r="20" fill="var(--hv-skin)" stroke="var(--hv-skin-stroke)" stroke-width="1.8"/>' +
-              '<path d="M42 44 Q62 20 82 44" fill="var(--hv-hair)"/>' +
-              '<line x1="56" y1="56" x2="68" y2="56" stroke="var(--hv-hair)" stroke-width="2" stroke-linecap="round"/>' +
-              '<rect x="96" y="20" width="128" height="34" rx="12" fill="var(--seal-soft)" stroke="var(--seal)" stroke-width="1.5"/>' +
-              '<text x="160" y="42" text-anchor="middle" font-size="12" font-weight="700" class="svg-seal">……（うなずき・指さし）</text>' +
-              '<text x="98" y="74" font-size="11" class="svg-seal">不安</text>' +
-              '<rect x="128" y="64" width="94" height="10" rx="5" fill="var(--paper)" stroke="var(--line)"/>' +
-              '<rect x="128" y="64" width="88" height="10" rx="5" fill="var(--seal)"/>' +
+          '<div class="hv-subcard"><h4>🏫 幼稚園（2年間・一貫して話せない）</h4>' +
+            '<svg class="hv-svg" viewBox="0 0 248 112" role="img" aria-label="幼稚園では強い不安で体が固まり、うなずきや指さしだけで伝える6歳女児">' +
+              /* 園服姿で肩がすくみ、口を閉じて指さしする女の子 */
+              '<g>' +
+                '<path d="M34 74 C34 64, 82 64, 82 74 L86 106 L30 106 Z" ' + sh1 + '/>' +
+                '<path d="M50 68 L58 78 L66 68" fill="#fff" stroke="var(--hv-shirt-dk)" stroke-width="1.2"/>' +
+                /* 緊張で胸元に寄せた腕と小さな指さし */
+                '<path d="M78 82 L100 76" stroke="var(--hv-skin-stroke)" stroke-width="7.5" stroke-linecap="round"/>' +
+                '<path d="M78 82 L100 76" stroke="var(--hv-skin)" stroke-width="5.5" stroke-linecap="round"/>' +
+                '<rect x="52" y="58" width="12" height="11" rx="4" ' + sk + '/>' +
+                '<circle cx="58" cy="38" r="21" ' + sk + '/>' +
+                '<path d="M37 36 C37 18, 48 14, 58 14 C68 14, 79 18, 79 36 C79 52, 74 58, 72 56 C74 42, 70 28, 58 28 C46 28, 42 42, 44 56 C42 58, 37 52, 37 36 Z" ' + hr + '/>' +
+                '<path d="M45 29 L53 31 M71 29 L63 31" stroke="var(--hv-hair)" stroke-width="1.5" stroke-linecap="round"/>' +
+                '<circle cx="50" cy="37" r="2.6" fill="var(--hv-eye)"/><circle cx="66" cy="37" r="2.6" fill="var(--hv-eye)"/>' +
+                '<line x1="52" y1="48" x2="64" y2="48" stroke="var(--hv-mouth)" stroke-width="2.2" stroke-linecap="round"/>' +
+              '</g>' +
+              '<rect x="104" y="16" width="134" height="36" rx="11" fill="var(--seal-soft)" stroke="var(--seal)" stroke-width="1.5"/>' +
+              '<text x="171" y="38" text-anchor="middle" font-size="11.5" font-weight="700" class="svg-seal">……（うなずき・指さし）</text>' +
+              '<text x="106" y="76" font-size="11" font-weight="700" class="svg-seal">緊張・不安（強要は逆効果）</text>' +
+              '<rect x="106" y="84" width="126" height="11" rx="5.5" fill="var(--paper)" stroke="var(--line)"/>' +
+              '<rect x="106" y="84" width="116" height="11" rx="5.5" fill="var(--seal)"/>' +
             '</svg>' +
           '</div>' +
         '</div>' +
-        (ansN >= 3 ? '<div class="hv-reveal"><b>段階的に不安をならすステップ（行動療法）：</b><div class="hv-steps" style="margin-top:6px"><div class="hv-step"><b>Step 1</b>うなずき・カードで参加</div><div class="hv-step"><b>Step 2</b>家族と園の空き教室で</div><div class="hv-step"><b>Step 3</b>先生と1対1で一言</div><div class="hv-step"><b>Step 4</b>友だちと少人数で</div></div></div>' : '');
+        '<div class="hv-steps"><div class="hv-step"><b>Step 1</b>話さず参加（うなずき・カード）</div><div class="hv-step"><b>Step 2</b>安心できる家族と園の小部屋で</div><div class="hv-step"><b>Step 3</b>先生と1対1で小声・一言</div><div class="hv-step"><b>Step 4</b>友だちと少人数で</div></div>';
     }
 
-    /* 7: 14歳 朝起きられず、学校に行けない（24時間リズム＋体と心の2輪） */
+    /* 7: 14歳 朝起きられず、学校に行けない（朝・昼・深夜の3場面人物イラスト付き24時間体調カーブ） */
     if (ci === 7) {
-      return '<div class="hv-case-h"><span class="hv-case-tag">1日の体調・生活リズム（24時間）</span><span>14歳・中学2年生</span></div>' +
-        '<svg class="hv-svg" viewBox="0 0 560 164" role="img" aria-label="朝は体調が低く昼過ぎから上がり夜遅くまでスマホを見ている24時間グラフ">' +
-          /* 朝・昼・夜の背景帯 */
-          '<rect x="44" y="18" width="144" height="110" fill="var(--hv-warn-bg)"/>' +
-          '<rect x="188" y="18" width="192" height="110" fill="var(--ok-soft)" opacity=".45"/>' +
-          '<rect x="380" y="18" width="156" height="110" fill="var(--accent-soft)" opacity=".55"/>' +
-          '<text x="116" y="34" text-anchor="middle" font-size="11" font-weight="700" class="svg-seal">朝：頭痛・腹痛・起きられない</text>' +
-          '<text x="284" y="34" text-anchor="middle" font-size="11" font-weight="700" class="svg-ok">昼〜夕方：元気になる</text>' +
-          '<text x="458" y="34" text-anchor="middle" font-size="11" font-weight="700" class="svg-accent">深夜：スマホ・夜ふかし</text>' +
-          /* 体調カーブ */
-          '<path class="hv-draw" d="M44 114 C96 116, 148 112, 198 86 C248 58, 320 48, 396 54 C450 58, 496 68, 536 96" fill="none" stroke="var(--accent)" stroke-width="3.4" stroke-linecap="round"/>' +
-          '<circle cx="96" cy="114" r="5" fill="var(--seal)"/>' +
-          '<circle cx="290" cy="54" r="5" fill="var(--ok)"/>' +
-          '<circle cx="468" cy="64" r="5" fill="var(--lamp)" class="hv-pulse"/>' +
+      return '<div class="hv-case-h"><span class="hv-case-tag">1日の体調変化（24時間）＆ 身体・心理社会の両面評価</span><span>14歳・中学2年生</span></div>' +
+        '<svg class="hv-svg" viewBox="0 0 560 176" role="img" aria-label="朝は頭痛と腹痛で起きられず昼過ぎから元気になり夜遅くまでスマートフォンを見ている14歳女児の24時間曲線と3場面イラスト">' +
+          /* 朝・昼・夜の3時間帯背景 */
+          '<rect x="40" y="14" width="156" height="126" rx="6" fill="var(--hv-warn-bg)"/>' +
+          '<rect x="198" y="14" width="184" height="126" rx="6" fill="var(--ok-soft)" opacity=".45"/>' +
+          '<rect x="384" y="14" width="156" height="126" rx="6" fill="var(--accent-soft)" opacity=".55"/>' +
+          '<text x="118" y="29" text-anchor="middle" font-size="11" font-weight="700" class="svg-seal">朝：頭痛・腹痛・起きられない</text>' +
+          '<text x="290" y="29" text-anchor="middle" font-size="11" font-weight="700" class="svg-ok">昼過ぎ〜夕：元気になる</text>' +
+          '<text x="462" y="29" text-anchor="middle" font-size="11" font-weight="700" class="svg-accent">夜〜深夜：スマホ・夜ふかし</text>' +
+
+          /* 朝のミニ人物図（布団で頭を押さえて横たわる） */
+          '<g transform="translate(56,42)">' +
+            '<rect x="0" y="34" width="96" height="16" rx="6" fill="var(--hv-mat)" stroke="var(--hv-mat-edge)"/>' +
+            '<circle cx="22" cy="28" r="11" ' + sk + '/>' +
+            '<path d="M11 26 C11 16, 20 14, 30 18 C24 20, 16 22, 11 26 Z" ' + hr + '/>' +
+            '<path d="M18 28 L24 28" stroke="var(--hv-eye)" stroke-width="1.5"/>' +
+            '<path d="M32 24 C54 20, 78 24, 86 38 L30 38 Z" fill="var(--hv-shirt)" stroke="var(--hv-shirt-dk)" stroke-width="1.3"/>' +
+            '<path d="M24 12 L20 18 M30 11 L27 18" stroke="var(--seal)" stroke-width="1.6" stroke-linecap="round"/>' +
+          '</g>' +
+
+          /* 昼のミニ人物図（起き上がって元気に座る） */
+          '<g transform="translate(262,32)">' +
+            '<path d="M14 36 C14 29, 42 29, 42 36 L46 54 L10 54 Z" ' + sh2 + '/>' +
+            '<rect x="24" y="24" width="8" height="8" rx="3" ' + sk + '/>' +
+            '<circle cx="28" cy="15" r="12" ' + sk + '/>' +
+            '<path d="M16 13 C16 3, 26 1, 35 5 C40 9, 40 17, 38 22 C36 12, 22 10, 16 13 Z" ' + hr + '/>' +
+            '<circle cx="24" cy="15" r="1.7" fill="var(--hv-eye)"/><circle cx="33" cy="15" r="1.7" fill="var(--hv-eye)"/>' +
+            '<path d="M24 21 Q28 25 33 21" fill="none" stroke="var(--hv-mouth)" stroke-width="1.5" stroke-linecap="round"/>' +
+          '</g>' +
+
+          /* 深夜のミニ人物図（スマホの光を見る） */
+          '<g transform="translate(432,32)">' +
+            '<path d="M10 36 C10 29, 38 29, 38 36 L42 54 L6 54 Z" ' + sh1 + '/>' +
+            '<rect x="20" y="24" width="8" height="8" rx="3" ' + sk + '/>' +
+            '<circle cx="24" cy="15" r="12" ' + sk + '/>' +
+            '<path d="M12 13 C12 3, 22 1, 31 5 C36 9, 36 17, 34 22 C32 12, 18 10, 12 13 Z" ' + hr + '/>' +
+            '<circle cx="29" cy="15" r="1.7" fill="var(--hv-eye)"/>' +
+            '<path d="M34 38 L48 28" stroke="var(--hv-skin-stroke)" stroke-width="5" stroke-linecap="round"/>' +
+            '<rect x="48" y="18" width="10" height="16" rx="2" fill="var(--lamp)" stroke="var(--panel)" stroke-width="1.2" class="hv-pulse"/>' +
+          '</g>' +
+
+          /* 体調カーブ（イラストの下をすっきり通る） */
+          '<path class="hv-draw" d="M44 128 C96 130, 148 126, 202 108 C252 92, 320 88, 396 92 C450 96, 496 104, 536 120" fill="none" stroke="var(--accent)" stroke-width="3.5" stroke-linecap="round"/>' +
+          '<circle cx="104" cy="128" r="5" fill="var(--seal)" stroke="var(--panel)" stroke-width="1.5"/>' +
+          '<circle cx="290" cy="90" r="5" fill="var(--ok)" stroke="var(--panel)" stroke-width="1.5"/>' +
+          '<circle cx="468" cy="98" r="5" fill="var(--lamp)" stroke="var(--panel)" stroke-width="1.5"/>' +
           /* 時刻軸 */
-          '<line x1="44" y1="128" x2="536" y2="128" stroke="var(--line)" stroke-width="1.5"/>' +
-          '<text x="44" y="148" text-anchor="middle" font-size="11" class="svg-muted">6時</text>' +
-          '<text x="167" y="148" text-anchor="middle" font-size="11" class="svg-muted">12時</text>' +
-          '<text x="290" y="148" text-anchor="middle" font-size="11" class="svg-muted">18時</text>' +
-          '<text x="413" y="148" text-anchor="middle" font-size="11" class="svg-muted">24時</text>' +
-          '<text x="530" y="148" text-anchor="middle" font-size="11" class="svg-muted">6時</text>' +
-        '</svg>' +
-        (ansN >= 1 ? '<div class="hv-reveal"><b>両面から評価する：</b>①体の要因（起立性調節障害・睡眠リズム・貧血など） ＋ ②心理社会的な要因（部活の友人関係・いじめ・うつ・希死念慮は本人だけで確認）。</div>' : '');
+          '<line x1="40" y1="140" x2="540" y2="140" stroke="var(--line)" stroke-width="1.5"/>' +
+          '<text x="44" y="158" text-anchor="middle" font-size="11" class="svg-muted">朝6時</text>' +
+          '<text x="167" y="158" text-anchor="middle" font-size="11" class="svg-muted">12時</text>' +
+          '<text x="290" y="158" text-anchor="middle" font-size="11" class="svg-muted">18時</text>' +
+          '<text x="413" y="158" text-anchor="middle" font-size="11" class="svg-muted">24時</text>' +
+          '<text x="530" y="158" text-anchor="middle" font-size="11" class="svg-muted">翌6時</text>' +
+          '<text x="290" y="172" text-anchor="middle" font-size="10.8" font-weight="700" class="svg-accent">両輪で評価：①身体（起立性調節障害・睡眠など）× ②心理社会（部活の友人関係・いじめ・希死念慮）</text>' +
+        '</svg>';
     }
     return '';
   }
 
+  /* ---------- 3. 症例画面への組み込み＋全画面時の1問表示制御 ---------- */
   var lastCaseIdx = -1;
+  var prevAnsN = 0;
+  var hvFocusedQ = 0;
+
   function currentCaseIndex() {
     var slots = document.querySelectorAll('#slots .slot');
     for (var i = 0; i < slots.length; i++) {
@@ -1692,33 +2435,154 @@ var CASES = [
   function injectCaseVisual() {
     var main = document.getElementById('main');
     if (!main) return;
+    updateMaxMeta();
     var body = main.querySelector('.case-body');
-    var memo = body && body.querySelector('.memo-box');
-    if (!body || !memo) return;
+    if (!body) return;
+
     var ci = currentCaseIndex();
     if (ci < 0) return;
+
+    var qs = body.querySelectorAll('section.q');
+    var ansN = body.querySelectorAll('section.q .why').length;
+
     if (ci !== lastCaseIdx) {
       lastCaseIdx = ci;
+      prevAnsN = ansN;
+      hvFocusedQ = Math.min(ansN, Math.max(0, qs.length - 1));
       caseState.c0Tv = false;
       caseState.c4Mode = 'hear';
       caseState.c5Urge = 22;
+    } else if (ansN > prevAnsN) {
+      /* いま答えたばかりの問いにとどまり、同じ画面の中で解説と「次へ」を見せる */
+      hvFocusedQ = ansN - 1;
+      prevAnsN = ansN;
+    } else if (hvFocusedQ >= qs.length) {
+      hvFocusedQ = Math.max(0, qs.length - 1);
     }
-    var ansN = main.querySelectorAll('.q .why').length;
-    var box = body.querySelector('.hv-case');
-    if (!box) {
-      box = document.createElement('div');
+
+    /* 2カラム用ラッパー（.hv-col-case と .hv-col-q）を構築 */
+    var colCase = body.querySelector('.hv-col-case');
+    var colQ = body.querySelector('.hv-col-q');
+    if (!colCase || !colQ) {
+      var story = body.querySelector('.story');
+      var memo = body.querySelector('.memo-box');
+      colCase = document.createElement('div');
+      colCase.className = 'hv-col-case';
+      colQ = document.createElement('div');
+      colQ.className = 'hv-col-q';
+
+      if (story) colCase.appendChild(story);
+      var box = document.createElement('div');
       box.className = 'hv-case';
       box.setAttribute('data-ci', String(ci));
-      body.insertBefore(box, memo);
+      colCase.appendChild(box);
+      if (memo) colCase.appendChild(memo);
+
+      var qnav = document.createElement('div');
+      qnav.className = 'hv-qnav';
+      qnav.setAttribute('role', 'navigation');
+      qnav.setAttribute('aria-label', '問いの切り替え');
+      colQ.appendChild(qnav);
+
+      for (var i = 0; i < qs.length; i++) {
+        colQ.appendChild(qs[i]);
+      }
+      var doneQ = body.querySelector('.done-q');
+      var nextBtn = body.querySelector('#nextBtn');
+      if (doneQ) colQ.appendChild(doneQ);
+      if (nextBtn) colQ.appendChild(nextBtn);
+
+      var qnext = document.createElement('button');
+      qnext.type = 'button';
+      qnext.className = 'next hv-qnext';
+      qnext.id = 'hvNextQBtn';
+      colQ.appendChild(qnext);
+
+      body.innerHTML = '';
+      body.appendChild(colCase);
+      body.appendChild(colQ);
     }
-    box.innerHTML = buildCaseVisual(ci, ansN);
+
+    var caseBox = colCase.querySelector('.hv-case');
+    if (caseBox) caseBox.innerHTML = buildCaseVisual(ci, ansN);
+
+    syncQuestionFocus(colQ, qs, ansN);
   }
 
-  /* 症例ビジュアル内のインタラクション（イベント委譲） */
+  function syncQuestionFocus(colQ, qs, ansN) {
+    if (!colQ) return;
+    qs = colQ.querySelectorAll('section.q');
+    if (!qs.length) return;
+    if (hvFocusedQ >= qs.length) hvFocusedQ = qs.length - 1;
+    if (hvFocusedQ < 0) hvFocusedQ = 0;
+
+    for (var i = 0; i < qs.length; i++) {
+      qs[i].classList.toggle('hv-q-active', i === hvFocusedQ);
+    }
+
+    /* 上部の問1・問2・問3ステップボタンを更新 */
+    var qnav = colQ.querySelector('.hv-qnav');
+    if (qnav) {
+      var tabsHtml = '';
+      for (var t = 0; t < 3; t++) {
+        var exists = t < qs.length;
+        var hasWhy = exists && !!qs[t].querySelector('.why');
+        var isRight = hasWhy && !!qs[t].querySelector('.opt.right') && !qs[t].querySelector('.opt.wrong');
+        var cls = 'hv-qtab' + (hasWhy ? (isRight ? ' is-done' : ' is-miss') : '');
+        var mark = hasWhy ? (isRight ? ' ○' : ' ×') : (t === ansN && exists ? ' ●' : '');
+        tabsHtml += '<button type="button" class="' + cls + '" data-hv-qtab="' + t + '"' +
+          (t === hvFocusedQ ? ' aria-current="step"' : '') +
+          (!exists ? ' disabled' : '') + '>問' + (t + 1) + mark + '</button>';
+      }
+      qnav.innerHTML = tabsHtml;
+    }
+
+    /* 問1・問2を答えた直後は「次の問いへ（問2 / 3）」ボタンを出し、問3回答後は #nextBtn を出す */
+    var qnext = colQ.querySelector('#hvNextQBtn');
+    var doneQ = colQ.querySelector('.done-q');
+    var nextBtn = colQ.querySelector('#nextBtn');
+    var curHasWhy = !!(qs[hvFocusedQ] && qs[hvFocusedQ].querySelector('.why'));
+
+    if (qnext) {
+      if (isMax() && curHasWhy && hvFocusedQ < 2 && (hvFocusedQ + 1) < qs.length) {
+        qnext.hidden = false;
+        qnext.setAttribute('data-hv-qnext', String(hvFocusedQ + 1));
+        qnext.textContent = '次の問いへ（問' + (hvFocusedQ + 2) + ' / 3） →';
+      } else {
+        qnext.hidden = true;
+      }
+    }
+    if (isMax()) {
+      var showFinalNext = (ansN >= 3 && hvFocusedQ === 2);
+      if (doneQ) doneQ.hidden = !showFinalNext;
+      if (nextBtn) nextBtn.hidden = !showFinalNext;
+    } else {
+      if (doneQ) doneQ.hidden = false;
+      if (nextBtn) nextBtn.hidden = false;
+    }
+  }
+
+  /* 症例ビジュアル＆全画面問切替のイベント委譲 */
   function bindCaseEvents() {
     var main = document.getElementById('main');
     if (!main) return;
     main.addEventListener('click', function (e) {
+      var qtab = e.target.closest('[data-hv-qtab]');
+      if (qtab && !qtab.disabled) {
+        hvFocusedQ = +qtab.getAttribute('data-hv-qtab');
+        var colQ = main.querySelector('.hv-col-q');
+        var ansN = main.querySelectorAll('section.q .why').length;
+        syncQuestionFocus(colQ, null, ansN);
+        return;
+      }
+      var qnext = e.target.closest('#hvNextQBtn');
+      if (qnext) {
+        hvFocusedQ = +qnext.getAttribute('data-hv-qnext');
+        var colQ2 = main.querySelector('.hv-col-q');
+        var ansN2 = main.querySelectorAll('section.q .why').length;
+        syncQuestionFocus(colQ2, null, ansN2);
+        return;
+      }
       var btn = e.target.closest('[data-act]');
       if (!btn) return;
       var act = btn.getAttribute('data-act');
@@ -1742,14 +2606,14 @@ var CASES = [
   }
 
   function init() {
-    mountThemeBtn();
+    mountTopBtns();
     mountLab();
     bindCaseEvents();
     injectCaseVisual();
     var main = document.getElementById('main');
     if (main && window.MutationObserver) {
       var obs = new MutationObserver(function () {
-        if (!main.querySelector('.hv-case') && main.querySelector('.case-body')) {
+        if (!main.querySelector('.hv-col-case') && main.querySelector('.case-body')) {
           injectCaseVisual();
         }
       });
