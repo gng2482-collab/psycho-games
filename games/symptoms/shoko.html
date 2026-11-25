@@ -6,7 +6,7 @@
 <meta name="robots" content="noindex, nofollow">
 <!-- アクセス数（GoatCounter、Cookie なし・個人を特定しない。2026-11-23 利用者の依頼） -->
 <script data-goatcounter="https://psychogames.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
-<meta name="app-version" content="20261125090109">
+<meta name="app-version" content="20261125092839">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
@@ -36,7 +36,8 @@ img{max-width:100%}
     window.__ipadPlayer = P;
     if (P === 'me') return;
     var pre = 'p:' + P + ':', S = Storage.prototype, g = S.getItem, s = S.setItem, r = S.removeItem;
-    var map = function (k) { return k === 'ipad-player' ? k : pre + k; };
+    // 復習ノートのキーには、すでにプレイヤー名が付いている。
+    var map = function (k) { return k === 'ipad-player' || /^pg-note-v1:/.test(k) ? k : pre + k; };
     S.getItem = function (k) { return g.call(this, map(k)); };
     S.setItem = function (k, v) { return s.call(this, map(k), v); };
     S.removeItem = function (k) { return r.call(this, map(k)); };
@@ -48,6 +49,7 @@ if ('serviceWorker' in navigator) { window.addEventListener('load', function () 
 </head>
 <body>
 <nav class="ipad-bar" aria-label="アプリ"><a href="../../index.html#g=symptoms">← ゲーム一覧</a><span class="right"><span id="ipadWho"></span><a href="#" class="fbk" id="ipadFbk" target="_blank" rel="noopener">⚑ 不具合・感想</a><button type="button" class="upd" data-upd="manual" aria-label="新しい版を確かめて更新">↻ 更新</button></span></nav>
+<script src="../../review-note.js" data-app="症候ハンター" data-where="games/symptoms/shoko.html" data-group="symptoms"></script>
 <script>(function(){var P=window.__ipadPlayer||'me';document.getElementById('ipadWho').textContent='プレイヤー：'+(P==='me'?'自分':P);})();
 /* 不具合・感想を送る：どのアプリのどの画面からでも、いまの場所を「どこの不具合か」の欄に自動で入れる（Google フォーム） */
 (function(){var FB='https://docs.google.com/forms/d/e/1FAIpQLSdNJkjXAVATEdI6vKRfg8gmFf87viEZP8qCpqCzv9lQGojGeg/viewform?usp=pp_url&entry.298389701=',APP='症候ハンター',a=document.getElementById('ipadFbk');if(!a)return;
@@ -154,6 +156,7 @@ upd();a.addEventListener('click',upd);a.addEventListener('pointerdown',upd);})()
 /* ---------- 土台 ---------- */
 *,*::before,*::after{box-sizing:border-box}
 html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
+[hidden]{display:none!important}
 body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:16px;line-height:1.75;-webkit-tap-highlight-color:transparent;overflow-x:hidden}
 body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:30;background:var(--bg)}
 body.noscroll{overflow:hidden}
@@ -181,22 +184,69 @@ h1,h2,h3{text-wrap:balance}
 .top-btn svg,#soundbtn svg{width:18px;height:18px;flex:none;fill:none;stroke:currentColor;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
 #themebtn{padding:0;width:44px}
 #soundbtn[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:var(--on-accent)}
+#choice-settings summary{list-style:none}
+#choice-settings summary::-webkit-details-marker{display:none}
+.settings-panel{position:absolute;z-index:1;inset-block-start:100%;inset-inline-end:var(--gut-r);max-width:calc(100% - var(--gut-l) - var(--gut-r));padding:6px 14px;background:var(--paper);border:1px solid var(--line-strong);border-radius:12px;box-shadow:var(--shadow-lg)}
+.settings-panel label{display:flex;align-items:center;gap:8px;min-height:44px;cursor:pointer}
+.settings-panel input{width:18px;height:18px;accent-color:var(--accent)}
 @media (max-width:460px){
  .brand{font-size:16.5px}
- #rankchip{padding:0 9px;font-size:12px}
+ #rankchip{padding:0 7px;font-size:12px}
  .rk-n{display:none}
- #soundbtn{padding:0 9px;font-size:12px}
+ #soundbtn{width:44px;padding:0}
+ .snd-lbl{display:none}
+ #maxbtn{padding-inline:7px}
 }
 @media (max-width:360px){
  .top-in{gap:4px}
  .brand{font-size:15.5px}
- .snd-lbl{display:none}
- #soundbtn{width:44px;padding:0}
+ #rankchip b{display:none}
 }
 
 .wrap{max-width:920px;margin:0 auto;padding-left:var(--gut-l);padding-right:var(--gut-r);padding-block:14px calc(92px + env(safe-area-inset-bottom,0px))}
 body.playing .wrap{padding-bottom:calc(36px + env(safe-area-inset-bottom,0px))}
 .view{min-width:0}
+
+/* 出題中は手がかりと解説を別々に読めるようにする */
+.quiz-stimulus,.quiz-response,.quiz-scroll{min-width:0;min-height:0}
+.quiz-response{margin-top:12px}
+.quiz-actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+.quiz-actions .row{margin:0;gap:8px}
+.choice-reveal{display:block;width:100%;min-height:44px;padding:8px 12px;border:1.5px dashed var(--accent);border-radius:12px;background:var(--accent-soft);color:var(--accent);font-weight:800;cursor:pointer}
+.room-running .quiz-response{display:none}
+.quiz-stimulus:focus-visible,.quiz-scroll:focus-visible{outline-offset:-2px}
+
+.is-max{height:100vh;height:100dvh;overflow:hidden}
+.is-max body{height:100%;display:flex;flex-direction:column;overflow:hidden}
+.is-max .top{position:relative;top:auto;flex:none}
+.is-max .top-in,.is-max .wrap{max-width:1440px;width:100%}
+.is-max .wrap{flex:1;min-height:0;overflow:auto;overscroll-behavior:contain;padding-block:6px 10px}
+.is-max .bnav,.is-max .ipad-bar,.is-max .foot,.is-max body.playing #rankchip,.is-max body.playing .brand{display:none}
+.is-max body.playing #choice-settings{margin-inline-start:auto}
+.is-max body.playing .wrap{display:flex;flex-direction:column;overflow:hidden}
+.is-max body.playing .view:not([hidden]){display:flex;flex:1;min-height:0;flex-direction:column}
+.is-max .gbar{flex:none;margin-bottom:4px;padding-block:0}
+.is-max .qdots{margin-bottom:4px}
+.is-max .quiz-layout{display:grid;grid-template-rows:minmax(0,2fr) minmax(0,3fr);gap:8px;flex:1;min-height:0}
+.is-max .quiz-layout.room-running{grid-template-rows:minmax(0,1fr)}
+.is-max .quiz-stimulus,.is-max .quiz-scroll{overflow:auto;overscroll-behavior:contain;scroll-padding-block:5px;padding:5px}
+.is-max .quiz-response{display:flex;flex-direction:column;margin:0;border:1px solid var(--line);border-radius:14px;background:var(--paper)}
+.is-max .room-running .quiz-response{display:none}
+.is-max .quiz-scroll{flex:1;padding:9px}
+.is-max .quiz-actions{flex:none;margin:0;padding:6px 8px;border-top:1px solid var(--line)}
+.is-max .quiz-actions .btn{min-height:44px;padding-inline:13px;font-size:14px}
+.is-max .quiz-scroll .fb{scroll-margin-top:6px}
+.is-max .chat{min-height:100px;max-height:none}
+.is-max .stage{min-height:290px}
+.is-max .arena{min-height:0;margin:0}
+.is-max .dcard{min-height:120px}
+.is-max .tq{margin-top:0}
+@media (min-width:950px) and (orientation:landscape){
+ .is-max .quiz-layout{grid-template-columns:minmax(0,1fr) minmax(0,1fr);grid-template-rows:minmax(0,1fr);gap:14px}
+ .is-max .quiz-layout.room-running{grid-template-columns:minmax(0,1fr)}
+}
+.is-max #v-live .quiz-stimulus{display:flex;flex-direction:column}
+.is-max #v-live .chat{flex:1}
 
 /* ---------- 下部クイックナビ（プレイ中は自動非表示） ---------- */
 .bnav{position:fixed;left:0;right:0;bottom:0;z-index:25;background:var(--nav-bg);-webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px);border-top:1px solid var(--line);box-shadow:var(--nav-shadow);padding-bottom:env(safe-area-inset-bottom,0px);transition:transform .22s ease,opacity .2s ease}
@@ -323,8 +373,6 @@ body.playing .bnav{transform:translateY(110%);opacity:0;pointer-events:none}
 .gb-sp{flex:1}
 .stat{color:var(--ink-3);white-space:nowrap;font-size:13.5px}
 .stat b{color:var(--ink);font-size:17px;font-variant-numeric:tabular-nums;display:inline-block}
-.stat b.bump{animation:pop .35s}
-.combo{display:inline-flex;align-items:center;gap:3px;background:var(--mark);color:var(--mark-ink);padding:3px 10px;border-radius:999px;font-weight:800;font-size:12.5px;animation:pop .35s;white-space:nowrap}
 .live-dot{margin-left:auto;display:inline-flex;align-items:center;gap:6px;font-size:12.5px;font-weight:800;color:var(--ng);padding:4px 10px;border-radius:999px;background:var(--ng-soft)}
 .live-dot::before{content:"";width:8px;height:8px;border-radius:50%;background:currentColor;animation:blink 1.2s infinite}
 .live-dot.off{color:var(--ink-2);background:var(--paper-2)}
@@ -341,7 +389,6 @@ body.playing .bnav{transform:translateY(110%);opacity:0;pointer-events:none}
 .karte{margin:0 0 10px;padding:10px 14px;background:var(--paper);border:1px solid var(--line);border-left:4px solid var(--accent);border-radius:12px;font-size:15px;line-height:1.55}
 .karte b{font-weight:800}
 .karte-k{display:inline-block;font-size:11px;font-weight:800;letter-spacing:.1em;background:var(--accent-soft);color:var(--accent);padding:1px 7px;border-radius:5px;margin-right:8px;vertical-align:1px}
-.chat-wrap{position:relative}
 .chat{display:flex;flex-direction:column;gap:9px;background:var(--paper);border:1px solid var(--line);border-radius:18px;padding:14px;min-height:200px;max-height:min(44vh,420px);max-height:min(44dvh,420px);overflow-y:auto;overscroll-behavior:contain;box-shadow:var(--shadow)}
 @media (min-width:720px){.chat{min-height:250px;max-height:min(50dvh,460px)}}
 .bub{max-width:88%;padding:9px 14px;border-radius:17px;font-size:16px;line-height:1.65;overflow-wrap:anywhere;animation:bubIn .18s ease-out}
@@ -356,7 +403,6 @@ body.playing .bnav{transform:translateY(110%);opacity:0;pointer-events:none}
 .typing.silent i{animation-duration:2.4s;opacity:.55}
 .note{align-self:center;font-size:13px;color:var(--ink-3);padding:1px 10px}
 .note.act{align-self:flex-start;background:var(--paper-2);border-radius:8px;padding:4px 10px;color:var(--ink-2)}
-.early-pill{display:inline-flex;align-items:center;gap:4px;font-size:12px;font-weight:800;padding:2px 9px;border-radius:999px;background:var(--gold-soft);color:var(--star);border:1px solid var(--gold)}
 
 .answers{display:grid;grid-template-columns:1fr;gap:8px;margin-top:8px}
 @media (min-width:540px){.answers{grid-template-columns:1fr 1fr;gap:10px}}
@@ -382,7 +428,6 @@ body.playing .bnav{transform:translateY(110%);opacity:0;pointer-events:none}
 .fb.is-ok .fb-badge{background:var(--ok);color:#fff}
 .fb.is-ng .fb-h{color:var(--ng)}
 .fb.is-ng .fb-badge{background:var(--ng);color:#fff}
-.fb-pts{font-size:14px;font-family:var(--f-body);font-weight:800;padding:2px 10px;border-radius:999px;background:var(--ok-soft);color:var(--ok)}
 .fb-why{margin:0;font-size:15.5px;line-height:1.8}
 .kk{display:inline-block;font-size:11.5px;font-weight:800;letter-spacing:.06em;background:var(--ink);color:var(--paper);padding:2px 8px;border-radius:5px;margin-right:8px;vertical-align:1px}
 .fb-ent{display:flex;flex-wrap:wrap;align-items:center;gap:6px 10px;padding:13px 14px;background:var(--paper-2);border-radius:13px}
@@ -391,23 +436,10 @@ body.playing .bnav{transform:translateY(110%);opacity:0;pointer-events:none}
 .fb-t{font-size:18px;font-weight:800}
 .fb-y{font-size:12.5px;color:var(--ink-3)}
 .fb-link{margin:0;display:flex;flex-wrap:wrap;align-items:center;gap:8px;font-size:14px;color:var(--ink-2)}
-.fb>.btn{align-self:stretch}
-@media (min-width:540px){.fb>.btn{align-self:flex-start}}
-.fb .row{margin-top:2px}
 
-/* 浮き上がる得点ポップ */
-.float-pop{position:fixed;left:50%;top:42%;z-index:65;transform:translate(-50%,-50%);padding:8px 18px;border-radius:999px;background:var(--ok);color:#fff;font-family:var(--f-display);font-size:22px;letter-spacing:.03em;box-shadow:var(--shadow-lg);pointer-events:none;white-space:nowrap;animation:floatPop 1.05s cubic-bezier(.2,1.2,.4,1) forwards}
-.float-pop.gold{background:var(--mark);color:var(--mark-ink)}
 
 /* ---------- 結果 ---------- */
 .result{padding-block:6px 20px}
-.res-top{display:flex;align-items:center;gap:16px;margin:12px 0 10px;padding:16px;background:var(--paper);border:1px solid var(--line);border-radius:18px;box-shadow:var(--shadow)}
-.grade{flex:none;width:86px;height:86px;border-radius:20px;display:grid;place-items:center;font-family:var(--f-display);font-size:56px;line-height:1;background:var(--inv-bg);color:var(--inv-fg);animation:stampIn .45s cubic-bezier(.2,1.3,.4,1)}
-.grade.g-S{background:var(--mark);color:var(--mark-ink);box-shadow:0 0 0 3px var(--gold)}
-.grade.g-A{background:var(--accent);color:var(--on-accent)}
-.res-n{display:flex;flex-direction:column;min-width:0}
-.res-n b{font-family:var(--f-display);font-weight:400;font-size:46px;line-height:1.1;font-variant-numeric:tabular-nums}
-.res-n small{font-size:14px;color:var(--ink-2);font-weight:700}
 .new-box{margin:14px 0;padding:13px 15px;background:var(--gold-soft);border:1.5px solid var(--gold);border-radius:14px}
 .new-box-h{margin:0 0 8px;font-size:13.5px;font-weight:800;color:var(--ink)}
 .new-chips{display:flex;flex-wrap:wrap;gap:6px}
@@ -665,32 +697,13 @@ body.playing .bnav{transform:translateY(110%);opacity:0;pointer-events:none}
 .stage.lit .nightroom{filter:none}
 
 /* ---------- 見分け道場 ---------- */
-.pairs{display:flex;flex-wrap:wrap;gap:6px;margin:0 0 20px}
-.pair{font-size:13px;font-weight:700;padding:4px 11px;border-radius:999px;background:var(--paper);border:1px solid var(--line)}
-.pair i{font-style:normal;margin:0 6px;color:var(--ink-3)}
-.timer{flex:1 1 80px;min-width:70px;height:12px;border-radius:999px;background:var(--paper);border:1px solid var(--line);overflow:hidden}
-.timer i{display:block;height:100%;width:100%;background:var(--accent);transition:width .1s linear,background .2s}
-.timer i.low{background:var(--ng);animation:pulse .6s infinite}
-.timer i.bonus{background:var(--ok)}
 .arena{position:relative;display:grid;justify-items:center;align-content:center;gap:12px;min-height:270px;margin:6px 0 12px}
-.dcard{position:relative;width:min(100%,460px);min-height:220px;padding:24px 20px;background:var(--paper);border:2px solid var(--line-strong);border-radius:22px;box-shadow:var(--shadow);display:flex;flex-direction:column;justify-content:center;gap:12px;cursor:grab;user-select:none;-webkit-user-select:none;touch-action:pan-y;transition:transform .2s,border-color .15s;animation:cardIn .22s ease-out;overflow:hidden}
+.dcard{position:relative;width:min(100%,460px);min-height:220px;padding:24px 20px;background:var(--paper);border:2px solid var(--line-strong);border-radius:22px;box-shadow:var(--shadow);display:flex;flex-direction:column;justify-content:center;gap:12px;touch-action:pan-y;transition:transform .2s,border-color .15s;animation:cardIn .22s ease-out;overflow:hidden}
+.quiz-layout:has(#dj-sides:not([hidden]) button:enabled) .dcard{cursor:grab;user-select:none;-webkit-user-select:none}
 .dcard.drag{transition:border-color .15s;cursor:grabbing}
 .dcard.to-a{border-color:var(--side-a);box-shadow:0 8px 26px rgba(39,68,209,.18)}
 .dcard.to-b{border-color:var(--side-b);box-shadow:0 8px 26px rgba(188,88,8,.18)}
-.dc-stamp{position:absolute;top:12px;padding:3px 11px;border-radius:8px;border:2px solid;font-size:13px;font-weight:900;opacity:0;pointer-events:none;transition:opacity .12s;max-width:75%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.dc-stamp.sa{left:14px;color:var(--side-a);border-color:var(--side-a);background:var(--side-a-soft)}
-.dc-stamp.sb{right:14px;color:var(--side-b);border-color:var(--side-b);background:var(--side-b-soft)}
-.dcard.to-a .dc-stamp.sa,.dcard.to-b .dc-stamp.sb{opacity:1}
-.vs{margin:0;font-size:12.5px;font-weight:800;color:var(--ink-3)}
 .vt{margin:0;font-size:clamp(17.5px,4.5vw,20px);line-height:1.75;font-weight:700;overflow-wrap:anywhere}
-.dcard.shake{animation:shake .4s}
-.rule{width:min(100%,460px);padding:14px 16px;background:var(--ng-soft);border:1.5px solid var(--ng);border-radius:15px;display:flex;flex-direction:column;gap:8px;animation:rise .25s ease-out}
-.rule b{color:var(--ng);font-size:16px}
-.rule span{font-size:15px;line-height:1.75}
-.rule-bar{height:4px;border-radius:999px;background:rgba(191,51,37,.18);overflow:hidden}
-.rule-bar i{display:block;height:100%;width:100%;background:var(--ng);transform-origin:left;animation:shrink 6.5s linear forwards}
-.rule .btn{align-self:flex-end}
-.poptext{position:absolute;left:50%;top:42%;z-index:3;transform:translate(-50%,-50%);padding:6px 16px;border-radius:999px;background:var(--ok);color:#fff;font-family:var(--f-display);font-size:24px;white-space:nowrap;pointer-events:none;box-shadow:var(--shadow);animation:popUp 1.15s ease-out forwards}
 .sides{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 .side{display:flex;align-items:center;justify-content:center;gap:6px;min-height:66px;padding:8px 10px;border-radius:15px;border:2px solid;font-size:clamp(14.5px,3.9vw,17px);font-weight:800;line-height:1.3;cursor:pointer;touch-action:manipulation;min-width:0;overflow-wrap:anywhere;transition:transform .1s,filter .12s}
 .side.sa{border-color:var(--side-a);background:var(--side-a-soft);color:var(--ink)}
@@ -699,7 +712,9 @@ body.playing .bnav{transform:translateY(110%);opacity:0;pointer-events:none}
 .sa .arr{color:var(--side-a)}
 .sb .arr{color:var(--side-b)}
 .side:active{transform:scale(.97)}
-.dj-tip{margin:8px 0 0;text-align:center;font-size:12.5px;color:var(--ink-3)}
+.side:disabled{cursor:default}
+.side.right{border-color:var(--ok);background:var(--ok-soft)}
+.side.wrong{border-color:var(--ng);background:var(--ng-soft)}
 
 /* ---------- 本番形式 ---------- */
 .qbox{background:var(--paper);border:1px solid var(--line);border-radius:18px;padding:16px;box-shadow:var(--shadow)}
@@ -836,9 +851,6 @@ body.playing .bnav{transform:translateY(110%);opacity:0;pointer-events:none}
 @keyframes ansPop{0%{transform:scale(.96)}55%{transform:scale(1.03)}100%{transform:scale(1)}}
 @keyframes rankBump{0%{transform:scale(1)}35%{transform:scale(1.16);border-color:var(--gold)}100%{transform:scale(1)}}
 @keyframes rankCardIn{0%{opacity:0;transform:scale(.82) translateY(16px)}100%{opacity:1;transform:none}}
-@keyframes stampIn{0%{opacity:0;transform:scale(1.5) rotate(-8deg)}70%{opacity:1;transform:scale(.95) rotate(2deg)}100%{transform:none}}
-@keyframes floatPop{0%{opacity:0;transform:translate(-50%,-20%) scale(.8)}18%{opacity:1;transform:translate(-50%,-50%) scale(1.06)}75%{opacity:1;transform:translate(-50%,-78%) scale(1)}100%{opacity:0;transform:translate(-50%,-105%) scale(.96)}}
-@keyframes shrink{from{transform:scaleX(1)}to{transform:scaleX(0)}}
 @keyframes blink{50%{opacity:.25}}
 @keyframes dots{0%,60%,100%{transform:translateY(0);opacity:.5}30%{transform:translateY(-4px);opacity:1}}
 @keyframes bubIn{from{opacity:0;transform:translateY(6px)}}
@@ -863,7 +875,6 @@ body.playing .bnav{transform:translateY(110%);opacity:0;pointer-events:none}
 @keyframes pulse{50%{opacity:.45}}
 @keyframes cardIn{from{opacity:0;transform:scale(.94)}}
 @keyframes shake{20%,60%{transform:translateX(-8px)}40%,80%{transform:translateX(8px)}}
-@keyframes popUp{0%{opacity:0;transform:translate(-50%,-30%)}20%{opacity:1;transform:translate(-50%,-50%)}100%{opacity:0;transform:translate(-50%,-110%)}}
 @keyframes sheetUp{from{transform:translateY(40px);opacity:0}}
 @keyframes toastIn{from{opacity:0;transform:translateY(-14px) scale(.9)}}
 @keyframes fall{to{transform:translate(var(--dx),108vh) rotate(560deg)}}
@@ -1972,9 +1983,12 @@ var REDUCE=window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').mat
 
 /* ---------- 記録（この端末のブラウザだけに残る） ---------- */
 var KEY='shoko-hunter-v1';
-var S={caught:{},rooms:{},best:{},sound:false,miss:{},theme:'auto'};
+var S={caught:{},rooms:{},sound:false,miss:{},theme:'auto'};
 try{var raw=localStorage.getItem(KEY);if(raw){var o=JSON.parse(raw);if(o&&typeof o==='object'){for(var k in o)S[k]=o[k];}}}catch(e){}
 function save(){try{localStorage.setItem(KEY,JSON.stringify(S));}catch(e){}}
+var CHOICE_KEY='shoko-hunter-show-choices-v1';
+var showChoicesFirst=false;
+try{showChoicesFirst=localStorage.getItem(CHOICE_KEY)==='true';}catch(e){}
 
 /* ---------- テーマ（明るい画面／暗い画面） ---------- */
 var darkMQ=window.matchMedia?matchMedia('(prefers-color-scheme:dark)'):null;
@@ -2006,7 +2020,7 @@ var AC=null,noiseStop=null;
 function ac(){if(!AC){try{AC=new (window.AudioContext||window.webkitAudioContext)();}catch(e){AC=null;}}if(AC&&AC.state==='suspended'){try{AC.resume();}catch(e){}}return AC;}
 function tone(f,dur,type,vol,when){if(!S.sound)return;var c=ac();if(!c)return;var o=c.createOscillator(),g=c.createGain();o.type=type||'sine';o.frequency.value=f;var t=c.currentTime+(when||0);g.gain.setValueAtTime(0.0001,t);g.gain.linearRampToValueAtTime(vol||.07,t+.012);g.gain.exponentialRampToValueAtTime(0.0001,t+dur);o.connect(g);g.connect(c.destination);o.start(t);o.stop(t+dur+.03);}
 var SFX={
- ok:function(combo){var mul=combo&&combo>1?Math.min(1.38,1+(combo-1)*.06):1;tone(660*mul,.12,'triangle',.08);tone(990*mul,.2,'triangle',.08,.09);},
+ ok:function(){tone(660,.12,'triangle',.08);tone(990,.2,'triangle',.08,.09);},
  ng:function(){tone(200,.22,'sawtooth',.04);tone(150,.3,'sawtooth',.035,.1);},
  get:function(){[523,659,784,1047].forEach(function(f,i){tone(f,.18,'triangle',.06,i*.07);});},
  rankup:function(){[523,659,784,1047,1319].forEach(function(f,i){tone(f,.26,'triangle',.075,i*.08);});},
@@ -2053,7 +2067,12 @@ function catchTerm(id,opts){
  }
  return isNew;
 }
-function miss(id){S.miss[id]=(S.miss[id]||0)+1;save();}
+function miss(id,q,picked,answer,why){
+ S.miss[id]=(S.miss[id]||0)+1;save();
+ if(window.PG_NOTE&&typeof window.PG_NOTE.miss==='function'){
+  window.PG_NOTE.miss({app:'症候ハンター',q:q,picked:picked,answer:answer,why:why,where:window.__feedbackWhere()});
+ }
+}
 function paintRank(bump){
  var n=caughtN(),rc=$('#rankchip');if(!rc)return;
  rc.innerHTML=MEDAL_SVG+'<b>'+esc(rankOf(n)[1])+'</b><span class="rk-n"> '+n+'/'+TOTAL+'</span>';
@@ -2072,14 +2091,6 @@ function toast(id,promo,beforeN,afterN){
  requestAnimationFrame(function(){var bar=$('.toast-track i',t);if(bar)bar.style.width=p1+'%';});
  setTimeout(function(){t.classList.add('out');},promo?3400:2600);
  setTimeout(function(){t.remove();},promo?4000:3200);
-}
-function floatPop(text,gold){
- if(REDUCE)return;
- var p=document.createElement('div');
- p.className='float-pop'+(gold?' gold':'');
- p.textContent=text;
- document.body.appendChild(p);
- setTimeout(function(){p.remove();},1100);
 }
 function catDot(c){return '<span class="cat" style="--c:var(--c-'+c+')"><i></i>'+esc(CATBY[c].n)+'</span>';}
 function stars(r){return '<span class="stars" aria-label="試験での重要度'+r+'">'+'★★★'.slice(0,r)+'<span class="st-off">'+'★★★'.slice(r)+'</span></span>';}
@@ -2186,7 +2197,7 @@ var keyHandler=null;
 var activeRoom=null,pendingRoomIdx=null;
 function show(v){
  if(VIEWS.indexOf(v)<0)v='home';
- clearTimers();hush();keyHandler=null;activeRoom=null;closeSheet(true);closeRankUp(true);setPlaying(false);
+ runTok++;flushWaits();clearTimers();hush();keyHandler=null;activeRoom=null;closeSheet(true);closeRankUp(true);setPlaying(false);
  VIEWS.forEach(function(x){$('#v-'+x).hidden=(x!==v);});
  current=v;syncNav(v);
  if(v==='taiken'&&pendingRoomIdx!=null){var ri=pendingRoomIdx;pendingRoomIdx=null;enterRoom(ri);window.scrollTo(0,0);return;}
@@ -2198,9 +2209,68 @@ window.addEventListener('hashchange',route);
 document.addEventListener('keydown',function(e){
  if(rankupEl){if(e.key==='Escape'||e.key==='Enter'||e.key===' '){e.preventDefault();closeRankUp();}return;}
  if(e.key==='Escape'&&!$('#sheet').hidden){closeSheet();return;}
- if(keyHandler&&!e.metaKey&&!e.ctrlKey&&!e.altKey)keyHandler(e);
+ if(e.key==='Escape'&&$('#choice-settings').open){$('#choice-settings').open=false;$('#choice-settings summary').focus();return;}
+ if(e.key==='Escape'&&document.documentElement.classList.contains('is-max')){setFullscreen(false);return;}
+ if(keyHandler&&!e.defaultPrevented&&!e.metaKey&&!e.ctrlKey&&!e.altKey&&(!e.target.closest||!e.target.closest('input, select, textarea, summary')))keyHandler(e);
 });
 function gbar(left,mid){return '<div class="gbar"><a class="back" href="#home">← ホーム</a>'+(left||'')+'<span class="gb-sp"></span>'+(mid||'')+'</div>';}
+function quizLayout(stimulus,response){
+ return '<div class="quiz-layout"><div class="quiz-stimulus" role="region" aria-label="問題の手がかり" tabindex="0">'+stimulus+'</div><div class="quiz-response">'+
+  '<div class="quiz-scroll" role="region" aria-label="問いと解説" tabindex="0">'+response+'</div><div class="quiz-actions" hidden></div></div></div>';
+}
+function choiceMarkup(id,classes,options){
+ return '<button type="button" class="choice-reveal" aria-controls="'+id+'" aria-expanded="'+showChoicesFirst+'"'+(showChoicesFirst?' hidden':'')+'>選択肢を表示</button>'+
+  '<div id="'+id+'" class="'+classes+'"'+(showChoicesFirst?'':' hidden')+'>'+options+'</div>';
+}
+function revealChoices(button,focus){
+ var choices=document.getElementById(button.getAttribute('aria-controls'));
+ choices.hidden=false;
+ button.setAttribute('aria-expanded','true');
+ button.hidden=true;
+ if(focus)$('button',choices).focus();
+}
+function bindChoices(view){
+ var gate=$('.choice-reveal',view);
+ gate.addEventListener('click',function(){revealChoices(gate,true);});
+}
+function bindQuizKeys(view,choices,next,arrows){
+ keyHandler=function(e){
+  var gate=$('.choice-reveal',view);
+  var actionKey=e.key==='Enter'||e.key===' ';
+  if(actionKey&&e.target.closest&&e.target.closest('button, a, [role="button"]'))return;
+  if(gate&&!gate.hidden){
+   if(actionKey){e.preventDefault();gate.click();}
+   return;
+  }
+  var index=/^[1-5]$/.test(e.key)?Number(e.key)-1:-1;
+  if(arrows&&e.key==='ArrowLeft')index=0;
+  if(arrows&&e.key==='ArrowRight')index=1;
+  var target=index>=0?$$('button',$(choices,view))[index]:(actionKey?$(next,view):null);
+  if(target&&!target.disabled){e.preventDefault();target.click();}
+ };
+}
+function showFeedback(feedback,actions){
+ var footer=feedback.closest('.quiz-response').querySelector('.quiz-actions');
+ footer.appendChild(actions);footer.hidden=false;
+ var heading=$('.fb-h',feedback);
+ heading.tabIndex=-1;heading.focus({preventScroll:true});
+ var full=document.documentElement.classList.contains('is-max');
+ feedback.scrollIntoView({behavior:REDUCE?'auto':'smooth',block:full?'start':'nearest'});
+}
+function setFullscreen(on){
+ var root=document.documentElement,doc=document,button=$('#maxbtn');
+ root.classList.toggle('is-max',on);
+ button.setAttribute('aria-pressed',String(on));
+ button.textContent=on?'全画面を解除':'⛶ 全画面';
+ var fn=on?(root.requestFullscreen||root.webkitRequestFullscreen):(doc.exitFullscreen||doc.webkitExitFullscreen);
+ if(!fn||(!on&&!(doc.fullscreenElement||doc.webkitFullscreenElement)))return;
+ try{var pending=fn.call(on?root:doc);if(pending)pending.catch(function(){});}catch(e){}
+}
+function syncFullscreen(){
+ if(!(document.fullscreenElement||document.webkitFullscreenElement)&&document.documentElement.classList.contains('is-max'))setFullscreen(false);
+}
+document.addEventListener('fullscreenchange',syncFullscreen);
+document.addEventListener('webkitfullscreenchange',syncFullscreen);
 function qdotsHtml(total,curIdx,log){
  var out='<div class="qdots" aria-hidden="true">';
  for(var i=0;i<total;i++){
@@ -2225,7 +2295,6 @@ function renderHome(){
  var n=caughtN(),r=rankOf(n),nx=nextRank(n),pct=Math.round(n/TOTAL*100);
  var segs=D.cats.map(function(c){var all=ENT.filter(function(e){return e.c===c.id;});var got=all.filter(function(e){return S.caught[e.id];}).length;return '<span class="seg" style="--c:var(--c-'+c.id+');flex:'+all.length+'" title="'+esc(c.n)+' '+got+'/'+all.length+'"><i style="width:'+(got/all.length*100)+'%"></i></span>';}).join('');
  var roomsDone=SCN.filter(function(s){return S.rooms[s.id];}).length;
- var b=S.best;
  $('#v-home').innerHTML=
  '<section class="hero">'+
   '<div class="hero-txt">'+
@@ -2248,10 +2317,10 @@ function renderHome(){
  '</section>'+
  '<p class="sec-h">遊び方をえらぶ（5つのモード）</p>'+
  '<nav class="modes" aria-label="遊び方を選ぶ">'+
-  modeTile('live','診察ライブ','患者の話し方そのものが症状。聞きながら記録し、途中で見切れば高得点。','8人 ・ '+D.live.length+'症例',b.live?'最高 '+b.live+'点':'',true,'おすすめ')+
+  modeTile('live','診察ライブ','患者のことばや話し方を聞き、当てはまる症状を考える。','8人 ・ '+D.live.length+'症例','',true,'おすすめ')+
   modeTile('taiken','追体験ルーム','画面があなたに症状を起こす。体験してから名前を当てる。',SCN.length+'部屋',roomsDone?'クリア '+roomsDone+'/'+SCN.length:'',false,'',roomsDone/SCN.length)+
-  modeTile('dojo','見分け道場','似た用語2つを60秒で仕分ける。スワイプか左右ボタンで。',D.pairs.length+'組',b.dojo?'最高 '+b.dojo+'枚':'')+
-  modeTile('shiken','本番形式','専門医試験ふうの選択問題を10問。すぐ解説が出る。',D.exam.length+'問＋定義から出題',b.shiken!=null?'最高 '+b.shiken+'/10':'')+
+  modeTile('dojo','見分け道場','場面を読み、似た用語2つを見分ける。',D.pairs.length+'組')+
+  modeTile('shiken','本番形式','専門医試験ふうの選択問題を10問。答えると解説が出る。',D.exam.length+'問＋定義から出題')+
   modeTile('zukan','症候図鑑',TOTAL+'語の定義・例・病気・見分けのコツ。未登録の語も読める。',TOTAL+'語','登録 '+n+'語',false,'',n/TOTAL)+
  '</nav>'+
  '<p class="foot">試作です。内容は試験勉強の目安で、実際の診療は最新の教科書や資料で確かめてください。発言例と症例はすべて架空です。追体験ルームは症状を分かりやすく誇張した模型で、実際の体験は人によって違います。記録はこの端末のブラウザの中だけに残ります。</p>';
@@ -2286,7 +2355,7 @@ function liveIntro(){
  '<div class="intro">'+
   '<h1 class="h1" tabindex="-1">診察ライブ</h1>'+
   '<p>外来に8人の患者が来ます。質問への答え方そのもの（速さ、止まり方、つながり方）と中身を聞き分けて、いちばん当てはまる症状名を選んでください。</p>'+
-  '<ul class="rules"><li>正解 100点。話の途中で正解すると「見切り」+50点。</li><li>続けて正解すると、2人目から 1人につき +20点ずつ上乗せ。</li><li>キーボードなら 1〜4 で答えられます。</li></ul>'+
+  '<ul class="rules"><li>キーボードでは Enter またはスペースで選択肢を表示し、数字キーで答えられます。</li></ul>'+
   '<button type="button" class="btn big" id="lv-go">診察を始める</button>'+
  '</div>';
  $('#lv-go').addEventListener('click',function(){startLive();});
@@ -2294,7 +2363,7 @@ function liveIntro(){
 }
 function startLive(){
  setPlaying(true);
- LV={list:pick(D.live,8),i:0,score:0,combo:0,ok:0,log:[],news:[]};
+ LV={list:pick(D.live,8),i:0,ok:0,log:[],news:[]};
  livePatient();
 }
 var runTok=0;
@@ -2302,18 +2371,20 @@ var pend=[];
 function wait(ms){return new Promise(function(r){if(LV&&LV.fast)return r();var fired=false;var f=function(){if(fired)return;fired=true;r();};pend.push(f);later(ms,f);});}
 function flushWaits(){var p=pend;pend=[];p.forEach(function(f){f();});}
 function livePatient(){
- var sc=LV.list[LV.i];LV.fast=false;LV.answered=false;LV.done=false;pend=[];
+ var sc=LV.list[LV.i];LV.fast=false;LV.answered=false;pend=[];
  var tok=++runTok;
  var opts=shuffle([sc.ans].concat(sc.opts));
- $('#v-live').innerHTML=gbar('<span class="stat">患者 <b>'+(LV.i+1)+'</b>/8</span>','<span class="stat">得点 <b id="lv-sc">'+LV.score+'</b></span><span id="lv-cmb">'+(LV.combo>1?'<span class="combo">🔥 '+LV.combo+'連続</span>':'')+'</span>')+
- '<div id="lv-dots">'+qdotsHtml(8,LV.i,LV.log)+'</div>'+
- '<p class="karte"><span class="karte-k">カルテ</span><b>'+esc(sc.who)+'</b>　'+esc(sc.ctx)+'</p>'+
- '<div class="chat-wrap"><div class="chat" id="chat" aria-live="polite"></div></div>'+
- '<p class="hint" id="lv-hint"><span class="early-pill">⚡ 見切り +50点</span><span>聞きながら、分かったら選んでください。</span></p>'+
- '<div class="answers" id="answers">'+opts.map(function(id,i){return '<button type="button" class="ans" data-id="'+id+'" disabled><span class="ans-k">'+(i+1)+'</span><span>'+esc(BY[id].t)+'</span></button>';}).join('')+'</div>'+
- '<div id="fb"></div>';
+ var view=$('#v-live');
+ view.innerHTML=gbar('<span class="stat">患者 <b>'+(LV.i+1)+'</b>/8</span>')+
+  '<div id="lv-dots">'+qdotsHtml(8,LV.i,LV.log)+'</div>'+
+  quizLayout('<p class="karte"><span class="karte-k">カルテ</span><b>'+esc(sc.who)+'</b>　'+esc(sc.ctx)+'</p>'+
+   '<div class="chat" id="chat" aria-live="polite" tabindex="0" role="log" aria-label="診察の会話"></div>',
+   '<p class="q">どの症状が当てはまりますか？</p>'+
+   choiceMarkup('answers','answers',opts.map(function(id,i){return '<button type="button" class="ans" data-id="'+id+'"><span class="ans-k">'+(i+1)+'</span><span>'+esc(BY[id].t)+'</span></button>';}).join(''))+
+   '<div id="fb"></div>');
  $$('#answers .ans').forEach(function(b){b.addEventListener('click',function(){liveAnswer(b.getAttribute('data-id'));});});
- keyHandler=function(e){var k=parseInt(e.key,10);if(k>=1&&k<=4){var b=$$('#answers .ans')[k-1];if(b&&!b.disabled){e.preventDefault();b.click();}}else if(e.key==='Enter'&&$('#lv-next')){e.preventDefault();$('#lv-next').click();}};
+ bindChoices(view);bindQuizKeys(view,'#answers','#lv-next');
+ $('.quiz-stimulus',view).focus({preventScroll:true});
  window.scrollTo(0,0);
  runScene(sc,tok);
 }
@@ -2327,7 +2398,6 @@ function runScene(sc,tok){
    chatAdd('bub dr',sc.turns[t][0]);
    await wait(650);
    if(tok!==runTok)return;
-   if(t===0)$$('#answers .ans').forEach(function(b){b.disabled=false;});
    var bs=sc.turns[t][1];
    for(var j=0;j<bs.length;j++){
     var b=bs[j];if(tok!==runTok)return;
@@ -2344,61 +2414,51 @@ function runScene(sc,tok){
    }
    await wait(500);
   }
-  if(tok!==runTok)return;
-  LV.done=true;
-  var h=$('#lv-hint');if(h&&!LV.answered)h.innerHTML='<span>話が終わりました。症状名を選んでください。</span>';
  })();
 }
 function liveAnswer(id){
  if(LV.answered)return;LV.answered=true;
- var sc=LV.list[LV.i],right=id===sc.ans,early=!LV.done;
+ var sc=LV.list[LV.i],right=id===sc.ans,e=BY[sc.ans];
  LV.fast=true;flushWaits();
- var pts=0;
- if(right){pts=100+(early?50:0)+(LV.combo>0?LV.combo*20:0);LV.combo++;LV.ok++;LV.score+=pts;sfx('ok',LV.combo);floatPop('+'+pts+'点'+(early?' 見切り！':''),early||LV.combo>=3);}
- else{LV.combo=0;sfx('ng');miss(sc.ans);}
- LV.log.push({sc:sc,pick:id,right:right,early:early,pts:pts});
- /* 上部バーと進捗ドットを即時更新 */
- var scEl=$('#lv-sc');if(scEl){scEl.textContent=LV.score;if(right){scEl.classList.remove('bump');void scEl.offsetWidth;scEl.classList.add('bump');}}
- var cmEl=$('#lv-cmb');if(cmEl){cmEl.innerHTML=LV.combo>1?'<span class="combo">🔥 '+LV.combo+'連続</span>':'';}
+ if(right){LV.ok++;sfx('ok');}
+ else{
+  sfx('ng');
+  var dialogue=sc.turns.map(function(turn){return turn[0]+' '+turn[1].map(function(line){return line.sil?'（沈黙）':line.t;}).join(' ');}).join('\n');
+  miss(sc.ans,sc.who+' '+sc.ctx+'\n'+dialogue,BY[id].t,e.t,sc.why);
+ }
+ LV.log.push({sc:sc,pick:id,right:right});
  var dtEl=$('#lv-dots');if(dtEl){dtEl.innerHTML=qdotsHtml(8,LV.i,LV.log);}
  $$('#answers .ans').forEach(function(b){
   b.disabled=true;var bid=b.getAttribute('data-id'),k=$('.ans-k',b);
   if(bid===sc.ans){b.classList.add('right');if(k)k.textContent='✓';}
   else if(bid===id){b.classList.add('wrong');if(k)k.textContent='×';}
  });
- var h=$('#lv-hint');if(h)h.innerHTML='';
- var e=BY[sc.ans];
- later(240,function(){
-  var isNew=right?catchTerm(sc.ans):false;
-  if(isNew)LV.news.push(sc.ans);
-  $('#fb').innerHTML='<div class="fb '+(right?'is-ok':'is-ng')+'">'+
-   '<p class="fb-h"><span class="fb-badge" aria-hidden="true">'+(right?'✓':'×')+'</span><span>'+(right?'正解'+(early?'（見切り）':''):'残念。正しくは「'+esc(e.t)+'」')+'</span>'+(right?'<span class="fb-pts">+'+pts+'点</span>':'')+'</p>'+
-   '<p class="fb-why"><span class="kk">決め手</span>'+esc(sc.why)+'</p>'+
-   '<div class="fb-ent">'+catDot(e.c)+'<b class="fb-t">'+esc(e.t)+'</b><span class="fb-y">'+esc(e.y)+'</span>'+tagChips(e)+(isNew?'<span class="newb">✨ 新しく登録</span>':'')+'<p>'+esc(e.d)+'</p><button type="button" class="linkbtn" data-ent="'+e.id+'">図鑑で詳しく</button></div>'+
-   '<button type="button" class="btn big" id="lv-next">'+(LV.i<7?'次の患者へ →':'結果を見る →')+'</button></div>';
-  $('#fb .linkbtn').addEventListener('click',function(){openEntry(e.id);});
-  $('#lv-next').addEventListener('click',function(){LV.i++;if(LV.i<8)livePatient();else liveResult();});
-  $('#fb').scrollIntoView({behavior:REDUCE?'auto':'smooth',block:'nearest'});
- });
+ var isNew=right?catchTerm(sc.ans,{quietRank:true}):false;
+ if(isNew)LV.news.push(sc.ans);
+ $('#fb').innerHTML='<div class="fb '+(right?'is-ok':'is-ng')+'">'+
+  '<p class="fb-h"><span class="fb-badge" aria-hidden="true">'+(right?'✓':'×')+'</span><span>'+(right?'正解':'正しくは「'+esc(e.t)+'」')+'</span></p>'+
+  '<p class="fb-why"><span class="kk">決め手</span>'+esc(sc.why)+'</p>'+
+  '<div class="fb-ent">'+catDot(e.c)+'<b class="fb-t">'+esc(e.t)+'</b><span class="fb-y">'+esc(e.y)+'</span>'+tagChips(e)+(isNew?'<span class="newb">✨ 新しく登録</span>':'')+'<p>'+esc(e.d)+'</p><button type="button" class="linkbtn" data-ent="'+e.id+'">図鑑で詳しく</button></div>'+
+  '<button type="button" class="btn" id="lv-next">'+(LV.i<7?'次の患者へ →':'結果を見る →')+'</button></div>';
+ $('#fb .linkbtn').addEventListener('click',function(){openEntry(e.id);});
+ $('#lv-next').addEventListener('click',function(){LV.i++;if(LV.i<8)livePatient();else liveResult();});
+ showFeedback($('#fb'),$('#lv-next'));
 }
 function liveResult(){
  if(LV)LV.ended=true;
  setPlaying(false);keyHandler=null;
- var best=S.best.live||0,isBest=LV.score>best;if(isBest){S.best.live=LV.score;save();}
- var grade=LV.ok===8?'S':LV.ok>=7?'A':LV.ok>=5?'B':'C';
  $('#v-live').innerHTML=gbar()+
  '<div class="result">'+
   '<p class="eyebrow">午前の外来　おつかれさまでした</p>'+
-  '<div class="res-top"><span class="grade g-'+grade+'">'+grade+'</span><span class="res-n"><b>'+LV.score+'</b>点<small>正解 '+LV.ok+'/8'+(isBest?' ・ 🎉 自己ベスト更新':' ・ 最高 '+best+'点')+'</small></span></div>'+
+  '<p class="lead">正解 '+LV.ok+'/8</p>'+
   newTermsBox(LV.news)+
   '<h2 class="h2">今日の現在症の記録</h2>'+
-  '<ol class="rec">'+LV.log.map(function(l){var e=BY[l.sc.ans];return '<li class="'+(l.right?'ok':'ng')+'"><span class="rec-who">'+esc(l.sc.who)+'</span><span class="rec-t"><span>'+esc(CATBY[e.c].n)+'</span><button type="button" class="linkbtn" data-ent="'+e.id+'">'+esc(e.t)+'</button></span><span class="rec-m">'+(l.right?(l.early?'見切り ':'')+'+'+l.pts:'「'+esc(BY[l.pick].t)+'」と記録')+'</span></li>';}).join('')+'</ol>'+
+  '<ol class="rec">'+LV.log.map(function(l){var e=BY[l.sc.ans];return '<li class="'+(l.right?'ok':'ng')+'"><span class="rec-who">'+esc(l.sc.who)+'</span><span class="rec-t"><span>'+esc(CATBY[e.c].n)+'</span><button type="button" class="linkbtn" data-ent="'+e.id+'">'+esc(e.t)+'</button></span><span class="rec-m">'+(l.right?'正解':'「'+esc(BY[l.pick].t)+'」と回答')+'</span></li>';}).join('')+'</ol>'+
   '<div class="row"><button type="button" class="btn big" id="lv-again">もう一度（別の患者）</button><a class="btn ghost" href="#home">ホームへ</a></div>'+
  '</div>';
  $$('#v-live .linkbtn').forEach(function(b){b.addEventListener('click',function(){openEntry(b.getAttribute('data-ent'));});});
  $('#lv-again').addEventListener('click',startLive);
  window.scrollTo(0,0);
- if(grade==='S'||(isBest&&LV.ok>=6))confetti();
 }
 
 /* ---------- 追体験ルーム ---------- */
@@ -2420,7 +2480,7 @@ var ROOM_ICONS={
  T15:'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3a2 2 0 0 1 2 2c0 1-2 1.8-2 3"/><path d="M12 8l-5 3.5L9 20h6l2-8.5L12 8z"/><path d="M18.5 5.5a3 3 0 0 0 2 3.5 3.2 3.2 0 1 1-2-3.5z"/></svg>'
 };
 function taikenList(){
- activeRoom=null;setPlaying(false);
+ activeRoom=null;keyHandler=null;setPlaying(false);
  var done=SCN.filter(function(s){return S.rooms[s.id];}).length;
  var pct=Math.round(done/SCN.length*100);
  $('#v-taiken').innerHTML=gbar('','<span class="stat">クリア <b>'+done+'</b>/'+SCN.length+'</span>')+
@@ -2430,7 +2490,7 @@ function taikenList(){
   '<div class="room-prog"><button type="button" class="btn" id="tk-rand">'+(done<SCN.length?'まだの部屋に入る':'ランダムに部屋に入る')+'</button><div class="room-meter"><span class="room-bar" aria-hidden="true"><i style="width:'+pct+'%"></i></span><span class="stat"><b>'+pct+'%</b></span></div></div>'+
   '<div class="soundrow">'+soundNote()+'</div>'+
  '</div>'+
- '<div class="rooms">'+SCN.map(function(s,i){var ok=S.rooms[s.id];return '<button type="button" class="room-c'+(ok?' cleared':'')+'" data-i="'+i+'"><span class="room-top"><span class="room-ic">'+(ROOM_ICONS[s.id]||'')+'</span><span class="room-no">部屋 '+(i+1)+'</span></span><span class="room-n">'+esc(s.name)+'</span><span class="room-a">'+(ok?'✓ '+esc(BY[s.ans].t):'未体験')+'</span>'+(s.sound?'<span class="room-s">音あり</span>':'')+'</button>';}).join('')+'</div>';
+ '<div class="rooms">'+SCN.map(function(s,i){var ok=S.rooms[s.id];return '<button type="button" class="room-c'+(ok?' cleared':'')+'" data-i="'+i+'"><span class="room-top"><span class="room-ic">'+(ROOM_ICONS[s.id]||'')+'</span><span class="room-no">部屋 '+(i+1)+'</span></span><span class="room-n">'+esc(s.name)+'</span><span class="room-a">'+(ok?'✓ 体験済み':'未体験')+'</span>'+(s.sound?'<span class="room-s">音あり</span>':'')+'</button>';}).join('')+'</div>';
  $$('.room-c').forEach(function(b){b.addEventListener('click',function(){enterRoom(+b.getAttribute('data-i'));});});
  $('#tk-rand').addEventListener('click',function(){var left=SCN.map(function(s,i){return i;}).filter(function(i){return !S.rooms[SCN[i].id];});if(!left.length)left=SCN.map(function(s,i){return i;});enterRoom(pick(left,1)[0]);});
  bindSoundNote();
@@ -2439,15 +2499,15 @@ function taikenList(){
 function soundNote(){return S.sound?'<span class="sn">音：オン（声と効果音が出ます）</span><button type="button" class="btn small ghost" id="sn-btn">音を消す</button>':'<span class="sn">音：オフ。「音あり」の部屋は、音を出すと体験らしくなります。</span><button type="button" class="btn small" id="sn-btn">音を出す</button>';}
 function bindSoundNote(){var b=$('#sn-btn');if(b)b.addEventListener('click',function(){setSound(!S.sound);var w=b.parentNode;w.innerHTML=soundNote();bindSoundNote();});}
 function enterRoom(i){
- clearTimers();hush();setPlaying(true);
+ clearTimers();hush();keyHandler=null;setPlaying(true);
  var s=SCN[i];
  activeRoom={idx:i,scene:s};
  $('#v-taiken').innerHTML='<div class="gbar"><button type="button" class="back" id="tk-back">← 部屋の一覧</button><span class="stat">部屋 <b>'+(i+1)+'</b> ・ '+esc(s.name)+'</span><span class="gb-sp"></span><span class="live-dot">体験中</span></div>'+
- (s.sound&&!S.sound?'<div class="soundrow small">'+soundNote()+'</div>':'')+
- '<div class="stage" id="stage"></div>'+
- '<p class="narr" id="narr" aria-live="polite"></p>'+
- '<div class="task" id="task"></div>'+
- '<div id="tq"></div>';
+ quizLayout('<div class="stage" id="stage"></div>'+
+  '<p class="narr" id="narr" aria-live="polite"></p>'+
+  '<div class="task" id="task"></div>'+
+  (s.sound&&!S.sound?'<div class="soundrow small">'+soundNote()+'</div>':''),'<div id="tq"></div>');
+ $('#v-taiken .quiz-layout').classList.add('room-running');
  $('#tk-back').addEventListener('click',function(){clearTimers();hush();taikenList();});
  bindSoundNote();
  var stage=$('#stage'),task=$('#task'),narr=$('#narr');
@@ -2474,25 +2534,28 @@ function makeApi(stage,task,narrEl,onDone){
 }
 function roomQuestion(i){
  var s=SCN[i];var opts=shuffle([s.ans].concat(s.opts));
- var q=$('#tq');
- q.innerHTML='<div class="tq"><p class="tq-h">いまの体験に名前をつけるなら？</p><div class="answers">'+opts.map(function(id,k){return '<button type="button" class="ans" data-id="'+id+'"><span class="ans-k">'+(k+1)+'</span><span>'+esc(BY[id].t)+'</span></button>';}).join('')+'</div><div id="tfb"></div></div>';
+ var view=$('#v-taiken'),q=$('#tq');
+ q.innerHTML='<div class="tq"><p class="tq-h" tabindex="-1">いまの体験に名前をつけるなら？</p>'+
+  choiceMarkup('tk-choices','answers',opts.map(function(id,k){return '<button type="button" class="ans" data-id="'+id+'"><span class="ans-k">'+(k+1)+'</span><span>'+esc(BY[id].t)+'</span></button>';}).join(''))+
+  '<div id="tfb"></div></div>';
+ q.closest('.quiz-layout').classList.remove('room-running');
  $$('#tq .ans').forEach(function(b){b.addEventListener('click',function(){roomAnswer(i,b.getAttribute('data-id'));});});
- keyHandler=function(e){var k=parseInt(e.key,10);if(k>=1&&k<=4){var b=$$('#tq .ans')[k-1];if(b&&!b.disabled){e.preventDefault();b.click();}}else if(e.key==='Enter'){var nx=$('#tk-next')||$('#tk-list');if(nx){e.preventDefault();nx.click();}}};
- later(60,function(){q.scrollIntoView({behavior:REDUCE?'auto':'smooth',block:'nearest'});});
+ bindChoices(view);bindQuizKeys(view,'#tk-choices','#tk-next, #tk-list');
+ $('.tq-h',q).focus({preventScroll:true});
+ q.scrollIntoView({behavior:REDUCE?'auto':'smooth',block:'nearest'});
 }
 function roomAnswer(i,id){
- var s=SCN[i],right=id===s.ans;
+ var s=SCN[i],right=id===s.ans,e=BY[s.ans],p=BY[id];
  $$('#tq .ans').forEach(function(b){
   b.disabled=true;var bid=b.getAttribute('data-id'),k=$('.ans-k',b);
   if(bid===s.ans){b.classList.add('right');if(k)k.textContent='✓';}
   else if(bid===id){b.classList.add('wrong');if(k)k.textContent='×';}
  });
  var isNew=false,wasAll=SCN.every(function(x){return S.rooms[x.id];});
- if(right){sfx('ok');S.rooms[s.id]=true;save();isNew=catchTerm(s.ans);floatPop('正解！');}
- else{sfx('ng');miss(s.ans);}
+ if(right){sfx('ok');S.rooms[s.id]=true;save();isNew=catchTerm(s.ans,{quietRank:true});}
+ else{sfx('ng');miss(s.ans,s.name+'\n'+$('#narr').textContent,p.t,e.t,s.why);}
  var nowAll=SCN.every(function(x){return S.rooms[x.id];});
  if(right&&!wasAll&&nowAll)confetti();
- var e=BY[s.ans],p=BY[id];
  var nextI=-1;for(var k=1;k<=SCN.length;k++){var j=(i+k)%SCN.length;if(!S.rooms[SCN[j].id]){nextI=j;break;}}
  $('#tfb').innerHTML='<div class="fb '+(right?'is-ok':'is-ng')+'">'+
   '<p class="fb-h"><span class="fb-badge" aria-hidden="true">'+(right?'✓':'×')+'</span><span>'+(right?'正解　'+esc(e.t):'残念。正しくは「'+esc(e.t)+'」')+'</span></p>'+
@@ -2504,116 +2567,103 @@ function roomAnswer(i,id){
  $('#tk-re').addEventListener('click',function(){enterRoom(i);});
  if($('#tk-next'))$('#tk-next').addEventListener('click',function(){enterRoom(nextI);});
  if($('#tk-list'))$('#tk-list').addEventListener('click',taikenList);
- later(80,function(){$('#tfb').scrollIntoView({behavior:REDUCE?'auto':'smooth',block:'nearest'});});
+ showFeedback($('#tfb'),$('#tfb .row'));
 }
 
 /* ---------- 見分け道場 ---------- */
 var DJ=null;
+var DOJO_LENGTH=10;
 function dojoIntro(){
  DJ=null;setPlaying(false);
  $('#v-dojo').innerHTML=gbar()+
  '<div class="intro">'+
   '<h1 class="h1" tabindex="-1">見分け道場</h1>'+
-  '<p>カードに書かれた場面が、左右どちらの用語に当たるかを仕分けます。持ち時間は60秒。正解で1枚、まちがえると3秒減って、見分けの決め手が出ます。</p>'+
-  '<ul class="rules"><li>カードを左右にスワイプ、または下の2つのボタン。キーボードなら ← →。</li><li>5枚続けて正解するごとに、持ち時間 +3秒。</li></ul>'+
-  '<div class="pairs">'+D.pairs.map(function(p){return '<span class="pair">'+esc(p.la)+'<i>⇄</i>'+esc(p.lb)+'</span>';}).join('')+'</div>'+
-  '<button type="button" class="btn big" id="dj-go">60秒 スタート</button>'+(S.best.dojo?'<p class="hint">これまでの最高　'+S.best.dojo+'枚</p>':'')+
+  '<p>カードに書かれた場面を読んで、当てはまる用語を選びます。'+DOJO_LENGTH+'枚を自分のペースで解けます。</p>'+
+  '<ul class="rules"><li>選択肢を表示したら、左右のボタン・スワイプ・矢印キーで仕分けられます。</li></ul>'+
+  '<button type="button" class="btn big" id="dj-go">'+DOJO_LENGTH+'枚 はじめる</button>'+
  '</div>';
  $('#dj-go').addEventListener('click',startDojo);
  $('#v-dojo .h1').focus({preventScroll:true});
 }
-function dojoDeck(){var d=[];D.pairs.forEach(function(p){p.A.forEach(function(t){d.push({p:p,side:'a',t:t});});p.B.forEach(function(t){d.push({p:p,side:'b',t:t});});});return shuffle(d);}
+function dojoDeck(){var d=[];D.pairs.forEach(function(p){p.A.forEach(function(t){d.push({p:p,side:'a',t:t});});p.B.forEach(function(t){d.push({p:p,side:'b',t:t});});});return d;}
 function startDojo(){
  setPlaying(true);
- DJ={deck:dojoDeck(),k:0,score:0,streak:0,n:0,ok:0,left:60,lock:false,busy:false,miss:[],news:[],over:false};
- $('#v-dojo').innerHTML='<div class="gbar"><a class="back" href="#home">← ホーム</a><span class="timer"><i id="dj-bar"></i></span><span class="stat"><b id="dj-left">60</b>秒</span><span class="stat"><b id="dj-sc">0</b>枚</span><span id="dj-cmb"></span></div>'+
- '<div class="arena" id="arena"></div>'+
- '<div class="sides"><button type="button" class="side sa" id="dj-a"></button><button type="button" class="side sb" id="dj-b"></button></div>'+
- '<p class="dj-tip">カードを左右にスワイプ、またはボタン（← → キー）で仕分け</p>';
+ DJ={deck:pick(dojoDeck(),DOJO_LENGTH),k:0,ok:0,answered:false,miss:[],news:[],over:false};
+ dojoCard();
+}
+function dojoCard(){
+ var c=DJ.deck[DJ.k],view=$('#v-dojo');
+ DJ.answered=false;
+ view.innerHTML=gbar('<span class="stat">カード <b>'+(DJ.k+1)+'</b>/'+DJ.deck.length+'</span>')+
+  quizLayout('<div class="arena"><div class="dcard" id="dcard"><p class="vt">'+esc(c.t)+'</p></div></div>',
+   '<p class="q">どちらの用語が当てはまりますか？</p>'+
+   choiceMarkup('dj-sides','sides',
+    '<button type="button" class="side sa" id="dj-a"><span class="arr" aria-hidden="true">←</span><span>'+esc(c.p.la)+'</span></button>'+
+    '<button type="button" class="side sb" id="dj-b"><span>'+esc(c.p.lb)+'</span><span class="arr" aria-hidden="true">→</span></button>')+
+   '<div id="dj-fb"></div>');
  $('#dj-a').addEventListener('click',function(){dojoAnswer('a');});
  $('#dj-b').addEventListener('click',function(){dojoAnswer('b');});
- keyHandler=function(e){
-  if(DJ&&DJ.lock){if(e.key==='Enter'||e.key===' '){var ok=$('#dj-ok');if(ok){e.preventDefault();ok.click();}}return;}
-  if(e.key==='ArrowLeft'){e.preventDefault();dojoAnswer('a');}
-  else if(e.key==='ArrowRight'){e.preventDefault();dojoAnswer('b');}
- };
- dojoCard();
- var last=Date.now();
- (function tick(){if(!DJ||DJ.over)return;var now=Date.now();if(!DJ.lock)DJ.left-=(now-last)/1000;last=now;if(DJ.left<=0){DJ.left=0;paintTimer();dojoEnd();return;}paintTimer();later(100,tick);})();
-}
-function paintTimer(){var b=$('#dj-bar'),l=$('#dj-left');if(!b)return;b.style.width=Math.min(100,DJ.left/60*100)+'%';b.classList.toggle('low',DJ.left<10);l.textContent=Math.ceil(DJ.left);}
-function dojoCard(){
- if(!DJ||DJ.over||!$('#arena'))return;
- if(DJ.k>=DJ.deck.length){DJ.deck=dojoDeck();DJ.k=0;}
- var c=DJ.deck[DJ.k];DJ.busy=false;
- $('#dj-a').innerHTML='<span class="arr">←</span><span>'+esc(c.p.la)+'</span>';
- $('#dj-b').innerHTML='<span>'+esc(c.p.lb)+'</span><span class="arr">→</span>';
- var ar=$('#arena');
- ar.innerHTML='<div class="dcard" id="dcard">'+
-  '<span class="dc-stamp sa" aria-hidden="true">← '+esc(c.p.la)+'</span>'+
-  '<span class="dc-stamp sb" aria-hidden="true">'+esc(c.p.lb)+' →</span>'+
-  '<p class="vs">'+esc(c.p.la)+' か、'+esc(c.p.lb)+' か</p>'+
-  '<p class="vt">'+esc(c.t)+'</p>'+
- '</div>';
+ bindChoices(view);bindQuizKeys(view,'#dj-sides','#dj-next',true);
  bindSwipe($('#dcard'));
+ $('.quiz-stimulus',view).focus({preventScroll:true});
+ window.scrollTo(0,0);
 }
 function bindSwipe(el){
  var x0=null,dx=0,id=null;
- el.addEventListener('pointerdown',function(e){if(DJ.lock||DJ.busy)return;x0=e.clientX;dx=0;id=e.pointerId;try{el.setPointerCapture(id);}catch(_){}el.classList.add('drag');});
- el.addEventListener('pointermove',function(e){if(x0==null)return;dx=e.clientX-x0;el.style.transform='translateX('+dx+'px) rotate('+(dx/18)+'deg)';el.classList.toggle('to-a',dx<-36);el.classList.toggle('to-b',dx>36);});
- function up(){if(x0==null)return;x0=null;el.classList.remove('drag','to-a','to-b');if(Math.abs(dx)>76){dojoAnswer(dx<0?'a':'b');}else{el.style.transform='';}}
- el.addEventListener('pointerup',up);el.addEventListener('pointercancel',up);
+ el.addEventListener('pointerdown',function(e){
+  if(DJ.answered||$('#dj-sides').hidden||id!==null||e.button!==0)return;
+  x0=e.clientX;dx=0;id=e.pointerId;try{el.setPointerCapture(id);}catch(_){}el.classList.add('drag');
+ });
+ el.addEventListener('pointermove',function(e){
+  if(e.pointerId!==id)return;
+  dx=e.clientX-x0;el.style.transform='translateX('+dx+'px) rotate('+(dx/18)+'deg)';
+  el.classList.toggle('to-a',dx<-36);el.classList.toggle('to-b',dx>36);
+ });
+ function release(e){
+  if(e.pointerId!==id)return;
+  id=null;el.classList.remove('drag','to-a','to-b');el.style.transform='';
+  if(e.type==='pointerup'&&Math.abs(dx)>76)dojoAnswer(dx<0?'a':'b');
+ }
+ el.addEventListener('pointerup',release);el.addEventListener('pointercancel',release);
 }
 function dojoAnswer(side){
- if(!DJ||DJ.lock||DJ.busy||DJ.over)return;/* 次のカードが出るまでは答えを受け付けない（2度押し対策） */
- var c=DJ.deck[DJ.k],right=side===c.side,el=$('#dcard');
- DJ.n++;
- var termId=c.side==='a'?c.p.a:c.p.b;
+ if(DJ.answered||$('#dj-sides').hidden)return;
+ DJ.answered=true;
+ var c=DJ.deck[DJ.k],right=side===c.side;
+ var termId=c.p[c.side],answer=c.side==='a'?c.p.la:c.p.lb;
+ var picked=side==='a'?c.p.la:c.p.lb;
+ $$('#dj-sides button').forEach(function(button){button.disabled=true;});
+ $('#dj-'+c.side).classList.add('right');
  if(right){
-  DJ.score++;DJ.ok++;DJ.streak++;sfx('ok',DJ.streak);
+  DJ.ok++;sfx('ok');
   if(catchTerm(termId,{quietRank:true}))DJ.news.push(termId);
-  var bonus=DJ.streak%5===0;
-  if(bonus){
-   DJ.left+=3;
-   var bar=$('#dj-bar');if(bar){bar.classList.add('bonus');later(600,function(){if(bar)bar.classList.remove('bonus');});}
-  }
-  var sc=$('#dj-sc');if(sc){sc.textContent=DJ.score;sc.classList.remove('bump');void sc.offsetWidth;sc.classList.add('bump');}
-  var cm=$('#dj-cmb');if(cm){cm.innerHTML=DJ.streak>1?'<span class="combo">🔥 '+DJ.streak+'連続</span>':'';}
-  el.style.transition='transform .26s ease, opacity .26s';el.style.transform='translateX('+(side==='a'?-140:140)+'%) rotate('+(side==='a'?-18:18)+'deg)';el.style.opacity='0';
-  if(bonus)popText(DJ.streak+'連続！ +3秒');
-  DJ.k++;DJ.busy=true;later(REDUCE?60:220,dojoCard);
  }else{
-  DJ.streak=0;DJ.left=Math.max(0,DJ.left-3);sfx('ng');DJ.lock=true;miss(termId);
-  var cm2=$('#dj-cmb');if(cm2)cm2.innerHTML='';
+  sfx('ng');$('#dj-'+side).classList.add('wrong');
   DJ.miss.push(c);
-  el.style.transform='';el.classList.add('shake');
-  var ans=c.side==='a'?c.p.la:c.p.lb;
-  var r=document.createElement('div');r.className='rule';
-  r.innerHTML='<b>× 正しくは「'+esc(ans)+'」（-3秒）</b><span>'+esc(c.p.rule)+'</span><div class="rule-bar" aria-hidden="true"><i></i></div><button type="button" class="btn small" id="dj-ok">わかった</button>';
-  $('#arena').appendChild(r);
-  var go=function(){if(!DJ.lock||DJ.over)return;DJ.lock=false;DJ.k++;dojoCard();};
-  $('#dj-ok').addEventListener('click',go);
-  later(6500,go);
+  miss(termId,c.t,picked,answer,c.p.rule);
  }
+ var feedback=$('#dj-fb');
+ feedback.innerHTML='<div class="fb '+(right?'is-ok':'is-ng')+'">'+
+  '<p class="fb-h">'+(right?'正解　'+esc(answer):'正しくは「'+esc(answer)+'」')+'</p>'+
+  '<p class="fb-why"><span class="kk">見分けの決め手</span>'+esc(c.p.rule)+'</p>'+
+  '<button type="button" class="btn" id="dj-next">'+(DJ.k+1<DJ.deck.length?'次のカードへ →':'結果を見る →')+'</button></div>';
+ $('#dj-next').addEventListener('click',function(){DJ.k++;if(DJ.k<DJ.deck.length)dojoCard();else dojoEnd();});
+ showFeedback(feedback,$('#dj-next'));
 }
-function popText(t){var a=$('#arena');if(!a)return;var p=document.createElement('div');p.className='poptext';p.textContent=t;a.appendChild(p);later(1200,function(){p.remove();});}
 function dojoEnd(){
  DJ.over=true;keyHandler=null;setPlaying(false);
- var best=S.best.dojo||0,isBest=DJ.score>best;if(isBest){S.best.dojo=DJ.score;save();}
- var acc=DJ.n?Math.round(DJ.ok/DJ.n*100):0;
- var seen={},ms=DJ.miss.filter(function(c){var k=c.p.a+c.p.b;if(seen[k])return false;seen[k]=1;return true;});
+ var seen={},ms=DJ.miss.filter(function(c){var k=c.p.a+'|'+c.p.b;if(seen[k])return false;seen[k]=true;return true;});
  $('#v-dojo').innerHTML=gbar()+
  '<div class="result">'+
-  '<p class="eyebrow">見分け道場　時間です</p>'+
-  '<div class="res-top"><span class="res-n"><b>'+DJ.score+'</b>枚<small>正答率 '+acc+'%'+(isBest?' ・ 🎉 自己ベスト更新':' ・ 最高 '+best+'枚')+'</small></span></div>'+
+  '<p class="eyebrow">見分け道場　結果</p>'+
+  '<p class="lead">正解 '+DJ.ok+'/'+DJ.deck.length+'</p>'+
   newTermsBox(DJ.news)+
-  (ms.length?'<h2 class="h2">まちがえた見分け</h2><ul class="mlist">'+ms.map(function(c){return '<li><b>'+esc(c.p.la)+' ⇄ '+esc(c.p.lb)+'</b><span>'+esc(c.p.rule)+'</span></li>';}).join('')+'</ul>':'<p class="lead">まちがいなし！お見事です。</p>')+
+  (ms.length?'<h2 class="h2">まちがえた見分け</h2><ul class="mlist">'+ms.map(function(c){return '<li><b>'+esc(c.p.la)+' ⇄ '+esc(c.p.lb)+'</b><span>'+esc(c.p.rule)+'</span></li>';}).join('')+'</ul>':'')+
   '<div class="row"><button type="button" class="btn big" id="dj-again">もう一度</button><a class="btn ghost" href="#home">ホームへ</a></div>'+
  '</div>';
  $$('#v-dojo .linkbtn').forEach(function(b){b.addEventListener('click',function(){openEntry(b.getAttribute('data-ent'));});});
  $('#dj-again').addEventListener('click',startDojo);
  window.scrollTo(0,0);
- if(isBest&&DJ.score>=12)confetti();
 }
 
 /* ---------- 本番形式 ---------- */
@@ -2635,8 +2685,8 @@ function shikenIntro(){
  '<div class="intro">'+
   '<h1 class="h1" tabindex="-1">本番形式</h1>'+
   '<p>専門医試験ふうの問題を10問。手書きの'+D.exam.length+'問から6問、図鑑の定義から作る問題を4問出します。答えるとすぐ解説が出ます。</p>'+
-  '<ul class="rules"><li>キーボードなら 1〜5 で選び、Enter で次へ。</li></ul>'+
-  '<button type="button" class="btn big" id="sk-go">10問 はじめる</button>'+(S.best.shiken!=null?'<p class="hint">これまでの最高　'+S.best.shiken+'/10</p>':'')+
+  '<ul class="rules"><li>キーボードでは Enter またはスペースで選択肢を表示し、1〜5 で答えられます。</li></ul>'+
+  '<button type="button" class="btn big" id="sk-go">10問 はじめる</button>'+
  '</div>';
  $('#sk-go').addEventListener('click',startShiken);
  $('#v-shiken .h1').focus({preventScroll:true});
@@ -2651,53 +2701,51 @@ function startShiken(){
 }
 var KANA=['a','b','c','d','e'];
 function shikenQ(){
- var q=SK.qs[SK.i];var correct=q.a[0];var opts=shuffle(q.a);
- $('#v-shiken').innerHTML=gbar('<span class="stat">問 <b>'+(SK.i+1)+'</b>/10</span>','<span class="stat">正解 <b id="sk-ok">'+SK.ok+'</b></span>')+
- '<div id="sk-dots">'+qdotsHtml(10,SK.i,SK.log)+'</div>'+
- '<div class="qbox"><p class="q">'+esc(q.q)+'</p>'+(q.quote?'<blockquote class="quote">'+esc(q.quote)+'</blockquote>':'')+
- '<div class="opts">'+opts.map(function(o,i){return '<button type="button" class="opt" data-v="'+esc(o)+'"><span class="opt-k">'+KANA[i]+'</span><span>'+esc(o)+'</span></button>';}).join('')+'</div><div id="sfb"></div></div>';
- $$('.opt').forEach(function(b){b.addEventListener('click',function(){shikenAnswer(b,correct);});});
- keyHandler=function(e){var k=parseInt(e.key,10);var bs=$$('.opt');if(k>=1&&k<=bs.length&&!bs[0].disabled){e.preventDefault();bs[k-1].click();}else if(e.key==='Enter'&&$('#sk-next')){e.preventDefault();$('#sk-next').click();}};
+ var q=SK.qs[SK.i],opts=shuffle(q.a),view=$('#v-shiken');
+ view.innerHTML=gbar('<span class="stat">問 <b>'+(SK.i+1)+'</b>/10</span>')+
+  '<div id="sk-dots">'+qdotsHtml(10,SK.i,SK.log)+'</div>'+
+  quizLayout('<div class="qbox"><p class="q">'+esc(q.q)+'</p>'+(q.quote?'<blockquote class="quote">'+esc(q.quote)+'</blockquote>':'')+'</div>',
+   choiceMarkup('sk-choices','opts',opts.map(function(o,i){return '<button type="button" class="opt" data-v="'+esc(o)+'"><span class="opt-k">'+KANA[i]+'</span><span>'+esc(o)+'</span></button>';}).join(''))+
+   '<div id="sfb"></div>');
+ $$('.opt').forEach(function(b){b.addEventListener('click',function(){shikenAnswer(b);});});
+ bindChoices(view);bindQuizKeys(view,'#sk-choices','#sk-next');
+ $('.quiz-stimulus',view).focus({preventScroll:true});
  window.scrollTo(0,0);
 }
-function shikenAnswer(btn,correct){
- var q=SK.qs[SK.i],v=btn.getAttribute('data-v'),right=v===correct;
+function shikenAnswer(btn){
+ var q=SK.qs[SK.i],correct=q.a[0],v=btn.getAttribute('data-v'),right=v===correct;
  $$('.opt').forEach(function(b){
   b.disabled=true;var bv=b.getAttribute('data-v'),k=$('.opt-k',b);
   if(bv===correct){b.classList.add('right');if(k)k.textContent='✓';}
   else if(b===btn){b.classList.add('wrong');if(k)k.textContent='×';}
  });
  var isNew=false;
- if(right){SK.ok++;sfx('ok');isNew=catchTerm(q.link);if(isNew)SK.news.push(q.link);floatPop('正解！');}
- else{sfx('ng');miss(q.link);}
+ if(right){SK.ok++;sfx('ok');isNew=catchTerm(q.link,{quietRank:true});if(isNew)SK.news.push(q.link);}
+ else{sfx('ng');miss(q.link,q.q+(q.quote?'\n'+q.quote:''),v,correct,q.why);}
  SK.log.push({q:q,right:right,pick:v});
- var okEl=$('#sk-ok');if(okEl){okEl.textContent=SK.ok;if(right){okEl.classList.remove('bump');void okEl.offsetWidth;okEl.classList.add('bump');}}
  var dtEl=$('#sk-dots');if(dtEl){dtEl.innerHTML=qdotsHtml(10,SK.i,SK.log);}
  var e=BY[q.link];
  $('#sfb').innerHTML='<div class="fb '+(right?'is-ok':'is-ng')+'">'+
   '<p class="fb-h"><span class="fb-badge" aria-hidden="true">'+(right?'✓':'×')+'</span><span>'+(right?'正解':'正解は「'+esc(correct)+'」')+'</span>'+(isNew?'<span class="newb">✨ 新しく登録</span>':'')+'</p>'+
   '<p class="fb-why"><span class="kk">解説</span>'+esc(q.why)+'</p>'+
   '<p class="fb-link"><span>関連用語</span><button type="button" class="linkbtn" data-ent="'+e.id+'">'+esc(e.t)+' を図鑑で見る</button></p>'+
-  '<button type="button" class="btn big" id="sk-next">'+(SK.i<9?'次の問題 →':'結果を見る →')+'</button></div>';
+  '<button type="button" class="btn" id="sk-next">'+(SK.i<9?'次の問題 →':'結果を見る →')+'</button></div>';
  $('#sfb .linkbtn').addEventListener('click',function(){openEntry(e.id);});
  $('#sk-next').addEventListener('click',function(){SK.i++;if(SK.i<10)shikenQ();else shikenEnd();});
- $('#sfb').scrollIntoView({behavior:REDUCE?'auto':'smooth',block:'nearest'});
+ showFeedback($('#sfb'),$('#sk-next'));
 }
 function shikenEnd(){
  if(SK)SK.ended=true;
  keyHandler=null;setPlaying(false);
- var best=S.best.shiken==null?-1:S.best.shiken,isBest=SK.ok>best;if(isBest){S.best.shiken=SK.ok;save();}
- var grade=SK.ok===10?'S':SK.ok>=8?'A':SK.ok>=6?'B':'C';
  $('#v-shiken').innerHTML=gbar()+
- '<div class="result"><p class="eyebrow">本番形式　採点</p>'+
- '<div class="res-top"><span class="grade g-'+grade+'">'+grade+'</span><span class="res-n"><b>'+SK.ok+'</b>/10<small>'+(SK.ok>=8?'合格圏':SK.ok>=6?'あと一歩':'図鑑で復習を')+(isBest?' ・ 🎉 自己ベスト更新':'')+'</small></span></div>'+
+ '<div class="result"><p class="eyebrow">本番形式　結果</p>'+
+ '<p class="lead">正解 '+SK.ok+'/10</p>'+
  newTermsBox(SK.news)+
  '<ol class="rec">'+SK.log.map(function(l){var e=BY[l.q.link];return '<li class="'+(l.right?'ok':'ng')+'"><span class="rec-q">'+esc(l.q.quote?'定義：'+l.q.quote.slice(0,30)+'…':l.q.q)+'</span><span class="rec-m">'+(l.right?'正解':'→ '+esc(l.q.a[0]))+'</span><button type="button" class="linkbtn" data-ent="'+e.id+'">'+esc(e.t)+'</button></li>';}).join('')+'</ol>'+
  '<div class="row"><button type="button" class="btn big" id="sk-again">もう10問</button><a class="btn ghost" href="#home">ホームへ</a></div></div>';
  $$('#v-shiken .linkbtn').forEach(function(b){b.addEventListener('click',function(){openEntry(b.getAttribute('data-ent'));});});
  $('#sk-again').addEventListener('click',startShiken);
  window.scrollTo(0,0);
- if(SK.ok>=9||(isBest&&SK.ok>=8))confetti();
 }
 
 /* ---------- 図鑑 ---------- */
@@ -2814,6 +2862,20 @@ function setSound(v){
   sb.parentNode.insertBefore(tb,sb);
   tb.addEventListener('click',function(){S.theme=isDark()?'light':'dark';save();applyTheme();sfx('click');});
  }
+ var toolbar=$('.top-in');
+ toolbar.insertAdjacentHTML('beforeend','<details id="choice-settings"><summary class="top-btn">設定</summary>'+
+  '<div class="settings-panel"><label><input type="checkbox" id="choices-first"> 選択肢を最初から出す</label></div></details>'+
+  '<button type="button" class="top-btn" id="maxbtn" aria-pressed="false">⛶ 全画面</button>');
+ var settings=$('#choice-settings'),preference=$('#choices-first');
+ preference.checked=showChoicesFirst;
+ preference.addEventListener('change',function(){
+  showChoicesFirst=preference.checked;
+  try{localStorage.setItem(CHOICE_KEY,String(showChoicesFirst));}catch(e){}
+  var gate=$('.view:not([hidden]) .choice-reveal:not([hidden])');
+  if(showChoicesFirst&&gate)revealChoices(gate,false);
+ });
+ document.addEventListener('click',function(e){if(!settings.contains(e.target))settings.open=false;});
+ $('#maxbtn').addEventListener('click',function(){setFullscreen(!document.documentElement.classList.contains('is-max'));});
  var rc=$('#rankchip');
  if(rc){
   rc.setAttribute('role','button');rc.setAttribute('tabindex','0');rc.setAttribute('aria-label','称号と図鑑の進捗を見る');

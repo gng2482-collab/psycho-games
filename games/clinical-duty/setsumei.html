@@ -6,7 +6,7 @@
 <meta name="robots" content="noindex, nofollow">
 <!-- アクセス数（GoatCounter、Cookie なし・個人を特定しない。2026-11-23 利用者の依頼） -->
 <script data-goatcounter="https://psychogames.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
-<meta name="app-version" content="20261125090109">
+<meta name="app-version" content="20261125092839">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
@@ -36,7 +36,8 @@ img{max-width:100%}
     window.__ipadPlayer = P;
     if (P === 'me') return;
     var pre = 'p:' + P + ':', S = Storage.prototype, g = S.getItem, s = S.setItem, r = S.removeItem;
-    var map = function (k) { return k === 'ipad-player' ? k : pre + k; };
+    // 復習ノートのキーには、すでにプレイヤー名が付いている。
+    var map = function (k) { return k === 'ipad-player' || /^pg-note-v1:/.test(k) ? k : pre + k; };
     S.getItem = function (k) { return g.call(this, map(k)); };
     S.setItem = function (k, v) { return s.call(this, map(k), v); };
     S.removeItem = function (k) { return r.call(this, map(k)); };
@@ -48,6 +49,7 @@ if ('serviceWorker' in navigator) { window.addEventListener('load', function () 
 </head>
 <body>
 <nav class="ipad-bar" aria-label="アプリ"><a href="../../index.html#g=clinical-duty">← ゲーム一覧</a><span class="right"><span id="ipadWho"></span><a href="#" class="fbk" id="ipadFbk" target="_blank" rel="noopener">⚑ 不具合・感想</a><button type="button" class="upd" data-upd="manual" aria-label="新しい版を確かめて更新">↻ 更新</button></span></nav>
+<script src="../../review-note.js" data-app="説明の練習" data-where="games/clinical-duty/setsumei.html" data-group="clinical-duty"></script>
 <script>(function(){var P=window.__ipadPlayer||'me';document.getElementById('ipadWho').textContent='プレイヤー：'+(P==='me'?'自分':P);})();
 /* 不具合・感想を送る：どのアプリのどの画面からでも、いまの場所を「どこの不具合か」の欄に自動で入れる（Google フォーム） */
 (function(){var FB='https://docs.google.com/forms/d/e/1FAIpQLSdNJkjXAVATEdI6vKRfg8gmFf87viEZP8qCpqCzv9lQGojGeg/viewform?usp=pp_url&entry.298389701=',APP='説明の練習',a=document.getElementById('ipadFbk');if(!a)return;
@@ -163,6 +165,7 @@ h1{
 .q-h{margin:0; font-size:var(--fs-l); display:flex; gap:10px; align-items:baseline}
 .q-h:focus{outline:none}
 .q-h:focus-visible{outline:3px solid var(--accent); outline-offset:3px}
+.note-sure{display:flex; align-items:center; gap:8px; min-height:44px; width:fit-content; cursor:pointer}
 .q-n{font-family:var(--f-display); font-weight:400; font-size:var(--fs-s); color:var(--accent); border:1.5px solid var(--accent); padding:0 7px; flex:none}
 .opts{list-style:none; margin:0; padding:0; display:grid; gap:8px}
 .opt{
@@ -196,6 +199,62 @@ h1{
   border:1px solid var(--line); border-radius:var(--r); background:var(--panel); color:var(--ink);
 }
 .ghost:hover{border-color:var(--accent)}
+.reveal-box{border-style:dashed;border-color:var(--accent);width:100%}
+.cq-tools{display:flex;justify-content:flex-end;gap:8px;flex-wrap:wrap;padding-top:8px}
+.cq-questions{display:grid;gap:18px;padding:0 18px 20px}
+.cq-steps,.cq-next-q{display:none}
+.is-max:not(.cq-max) .cq-tools{display:none}
+
+/* 共通の全画面。症例と問いはそれぞれの枠の中で読む。 */
+html.cq-max, .cq-max body{height:100%;overflow:hidden}
+html.cq-max{padding:0}
+.cq-max body{
+  padding-top:env(safe-area-inset-top,0px);
+  padding-bottom:env(safe-area-inset-bottom,0px);
+}
+.cq-max .ipad-bar,.cq-max .wrap > :not(.cq-tools,#main){display:none!important}
+.cq-max .wrap{
+  max-width:1360px;height:100%;min-height:0;
+  display:grid;grid-template-rows:auto minmax(0,1fr);gap:8px;padding-bottom:8px
+}
+.cq-max .cq-tools{padding-top:4px}
+.cq-max .case,.cq-max .result{margin-top:0;height:100%}
+.cq-max .result{overflow:auto;align-content:start}
+.cq-max .case{
+  display:grid;grid-template-columns:minmax(0,2fr) minmax(0,3fr);
+  grid-template-rows:auto minmax(0,1fr)
+}
+.cq-max .case-top{grid-column:1/-1;padding:8px 12px;align-items:baseline}
+.cq-max .case-top h2{flex-basis:auto;margin:0;font-size:var(--fs-l)}
+.cq-max .clock{font-size:var(--fs-l)}
+.cq-max .stamp{display:none}
+.cq-max .case-body,.cq-max .cq-questions{
+  min-height:0;min-width:0;gap:8px;padding:10px 12px;align-content:start
+}
+.cq-max .case-body,.cq-max .cq-question-scroll{
+  overflow:auto;overscroll-behavior:contain;scrollbar-gutter:stable
+}
+.cq-max .cq-questions{
+  grid-template-rows:auto minmax(0,1fr) auto;align-content:stretch;border-left:1px solid var(--line)
+}
+.cq-max .cq-steps,.cq-max .cq-actions{display:flex;gap:6px;flex-wrap:wrap}
+.cq-max .cq-next-q{display:block}
+.cq-max .cq-actions:not(.cq-last) #nextBtn{display:none}
+.cq-max .cq-steps [aria-current="step"]{border-color:var(--accent);background:var(--accent-soft)}
+.cq-max .cq-steps .ghost:disabled{opacity:.55;cursor:default}
+.cq-max .cq-question-scroll > .q:not(.cq-active),.cq-max .done-q{display:none}
+.cq-max .cq-active + .done-q{display:flex}
+.cq-max .q{padding:4px;border:0;gap:8px}
+.cq-max .q-h{font-size:var(--fs-m)}
+.cq-max .opt{min-height:44px;padding:6px 10px;font-size:var(--fs-s)}
+.cq-max .q .why{grid-row:2}
+.cq-max .done-q{padding:4px}
+@media (max-width:850px) and (orientation:portrait), (max-width:620px){
+  .cq-max .case{grid-template-columns:minmax(0,1fr);grid-template-rows:auto minmax(0,3fr) minmax(0,7fr)}
+  .cq-max .cq-questions{border-left:0;border-top:1px solid var(--line)}
+  .cq-max .case-body{font-size:var(--fs-s)}
+  .cq-max .memo dt,.cq-max .memo dd{padding:4px 8px}
+}
 
 /* 判子 */
 .stamp{
@@ -215,10 +274,6 @@ h1{
 .result{margin-top:26px; background:var(--panel); border:1px solid var(--line); border-radius:var(--r); padding:20px 18px; display:grid; gap:16px}
 .result h2{margin:0; font-family:var(--f-display); font-weight:400; font-size:var(--fs-xl)}
 .result h2:focus{outline:none}
-.rank{display:flex; align-items:center; gap:18px; flex-wrap:wrap}
-.rank .big{font-family:var(--f-display); font-size:4.4rem; line-height:1; color:var(--seal); text-shadow:3px 3px 0 var(--line)}
-.rank .pts{font-family:var(--f-display); font-size:1.4rem; font-variant-numeric:tabular-nums}
-.rank .best{font-size:var(--fs-xs); color:var(--muted)}
 .log{list-style:none; margin:0; padding:0; display:grid; gap:10px}
 .log li{border-top:1px dashed var(--line); padding-top:10px; display:grid; gap:4px}
 .log .lh{display:flex; gap:10px; align-items:baseline; flex-wrap:wrap}
@@ -333,7 +388,11 @@ tbody tr:last-child th, tbody tr:last-child td{border-bottom:0}
 }
 </style>
 
-<div class="wrap">
+<div class="wrap" data-cq-layout="shared">
+  <div class="cq-tools">
+    <button type="button" class="ghost" id="cqOptions" aria-pressed="false">選択肢を最初から出す</button>
+    <button type="button" class="ghost" id="cqMax" aria-pressed="false">⛶ 全画面</button>
+  </div>
   <header class="top">
     <p class="eyebrow">精神科道場 ・ 心理教育と面接（試作）</p>
     <h1>説明の練習</h1>
@@ -358,20 +417,20 @@ tbody tr:last-child th, tbody tr:last-child td{border-bottom:0}
   <div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
 
   <section class="ref" aria-labelledby="refh">
-    <h2 id="refh">説明と面接の早見表</h2>
-    <div class="tbl-wrap">
+    <h2 id="refh" hidden>説明と面接の早見表</h2>
+    <div class="tbl-wrap" hidden>
       <table>
         <thead><tr><th scope="col">場面</th><th scope="col">大切なこと</th><th scope="col">避けたいこと</th></tr></thead>
         <tbody>
-          <tr><th scope="row">病名を伝える</th><td>本人の理解から聞く。よくある・治療できる・回復する人が多い</td><td>本人を外して家族だけに話す。性格や育て方のせいにする</td></tr>
+          <tr><th scope="row">病名を伝える</th><td>家族への共有は本人と相談。本人の理解を聞き、治療や支援で回復を目指せることを伝える</td><td>本人を外して家族だけに話す。性格や育て方のせいにする</td></tr>
           <tr><th scope="row">薬を始める</th><td>副作用と対処を先に話す。理由を説明し、一緒に決める</td><td>「副作用はない」と言う。一方的に「一生飲んで」</td></tr>
-          <tr><th scope="row">「やめたい」</th><td>まず回復を認め、理由を聞く。減らすなら少しずつ一緒に</td><td>頭ごなしに否定する。すぐに全部やめる</td></tr>
+          <tr><th scope="row">「やめたい」</th><td>回復を認め、理由を聞く。中止のリスクを話し、減らすなら少しずつ経過を見ながら</td><td>頭ごなしに否定する。すぐに全部やめる</td></tr>
           <tr><th scope="row">再発予防</th><td>本人に特有の前ぶれのサインと対処の表（クライシスプラン）</td><td>前ぶれはないと伝える</td></tr>
           <tr><th scope="row">家族教室</th><td>育て方の病気ではない。批判や過度の巻き込みを減らす（感情表出）。家族の休息</td><td>家族を責める</td></tr>
-          <tr><th scope="row">双極症</th><td>生活リズム（起床・就寝をそろえる）、早めの受診と大きな決定の延期</td><td>調子のいいときに予定を詰める</td></tr>
-          <tr><th scope="row">うつ病</th><td>休養は治療。大きな決定は延ばす。希死念慮ははっきり聞く</td><td>励ましすぎる。希死念慮を聞かない</td></tr>
-          <tr><th scope="row">認知症の家族</th><td>否定せず気持ちを受け止める。介護者の休息と介護保険</td><td>説得・叱責。介護者を責める</td></tr>
-          <tr><th scope="row">飲酒をやめる気がない人</th><td>抵抗に逆らわず、両価性を引き出し、変わる言葉を育てる（動機づけ面接）</td><td>「なぜ」で責める。直面化</td></tr>
+          <tr><th scope="row">双極症</th><td>生活リズムを整える。前ぶれに気づいたら早めに連絡し、大きな決定を延ばす。頓服は事前に決めた指示に従う</td><td>調子のいいときに予定を詰める</td></tr>
+          <tr><th scope="row">うつ病</th><td>状態に合わせて休養と仕事を調整し、大きな決定は急がない。死にたい気持ちや実行するつもりを聞き、危険が差し迫れば緊急対応</td><td>励ましすぎる。死にたい気持ちを聞かない</td></tr>
+          <tr><th scope="row">認知症の家族</th><td>気持ちを受け止める。痛みや急な混乱、環境の変化を確かめる。介護者の休息と介護保険</td><td>説得・叱責。介護者を責める</td></tr>
+          <tr><th scope="row">飲酒をやめる気がない人</th><td>迷いや変えたい気持ちを本人の言葉で聞く。飲酒を減らす計画の前に、離脱の危険と肝障害を確かめる</td><td>責める。飲酒量や離脱の危険を確かめず、急に減らすよう勧める</td></tr>
         </tbody>
       </table>
     </div>
@@ -388,15 +447,19 @@ tbody tr:last-child th, tbody tr:last-child td{border-bottom:0}
     {
       time: '1回目', where: '外来（初めての入院から退院前）', night: false,
       title: '病名を伝える', stamp: ['病名', '説明'], stampName: '統合失調症の病名の説明',
-      story: '22歳の男性。初めての幻覚妄想で入院し、落ち着いてきた。今日は本人と母親に、統合失調症という見立てを伝える。本人は少し緊張した顔で座っている。',
+      // 査読：成人本人と家族に共有する範囲を事前に確かめる場面にする（NICE CG178 §1.1.4.2）。https://www.nice.org.uk/guidance/cg178/resources/psychosis-and-schizophrenia-in-adults-prevention-andmanagement-pdf-35109758952133
+      // 絵の案：共同意思決定の図では、まず本人が母親の同席と情報共有の範囲を選び、続いて本人の理解を聞く流れを示す。
+      story: '22歳の男性。初めての幻覚妄想で入院し、落ち着いてきた。本人は母親の同席と、病名や治療について母親にも伝えることに同意している。今日は統合失調症という見立てを伝える。本人は少し緊張した顔で座っている。',
       memo: [['相手', '本人（22歳）と母親'], ['ねらい', '病名と見通しを、希望とともに伝える'], ['気をつけること', '一方的に話さない']],
       qs: [
         { q: '話の始め方として最も適切なのは？', a: ['「入院のきっかけを、今どう考えていますか」', '「検査の結果、統合失調症と確定しました」', '「難しい病気なので、覚悟して聞いてください」', '「専門的な話なので、お母さんにだけ話します」'],
           why: 'まず本人が今どう理解しているかを聞きます。本人の言葉から話を始めると、説明が届きやすく、誤解も見つけられます（悪い知らせを伝える手順の考え方）。本人を外して家族だけに話すのは避けます。', law: '本人の理解から始める' },
-        { q: '病気の説明として適切なのは？', a: ['「100人に1人ほどの、治療で回復する人が多い病気です」', '「性格の弱さが原因なので、心を強くしましょう」', '「家庭での育て方が原因で起こる病気です」', '「原因は一つで、薬を飲めば完全に消えます」'],
-          why: 'よくある病気であること、脳の働きの病気で、もともとのなりやすさにストレスが重なって起こること（ストレス脆弱性モデル）、治療で多くの人が回復することを伝えます。本人や家族を責める説明はしません。', law: 'ストレス脆弱性モデル' },
-        { q: '本人が「一生治らないんですか」と聞いた。返し方として適切なのは？', a: ['「不安ですよね。多くの人が自分らしい生活に戻っています」', '「はい、残念ながら一生治らない病気です」', '「そんなことは今は考えなくていいですよ」', '「それは誰にもわからないので、答えられません」'],
-          why: 'まず不安を受け止め、そのうえで希望のある事実を伝えます。症状が落ち着き、仕事や学校に戻る人も多いこと、続けた治療と再発予防が大切なことを話します（リカバリーの考え方）。', law: '希望を伝える' }
+        // 査読：頻度は年齢や集計方法で変わるため一律の数字を外し、発症には複数の要因が関わると説明する（WHO）。https://www.who.int/en/news-room/fact-sheets/detail/schizophrenia
+        { q: '病気の説明として適切なのは？', a: ['「いくつかの要因が関わり、治療や支援で回復を目指せます」', '「性格の弱さが主な原因なので、まず心を強くする練習が必要です」', '「家庭での育て方が原因なので、ご家族への治療が中心になります」', '「原因は一つで、薬を飲み始めれば症状は完全に消えます」'],
+          why: 'もともとのなりやすさにストレスなどが重なって発症に関わるという考え方があります（ストレス脆弱性モデル）。治療や生活の支援で回復を目指せることを伝え、本人や家族を責める説明は避けます。', law: 'ストレス脆弱性モデル' },
+        // 査読：経過には個人差があり、復学・復職の見通しを一律には示せない（WHO）。https://www.who.int/en/news-room/fact-sheets/detail/schizophrenia
+        { q: '本人が「一生治らないんですか」と聞いた。返し方として適切なのは？', a: ['「不安ですよね。治療で症状が落ち着き、自分らしい生活を送る人もいます」', '「はい、残念ながら症状も生活への影響も一生変わらない病気です」', '「そんなことは今は考えず、言われたとおりに治療を受けてください」', '「経過は誰にもわからないので、今後のことは何もお話しできません」'],
+          why: 'まず不安を受け止めます。経過には個人差があり、症状が落ち着いて仕事や学校に戻る人もいます。再発予防と生活の支援を続けながら、本人が望む生活を一緒に目指します（リカバリーの考え方）。', law: '希望を伝える' }
       ]
     },
     {
@@ -421,10 +484,12 @@ tbody tr:last-child th, tbody tr:last-child td{border-bottom:0}
       qs: [
         { q: '最初の返し方として適切なのは？', a: ['「ここまで頑張りましたね。やめたい理由を聞かせてください」', '「やめたら必ず再発します。絶対にだめです」', '「わかりました。今日から全部やめましょう」', '「その考え方こそ、病気が悪くなっている証拠です」'],
           why: '回復を認め、やめたい理由（副作用・通院の負担・病気と思われたくない）を聞きます。理由がわかれば、量を減らす、薬を替えるなど別の解決が見つかることがあります。', law: '理由を聞く' },
-        { q: '再発について伝えることとして適切なのは？', a: ['「急にやめると再発しやすいので、減らすなら一緒に」', '「再発しても、すぐ治るので心配はありません」', '「一度治れば、二度と再発しない病気なんです」', '「再発のことは、今は考えなくていいですよ」'],
-          why: '急な中断は再発の危険を高めます。減らす場合も、少しずつ、経過を見ながら行うことを伝えます。最終的に決めるのは本人で、医師は情報と見通しを示します。', law: '減量は少しずつ' },
+        // 査読：回復して間もない時期の中止には再発の危険があり、段階的に減らす場合も経過観察が必要（NICE CG178 §1.4.6）。https://www.nice.org.uk/guidance/cg178/resources/psychosis-and-schizophrenia-in-adults-prevention-andmanagement-pdf-35109758952133
+        { q: '再発について伝えることとして適切なのは？', a: ['「今やめると再発しやすい時期です。続けるか一緒に考えましょう」', '「再発しても、薬をまた飲み始めればすぐ治るので心配ありません」', '「一度症状が消えて学校に戻れたなら、二度と再発しない病気です」', '「復学できたので、再発の心配は症状が出てから考えれば十分です」'],
+          why: '回復して間もないこの時期は、薬を中止すると再発の危険が高まります。続ける利点と副作用を本人と話し合い、減量する場合は少しずつ進め、再発のサインを見ていきます。', law: '中止のリスクと経過観察' },
+        // 査読：クライシスプランは悪化時の相談と早めの対応に使う（NICE CG178 §1.5.3.6）。https://www.nice.org.uk/guidance/cg178/resources/psychosis-and-schizophrenia-in-adults-prevention-andmanagement-pdf-35109758952133
         { q: '一緒に作っておくとよいものは？', a: ['「再発の前ぶれのサインと、そのときの対処の表」', '「毎日の気分を100点満点でつける表だけ」', '「やめた薬の名前を忘れないための一覧だけ」', '「次の入院のための荷物の準備リスト」'],
-          why: '眠れない、音に敏感になる、人の視線が気になる、など本人に特有の前ぶれのサインと、そのときの対処（連絡先・頓服・休む）を表にしておくと、再発を早めに止められます（クライシスプラン）。', law: '再発の前ぶれのサイン' }
+          why: '眠れない、音に敏感になる、人の視線が気になるなど、本人に特有の前ぶれを確認します。気づいたときの対処や連絡先を表にしておくと、早めに相談できます（クライシスプラン）。', law: '再発の前ぶれのサイン' }
       ]
     },
     {
@@ -435,10 +500,13 @@ tbody tr:last-child th, tbody tr:last-child td{border-bottom:0}
       qs: [
         { q: '「育て方のせいですか」への答えとして適切なのは？', a: ['「育て方で起きる病気ではありません。ご自分を責めないで」', '「そうかもしれないので、今から育て直しましょう」', '「原因は家族の問題なので、家族療法が必要です」', '「その質問には、答えられません」'],
           why: '統合失調症は、育て方が原因で起こる病気ではありません。家族の自責感は強いことが多く、まずそれを和らげることが家族支援の出発点です。', law: '家族の自責感への関わり' },
+        // 査読：高い感情表出は再発との関連を示す所見で、家族個人への原因づけはできない（外来患者の追跡研究）。https://pubmed.ncbi.nlm.nih.gov/10416738/
+        // 絵の案：高い感情表出と再発の関連は、家族を原因とする矢印や一度の発言で決まるゲージを避け、責めずに困りごとを伝える会話の見比べで示す。
         { q: '家族の関わり方で、再発と関係があるとされるのは？', a: ['批判が多い、または過度に世話を焼きすぎる関わり', '本人の話をよく聞き、穏やかに接する関わり', '本人の好きなことを応援する関わり', '家族が自分の時間も大切にする関わり'],
-          why: '家族の感情表出（EE）が高い、つまり批判・敵意・過度の巻き込まれが多い家庭では、再発が多いことが知られています。家族を責めるためではなく、楽な関わり方を一緒に探すための知識です。', law: '感情表出（EE）' },
-        { q: '昼まで寝ていることへの助言として適切なのは？', a: ['「疲れやすい時期です。小さな目標を一緒に決めましょう」', '「甘えなので、毎朝7時に必ず起こしてください」', '「何も言わず、一日中寝かせておいてください」', '「寝てばかりなら、入院させたほうがいいです」'],
-          why: '回復期には疲れやすさや意欲の低下（陰性症状・薬の影響）があります。責めずに、起きる時間や日中の活動の小さな目標を、本人と一緒に決めるよう勧めます。家族自身の休息と相談先も大切です。', law: '家族への具体的な助言' }
+          why: '感情表出（EE）は、家族の批判・敵意や心配のあまり深く関わりすぎる傾向などを見る指標です。高いEEと再発の増加には関連が報告されています。本人と家族の負担の少ない関わり方を一緒に探します。', law: '感情表出（EE）' },
+        // 査読：昼まで寝ているという情報だけでは原因は分からないため、本人の睡眠や薬の影響を確かめる。
+        { q: '昼まで寝ていることへの助言として適切なのは？', a: ['「睡眠や体調を本人に聞き、小さな目標を一緒に決めましょう」', '「甘えなので、本人が眠そうでも毎朝7時に必ず起こしてください」', '「回復期なら夜の睡眠は確認せず、一日中寝かせておいてください」', '「寝てばかりなら、本人の気持ちを聞く前に入院を考えましょう」'],
+          why: '本人に就寝時刻や日中の眠気、気分、薬を飲んだ後の変化を聞きます。起きる時間や日中の活動は、体調に合わせて本人と小さな目標を決めます。家族自身の休息と相談先も大切です。', law: '家族への具体的な助言' }
       ]
     },
     {
@@ -447,12 +515,16 @@ tbody tr:last-child th, tbody tr:last-child td{border-bottom:0}
       story: '35歳の女性。双極症で、2回の躁病エピソードで入院した。今は安定している。「また入院するのはいや。どうしたら防げますか」と聞く。',
       memo: [['相手', '本人'], ['経過', '躁で入院2回。今は安定'], ['ねらい', '前ぶれのサインと生活リズムを一緒に考える']],
       qs: [
+        // 査読：普段より短い睡眠でも元気で活動が増す変化を本人の経験から確認し、家族に聞く場合は本人の了解を得る（NICE CG185 §1.1・§1.4）。https://www.nice.org.uk/guidance/cg185/resources/bipolar-disorder-assessment-and-management-pdf-35109814379461
         { q: '前ぶれのサインを見つける聞き方として適切なのは？', a: ['「前の2回、入院の前にどんな変化がありましたか」', '「躁の症状の一覧を渡すので、覚えてください」', '「サインは人によって同じなので、説明だけします」', '「前ぶれはないので、急に悪くなります」'],
-          why: '前ぶれのサインは人によって違います（眠る時間が減る、買い物が増える、電話が多くなる、など）。本人の過去の経験から具体的に聞き、家族にも確かめます。', law: '本人に特有のサイン' },
+          why: '短い睡眠でも元気に活動する、買い物が増えるなど、前ぶれは人によって違います。まず本人の過去の経験を聞き、本人の了解を得て家族からも気づいた変化を聞きます。', law: '本人に特有のサイン' },
+        // 査読：生活リズムを整えることは再発予防の工夫の一つで、社会リズム療法の一部に当たる（日本精神神経学会）。https://www.jspn.or.jp/modules/forpublic/index.php?content_id=27
         { q: '生活の工夫として伝えることは？', a: ['「寝る時間と起きる時間をできるだけそろえましょう」', '「調子のいいときに、できるだけ予定を詰めましょう」', '「夜ふかしは、気分が上がるので勧めます」', '「休日は好きなだけ寝て、生活をゆるめましょう」'],
-          why: '睡眠・生活リズムの乱れは、双極症の再発の大きな引き金です。毎日の起床・就寝・食事・活動の時刻をそろえる工夫（社会リズム療法）を一緒に考えます。', law: '社会リズム' },
-        { q: 'サインに気づいたときの約束として適切なのは？', a: ['「早めに受診し、頓服を使い、大きな決定は延ばす」', '「様子を見て、入院が必要になってから来る」', '「自分で薬をやめて、しばらく様子を見る」', '「気分がいいうちに、大きな買い物を済ませる」'],
-          why: '早めの受診、頓服の使い方、大きな決定（契約・退職・高額の買い物）を先に延ばす約束を、本人と家族で共有しておきます。', law: '早めの対処の約束' }
+          why: '再発を防ぐ工夫として、起床・就寝・食事・活動の時刻をできる範囲でそろえます。生活リズムを整えることは、社会リズム療法で使う工夫の一つです。', law: '社会リズム' },
+        // 査読：追加の薬はあらかじめ個別に合意した計画がある場合に使う（NICE CG185 §1.4.1）。https://www.nice.org.uk/guidance/cg185/resources/bipolar-disorder-assessment-and-management-pdf-35109814379461
+        // 絵の案：前ぶれから早めの連絡と大きな決定の延期に進み、頓服（必要なときに使う薬）は事前の取り決めがある場合だけ枝で示す。
+        { q: 'サインに気づいたときの約束として適切なのは？', a: ['「早めに主治医に連絡し、大きな決定は延ばす」', '「様子を見て、入院が必要になってから来る」', '「自分で薬をやめて、しばらく様子を見る」', '「気分がいいうちに、大きな買い物を済ませる」'],
+          why: '早めの連絡先と、契約や高額の買い物を延ばすことを前もって決めます。頓服（必要なときに使う薬）は、処方され、使う条件を主治医と決めている場合にその指示に従います。本人が希望すれば、家族とも計画を共有します。', law: '早めの対処の約束' }
       ]
     },
     {
@@ -461,12 +533,15 @@ tbody tr:last-child th, tbody tr:last-child td{border-bottom:0}
       story: '42歳の男性。うつ病と診断し、休職を勧めた。「休んだら周りに迷惑がかかる。それに、会社を辞めて田舎に帰ろうかと思っています」と言う。',
       memo: [['相手', '本人'], ['気持ち', '迷惑をかける。辞めて田舎へ'], ['ねらい', '休養の意味と、大きな決定を延ばすことを伝える']],
       qs: [
-        { q: '休むことの説明として適切なのは？', a: ['「骨折したら休むのと同じで、回復のために必要な治療です」', '「休むのは甘えなので、できるだけ働き続けましょう」', '「休むと復帰できなくなるので、勧めません」', '「休むかどうかは、上司に決めてもらいましょう」'],
-          why: '休養は治療の一部だと伝えます。体の病気にたとえると、罪悪感が少し軽くなることがあります。診断書を出し、会社とのやりとりも手伝います。', law: '休養は治療' },
+        // 査読：休職や負担の調整は症状や仕事の状況に応じて決める（厚労省「こころの耳」）。https://web4.kokoro.mhlw.go.jp/return/return-worker/rw001/
+        { q: '休むことの説明として適切なのは？', a: ['「今は仕事の負担を減らし、治療を続けながら休みましょう」', '「休むのは甘えなので、できるだけ働き続けましょう」', '「休むと復帰できなくなるので、勧めません」', '「休むかどうかは、上司に決めてもらいましょう」'],
+          why: 'この場面では、休養が回復を助けることを伝えます。仕事の負担を減らす方法や休職の必要性は、症状と仕事の状況に合わせて本人と考えます。必要に応じて診断書などで手続きを支援します。', law: '休養と仕事の調整' },
         { q: '「会社を辞めて田舎に帰る」への対応として適切なのは？', a: ['「大事な決定は、回復するまで先に延ばしましょう」', '「いい考えですね。すぐに辞表を出しましょう」', '「田舎に帰っても何も変わりませんよ」', '「その話は、ここでは聞けません」'],
           why: 'うつ病のときは、物事を悲観的に考えがちです。退職・離婚・転居などの大きな決定は、回復してから考えるよう勧めます。', law: '大きな決定は延ばす' },
-        { q: '希死念慮の確かめ方として適切なのは？', a: ['「死にたい気持ちになることはありますか」', '「死にたいなんて考えていませんよね」', '「聞くと考えてしまうので、聞かないでおく」', '「死にたいと思うのは、心が弱いからですよ」'],
-          why: '希死念慮は、はっきり、しかし自然に聞きます。聞くことで死にたい気持ちが強まることはなく、話せることで楽になる人も多いです。ある場合は、計画・手段・支えも確かめます。', law: '希死念慮の確認' }
+        // 査読：死にたい気持ちに加えて実行するつもりを確かめ、危険が差し迫る場合の対応を補う（NICE NG222 §1.2.8–9）。https://www.nice.org.uk/guidance/ng222/resources/depression-in-adults-treatment-and-management-pdf-66143832307909
+        // 絵の案：死にたい気持ちを直接聞く場面から、実行するつもりや計画、支えを確認し、安全確保と緊急対応に進む場合を示す。
+        { q: '希死念慮（死にたい気持ち）の確かめ方として適切なのは？', a: ['「死にたい気持ちになることはありますか」', '「死にたいなんて考えていませんよね」', '「聞くと考えてしまうので、聞かないでおく」', '「死にたいと思うのは、心が弱いからですよ」'],
+          why: '自殺の危険を確かめるため、死にたい気持ちを落ち着いて直接聞きます。聞くことで死にたい気持ちが強まることはなく、話せて楽になる人も多くいます。気持ちがある場合は、実行するつもりや計画、手段が手元にあるか、頼れる人がいるかを確かめます。危険が差し迫っていれば、本人の安全を確保し、緊急の診療につなぎます。', law: '希死念慮と緊急性の確認' }
       ]
     },
     {
@@ -475,12 +550,15 @@ tbody tr:last-child th, tbody tr:last-child td{border-bottom:0}
       story: 'アルツハイマー型認知症の80歳の母親と暮らす娘が相談に来た。「母が毎日『財布を盗まれた』と私を責めるんです。違うと説明しても、ますます怒って…」',
       memo: [['相手', '娘（主な介護者）'], ['困りごと', '物盗られ妄想。否定すると怒る'], ['ねらい', '具体的な関わり方と、介護者の休息']],
       qs: [
+        // 査読：置き忘れは考えられる原因の一つで、訴えだけで何があったかは決められない。
         { q: '物盗られの訴えへの関わり方として適切なのは？', a: ['「否定せず、困った気持ちを受け止めて、一緒に探しましょう」', '「盗っていないことを、毎回きちんと説明しましょう」', '「嘘を言っているので、厳しく注意しましょう」', '「聞こえないふりをして、相手にしないでおきましょう」'],
-          why: '記憶の障害で、しまった場所を忘れ、「盗られた」と感じています。否定や説得は不安と怒りを強めます。気持ちを受け止め、一緒に探し、本人が見つけられるよう手伝います。', law: '否定しない関わり' },
+          why: 'しまった場所を思い出せず、「盗られた」と感じることがあります。強く否定すると不安や怒りが増すことがあるため、困った気持ちを受け止め、実際に何があったか一緒に確かめます。', law: '否定しない関わり' },
         { q: '娘自身について伝えることとして適切なのは？', a: ['「身近な人ほど疑われやすいのは病気のせいです。休む工夫も大切に」', '「疑われるのは、あなたの接し方に問題があるからです」', '「介護は家族の務めなので、休まずに頑張りましょう」', '「お母さんとは距離を置いて、話さないようにしましょう」'],
           why: '物盗られ妄想は、いちばん身近な介護者に向かいやすいものです。娘を責めず、デイサービス・ショートステイ・介護保険の利用、相談先を伝えます。', law: '介護者の支援' },
-        { q: '薬について正しいのは？', a: ['「まず関わり方と環境の工夫。薬は必要なときに少量で慎重に」', '「すぐに抗精神病薬を毎日しっかり飲ませましょう」', '「睡眠薬を増やせば、訴えはなくなります」', '「薬は効かないので、使う意味はありません」'],
-          why: '認知症の行動・心理症状（BPSD）は、まず非薬物的な対応と環境の調整を行います。抗精神病薬は死亡率の上昇などの危険があり、必要なときに少量・短期間で慎重に使います。', law: 'BPSD への対応' }
+        // 査読：原因の評価と薬以外の対応を先に考え、抗精神病薬を検討する条件を明示する（厚労省BPSDガイドライン第3版・NICE NG97 §1.7）。https://www.mhlw.go.jp/content/001518446.pdf
+        // 絵の案：普段と違う変化に気づいたら、痛み・急な混乱・環境の変化を順に確認し、関わり方や環境を調整する流れを示す。
+        { q: '認知症の行動・心理症状に対し、薬を考える前に何をする？', a: ['痛みや急な混乱などの原因を調べ、関わり方や環境を見直す', '認知症の進行によるものと考え、抗精神病薬をすぐに始める', '物盗られの訴えを聞いたら、原因を調べる前に睡眠薬を増やす', '家族に事実を説明し続けてもらい、落ち着くまで診察を待つ'],
+          why: '認知症の行動・心理症状（BPSD）では、痛み・せん妄（急な混乱）などを確かめ、関わり方や環境を見直します。自他への危害のおそれや、興奮・妄想などによる強い苦痛があれば、抗精神病薬を検討します。使う場合は死亡リスクなどを考え、効果が出る最も少ない量で短期間とし、効果と副作用を見直します。', law: 'BPSD の原因評価と対応' }
       ]
     },
     {
@@ -491,16 +569,18 @@ tbody tr:last-child th, tbody tr:last-child td{border-bottom:0}
       qs: [
         { q: '最初の返し方として適切なのは？', a: ['「来たくなかったのに、来てくださったんですね」', '「このままでは死にますよ。今日からやめましょう」', '「あなたはアルコール依存症です。認めてください」', '「やめる気がないなら、来ても意味がありません」'],
           why: '説得や直面化は、反発（抵抗）を強めます。まず本人の気持ちを受け止め、来てくれたことを認めます（動機づけ面接の考え方）。', law: '抵抗に逆らわない' },
+        // 査読：「なぜ」という語だけで問いの良し悪しは決まらず、責める問い方や決めつけを避ける（SAMHSA TIP 35 第3章）。https://www.ncbi.nlm.nih.gov/books/NBK571068/
         { q: '両価性（迷い）を引き出す問いとして適切なのは？', a: ['「お酒の良いところと、困るところは？」', '「なぜ、お酒をやめられないんですか」', '「奥さんの気持ちを考えたことはありますか」', '「肝臓が悪いのに、どうして飲むんですか」'],
-          why: '「飲みたい」と「このままではまずい」という両方の気持ちを本人の言葉で話してもらうと、変わる理由を本人が自分で見つけやすくなります。「なぜ」で始まる問いは、責められているように聞こえます。', law: '両価性を扱う' },
-        { q: '本人が「量を減らすくらいなら…」と言った。返し方として適切なのは？', a: ['「減らしてみようと思えたんですね。どう減らしましょうか」', '「減らすのではだめです。完全にやめないと意味がありません」', '「どうせ無理なので、期待していません」', '「では、今日の話はここまでにしましょう」'],
-          why: '本人から出た「変わる言葉」を認めて、具体的な計画につなげます。飲酒量を減らすこと（減酒）を当面の目標にし、治療関係を続けることも選択肢です。断酒が必要な状態かどうかは、関係ができてから一緒に考えます。', law: '変わる言葉を育てる' }
+          why: '飲酒で得ていることと困っていることを、本人の言葉で話してもらいます。答えを決めつけたり責めたりする聞き方は、率直に話しにくくします。', law: '両価性を扱う' },
+        // 査読：肝障害の程度と離脱の危険は早期に評価し、身体依存があれば急な減酒・断酒を避け安全に計画する（NICE CG115 §1.2.2・CG100 §1.1.1）。
+        // 絵の案：本人の「減らすなら」という言葉を受け止めたあと、依存・離脱の危険と肝臓の状態を先に確かめる分岐を示す。
+        { q: '本人が「量を減らすくらいなら…」と言った。返し方として適切なのは？', a: ['「減らすことなら考えられるんですね。まず今の飲み方を教えてください」', '「減らすのではだめです。今日から完全にやめないと意味がありません」', '「飲んでいる量は聞かなくても、今日から半分にすれば大丈夫です」', '「まだやめるつもりはないようなので、今日の話はここまでにしましょう」'],
+          why: '変化を考え始めた言葉を受け止め、今の飲酒量、以前に酒が切れたときの症状、肝障害の程度を早めに確かめます。身体依存があると、急な減酒・断酒で離脱（震えやけいれんなど）が起こりうるため、医療のもとで対処を計画します。肝障害や依存の程度に応じて、断酒が望ましい場合はその理由を伝え、支援を続けます。', law: '変わる言葉を育て、安全を確かめる' }
       ]
     }
   ];
 
   var NQ = CASES.reduce(function (n, c) { return n + c.qs.length; }, 0);
-  var BEST_KEY = 'setsumei-best';
 
   function lsGet(k) { try { return window.localStorage.getItem(k); } catch (e) { return null; } }
   function lsSet(k, v) { try { window.localStorage.setItem(k, v); } catch (e) { /* 保存できない環境 */ } }
@@ -515,6 +595,8 @@ tbody tr:last-child th, tbody tr:last-child td{border-bottom:0}
       ci: 0,
       picks: CASES.map(function (c) { return c.qs.map(function () { return null; }); }),
       order: CASES.map(function (c) { return c.qs.map(function (q) { return shuffled(q.a.length); }); }),
+      revealed: {},
+      activeQ: 0,
       only: null  // まちがえた患者だけやり直すときの番号の並び
     };
   }
@@ -522,9 +604,20 @@ tbody tr:last-child th, tbody tr:last-child td{border-bottom:0}
   var S;
   var slotsEl = document.getElementById('slots');
   var mainEl = document.getElementById('main');
+  var root = document.documentElement;
+  var layout = mainEl.closest('.wrap').getAttribute('data-cq-layout');
+  var sharedLayout = layout === 'shared';
+  var sharedOptions = layout !== 'shorui';
+  var maxBtn = document.getElementById('cqMax');
+  var optionsBtn = document.getElementById('cqOptions');
+  var ref = document.querySelector('.ref');
+  var refHeading = ref.querySelector('h2');
+  var refTable = ref.querySelector('.tbl-wrap');
 
   // ---- 判子帳
   var HK_KEY = 'setsumei-hanko-v1', HK_TITLES = [[0, "説明を聞く人"], [4, "言葉を選ぶ人"], [8, "伝わる説明ができる人"], [12, "家族にも頼られる人"], [16, "面接の名手"]], HK_MAX = CASES.length * 2;
+  var optionsKey = HK_KEY + '-show-opts';
+  var alwaysShowOptions = lsGet(optionsKey) === '1';
   var HK = {}; try { HK = JSON.parse(lsGet(HK_KEY) || '{}') || {}; } catch (e) { HK = {}; }
   function hkPts() { var p = 0; CASES.forEach(function (c, i) { p += HK[i] || 0; }); return p; }
   function hkTitle(p) { var t = HK_TITLES[0]; HK_TITLES.forEach(function (x) { if (p >= x[0]) t = x; }); return t; }
@@ -539,7 +632,7 @@ tbody tr:last-child th, tbody tr:last-child td{border-bottom:0}
     document.getElementById('hkGrid').innerHTML = CASES.map(function (c, i) {
       var tr = HK[i] || 0;
       var st = tr ? '<b>' + esc(c.stamp[0]) + '</b>' + (c.stamp[1] ? '<small>' + esc(c.stamp[1]) + '</small>' : '') : '<b>？</b>';
-      return '<li class="hk t' + tr + '"><span class="hk-st" aria-hidden="true">' + st + '</span><span class="hk-t">' + c.time + '</span><span class="hk-n">' + (tr ? esc(c.title) : 'まだ') + '</span><span class="hk-tag">' + ['', '押した', '金・満点'][tr] + '</span></li>';
+      return '<li class="hk t' + tr + '"><span class="hk-st" aria-hidden="true">' + st + '</span><span class="hk-t">' + c.time + '</span><span class="hk-n">' + (tr ? esc(c.title) : 'まだ') + '</span><span class="hk-tag">' + ['', '押した', '金・全問正解'][tr] + '</span></li>';
     }).join('');
   }
   var toastEl = document.getElementById('toast'), toastT = 0;
@@ -581,7 +674,11 @@ tbody tr:last-child th, tbody tr:last-child td{border-bottom:0}
 
   function optsHTML(i, qi, live) {
     var q = CASES[i].qs[qi], pick = S.picks[i][qi];
-    return '<ol class="opts">' + S.order[i][qi].map(function (ai, pos) {
+    var hidden = sharedOptions && pick === null && !alwaysShowOptions && !S.revealed[i + ':' + qi];
+    return (sharedOptions && pick === null
+      ? '<button type="button" class="ghost reveal-box" data-reveal="' + qi + '"' + (hidden ? '' : ' hidden') + '>選択肢を表示</button>'
+      : '') +
+      '<ol class="opts"' + (hidden ? ' hidden' : '') + '>' + S.order[i][qi].map(function (ai, pos) {
       var cls = '', tag = '';
       if (pick !== null) {
         if (ai === 0) { cls = ' right'; tag = '正解'; }
@@ -595,17 +692,30 @@ tbody tr:last-child th, tbody tr:last-child td{border-bottom:0}
 
   function renderCase(pressStamp) {
     var i = S.ci, c = CASES[i], k = curQ(i), s = seq(), pos = s.indexOf(i);
-    var html = '<article class="case" aria-labelledby="caseh">' +
+    var activeQ = S.activeQ;
+    var previousCase = mainEl.querySelector('.case[data-case="' + i + '"] .case-body');
+    var caseScroll = previousCase ? previousCase.scrollTop : 0;
+    var html = '<article class="case" data-case="' + i + '" aria-labelledby="caseh">' +
       (k === -1 ? stampHTML(c, pressStamp ? 'press' : '') : '') +
       '<div class="case-top"><span class="clock">' + c.time + '</span><span class="where">' + esc(c.where) + ' ・ ' + (pos + 1) + '人目 / ' + s.length + '人</span>' +
       '<h2 id="caseh" tabindex="-1">' + esc(c.title) + '</h2></div><div class="case-body">' +
       '<p class="story">' + esc(c.story) + '</p>' +
       '<div class="memo-box"><p class="memo-cap">カルテの要点</p><dl class="memo">' + c.memo.map(function (m) { return '<dt>' + esc(m[0]) + '</dt><dd>' + esc(m[1]) + '</dd>'; }).join('') + '</dl></div>';
 
+    if (sharedLayout) {
+      html += '</div><div class="cq-questions"><nav class="cq-steps" aria-label="問いの切り替え">' +
+        c.qs.map(function (_, qi) {
+          var unavailable = qi !== k && S.picks[i][qi] === null;
+          return '<button type="button" class="ghost" data-cq-q="' + qi + '"' +
+            (qi === activeQ ? ' aria-current="step"' : '') + (unavailable ? ' disabled' : '') + '>問' + (qi + 1) + '</button>';
+        }).join('') + '</nav><div class="cq-question-scroll">';
+    }
+
     c.qs.forEach(function (q, qi) {
       var pick = S.picks[i][qi];
       if (pick === null && qi !== k) return;
-      html += '<section class="q" aria-labelledby="q' + qi + '"><h3 class="q-h" id="q' + qi + '" tabindex="-1"><span class="q-n">問' + (qi + 1) + '</span><span>' + esc(q.q) + '</span></h3>' +
+      html += '<section class="q' + (qi === activeQ ? ' cq-active' : '') + '" aria-labelledby="q' + qi + '"><h3 class="q-h" id="q' + qi + '" tabindex="-1"><span class="q-n">問' + (qi + 1) + '</span><span>' + esc(q.q) + '</span></h3>' +
+        (pick === null && window.PG_NOTE ? '<label class="note-sure"><input type="checkbox" id="noteSure"> 自信あり</label>' : '') +
         optsHTML(i, qi, qi === k);
       if (pick !== null) {
         html += '<p class="why"><b>' + (pick === 0 ? '正解。' : '正解は「' + esc(q.a[0]) + '」。') + '</b>' + esc(q.why) +
@@ -614,25 +724,33 @@ tbody tr:last-child th, tbody tr:last-child td{border-bottom:0}
       html += '</section>';
     });
 
-    if (k === -1) {
-      var isLast = pos === s.length - 1;
-      html += '<p class="done-q">場面：<b>' + esc(c.stampName) + '</b>（' + caseScore(i) + ' / 3 問正解）</p>' +
-        '<button type="button" class="next" id="nextBtn">' + (isLast ? '面接を終える' : '次の場面へ（' + CASES[s[pos + 1]].time + '）') + '</button>';
+    var finished = k === -1;
+    var lastQuestion = activeQ === c.qs.length - 1;
+    if (finished) {
+      html += '<p class="done-q">場面：<b>' + esc(c.stampName) + '</b>（' + caseScore(i) + ' / 3 問正解）</p>';
     }
+    if (sharedLayout) {
+      html += '</div><div class="cq-actions' + (lastQuestion ? ' cq-last' : '') + '">';
+      if (!lastQuestion && S.picks[i][activeQ] !== null) {
+        html += '<button type="button" class="next cq-next-q" data-cq-q="' + (activeQ + 1) + '">次の問いへ</button>';
+      }
+    }
+    if (finished) {
+      var isLast = pos === s.length - 1;
+      html += '<button type="button" class="next" id="nextBtn">' + (isLast ? '面接を終える' : '次の場面へ（' + CASES[s[pos + 1]].time + '）') + '</button>';
+    }
+    if (sharedLayout) html += '</div>';
     html += '</div></article>';
     mainEl.innerHTML = html;
+    if (sharedLayout) mainEl.querySelector('.case-body').scrollTop = caseScroll;
   }
 
   function renderResult() {
-    var right = totalRight(), pts = Math.round(right / NQ * 100);
-    var rank = pts >= 90 ? 'S' : pts >= 75 ? 'A' : pts >= 60 ? 'B' : pts >= 40 ? 'C' : 'D';
-    var best = parseInt(lsGet(BEST_KEY) || '0', 10) || 0;
-    if (!S.only && pts > best) { lsSet(BEST_KEY, String(pts)); best = pts; }
+    var right = totalRight();
     var missed = CASES.map(function (_, i) { return i; }).filter(function (i) { return caseScore(i) < CASES[i].qs.length; });
 
     mainEl.innerHTML = '<section class="result" aria-labelledby="resh"><h2 id="resh" tabindex="-1">今日の面接の記録</h2>' +
-      '<div class="rank"><span class="big">' + rank + '</span><span class="pts">' + pts + '<small class="muted"> ／100</small></span>' +
-      '<span class="best">' + right + ' / ' + NQ + ' 問正解' + (best ? '　自己ベスト ' + best + '点' : '') + '</span></div>' +
+      '<p>' + right + ' / ' + NQ + ' 問正解</p>' +
       '<ol class="log">' + CASES.map(function (c, i) {
         var miss = c.qs.filter(function (q, qi) { return S.picks[i][qi] !== 0; });
         return '<li><div class="lh"><span class="lt">' + c.time + '</span><span class="ls">' + esc(c.title) + '</span><span class="lm muted">' + esc(c.stampName) + '・' + caseScore(i) + '/3</span></div>' +
@@ -646,7 +764,9 @@ tbody tr:last-child th, tbody tr:last-child td{border-bottom:0}
 
   function render(opts) {
     opts = opts || {};
+    if (opts.activeQ != null) S.activeQ = opts.activeQ;
     renderSlots();
+    refHeading.hidden = refTable.hidden = S.ci !== -1;
     if (S.ci === -1) {
       renderResult();
       if (opts.focus) document.getElementById('resh').focus();
@@ -664,10 +784,20 @@ tbody tr:last-child th, tbody tr:last-child td{border-bottom:0}
   function answer(qi, ai) {
     var i = S.ci;
     if (S.picks[i][qi] !== null || curQ(i) !== qi) return;
+    var note = window.PG_NOTE;
+    if (note) {
+      var c = CASES[i], q = c.qs[qi], confidence = document.getElementById('noteSure');
+      var attempt = { id: q.id || [c.title, q.q], q: q.q, sure: Boolean(confidence && confidence.checked) };
+      if (ai === 0) note.hit(attempt);
+      else note.miss(Object.assign(attempt, {
+        picked: q.a[ai], answer: q.a[0], why: q.why, options: q.a,
+        context: [c.title, c.story].concat(c.memo.map(function (m) { return m.join('：'); })).join('\n')
+      }));
+    }
     S.picks[i][qi] = ai;
     var finished = curQ(i) === -1;
     if (finished) awardHanko(i);
-    render({ press: finished });
+    render({ press: finished, activeQ: qi });
     // 解説を読めるように、答えた問いの見出しへフォーカスを戻す
     var h = document.getElementById('q' + qi);
     if (h) h.focus({ preventScroll: true });
@@ -676,6 +806,7 @@ tbody tr:last-child th, tbody tr:last-child td{border-bottom:0}
   function nextCase() {
     var s = seq(), pos = s.indexOf(S.ci);
     S.ci = pos < s.length - 1 ? s[pos + 1] : -1;
+    S.activeQ = 0;
     render({ focus: S.ci === -1 ? true : 'case' });
     if (S.ci === -1) document.getElementById('resh').scrollIntoView({ block: 'start' });
   }
@@ -688,34 +819,116 @@ tbody tr:last-child th, tbody tr:last-child td{border-bottom:0}
         S.order[i] = CASES[i].qs.map(function (q) { return shuffled(q.a.length); });
       });
       S.only = m; S.ci = m[0];
+      S.revealed = {};
+      S.activeQ = 0;
     } else {
       S = newState();
     }
     render({ focus: 'case' });
   }
 
+  function syncOptions(qi, reveal) {
+    var h = document.getElementById('q' + qi);
+    var q = h && h.closest('.q');
+    var gate = q && q.querySelector('.reveal-box');
+    if (!gate) return;
+    var opts = q.querySelector('.opts');
+    var key = S.ci + ':' + qi;
+    if (reveal) S.revealed[key] = true;
+    gate.hidden = alwaysShowOptions || !!S.revealed[key];
+    opts.hidden = !gate.hidden;
+    if (reveal) opts.querySelector('.opt').focus();
+  }
+
+  optionsBtn.hidden = !sharedOptions;
+  optionsBtn.parentNode.hidden = !sharedOptions && !sharedLayout;
+  optionsBtn.setAttribute('aria-pressed', String(alwaysShowOptions));
+  optionsBtn.addEventListener('click', function () {
+    alwaysShowOptions = !alwaysShowOptions;
+    lsSet(optionsKey, alwaysShowOptions ? '1' : '0');
+    optionsBtn.setAttribute('aria-pressed', String(alwaysShowOptions));
+    if (S && S.ci !== -1) syncOptions(curQ(S.ci), false);
+  });
+
+  function setMaxLayout(on) {
+    root.classList.toggle('is-max', on);
+    root.classList.toggle('cq-max', on);
+    maxBtn.setAttribute('aria-pressed', String(on));
+    maxBtn.textContent = on ? '全画面を終了' : '⛶ 全画面';
+  }
+
+  maxBtn.hidden = !sharedLayout;
+  if (sharedLayout) {
+    maxBtn.addEventListener('click', function () {
+      var on = !root.classList.contains('cq-max');
+      setMaxLayout(on);
+      var native = document.fullscreenElement || document.webkitFullscreenElement;
+      var request = root.requestFullscreen || root.webkitRequestFullscreen;
+      var exit = document.exitFullscreen || document.webkitExitFullscreen;
+      var action = on && !native ? request : (!on && native ? exit : null);
+      if (action) {
+        try {
+          var pending = action.call(on ? root : document);
+          if (pending && pending.catch) pending.catch(function () {});
+        } catch (e) { /* 全画面を使えない環境では画面の並べ方だけを切り替える */ }
+      }
+    });
+    function syncNativeFullscreen() {
+      if (!document.fullscreenElement && !document.webkitFullscreenElement) setMaxLayout(false);
+    }
+    document.addEventListener('fullscreenchange', syncNativeFullscreen);
+    document.addEventListener('webkitfullscreenchange', syncNativeFullscreen);
+  }
+
   mainEl.addEventListener('click', function (e) {
     var b = e.target.closest('button'); if (!b) return;
     if (b.classList.contains('opt')) answer(+b.dataset.q, +b.dataset.a);
+    else if (b.hasAttribute('data-reveal')) syncOptions(+b.dataset.reveal, true);
+    else if (b.hasAttribute('data-cq-q')) {
+      S.activeQ = +b.dataset.cqQ;
+      renderCase();
+      document.getElementById('q' + S.activeQ).focus({ preventScroll: true });
+    }
     else if (b.id === 'nextBtn') nextCase();
     else if (b.id === 'retryMiss') restart(true);
     else if (b.id === 'restart') restart(false);
   });
 
   document.addEventListener('keydown', function (e) {
-    if (e.altKey || e.ctrlKey || e.metaKey || S.ci === -1) return;
+    if (e.defaultPrevented || e.altKey || e.ctrlKey || e.metaKey) return;
+    if (e.key === 'Escape' && root.classList.contains('cq-max')) {
+      e.preventDefault();
+      maxBtn.click();
+      return;
+    }
+    if (!S || S.ci === -1 || e.target.closest('input, textarea, select, [contenteditable="true"]')) return;
     var k = curQ(S.ci);
+    var interactive = e.target.closest('button, a, summary');
     if (k !== -1 && /^[1-4]$/.test(e.key)) {
       var ai = S.order[S.ci][k][+e.key - 1];
-      if (ai !== undefined) { e.preventDefault(); answer(k, ai); }
-    } else if (k === -1 && e.key === 'Enter' && !e.target.closest('button, a, input, textarea, select')) {
-      e.preventDefault(); nextCase();
+      var opts = document.getElementById('q' + k).closest('.q').querySelector('.opts');
+      if (ai !== undefined && opts.getClientRects().length) { e.preventDefault(); answer(k, ai); }
+    } else if (!interactive && (e.key === 'Enter' || e.key === ' ')) {
+      var gate = mainEl.querySelector('.reveal-box:not([hidden])');
+      var next = mainEl.querySelector(root.classList.contains('cq-max') ? '.cq-next-q, .cq-last #nextBtn' : '#nextBtn');
+      if (gate && gate.getClientRects().length) {
+        e.preventDefault();
+        gate.click();
+      } else if (e.key === 'Enter' && next && next.getClientRects().length) {
+        e.preventDefault();
+        next.click();
+      }
     }
   });
 
   function start(data) {
     renderHanko();
     S = (data && data.S && data.S.picks && data.S.picks.length === CASES.length) ? data.S : newState();
+    S.revealed = S.revealed || {};
+    if (S.ci !== -1 && S.activeQ == null) {
+      var pending = curQ(S.ci);
+      S.activeQ = pending === -1 ? CASES[S.ci].qs.length - 1 : pending;
+    }
     render();
   }
   if (window.claude && window.claude.hot && window.claude.hot.snapshot) {

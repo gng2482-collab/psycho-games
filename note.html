@@ -1,0 +1,388 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<meta name="app-version" content="20261125092839">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=BIZ+UDPGothic:wght@400;700&family=DotGothic16&display=swap">
+<title>復習ノート｜精神科道場</title>
+<style>
+:root{color-scheme:light dark; --paper:#eef1ec; --card:#fafbf7; --ink:#1b2321; --muted:#48564f;
+  --line:#c9d2cb; --accent:#1d5f74; --on-accent:#fff; --warm:#7d4d19}
+@media(prefers-color-scheme:dark){
+  :root{--paper:#111816; --card:#18221e; --ink:#e5ece8; --muted:#b0bcb6;
+    --line:#47594f; --accent:#83cde0; --on-accent:#10262c; --warm:#f2c47b}
+}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+body{margin:0; padding:env(safe-area-inset-top) max(16px,env(safe-area-inset-right)) max(24px,env(safe-area-inset-bottom)) max(16px,env(safe-area-inset-left));
+  background:var(--paper); color:var(--ink); font:16px/1.65 "BIZ UDPGothic",system-ui,sans-serif; overflow-wrap:anywhere}
+main{max-width:800px; margin:auto}
+h1,h2{font-family:"DotGothic16","BIZ UDPGothic",system-ui,sans-serif; line-height:1.25}
+h1{margin:.25em 0} h2,h3,h4,p{margin:.6em 0}
+a{color:var(--accent)}
+button,select,input,textarea{font:inherit}
+button,select,input[type=date],.back,.game-link{min-height:44px}
+button,select,input[type=date]{border:1px solid var(--line); border-radius:8px; padding:6px 12px; color:var(--ink); background:var(--card)}
+button:enabled{cursor:pointer}
+button:disabled{opacity:.55}
+a:focus-visible,button:focus-visible,select:focus-visible,input:focus-visible,textarea:focus-visible{outline:3px solid var(--accent); outline-offset:3px}
+.primary{border-color:var(--accent); background:var(--accent); color:var(--on-accent)}
+.bar,.controls{display:flex; gap:8px 16px; flex-wrap:wrap; align-items:center}
+.bar{justify-content:space-between; color:var(--muted)}
+.back,.game-link{display:inline-flex; align-items:center}
+.panel,.entry{background:var(--card); border:1px solid var(--line); padding:clamp(12px,3vw,22px); border-radius:12px; margin:12px 0}
+.stack{align-items:end}
+.controls label{display:grid; gap:4px; min-width:0}
+.controls select{max-width:100%}
+.controls .check{display:flex; align-items:center; min-height:44px; gap:6px; cursor:pointer}
+.muted{color:var(--muted)}
+.badge{color:var(--warm); font-weight:700}
+.entry h4{margin-top:0}
+.entry dl{display:grid; grid-template-columns:auto minmax(0,1fr); gap:4px 12px}
+.entry dd{margin:0}
+.context{white-space:pre-wrap}
+#options{display:grid; gap:8px; margin:8px 0}
+#options button{text-align:left}
+textarea{display:block; width:100%; min-height:10em; padding:8px; margin:.5em 0}
+summary{cursor:pointer; min-height:44px; align-content:center}
+#map{list-style:none; padding:0; margin:0}
+#map li{display:grid; grid-template-columns:minmax(0,1fr) auto; gap:0 10px; padding:8px 0; border-top:1px solid var(--line)}
+#map li.played{padding-inline-start:8px; border-inline-start:4px solid var(--accent)}
+#map li span{font-size:.9rem; color:var(--muted)}
+#map meter{grid-column:1/-1; width:100%; accent-color:var(--accent)}
+</style>
+<script src="review-note.js" defer></script>
+<script src="ipad-update.js" defer></script>
+</head>
+<body>
+<main>
+  <nav class="bar" aria-label="ページ">
+    <a class="back" href="index.html">← ゲーム一覧</a>
+    <span id="player"></span>
+  </nav>
+  <h1>復習ノート</h1>
+  <p id="notice" role="status" hidden></p>
+  <div id="overview">
+    <section class="panel" id="today" aria-labelledby="todayTitle">
+      <h2 id="todayTitle">今日の復習</h2>
+      <div class="controls">
+        <button type="button" id="start" class="primary">今日の復習を始める</button>
+        <strong id="overcome"></strong>
+      </div>
+      <p id="dueMessage" class="muted"></p>
+    </section>
+    <section aria-labelledby="historyTitle">
+      <h2 id="historyTitle">間違えた問い</h2>
+      <div class="controls stack">
+        <label>期間
+          <select id="range">
+            <option value="today">今日</option><option value="yesterday">昨日</option>
+            <option value="week">この1週間</option><option value="all">全部</option>
+          </select>
+        </label>
+        <label>アプリ<select id="app"></select></label>
+        <label class="check"><input type="checkbox" id="unresolved">まだ直っていないものだけ</label>
+      </div>
+      <div class="controls">
+        <button type="button" id="copy">AI に渡す文章をコピー</button>
+        <button type="button" id="download">テキストを保存</button>
+        <span id="exportStatus" role="status"></span>
+      </div>
+      <label id="fallback" hidden>この文章を選択してコピー
+        <textarea id="exportText" readonly></textarea>
+      </label>
+      <div id="history"></div>
+    </section>
+    <details class="panel">
+      <summary>試験範囲の地図</summary>
+      <ul id="map"></ul>
+    </details>
+    <details class="panel">
+      <summary>記録を消す</summary>
+      <div class="controls stack">
+        <label>消す日付<input type="date" id="eraseDate"></label>
+        <button type="button" id="eraseDay">この日の記録を消す</button>
+        <button type="button" id="eraseAll">すべての記録を消す</button>
+      </div>
+    </details>
+  </div>
+  <section class="panel" id="practice" aria-labelledby="practiceTitle" hidden>
+    <p id="practiceApp" class="muted"></p>
+    <h2 id="practiceTitle" tabindex="-1"></h2>
+    <p id="practiceContext" class="context"></p>
+    <div class="controls">
+      <label class="check"><input type="checkbox" id="sure">自信あり</label>
+      <button type="button" class="primary" id="showChoices">選択肢を表示</button>
+    </div>
+    <div id="options" hidden></div>
+    <div id="result" tabindex="-1" hidden></div>
+    <div class="controls">
+      <button type="button" class="primary" id="next" hidden>次の問い</button>
+      <button type="button" id="back">復習ノートに戻る</button>
+    </div>
+  </section>
+</main>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+  'use strict';
+  const groups = [{"id": "imaging", "name": "頭部画像よみ道場", "desc": "CT・MRI で、年齢ごとの正常と、精神科で出会う変化を読む", "files": ["ct.html", "mri.html"], "subspec": [{"name": "認知症臨床専門医", "what": "画像での鑑別、認知機能検査とのつなぎ"}], "items": [{"name": "頭部CTよみ道場", "desc": "年齢ごとの正常と、精神科で出会う変化を読む", "tag": "画像", "file": "games/imaging/ct.html", "id": "ct"}, {"name": "頭部MRIよみ道場", "desc": "T1・T2・FLAIR・拡散強調・T2* を見比べ、精神科で出会う器質因を読む（試作）", "tag": "画像", "file": "games/imaging/mri.html", "id": "mri"}], "rec": false, "level": "specialist"}, {"id": "eeg-sleep", "name": "脳波・睡眠よみ道場", "desc": "脳波・睡眠ポリグラフ・ECT の記録を読む", "files": ["eeg.html", "psg.html", "ect.html"], "subspec": [{"name": "てんかん・睡眠（学会独自）", "what": "発作型分類、MSLT"}], "items": [{"name": "脳波よみ道場", "desc": "動く脳波で、導出・アーチファクト・症例を読む", "tag": "脳波", "file": "games/eeg-sleep/eeg.html", "id": "eeg"}, {"name": "睡眠よみ道場", "desc": "一晩の記録で、睡眠の段階と無呼吸を読む（PSG・試作）", "tag": "睡眠", "file": "games/eeg-sleep/psg.html", "id": "psg"}, {"name": "ECT当番", "desc": "刺激の強さを決め、発作の記録紙を読む", "tag": "ECT", "file": "games/eeg-sleep/ect.html", "id": "ect"}], "rec": true, "level": "specialist"}, {"id": "side-effect-runner", "name": "副作用ランナー", "desc": "選んだ薬の副作用が操作に出る。治療編と診断編", "files": ["fukusayo.html", "fukusayo_diag.html"], "subspec": [{"name": "精神神経薬理学専門医", "what": "治療抵抗性、クロザピン"}], "items": [{"name": "副作用ランナー", "desc": "選んだ薬の副作用が、操作に出る", "tag": "薬", "file": "games/side-effect-runner/fukusayo.html", "id": "fukusayo"}, {"name": "副作用ランナー 診断編", "desc": "状態像から情報を集めて、見立てを選ぶ", "tag": "診断", "file": "games/side-effect-runner/fukusayo_diag.html", "id": "fukusayo_diag"}], "rec": false, "level": "specialist"}, {"id": "exposure-runner", "name": "曝露ランナー", "desc": "逃げずにとどまると、不安が下がる。基本と車内編", "files": ["bakuro.html", "bakuro_car.html"], "subspec": [], "items": [{"name": "曝露ランナー", "desc": "逃げずにとどまると、不安が下がる", "tag": "心理療法", "file": "games/exposure-runner/bakuro.html", "id": "bakuro"}, {"name": "曝露ランナー 車内編", "desc": "パニック症のKさんになって、電車にとどまる（試作）", "tag": "心理療法", "file": "games/exposure-runner/bakuro_car.html", "id": "bakuro_car"}], "rec": false, "level": "specialist"}, {"id": "law", "name": "法と制度", "desc": "入院形態、行動制限、書類の期限、診療報酬、鑑定と医療観察法", "files": ["touchoku.html", "byoto.html", "shorui.html", "byoto-week.html", "gairai-santei.html", "kantei.html"], "subspec": [], "items": [{"name": "当直の入院判定", "desc": "一晩の当直で、入院形態と手続きを決める", "tag": "精神保健福祉法", "file": "games/law/touchoku.html", "id": "touchoku"}, {"name": "当直明けの病棟", "desc": "朝の回診で、隔離・拘束・面会などを決める", "tag": "精神保健福祉法", "file": "games/law/byoto.html", "id": "byoto"}, {"name": "書類の締め切り", "desc": "入院から退院までの届・告知・記録の期限と担当を決める（試作）", "tag": "精神保健福祉法", "file": "games/law/shorui.html", "id": "shorui"}, {"name": "病棟の一週間", "desc": "35人の病棟の1週間で、診察の配分と入院精神療法・行動制限の算定を決める（試作）", "tag": "診療報酬", "file": "games/law/byoto-week.html", "id": "byoto-week"}, {"name": "外来の算定", "desc": "外来の1コマで、誰が何分診て何を算定し、何を記録するかを決める（試作）", "tag": "診療報酬", "file": "games/law/gairai-santei.html", "id": "gairai-santei"}, {"name": "鑑定と医療観察法", "desc": "責任能力の鑑定から、審判・入院・地域での通院処遇まで（試作）", "tag": "医療観察法", "file": "games/law/kantei.html", "id": "kantei"}], "rec": false, "level": "specialist"}, {"id": "pharmacology", "name": "薬の道場", "desc": "受容体で読む薬理と、処方の点検", "files": ["yakuri.html", "shoho.html"], "subspec": [{"name": "精神神経薬理学専門医", "what": "血中濃度、CYP、治療抵抗性（クロザピンなど）"}], "items": [{"name": "薬理ラボ", "desc": "受容体で読む向精神薬。しくみアニメ・ラッシュ・薬あて（試作）", "tag": "薬物療法", "file": "games/pharmacology/yakuri.html", "id": "yakuri"}, {"name": "処方チェック", "desc": "相互作用・禁忌・高齢者や妊娠・多剤大量を点検する（試作）", "tag": "薬", "file": "games/pharmacology/shoho.html", "id": "shoho"}], "rec": false, "level": "specialist"}, {"id": "psych-testing", "name": "心理検査", "desc": "検査の依頼と実際、評価尺度", "files": ["kensa.html", "scale.html"], "subspec": [{"name": "認知症臨床専門医", "what": "認知機能検査、BPSD"}], "items": [{"name": "心理検査オーダー", "desc": "依頼票を書き、検査を組み、報告書を読む。検査室のようすと体験コーナーも", "tag": "心理検査", "file": "games/psych-testing/kensa.html", "id": "kensa"}, {"name": "評価尺度の道場", "desc": "HAM-D・PANSS・PHQ-9などの尺度を図鑑・採点・クイズで（試作）", "tag": "心理検査", "file": "games/psych-testing/scale.html", "id": "scale"}], "rec": false, "level": "specialist"}, {"id": "symptoms", "name": "症候と診断", "desc": "症状の用語、診断の進め方、発達歴", "files": ["shoko.html", "quest.html", "hattatsu.html"], "subspec": [{"name": "子どものこころ専門医", "what": "児童の面接、学校との連携"}], "items": [{"name": "症候ハンター", "desc": "話し方を聞き分け、症状を体験して、症状の用語を図鑑に集める（試作）", "tag": "精神症候学", "file": "games/symptoms/shoko.html", "id": "shoko"}, {"name": "診察クエスト", "desc": "症状の正体を見破り、寛解へみちびく", "tag": "診断と治療", "file": "games/symptoms/quest.html", "id": "quest"}, {"name": "発達歴を読む", "desc": "母子手帳と問診から、子どもの発達と見逃せないサインを読む（試作）", "tag": "児童", "file": "games/symptoms/hattatsu.html", "id": "hattatsu"}], "rec": false, "level": "specialist"}, {"id": "clinical-duty", "name": "臨床当番", "desc": "リエゾン、作業療法、説明の練習、代診の外来", "files": ["liaison.html", "ot.html", "setsumei.html", "daishin.html"], "subspec": [{"name": "一般病院連携精神医学専門医（リエゾン）", "what": "せん妄、身体合併症、緩和、ICU・救急からの依頼"}], "items": [{"name": "リエゾン当番", "desc": "一般病棟からの依頼に、評価と提案を返す（試作）", "tag": "リエゾン", "file": "games/clinical-duty/liaison.html", "id": "liaison"}, {"name": "OT処方の日", "desc": "作業療法の指示を書き、作業療法士の報告から手がかりを読む（試作）", "tag": "リハビリ", "file": "games/clinical-duty/ot.html", "id": "ot"}, {"name": "説明の練習", "desc": "病名・薬・再発予防・家族への説明で、次にかける言葉を選ぶ（試作）", "tag": "面接", "file": "games/clinical-duty/setsumei.html", "id": "setsumei"}, {"name": "代診の外来", "desc": "主治医が不在の日の予約外の受診で、何を聞き、薬をどう扱い、何を申し送るか（試作）", "tag": "外来", "file": "games/clinical-duty/daishin.html", "id": "daishin"}], "rec": false, "level": "specialist"}, {"id": "conduct", "name": "臨床医のふるまい", "desc": "製薬会社、診断書、照会、医療安全、生成AI、患者さんとの距離、自分の働き方", "files": ["seiyaku.html", "shindansho.html", "shokai.html", "anzen.html", "ai-shinryo.html", "kyokai.html", "hatarakikata.html"], "subspec": [], "items": [{"name": "製薬会社との付き合い方", "desc": "説明会・講演・研究の誘いに、何を確かめ、どう返すか（試作）", "tag": "臨床医のふるまい", "file": "games/conduct/seiyaku.html", "id": "seiyaku"}, {"name": "診断書の机", "desc": "診断書・意見書の目的を聞き、診察で確かめたことから書く（試作）", "tag": "臨床医のふるまい", "file": "games/conduct/shindansho.html", "id": "shindansho"}, {"name": "照会の電話", "desc": "警察・保険会社・職場・家族からの問い合わせに、何を返せるか（試作）", "tag": "臨床医のふるまい", "file": "games/conduct/shokai.html", "id": "shokai"}, {"name": "医療安全の当番", "desc": "間違いや見落としに気づいたとき、安全を守り、誰に何を伝えるか（試作）", "tag": "臨床医のふるまい", "file": "games/conduct/anzen.html", "id": "anzen"}, {"name": "生成AIと診療", "desc": "紹介状・診療録・研究で生成AIを使うとき、何を確かめるか（試作）", "tag": "臨床医のふるまい", "file": "games/conduct/ai-shinryo.html", "id": "ai-shinryo"}, {"name": "患者さんとの距離", "desc": "贈り物・個人の連絡先・家族の相談に、治療的境界を保って応じる（試作）", "tag": "臨床医のふるまい", "file": "games/conduct/kyokai.html", "id": "kyokai"}, {"name": "当直明けの自分", "desc": "当直明け・つらい出来事のあとに、どう助けを求めるか（試作）", "tag": "臨床医のふるまい", "file": "games/conduct/hatarakikata.html", "id": "hatarakikata"}], "rec": false, "level": "specialist"}, {"id": "psychotherapy", "name": "心理療法の道場", "desc": "認知行動療法（森田療法・内観療法の編を今後追加）", "files": ["cbt.html"], "subspec": [{"name": "森田療法・内観療法", "what": "森田療法・内観療法の編"}], "items": [{"name": "認知行動療法の道場", "desc": "考えのクセ・コラム法・質問・悪循環の図（試作）", "tag": "心理療法", "file": "games/psychotherapy/cbt.html", "id": "cbt"}], "rec": false, "level": "specialist"}, {"id": "case-report", "name": "症例レポート添削", "desc": "専門医試験の症例レポートに赤ペンを入れる", "files": ["report.html"], "subspec": [], "items": [{"name": "症例レポート添削", "desc": "専攻医の症例レポートの下書きに赤ペンを入れる（試作）", "tag": "専門医試験", "file": "games/case-report/report.html", "id": "report"}], "rec": false, "level": "specialist"}];
+  const note = window.PG_NOTE;
+  const $ = id => document.getElementById(id);
+  const dateLabel = date => date.replace(/-/g, '/');
+  const prompt = `あなたは精神科専門医試験の指導医です。以下は、私が学習アプリで間違えた問題の一覧です（問い／私の答え／正解／アプリの解説の要点）。
+
+お願い：
+1. 間違いを、原因ごとに分けてください（知識の抜け／似た概念の取り違え／問いの読み違い／臨床判断の優先順位のずれ など）。
+2. 原因ごとに、押さえるべき要点を短くまとめ、似ている概念との見分け方を表にしてください。
+3. 私がまだ分かっていないかを確かめる問いを、各テーマ2問ずつ作ってください。答えは最後にまとめて書いてください（先に答えを見せないでください）。
+4. 根拠は、ガイドライン・教科書・添付文書など、確かめられる出典の名前で示してください。確かでない数字や新しい制度は「要確認」と書いてください。
+5. 日本の精神科診療の前提（精神保健福祉法・診療報酬など）で説明してください。
+
+--- 間違えた問題 ---`;
+
+  function notice(message) {
+    $('notice').hidden = !message;
+    $('notice').textContent = message;
+  }
+  if (!note) {
+    notice('復習ノートを読み込めませんでした。一覧から開き直してください。');
+    $('overview').hidden = true;
+    return;
+  }
+
+  let state, visible = [], active, scheduled, shownPlayer, returnFocus;
+
+  function add(parent, tag, text, cls) {
+    const node = document.createElement(tag);
+    if (text) node.textContent = text;
+    if (cls) node.className = cls;
+    parent.append(node);
+    return node;
+  }
+
+  function renderMap() {
+    $('map').replaceChildren();
+    for (const group of groups) {
+      const items = Array.from(state.questions.values()).filter(q => q.group === group.id);
+      const mastered = items.filter(q => q.overcome).length;
+      const row = add($('map'), 'li', '', items.length ? 'played' : '');
+      add(row, 'strong', group.name);
+      add(row, 'span', items.length ? `解いた ${items.length}問 ・ 克服 ${mastered}問` : '未着手');
+      if (!items.length) continue;
+      const meter = add(row, 'meter');
+      meter.max = Math.max(1, items.length);
+      meter.value = mastered;
+      meter.setAttribute('aria-label', group.name + 'で解いた問いのうち克服した割合');
+    }
+  }
+
+  function renderHistory() {
+    const range = $('range').value;
+    const app = $('app').value;
+    visible = state.misses.filter(entry => {
+      const dateOK = range === 'all' || (range === 'week'
+        ? entry.day >= note.day(-6) && entry.day <= note.day()
+        : entry.day === note.day(range === 'yesterday' ? -1 : 0));
+      return dateOK && (!app || entry.app === app)
+        && (!$('unresolved').checked || !state.questions.get(entry.id).resolved);
+    }).sort((a, b) => Number(b.sure) - Number(a.sure)
+      || b.day.localeCompare(a.day) || a.app.localeCompare(b.app, 'ja') || b.at - a.at);
+
+    $('history').replaceChildren();
+    $('copy').disabled = $('download').disabled = !visible.length;
+    $('fallback').hidden = true;
+    $('exportStatus').textContent = '';
+    if (!visible.length) add($('history'), 'p', state.available ? 'この範囲に間違いの記録はありません。' : '記録を表示できません。', 'muted');
+
+    let groupKey, section;
+    for (const entry of visible) {
+      const key = JSON.stringify([entry.sure, entry.day, entry.app]);
+      if (key !== groupKey) {
+        groupKey = key;
+        section = add($('history'), 'section');
+        add(section, 'h3', `${dateLabel(entry.day)} ・ ${entry.app}`);
+      }
+      const card = add(section, 'article', '', 'entry');
+      add(card, 'h4', entry.q);
+      const q = state.questions.get(entry.id);
+      if (entry.sure) add(card, 'p', '自信ありで間違えた', 'badge');
+      if (q.resolved) add(card, 'p', q.overcome ? '克服済み' : '正解し直した', 'muted');
+      if (entry.context) {
+        const context = add(card, 'details');
+        add(context, 'summary', '症例の情報');
+        add(context, 'p', entry.context, 'context');
+      }
+      const answers = add(card, 'dl');
+      for (const [label, value] of [['自分の答え', entry.picked], ['正解', entry.answer], ['解説', entry.why]]) {
+        add(answers, 'dt', label);
+        add(answers, 'dd', value || '—');
+      }
+      const actions = add(card, 'div', '', 'controls');
+      const retry = add(actions, 'button', 'もう一度解く');
+      retry.type = 'button';
+      retry.addEventListener('click', () => practice(entry.id, false, retry));
+      if (/^games\/[\w-]+\/[\w-]+\.html(?:#[\w-]+)?$/.test(entry.where)) {
+        add(actions, 'a', 'アプリを開く', 'game-link').href = entry.where;
+      }
+    }
+  }
+
+  function refresh() {
+    shownPlayer = note.player();
+    state = note.snapshot();
+    $('player').textContent = 'プレイヤー：' + (shownPlayer === 'me' ? '自分' : shownPlayer);
+    $('todayTitle').textContent = `今日の復習 ${state.due.length}問`;
+    $('overcome').textContent = `克服 ${state.overcome}問`;
+    $('start').disabled = state.due.length === 0;
+    $('dueMessage').textContent = state.due.length ? '' : '今日の復習に出す問いはありません。';
+    notice(state.available ? '' : 'このブラウザでは復習の記録を読み込めません。');
+
+    const filter = $('app');
+    const previous = filter.value;
+    const apps = [...new Set(state.misses.map(entry => entry.app))].sort((a, b) => a.localeCompare(b, 'ja'));
+    filter.replaceChildren(new Option('すべて', ''), ...apps.map(app => new Option(app, app)));
+    if (apps.includes(previous)) filter.value = previous;
+    renderMap();
+    renderHistory();
+  }
+
+  function practice(id, isScheduled, trigger) {
+    if (trigger) returnFocus = trigger;
+    state = note.snapshot();
+    const question = isScheduled ? state.due[0] : state.questions.get(id);
+    if (!question || !question.lastMiss) {
+      closePractice();
+      return;
+    }
+    active = question.lastMiss;
+    scheduled = isScheduled;
+    $('overview').hidden = true;
+    $('practice').hidden = false;
+    $('practiceApp').textContent = active.app;
+    $('practiceTitle').textContent = active.q;
+    $('practiceContext').textContent = active.context;
+    $('practiceContext').hidden = !active.context;
+    $('sure').checked = $('sure').disabled = false;
+    $('showChoices').hidden = false;
+    $('showChoices').textContent = active.options.length ? '選択肢を表示' : '答えを表示';
+    $('options').hidden = $('result').hidden = $('next').hidden = true;
+    $('options').replaceChildren();
+    $('result').replaceChildren();
+    $('practiceTitle').focus();
+    $('practiceTitle').scrollIntoView({ block: 'start' });
+  }
+
+  function closePractice() {
+    active = null;
+    $('practice').hidden = true;
+    $('overview').hidden = false;
+    refresh();
+    const target = returnFocus && returnFocus.isConnected && !returnFocus.disabled
+      ? returnFocus : $('range');
+    target.focus();
+  }
+
+  function answer(picked) {
+    const result = note.review(active, picked, $('sure').checked, scheduled);
+    if (!result) {
+      closePractice();
+      notice('別の画面で記録が更新されました。もう一度問いを選んでください。');
+      return;
+    }
+    $('sure').disabled = true;
+    $('options').hidden = true;
+    $('result').hidden = false;
+    $('result').replaceChildren();
+    add($('result'), 'p', result.saved
+      ? (result.correct ? '正解です。' : 'もう一度、翌日から復習します。')
+      : 'この回答を保存できませんでした。');
+    add($('result'), 'p', '正解：' + active.answer);
+    if (active.why) add($('result'), 'p', active.why);
+    $('next').hidden = !scheduled || !result.saved || !note.snapshot().due.length;
+    $('result').focus();
+  }
+
+  $('showChoices').addEventListener('click', () => {
+    $('showChoices').hidden = true;
+    const options = active.options.slice();
+    $('options').hidden = false;
+    if (options.length) {
+      for (let i = options.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [options[i], options[j]] = [options[j], options[i]];
+      }
+      for (const option of options) add($('options'), 'button', option).addEventListener('click', () => answer(option));
+    } else {
+      add($('options'), 'p', '正解：' + active.answer);
+      if (active.why) add($('options'), 'p', active.why);
+      add($('options'), 'button', '合っていた').addEventListener('click', () => answer(active.answer));
+      add($('options'), 'button', '違っていた').addEventListener('click', () => answer(null));
+    }
+    $('options').querySelector('button').focus();
+  });
+
+  function exportText() {
+    return prompt + '\n\n' + visible.map(entry => [
+      `[${entry.day}／${entry.app}]`,
+      entry.context, '問い：' + entry.q, '私の答え：' + (entry.picked || '—'),
+      '正解：' + entry.answer, '解説：' + entry.why
+    ].filter(Boolean).join('\n')).join('\n\n') + '\n';
+  }
+
+  $('copy').addEventListener('click', async () => {
+    const text = exportText();
+    try {
+      await navigator.clipboard.writeText(text);
+      $('exportStatus').textContent = 'コピーしました。';
+    } catch (error) {
+      $('fallback').hidden = false;
+      $('exportText').value = text;
+      $('exportText').focus();
+      $('exportText').select();
+    }
+  });
+  $('download').addEventListener('click', () => {
+    const url = URL.createObjectURL(new Blob([exportText()], { type: 'text/plain;charset=utf-8' }));
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = '復習ノート_間違えた問い_' + note.day() + '.txt';
+    link.click();
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+  });
+
+  function erase(date) {
+    const name = note.player() === 'me' ? '自分' : note.player();
+    const target = date ? dateLabel(date) + 'の記録' : 'すべての記録';
+    if (!window.confirm(name + 'の' + target + 'を消しますか？')) return;
+    const saved = note.erase(date);
+    refresh();
+    notice(saved ? target + 'を消しました。' : '記録を消せませんでした。');
+  }
+
+  for (const id of ['range', 'app', 'unresolved']) $(id).addEventListener('change', renderHistory);
+  $('start').addEventListener('click', () => practice(null, true, $('start')));
+  $('next').addEventListener('click', () => practice(null, true));
+  $('back').addEventListener('click', closePractice);
+  $('eraseDate').value = note.day();
+  $('eraseDay').addEventListener('click', () => {
+    if ($('eraseDate').value) erase($('eraseDate').value);
+    else notice('消す日付を選んでください。');
+  });
+  $('eraseAll').addEventListener('click', () => erase());
+  window.addEventListener('pageshow', () => {
+    if (!active) refresh();
+    else if (note.player() !== shownPlayer) closePractice();
+  });
+  window.addEventListener('storage', event => {
+    if (note.player() !== shownPlayer && active) closePractice();
+    else if (!active && (event.key === null || event.key === 'ipad-player' || event.key === 'pg-note-v1:' + shownPlayer)) refresh();
+  });
+  refresh();
+  if (location.hash === '#today' && state.due.length) practice(null, true, $('start'));
+});
+</script>
+</body>
+</html>

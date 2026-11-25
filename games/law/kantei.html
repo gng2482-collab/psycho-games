@@ -6,7 +6,7 @@
 <meta name="robots" content="noindex, nofollow">
 <!-- アクセス数（GoatCounter、Cookie なし・個人を特定しない。2026-11-23 利用者の依頼） -->
 <script data-goatcounter="https://psychogames.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
-<meta name="app-version" content="20261125090109">
+<meta name="app-version" content="20261125092839">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
@@ -36,7 +36,8 @@ img{max-width:100%}
     window.__ipadPlayer = P;
     if (P === 'me') return;
     var pre = 'p:' + P + ':', S = Storage.prototype, g = S.getItem, s = S.setItem, r = S.removeItem;
-    var map = function (k) { return k === 'ipad-player' ? k : pre + k; };
+    // 復習ノートのキーには、すでにプレイヤー名が付いている。
+    var map = function (k) { return k === 'ipad-player' || /^pg-note-v1:/.test(k) ? k : pre + k; };
     S.getItem = function (k) { return g.call(this, map(k)); };
     S.setItem = function (k, v) { return s.call(this, map(k), v); };
     S.removeItem = function (k) { return r.call(this, map(k)); };
@@ -48,6 +49,7 @@ if ('serviceWorker' in navigator) { window.addEventListener('load', function () 
 </head>
 <body>
 <nav class="ipad-bar" aria-label="アプリ"><a href="../../index.html#g=law">← ゲーム一覧</a><span class="right"><span id="ipadWho"></span><a href="#" class="fbk" id="ipadFbk" target="_blank" rel="noopener">⚑ 不具合・感想</a><button type="button" class="upd" data-upd="manual" aria-label="新しい版を確かめて更新">↻ 更新</button></span></nav>
+<script src="../../review-note.js" data-app="鑑定と医療観察法" data-where="games/law/kantei.html" data-group="law"></script>
 <script>(function(){var P=window.__ipadPlayer||'me';document.getElementById('ipadWho').textContent='プレイヤー：'+(P==='me'?'自分':P);})();
 /* 不具合・感想を送る：どのアプリのどの画面からでも、いまの場所を「どこの不具合か」の欄に自動で入れる（Google フォーム） */
 (function(){var FB='https://docs.google.com/forms/d/e/1FAIpQLSdNJkjXAVATEdI6vKRfg8gmFf87viEZP8qCpqCzv9lQGojGeg/viewform?usp=pp_url&entry.298389701=',APP='鑑定と医療観察法',a=document.getElementById('ipadFbk');if(!a)return;
@@ -163,6 +165,7 @@ h1{
 .q-h{margin:0; font-size:var(--fs-l); display:flex; gap:10px; align-items:baseline}
 .q-h:focus{outline:none}
 .q-h:focus-visible{outline:3px solid var(--accent); outline-offset:3px}
+.note-sure{display:flex; align-items:center; gap:8px; min-height:44px; width:fit-content; cursor:pointer}
 .q-n{font-family:var(--f-display); font-weight:400; font-size:var(--fs-s); color:var(--accent); border:1.5px solid var(--accent); padding:0 7px; flex:none}
 .opts{list-style:none; margin:0; padding:0; display:grid; gap:8px}
 .opt{
@@ -196,6 +199,62 @@ h1{
   border:1px solid var(--line); border-radius:var(--r); background:var(--panel); color:var(--ink);
 }
 .ghost:hover{border-color:var(--accent)}
+.reveal-box{border-style:dashed;border-color:var(--accent);width:100%}
+.cq-tools{display:flex;justify-content:flex-end;gap:8px;flex-wrap:wrap;padding-top:8px}
+.cq-questions{display:grid;gap:18px;padding:0 18px 20px}
+.cq-steps,.cq-next-q{display:none}
+.is-max:not(.cq-max) .cq-tools{display:none}
+
+/* 共通の全画面。症例と問いはそれぞれの枠の中で読む。 */
+html.cq-max, .cq-max body{height:100%;overflow:hidden}
+html.cq-max{padding:0}
+.cq-max body{
+  padding-top:env(safe-area-inset-top,0px);
+  padding-bottom:env(safe-area-inset-bottom,0px);
+}
+.cq-max .ipad-bar,.cq-max .wrap > :not(.cq-tools,#main){display:none!important}
+.cq-max .wrap{
+  max-width:1360px;height:100%;min-height:0;
+  display:grid;grid-template-rows:auto minmax(0,1fr);gap:8px;padding-bottom:8px
+}
+.cq-max .cq-tools{padding-top:4px}
+.cq-max .case,.cq-max .result{margin-top:0;height:100%}
+.cq-max .result{overflow:auto;align-content:start}
+.cq-max .case{
+  display:grid;grid-template-columns:minmax(0,2fr) minmax(0,3fr);
+  grid-template-rows:auto minmax(0,1fr)
+}
+.cq-max .case-top{grid-column:1/-1;padding:8px 12px;align-items:baseline}
+.cq-max .case-top h2{flex-basis:auto;margin:0;font-size:var(--fs-l)}
+.cq-max .clock{font-size:var(--fs-l)}
+.cq-max .stamp{display:none}
+.cq-max .case-body,.cq-max .cq-questions{
+  min-height:0;min-width:0;gap:8px;padding:10px 12px;align-content:start
+}
+.cq-max .case-body,.cq-max .cq-question-scroll{
+  overflow:auto;overscroll-behavior:contain;scrollbar-gutter:stable
+}
+.cq-max .cq-questions{
+  grid-template-rows:auto minmax(0,1fr) auto;align-content:stretch;border-left:1px solid var(--line)
+}
+.cq-max .cq-steps,.cq-max .cq-actions{display:flex;gap:6px;flex-wrap:wrap}
+.cq-max .cq-next-q{display:block}
+.cq-max .cq-actions:not(.cq-last) #nextBtn{display:none}
+.cq-max .cq-steps [aria-current="step"]{border-color:var(--accent);background:var(--accent-soft)}
+.cq-max .cq-steps .ghost:disabled{opacity:.55;cursor:default}
+.cq-max .cq-question-scroll > .q:not(.cq-active),.cq-max .done-q{display:none}
+.cq-max .cq-active + .done-q{display:flex}
+.cq-max .q{padding:4px;border:0;gap:8px}
+.cq-max .q-h{font-size:var(--fs-m)}
+.cq-max .opt{min-height:44px;padding:6px 10px;font-size:var(--fs-s)}
+.cq-max .q .why{grid-row:2}
+.cq-max .done-q{padding:4px}
+@media (max-width:850px) and (orientation:portrait), (max-width:620px){
+  .cq-max .case{grid-template-columns:minmax(0,1fr);grid-template-rows:auto minmax(0,3fr) minmax(0,7fr)}
+  .cq-max .cq-questions{border-left:0;border-top:1px solid var(--line)}
+  .cq-max .case-body{font-size:var(--fs-s)}
+  .cq-max .memo dt,.cq-max .memo dd{padding:4px 8px}
+}
 
 /* 判子 */
 .stamp{
@@ -215,10 +274,6 @@ h1{
 .result{margin-top:26px; background:var(--panel); border:1px solid var(--line); border-radius:var(--r); padding:20px 18px; display:grid; gap:16px}
 .result h2{margin:0; font-family:var(--f-display); font-weight:400; font-size:var(--fs-xl)}
 .result h2:focus{outline:none}
-.rank{display:flex; align-items:center; gap:18px; flex-wrap:wrap}
-.rank .big{font-family:var(--f-display); font-size:4.4rem; line-height:1; color:var(--seal); text-shadow:3px 3px 0 var(--line)}
-.rank .pts{font-family:var(--f-display); font-size:1.4rem; font-variant-numeric:tabular-nums}
-.rank .best{font-size:var(--fs-xs); color:var(--muted)}
 .log{list-style:none; margin:0; padding:0; display:grid; gap:10px}
 .log li{border-top:1px dashed var(--line); padding-top:10px; display:grid; gap:4px}
 .log .lh{display:flex; gap:10px; align-items:baseline; flex-wrap:wrap}
@@ -323,7 +378,11 @@ tbody tr:last-child th, tbody tr:last-child td{border-bottom:0}
 .kv-chip.ok{background:var(--ok-soft);border-color:var(--ok);color:var(--ok)}
 </style>
 
-<div class="wrap">
+<div class="wrap" data-cq-layout="shared">
+  <div class="cq-tools">
+    <button type="button" class="ghost" id="cqOptions" aria-pressed="false">選択肢を最初から出す</button>
+    <button type="button" class="ghost" id="cqMax" aria-pressed="false">⛶ 全画面</button>
+  </div>
   <header class="top">
     <p class="eyebrow">精神科道場 ・ 刑法39条と医療観察法（法律の3部目・試作）</p>
     <h1>鑑定と医療観察法</h1>
@@ -348,8 +407,8 @@ tbody tr:last-child th, tbody tr:last-child td{border-bottom:0}
   <div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
 
   <section class="ref" aria-labelledby="refh">
-    <h2 id="refh">医療観察法の流れの早見表</h2>
-    <div class="tbl-wrap">
+    <h2 id="refh" hidden>医療観察法の流れの早見表</h2>
+    <div class="tbl-wrap" hidden>
       <table>
         <thead><tr><th scope="col">段階</th><th scope="col">誰が・どこで</th><th scope="col">期間・ポイント</th></tr></thead>
         <tbody>
@@ -380,12 +439,14 @@ tbody tr:last-child th, tbody tr:last-child td{border-bottom:0}
       story: '38歳の男性。統合失調症で通院を中断していた。「隣の家から電波で攻撃されている。やらなければ殺される」と考え、隣人を包丁で刺して大けがを負わせた（殺人未遂）。検察官から、起訴前の精神鑑定を頼まれた。',
       memo: [['疑われている行為', '殺人未遂'], ['病歴', '統合失調症。半年前から通院中断'], ['依頼', '検察官からの起訴前鑑定']],
       qs: [
-        { q: '責任能力（刑法39条）の考え方として正しいのは？', a: ['善悪を見分ける力か、それに従って行動を抑える力の欠け方で考える', '精神障害の診断名がつけば、責任能力はないと決まる', '犯行を覚えていれば、責任能力は必ずある', '入院歴があれば、責任能力は必ず減っている'],
-          why: '心神喪失は、精神の障害のために、物事の是非善悪を見分ける能力（弁識能力）か、それに従って行動する能力（制御能力）が欠けている状態。心神耗弱は、それが著しく減っている状態です。診断名だけでは決まらず、病状が犯行にどう影響したかを見ます。', law: '刑法39条' },
+        // 査読：責任能力は行為時の状態で判断し、いずれかの能力を欠けば、もう一方が残っていても心神喪失となる。
+        { q: '責任能力（刑法39条）の考え方として正しいのは？', a: ['行為時の弁識能力か制御能力の欠け方で考える', '精神障害の診断名がつけば、責任能力はないと決まる', '犯行を覚えていれば、責任能力は必ずある', '入院歴があれば、責任能力は必ず減っている'],
+          why: '行為の時点で、精神の障害のために、善悪を見分ける力（弁識能力）か、その判断に従って行動する力（制御能力）の一方でも欠けていれば心神喪失です。どちらも失われてはいないものの、一方でも著しく低下していれば心神耗弱です。診断名や記憶、入院歴だけでは決まりません。', law: '刑法39条' },
         { q: '責任能力を最終的に判断するのは？', a: ['裁判所（起訴前は検察官が起訴を判断）', '鑑定を担当した精神科医が意見書で決める', '主治医が、これまでの診療をもとに決める', '精神保健指定医2名の診察で一致して決める'],
           why: '責任能力は法律の判断で、決めるのは裁判所です（起訴前は、起訴するかどうかを検察官が判断）。鑑定人は、精神障害の有無と程度、それが犯行にどう影響したかという医学的な意見を出します。', law: '責任能力は法律判断' },
-        { q: '起訴前の鑑定について正しいのは？', a: ['短時間の簡易鑑定と、鑑定留置して行う本鑑定がある', '鑑定は裁判が始まってからしか行えない', '本人の同意がなければ鑑定できない', '鑑定は必ず1日で終わらせる決まりがある'],
-          why: '起訴前には、1日程度で行う簡易鑑定と、数か月の鑑定留置のもとで行う本鑑定（嘱託鑑定）があります。裁判になってから裁判所が命じる鑑定（公判鑑定）もあります。', law: '起訴前鑑定' }
+        // 査読：鑑定の依頼と、裁判官が令状を出して病院などにとどめる鑑定留置を区別する（刑事訴訟法167・223・224条）。
+        { q: '起訴前の鑑定について正しいのは？', a: ['検察官が鑑定を依頼し、必要に応じて鑑定留置を請求する', '精神鑑定は起訴後に限られ、捜査の段階では依頼できない', '本人が同意しなければ、裁判官も鑑定留置を認められない', '鑑定留置の期間は、法律でどの事件も1日と決まっている'],
+          why: '起訴前でも、検察官は鑑定を依頼できます。鑑定留置（鑑定のため病院などにとどめること）が必要なら、裁判官に請求し、裁判官が期間を定めて令状を出します。起訴後には、裁判所が命じる公判鑑定もあります。', law: '刑事訴訟法165・167・223・224条' }
       ]
     },
     {
@@ -394,12 +455,15 @@ tbody tr:last-child th, tbody tr:last-child td{border-bottom:0}
       story: '同じ男性。本鑑定の結果、犯行当時は幻覚妄想に強く支配され、心神喪失だったとして不起訴になった。検察官は、心神喪失者等医療観察法による申立てを考えている。',
       memo: [['結果', '心神喪失で不起訴'], ['行為', '殺人未遂（重大な他害行為）'], ['次の手続き', '医療観察法の申立て']],
       qs: [
+        // 査読：対象行為と対象者は別の定義。未遂は条文が列挙するものに限られ、傷害は軽くても対象行為に含まれ得る。
         { q: '医療観察法の対象になる行為は？', a: ['殺人・放火・強盗・不同意性交等など6つ', '窃盗・詐欺を含む、すべての犯罪行為', '殺人と放火の2つの行為だけ', '暴行・器物損壊などの比較的軽い行為'],
-          why: '対象は「重大な他害行為」の6つ（未遂を含む）です。心神喪失・心神耗弱で不起訴になったか、無罪・刑の減軽（執行猶予など）で確定した人が対象です。', law: '医療観察法2条' },
+          why: '対象行為は殺人、放火、強盗、不同意性交等、不同意わいせつ、傷害の6類型です。傷害以外は、条文が定める未遂も含みます。軽い傷害だけの場合、経過や病状などをみて必要性がなければ、検察官は申立てを見送ることができます。', law: '医療観察法2条1項・33条3項' },
+        // 査読：申立ては検察官、鑑定入院は裁判官の手続きで、それぞれ医療の必要が明らかにないときは例外となる。
         { q: '申立てをするのは？', a: ['検察官が、地方裁判所に申し立てる', '主治医が、都道府県知事に申し立てる', '被害者が、家庭裁判所に申し立てる', '警察官が、保健所長に通報する'],
-          why: '検察官が地方裁判所に申し立てます。原則として、申立てがあると鑑定入院の命令が出されます。警察官の通報（精神保健福祉法23条）とは別の手続きです。', law: '医療観察法33条' },
-        { q: '心神耗弱で刑が減軽されたが、実刑（刑務所）になった場合は？', a: ['対象にならない（刑事施設で処遇）', '必ず医療観察法の入院処遇になる', '措置入院が必ず先に行われる', '本人が希望したときだけ対象になる'],
-          why: '実刑が確定した人は、医療観察法の対象から外れます（刑事施設で処遇）。対象は、不起訴、無罪、刑の減軽で執行猶予などとなり、刑務所に行かない人です。', law: '対象者の範囲' }
+          why: '対象者について、検察官は原則として地方裁判所に申し立てます。医療観察法による医療が明らかに不要なら、申立てをしません。申立てを受けた裁判官も、同じ例外を除き鑑定入院を命じます。', law: '医療観察法33・34条' },
+        // 査読：不起訴・無罪・減軽の理由と、減軽判決で執行すべき拘禁刑がある場合の除外を明示する。
+        { q: '心神耗弱で刑が減軽されたが、執行すべき拘禁刑が残る判決が確定した場合は？', a: ['対象にならない（刑事施設で処遇）', '必ず医療観察法の入院処遇になる', '措置入院が必ず先に行われる', '本人が希望したときだけ対象になる'],
+          why: '対象行為があり、心神喪失・心神耗弱と認められて不起訴になった人のほか、心神喪失で無罪、または心神耗弱で刑の減軽が確定した人が対象です。減軽されても、執行すべき拘禁刑があれば対象から外れます。刑の全部が執行猶予なら、この除外には当たりません。', law: '医療観察法2条2項' }
       ]
     },
     {
@@ -408,12 +472,15 @@ tbody tr:last-child th, tbody tr:last-child td{border-bottom:0}
       story: '55歳の女性。双極症の躁状態で、スーパーで万引きをくり返し、心神耗弱で不起訴になった。今も躁状態が続き、家族は困っている。',
       memo: [['行為', '窃盗（万引き）'], ['結果', '心神耗弱で不起訴'], ['状態', '躁状態が続いている']],
       qs: [
+        // 査読：対象行為に当たることは必要条件で、対象者かどうかは刑事手続きの結果も関わる。
         { q: 'この人は医療観察法の対象になる？', a: ['ならない。窃盗は対象行為に入っていない', 'なる。不起訴になれば行為に関係なく対象', 'なる。心神耗弱なら必ず対象', 'ならない。双極症は対象の病気ではない'],
-          why: '窃盗は「重大な他害行為」に入らないので、医療観察法の対象外です。対象の病気は決められておらず、行為の種類で決まります。', law: '医療観察法2条' },
+          why: '窃盗は医療観察法が定める対象行為に入っていません。対象者に当たるには、行為の種類と不起訴処分や裁判の要件を満たす必要があります。双極症という診断名だけで対象から外れるわけではありません。', law: '医療観察法2条' },
+        // 査読：措置入院の要件は危険の程度だけでなく、入院させなければ精神障害のために自傷他害のおそれがあること。
         { q: '入院が必要なとき、使える仕組みは？', a: ['精神保健福祉法の入院（医療保護入院など）', '医療観察法の鑑定入院（2か月まで）', '刑事施設の中での治療（医療刑務所）', '入院の仕組みは使えず、通院だけになる'],
-          why: '医療観察法の対象でなくても、精神保健福祉法の入院（任意・医療保護・措置など）は要件を満たせば使えます。自傷他害のおそれが著しければ措置入院の対象にもなります。', law: '精神保健福祉法' },
+          why: '精神保健福祉法による入院には、任意入院、医療保護入院、措置入院などがあり、それぞれ要件があります。措置入院では、入院させなければ精神障害のために自分や他人を傷つけるおそれがあるという、2人以上の精神保健指定医の判断の一致が必要です。', law: '精神保健福祉法20・29・33条' },
+        // 査読：通報の義務が生じる場面と、医療観察法の申立てをしたときの例外を示す（精神保健福祉法24条1項）。
         { q: '検察官が通報（精神保健福祉法24条）するのは？', a: ['精神障害が疑われる人を不起訴などにしたとき', '医療観察法の対象者すべてを申し立てたとき', '本人が通報してほしいと希望したときだけ', '受刑者が刑務所に入る前に、必ず行う'],
-          why: '検察官は、精神障害者またはその疑いのある被疑者・被告人を不起訴にしたときなどに、都道府県知事に通報します（措置診察につながることがある）。医療観察法の申立てをした場合は、この通報は要りません。', law: '精神保健福祉法24条' }
+          why: 'この例では、検察官は不起訴にしたことを速やかに都道府県知事へ通報します。精神障害があるか、その疑いのある人について、無罪など一定の裁判が確定したときも通報します。医療観察法の申立てをした場合は、この通報の義務の例外です。', law: '精神保健福祉法24条1項' }
       ]
     },
     {
@@ -422,36 +489,44 @@ tbody tr:last-child th, tbody tr:last-child td{border-bottom:0}
       story: '最初の男性に、地方裁判所から鑑定入院の命令が出た。あなたは鑑定入院を受け入れる病院の医師で、鑑定も頼まれた。',
       memo: [['命令', '鑑定入院'], ['あなたの役割', '鑑定人・鑑定入院中の治療'], ['このあと', '審判で処遇を決める']],
       qs: [
+        // 査読：期間の起算日は命令の執行日。延長の決定は裁判所が行い、生活環境調査は裁判所が求める手続き。
         { q: '鑑定入院の期間は？', a: ['原則2か月以内（延長1か月まで）', '72時間以内（延長はできない）', '6か月以内（必要なら同じだけ延長）', '期限は決められていない'],
-          why: '鑑定入院は原則2か月以内で、必要があれば1か月を超えない範囲で延長できます。この間に鑑定と生活環境の調査が行われ、治療も始めます。', law: '医療観察法（鑑定入院）' },
+          why: '鑑定入院は命令の執行日から原則2か月以内です。必要な場合、裁判所は合計1か月まで延長できます。入院中は治療も受けられ、裁判所は保護観察所に生活環境の調査を求めることもできます。', law: '医療観察法34条3項・38条' },
+        // 査読：精神保健参与員は原則として意見を述べるために関わり、処遇を決める合議体には加わらない。
         { q: '審判をする合議体は？', a: ['裁判官と精神保健審判員の2名', '裁判官3名だけの合議体', '精神保健指定医2名の合議', '裁判員6名と裁判官3名'],
-          why: '裁判官と、精神保健審判員（精神保健判定医の名簿から選ばれる精神科医）の2名の合議体です。精神保健福祉士などの精神保健参与員から意見を聞くこともあります。', law: '医療観察法（合議体）' },
-        { q: '鑑定で求められることは？', a: ['病気の有無と、この法律での医療の必要性', '有罪か無罪かについての鑑定人の判断', '被害者への賠償額についての医学的算定', '刑の重さ（懲役の年数）についての意見'],
-          why: '鑑定では、精神障害者かどうか、対象行為を行った当時と同じような病状で再び同じような行為をしないよう、この法律による医療が必要かどうかについて、医学的な意見を述べます。', law: '医療観察法（鑑定）' }
+          why: '処遇を決める合議体は、裁判官1人と、精神保健審判員（この審判を担当する精神科医）1人です。精神保健参与員（福祉などの専門家）は、原則として審判に加わって意見を述べます。処遇を決めるのは合議体の2人です。', law: '医療観察法6・11・15・36条' },
+        // 査読：鑑定医は医療の要否を評価し、病状から入院医療が必要かについても意見を付ける。
+        { q: '鑑定で求められることは？', a: ['精神障害の有無と、この法律での医療の必要性', '有罪か無罪かについての鑑定人の判断', '被害者への賠償額についての医学的算定', '刑の重さ（拘禁刑の年数）についての意見'],
+          why: '鑑定医は、精神障害の有無と、対象行為のときの精神障害を改善して社会復帰を支えるために、医療観察法による医療が必要かを評価します。病状から見て入院医療が必要かについても意見を付けます。処遇は鑑定や生活環境をもとに裁判所が決めます。', law: '医療観察法37・42条' }
       ]
     },
     {
       time: '9月', where: '地方裁判所（審判）', night: false,
       title: '入院か、通院か', stamp: ['処遇', '決定'], stampName: '処遇の決定（3つの要件）',
-      story: '鑑定入院中に抗精神病薬で幻覚妄想はかなり和らいだが、病識はまだ不十分。家族は同居に不安を感じている。審判で処遇を決める。',
+      // 査読：家族が同居に不安を感じていることと、地域で治療を続ける体制が整っていないことを区別する。
+      story: '鑑定入院中に抗精神病薬で幻覚妄想はかなり和らいだが、病識（病気だという自覚）はまだ不十分。家族は同居に不安を感じており、退院後の住まいや通院を支える体制もまだ整っていない。審判で処遇を決める。',
       memo: [['病状', '幻覚妄想は改善。病識は不十分'], ['治療への反応', '抗精神病薬が効いている'], ['生活環境', '家族の受け入れに不安']],
       qs: [
+        // 査読：鑑定ガイドラインでは、疾病性は重症度と対象行為との関係、社会復帰要因は生活を支える要因と妨げる要因もみる。
         { q: '医療の必要性を考える3つの要件は？', a: ['疾病性・治療反応性・社会復帰要因', '年齢・性別・これまでの前科', '学歴・職歴・現在の収入', '行為の重さ・被害額・反省の程度'],
-          why: '対象行為のときの病気が今もあるか（疾病性）、治療で良くなる見込みがあるか（治療反応性）、医療なしでは同じような行為をくり返すおそれがあり社会復帰を妨げる要因があるか（社会復帰要因）を考えます。', law: '医療観察法42条（運用の考え方）' },
+          why: '疾病性は、精神障害の種類・重さと対象行為との関係です。治療反応性は、実際に治療にどう反応し、今後どの程度の改善を見込めるかです。社会復帰要因は、本人の状態や住まい・支援など、地域での生活を支えたり妨げたりする事情です。', law: '医療観察法鑑定ガイドライン' },
         { q: '審判で出される決定でないものは？', a: ['措置入院の決定', '入院決定（指定入院医療機関）', '通院決定（指定通院医療機関）', 'この法律による医療を行わない決定'],
           why: '決定は、入院決定・通院決定・医療を行わない旨の決定（不処遇）のいずれか（申立ての却下もある）です。措置入院は都道府県知事が決めるもので、精神保健福祉法の手続きです。', law: '医療観察法42条' },
+        // 査読：入院処遇は個別の必要性で決まり、病識の乏しさや家族の不安だけで決まらない（医療観察法42条）。
         { q: 'この人で、入院決定がより考えられる理由は？', a: ['病識が不十分で、生活の支えも整っていない', '幻覚妄想が改善して、薬が効いている', '本人が通院を強く希望している', '行為のときに覚えていたことが多い'],
-          why: '治療反応性はありますが、病識が不十分で、通院を続けて再び同じような状態にならない体制（家族・住まい・支援）がまだ整っていません。審判では、入院で治療と社会復帰の準備を進めるかを検討します。', law: '処遇の判断' }
+          why: '薬で症状は改善しましたが、退院後も治療を続けられるかは、病識と生活の支えを合わせて考えます。審判では、鑑定と生活環境をもとに、地域の支援で治療を続けられるか、入院による医療まで必要かを判断します。', law: '医療観察法42条1項' }
       ]
     },
     {
       time: '1年後', where: '指定入院医療機関', night: false,
       title: '指定入院医療機関での治療', stamp: ['多職', '種'], stampName: '指定入院医療機関での治療',
-      story: '入院決定を受け、国の指定入院医療機関に入院した。多職種のチームで治療が進み、病識も少しずつ出てきた。外出の練習も始まっている。',
+      // 査読：国立の病院に限らず、都道府県などの病院も厚生労働大臣の指定を受けられる（医療観察法16条）。
+      story: '入院決定を受け、厚生労働大臣が指定した入院医療機関に入院した。多職種のチームで治療が進み、病識も少しずつ出てきた。外出の練習も始まっている。',
       memo: [['入院', '指定入院医療機関'], ['チーム', '医師・看護師・精神保健福祉士・作業療法士・心理職'], ['経過', '病識が出てきた。外出の練習中']],
       qs: [
-        { q: '入院の期間について正しいのは？', a: ['上限なし。6か月ごとに継続の確認', '必ず3年で退院することになっている', '72時間ごとに更新の手続きをする', '本人が望めば、いつでも退院できる'],
-          why: '入院期間の上限は決められておらず、病院の管理者は6か月ごとに入院継続の確認の申立てをします。必要がなくなれば退院許可の申立てをします。本人・家族・付添人も退院許可を申し立てられます。', law: '医療観察法（入院継続の確認・退院許可）' },
+        // 査読：継続の申立ては前の決定から原則6か月以内。家族全員でなく法律上の保護者が退院等を申し立てられる。
+        { q: '入院の期間について正しいのは？', a: ['上限なし。継続の申立ては原則6か月以内', '必ず3年で退院することになっている', '72時間ごとに更新の手続きをする', '本人が望めば、いつでも退院できる'],
+          why: '入院期間に一律の上限はありません。継続が必要なら、病院の管理者は前の決定から原則6か月以内に、継続の確認を裁判所に申し立てます。入院が不要になれば管理者はすぐに退院許可を申し立て、本人・法律上の保護者・付添人（弁護士）も退院許可や処遇終了を申し立てられます。', law: '医療観察法49・50条' },
         { q: '入院中の治療の特徴は？', a: ['多職種で病識・再発防止・社会復帰に取り組む', '主治医1人が、治療と退院のすべてを決める', '薬物療法だけを行い、ほかの治療はしない', '外出・外泊は、退院の日まで一切できない'],
           why: '多職種チーム（MDT）で、薬物療法に加えて心理教育・認知行動療法・内省（対象行為への向き合い）・クライシスプラン作りなどを行います。段階的に外出・外泊も進めます。', law: '指定入院医療機関の治療' },
         { q: '退院後の生活の準備で中心になるのは？', a: ['社会復帰調整官による生活環境の調整', '警察による自宅周辺の定期的な見回り', '本人がひとりで住まいと通院先を探す', '家族に任せて、病院は退院後に関わらない'],
@@ -464,8 +539,9 @@ tbody tr:last-child th, tbody tr:last-child td{border-bottom:0}
       story: '退院許可の決定が出て、指定通院医療機関への通院が始まった。グループホームに住み、デイケアと訪問看護を使っている。あなたは通院先の主治医。',
       memo: [['処遇', '通院（指定通院医療機関）'], ['住まい', 'グループホーム'], ['支援', 'デイケア・訪問看護・社会復帰調整官']],
       qs: [
+        // 査読：通院期間は通院決定または退院許可と通院を命じる決定の日から数え、期間内の終了も裁判所が決める。
         { q: '通院処遇の期間は？', a: ['原則3年（延長は通じて2年まで）', '6か月（延長はできない）', '期限はなく、症状がなくなるまで', '1年ごとに本人が決めて更新する'],
-          why: '通院処遇は原則3年で、裁判所の決定で、通じて2年を超えない範囲で延長できます。期間内でも、必要がなくなれば処遇終了の申立てができます。', law: '医療観察法（通院期間）' },
+          why: '通院処遇は、裁判所が通院による医療を決めた日から原則3年です。裁判所の決定で、合計2年まで延長できます。期間内でも、医療観察法による医療が不要なら、申立てを受けた裁判所が終了を決めます。', law: '医療観察法44・51・54〜56条' },
         { q: '通院中、社会復帰調整官が行うことは？', a: ['精神保健観察（通院・生活の見守りと指導）', '処方を決めて、毎日の薬を手渡しする', '入院が必要かどうかを、1人で決める', '家族の代わりに、本人の財産を管理する'],
           why: '社会復帰調整官は精神保健観察として、通院・生活の状況を見守り、必要な指導や助言をします。関係機関でケア会議を開き、処遇の実施計画を共有します。', law: '医療観察法（精神保健観察）' },
         { q: '通院処遇の間に、精神保健福祉法の入院は？', a: ['要件を満たせば、使うことができる', '一切使えない', '医療観察法の再入院しか使えない', '通院処遇を終えてからでないと使えない'],
@@ -473,23 +549,33 @@ tbody tr:last-child th, tbody tr:last-child td{border-bottom:0}
       ]
     },
     {
-      time: '3年後', where: 'ケア会議', night: false,
+      // 査読：年数の基準を通院開始にそろえ、直前の「2年後」から1年しか経っていないように見える表記を避ける。
+      time: '通院3年目', where: 'ケア会議', night: false,
       title: '薬を飲まなくなってきた', stamp: ['ケア', '会議'], stampName: 'クライシスプランと再入院',
       story: '通院処遇の3年目。最近、デイケアを休みがちで、訪問看護師に「薬はもう要らない」と言い、夜眠れていない。クライシスプランにある「眠れない」「電波の話」が出始めている。',
       memo: [['変化', '怠薬の気配、不眠、デイケアの欠席'], ['クライシスプラン', '「眠れない」「電波の話」が出たら連絡'], ['関係者', '主治医・訪問看護・社会復帰調整官']],
       qs: [
         { q: 'まずすることは？', a: ['プランに沿って共有し、早めに診察する', '次の定期受診の日まで様子を見る', 'すぐに警察に連絡して、保護してもらう', '本人に知らせずに、薬の量を増やしておく'],
           why: 'クライシスプランは、本人と一緒に作った「悪くなりかけのサインと、そのときの対応」の約束です。社会復帰調整官を含めた関係者で情報を共有し、早めに介入します。', law: 'クライシスプラン' },
+        // 査読：医療観察法の再入院には、同法による入院医療の必要性と、関係機関の協議・裁判所の決定が要る。
         { q: '入院が必要になったときに選べるのは？', a: ['精神保健福祉法の入院か、再入院の申立て', '刑事施設（刑務所）への収容の手続き', '検察官による鑑定留置の請求', '通院処遇中なので、入院の手段はない'],
-          why: '状態により、精神保健福祉法の入院（任意・医療保護）や、保護観察所の長による医療観察法の（再）入院の申立てが考えられます。まずは本人と話し合い、自分から入院できるよう支えます。', law: '医療観察法（再入院）・精神保健福祉法' },
+          why: '病状に応じ、要件を満たせば精神保健福祉法の入院で対応できます。医療観察法による入院医療が必要と保護観察所の長が判断した場合は、指定通院医療機関の管理者と協議し、その意見を添えて申し立てます。再入院を決めるのは裁判所です。', law: '医療観察法59・61条、精神保健福祉法' },
+        // 査読：悪化のサインを捉えたことから、計画全体が機能しているとは言い切れない。
         { q: '本人との関係で大切なことは？', a: ['プランを一緒に見直し、本人の言葉で対処を決める', '処遇中なので、本人の意見は聞かない', '悪化を責めて、反省を求める', '情報は本人に伝えず関係者だけで決める'],
-          why: '医療観察法の目的は、本人の社会復帰です。悪化のサインは「失敗」ではなく、プランが働いている証拠として扱い、本人と一緒に対処を決めます。', law: '医療観察法（目的：社会復帰の促進）' }
+          why: '悪化しかけたサインを早めの相談に生かします。本人が気づいた変化を聞き、相談先や本人が取りやすい対処を一緒に見直します。', law: '医療観察法（目的：社会復帰の促進）' }
       ]
     }
   ];
 
+// 絵の案（台帳にある図の構成をもとにした修正案）
+// 1. 責任能力の2軸：行為時を示し、どちらか一方でも欠ければ心神喪失、どちらも残っていて一方でも著しく低下すれば心神耗弱と表示。数値で区切らず、病状と行為との関係を裁判所が判断することを添える（刑法39条）。
+// 2. 対象行為→申立て：対象行為と刑事手続きの結果を別々に確認し、軽い傷害だけの場合の見送りや、医療の必要が明らかにない場合の分岐を示す（医療観察法2・33条）。
+// 3. 鑑定入院：検察官の申立てと裁判官の命令を別に描き、執行日から原則2か月以内、裁判所が合計1か月まで延長できることを示す（医療観察法33・34条）。
+// 4. 審判：鑑定医の評価と参与員の意見を合議体への矢印で示し、処遇を決める裁判官と精神保健審判員の2人を囲む（医療観察法11・36・37・42条）。
+// 5. 処遇の分岐：審判から入院・直接の通院・医療を行わない決定へ分け、入院後も退院して通院する場合と医療観察法による医療を終了する場合を描き分ける（医療観察法42・51条）。
+// 6. 精神保健福祉法のレーン：検察官から知事への通報と入院の判断を別の段にする。通院処遇中でも入院要件を満たせば使える経路として示す（精神保健福祉法24・29・33条、厚労省の通院処遇ガイドライン）。
+
   var NQ = CASES.reduce(function (n, c) { return n + c.qs.length; }, 0);
-  var BEST_KEY = 'kantei-best';
 
   function lsGet(k) { try { return window.localStorage.getItem(k); } catch (e) { return null; } }
   function lsSet(k, v) { try { window.localStorage.setItem(k, v); } catch (e) { /* 保存できない環境 */ } }
@@ -504,6 +590,8 @@ tbody tr:last-child th, tbody tr:last-child td{border-bottom:0}
       ci: 0,
       picks: CASES.map(function (c) { return c.qs.map(function () { return null; }); }),
       order: CASES.map(function (c) { return c.qs.map(function (q) { return shuffled(q.a.length); }); }),
+      revealed: {},
+      activeQ: 0,
       only: null  // まちがえた患者だけやり直すときの番号の並び
     };
   }
@@ -511,9 +599,20 @@ tbody tr:last-child th, tbody tr:last-child td{border-bottom:0}
   var S;
   var slotsEl = document.getElementById('slots');
   var mainEl = document.getElementById('main');
+  var root = document.documentElement;
+  var layout = mainEl.closest('.wrap').getAttribute('data-cq-layout');
+  var sharedLayout = layout === 'shared';
+  var sharedOptions = layout !== 'shorui';
+  var maxBtn = document.getElementById('cqMax');
+  var optionsBtn = document.getElementById('cqOptions');
+  var ref = document.querySelector('.ref');
+  var refHeading = ref.querySelector('h2');
+  var refTable = ref.querySelector('.tbl-wrap');
 
   // ---- 判子帳
   var HK_KEY = 'kantei-hanko-v1', HK_TITLES = [[0, "法廷の傍聴人"], [4, "鑑定を手伝う人"], [8, "鑑定人"], [12, "精神保健判定医の候補"], [16, "司法精神医学に強い人"]], HK_MAX = CASES.length * 2;
+  var optionsKey = HK_KEY + '-show-opts';
+  var alwaysShowOptions = lsGet(optionsKey) === '1';
   var HK = {}; try { HK = JSON.parse(lsGet(HK_KEY) || '{}') || {}; } catch (e) { HK = {}; }
   function hkPts() { var p = 0; CASES.forEach(function (c, i) { p += HK[i] || 0; }); return p; }
   function hkTitle(p) { var t = HK_TITLES[0]; HK_TITLES.forEach(function (x) { if (p >= x[0]) t = x; }); return t; }
@@ -528,7 +627,7 @@ tbody tr:last-child th, tbody tr:last-child td{border-bottom:0}
     document.getElementById('hkGrid').innerHTML = CASES.map(function (c, i) {
       var tr = HK[i] || 0;
       var st = tr ? '<b>' + esc(c.stamp[0]) + '</b>' + (c.stamp[1] ? '<small>' + esc(c.stamp[1]) + '</small>' : '') : '<b>？</b>';
-      return '<li class="hk t' + tr + '"><span class="hk-st" aria-hidden="true">' + st + '</span><span class="hk-t">' + c.time + '</span><span class="hk-n">' + (tr ? esc(c.title) : 'まだ') + '</span><span class="hk-tag">' + ['', '押した', '金・満点'][tr] + '</span></li>';
+      return '<li class="hk t' + tr + '"><span class="hk-st" aria-hidden="true">' + st + '</span><span class="hk-t">' + c.time + '</span><span class="hk-n">' + (tr ? esc(c.title) : 'まだ') + '</span><span class="hk-tag">' + ['', '押した', '金・全問正解'][tr] + '</span></li>';
     }).join('');
   }
   var toastEl = document.getElementById('toast'), toastT = 0;
@@ -570,7 +669,11 @@ tbody tr:last-child th, tbody tr:last-child td{border-bottom:0}
 
   function optsHTML(i, qi, live) {
     var q = CASES[i].qs[qi], pick = S.picks[i][qi];
-    return '<ol class="opts">' + S.order[i][qi].map(function (ai, pos) {
+    var hidden = sharedOptions && pick === null && !alwaysShowOptions && !S.revealed[i + ':' + qi];
+    return (sharedOptions && pick === null
+      ? '<button type="button" class="ghost reveal-box" data-reveal="' + qi + '"' + (hidden ? '' : ' hidden') + '>選択肢を表示</button>'
+      : '') +
+      '<ol class="opts"' + (hidden ? ' hidden' : '') + '>' + S.order[i][qi].map(function (ai, pos) {
       var cls = '', tag = '';
       if (pick !== null) {
         if (ai === 0) { cls = ' right'; tag = '正解'; }
@@ -584,17 +687,30 @@ tbody tr:last-child th, tbody tr:last-child td{border-bottom:0}
 
   function renderCase(pressStamp) {
     var i = S.ci, c = CASES[i], k = curQ(i), s = seq(), pos = s.indexOf(i);
-    var html = '<article class="case" aria-labelledby="caseh">' +
+    var activeQ = S.activeQ;
+    var previousCase = mainEl.querySelector('.case[data-case="' + i + '"] .case-body');
+    var caseScroll = previousCase ? previousCase.scrollTop : 0;
+    var html = '<article class="case" data-case="' + i + '" aria-labelledby="caseh">' +
       (k === -1 ? stampHTML(c, pressStamp ? 'press' : '') : '') +
       '<div class="case-top"><span class="clock">' + c.time + '</span><span class="where">' + esc(c.where) + ' ・ ' + (pos + 1) + '人目 / ' + s.length + '人</span>' +
       '<h2 id="caseh" tabindex="-1">' + esc(c.title) + '</h2></div><div class="case-body">' +
       '<p class="story">' + esc(c.story) + '</p>' +
       '<div class="memo-box"><p class="memo-cap">カルテの要点</p><dl class="memo">' + c.memo.map(function (m) { return '<dt>' + esc(m[0]) + '</dt><dd>' + esc(m[1]) + '</dd>'; }).join('') + '</dl></div>';
 
+    if (sharedLayout) {
+      html += '</div><div class="cq-questions"><nav class="cq-steps" aria-label="問いの切り替え">' +
+        c.qs.map(function (_, qi) {
+          var unavailable = qi !== k && S.picks[i][qi] === null;
+          return '<button type="button" class="ghost" data-cq-q="' + qi + '"' +
+            (qi === activeQ ? ' aria-current="step"' : '') + (unavailable ? ' disabled' : '') + '>問' + (qi + 1) + '</button>';
+        }).join('') + '</nav><div class="cq-question-scroll">';
+    }
+
     c.qs.forEach(function (q, qi) {
       var pick = S.picks[i][qi];
       if (pick === null && qi !== k) return;
-      html += '<section class="q" aria-labelledby="q' + qi + '"><h3 class="q-h" id="q' + qi + '" tabindex="-1"><span class="q-n">問' + (qi + 1) + '</span><span>' + esc(q.q) + '</span></h3>' +
+      html += '<section class="q' + (qi === activeQ ? ' cq-active' : '') + '" aria-labelledby="q' + qi + '"><h3 class="q-h" id="q' + qi + '" tabindex="-1"><span class="q-n">問' + (qi + 1) + '</span><span>' + esc(q.q) + '</span></h3>' +
+        (pick === null && window.PG_NOTE ? '<label class="note-sure"><input type="checkbox" id="noteSure"> 自信あり</label>' : '') +
         optsHTML(i, qi, qi === k);
       if (pick !== null) {
         html += '<p class="why"><b>' + (pick === 0 ? '正解。' : '正解は「' + esc(q.a[0]) + '」。') + '</b>' + esc(q.why) +
@@ -603,25 +719,33 @@ tbody tr:last-child th, tbody tr:last-child td{border-bottom:0}
       html += '</section>';
     });
 
-    if (k === -1) {
-      var isLast = pos === s.length - 1;
-      html += '<p class="done-q">場面：<b>' + esc(c.stampName) + '</b>（' + caseScore(i) + ' / 3 問正解）</p>' +
-        '<button type="button" class="next" id="nextBtn">' + (isLast ? 'まとめを見る' : '次の場面へ（' + CASES[s[pos + 1]].time + '）') + '</button>';
+    var finished = k === -1;
+    var lastQuestion = activeQ === c.qs.length - 1;
+    if (finished) {
+      html += '<p class="done-q">場面：<b>' + esc(c.stampName) + '</b>（' + caseScore(i) + ' / 3 問正解）</p>';
     }
+    if (sharedLayout) {
+      html += '</div><div class="cq-actions' + (lastQuestion ? ' cq-last' : '') + '">';
+      if (!lastQuestion && S.picks[i][activeQ] !== null) {
+        html += '<button type="button" class="next cq-next-q" data-cq-q="' + (activeQ + 1) + '">次の問いへ</button>';
+      }
+    }
+    if (finished) {
+      var isLast = pos === s.length - 1;
+      html += '<button type="button" class="next" id="nextBtn">' + (isLast ? 'まとめを見る' : '次の場面へ（' + CASES[s[pos + 1]].time + '）') + '</button>';
+    }
+    if (sharedLayout) html += '</div>';
     html += '</div></article>';
     mainEl.innerHTML = html;
+    if (sharedLayout) mainEl.querySelector('.case-body').scrollTop = caseScroll;
   }
 
   function renderResult() {
-    var right = totalRight(), pts = Math.round(right / NQ * 100);
-    var rank = pts >= 90 ? 'S' : pts >= 75 ? 'A' : pts >= 60 ? 'B' : pts >= 40 ? 'C' : 'D';
-    var best = parseInt(lsGet(BEST_KEY) || '0', 10) || 0;
-    if (!S.only && pts > best) { lsSet(BEST_KEY, String(pts)); best = pts; }
+    var right = totalRight();
     var missed = CASES.map(function (_, i) { return i; }).filter(function (i) { return caseScore(i) < CASES[i].qs.length; });
 
     mainEl.innerHTML = '<section class="result" aria-labelledby="resh"><h2 id="resh" tabindex="-1">事件から地域生活までの記録</h2>' +
-      '<div class="rank"><span class="big">' + rank + '</span><span class="pts">' + pts + '<small class="muted"> ／100</small></span>' +
-      '<span class="best">' + right + ' / ' + NQ + ' 問正解' + (best ? '　自己ベスト ' + best + '点' : '') + '</span></div>' +
+      '<p>' + right + ' / ' + NQ + ' 問正解</p>' +
       '<ol class="log">' + CASES.map(function (c, i) {
         var miss = c.qs.filter(function (q, qi) { return S.picks[i][qi] !== 0; });
         return '<li><div class="lh"><span class="lt">' + c.time + '</span><span class="ls">' + esc(c.title) + '</span><span class="lm muted">' + esc(c.stampName) + '・' + caseScore(i) + '/3</span></div>' +
@@ -635,7 +759,9 @@ tbody tr:last-child th, tbody tr:last-child td{border-bottom:0}
 
   function render(opts) {
     opts = opts || {};
+    if (opts.activeQ != null) S.activeQ = opts.activeQ;
     renderSlots();
+    refHeading.hidden = refTable.hidden = S.ci !== -1;
     if (S.ci === -1) {
       renderResult();
       if (opts.focus) document.getElementById('resh').focus();
@@ -653,10 +779,20 @@ tbody tr:last-child th, tbody tr:last-child td{border-bottom:0}
   function answer(qi, ai) {
     var i = S.ci;
     if (S.picks[i][qi] !== null || curQ(i) !== qi) return;
+    var note = window.PG_NOTE;
+    if (note) {
+      var c = CASES[i], q = c.qs[qi], confidence = document.getElementById('noteSure');
+      var attempt = { id: q.id || [c.title, q.q], q: q.q, sure: Boolean(confidence && confidence.checked) };
+      if (ai === 0) note.hit(attempt);
+      else note.miss(Object.assign(attempt, {
+        picked: q.a[ai], answer: q.a[0], why: q.why, options: q.a,
+        context: [c.title, c.story].concat(c.memo.map(function (m) { return m.join('：'); })).join('\n')
+      }));
+    }
     S.picks[i][qi] = ai;
     var finished = curQ(i) === -1;
     if (finished) awardHanko(i);
-    render({ press: finished });
+    render({ press: finished, activeQ: qi });
     // 解説を読めるように、答えた問いの見出しへフォーカスを戻す
     var h = document.getElementById('q' + qi);
     if (h) h.focus({ preventScroll: true });
@@ -665,6 +801,7 @@ tbody tr:last-child th, tbody tr:last-child td{border-bottom:0}
   function nextCase() {
     var s = seq(), pos = s.indexOf(S.ci);
     S.ci = pos < s.length - 1 ? s[pos + 1] : -1;
+    S.activeQ = 0;
     render({ focus: S.ci === -1 ? true : 'case' });
     if (S.ci === -1) document.getElementById('resh').scrollIntoView({ block: 'start' });
   }
@@ -677,34 +814,116 @@ tbody tr:last-child th, tbody tr:last-child td{border-bottom:0}
         S.order[i] = CASES[i].qs.map(function (q) { return shuffled(q.a.length); });
       });
       S.only = m; S.ci = m[0];
+      S.revealed = {};
+      S.activeQ = 0;
     } else {
       S = newState();
     }
     render({ focus: 'case' });
   }
 
+  function syncOptions(qi, reveal) {
+    var h = document.getElementById('q' + qi);
+    var q = h && h.closest('.q');
+    var gate = q && q.querySelector('.reveal-box');
+    if (!gate) return;
+    var opts = q.querySelector('.opts');
+    var key = S.ci + ':' + qi;
+    if (reveal) S.revealed[key] = true;
+    gate.hidden = alwaysShowOptions || !!S.revealed[key];
+    opts.hidden = !gate.hidden;
+    if (reveal) opts.querySelector('.opt').focus();
+  }
+
+  optionsBtn.hidden = !sharedOptions;
+  optionsBtn.parentNode.hidden = !sharedOptions && !sharedLayout;
+  optionsBtn.setAttribute('aria-pressed', String(alwaysShowOptions));
+  optionsBtn.addEventListener('click', function () {
+    alwaysShowOptions = !alwaysShowOptions;
+    lsSet(optionsKey, alwaysShowOptions ? '1' : '0');
+    optionsBtn.setAttribute('aria-pressed', String(alwaysShowOptions));
+    if (S && S.ci !== -1) syncOptions(curQ(S.ci), false);
+  });
+
+  function setMaxLayout(on) {
+    root.classList.toggle('is-max', on);
+    root.classList.toggle('cq-max', on);
+    maxBtn.setAttribute('aria-pressed', String(on));
+    maxBtn.textContent = on ? '全画面を終了' : '⛶ 全画面';
+  }
+
+  maxBtn.hidden = !sharedLayout;
+  if (sharedLayout) {
+    maxBtn.addEventListener('click', function () {
+      var on = !root.classList.contains('cq-max');
+      setMaxLayout(on);
+      var native = document.fullscreenElement || document.webkitFullscreenElement;
+      var request = root.requestFullscreen || root.webkitRequestFullscreen;
+      var exit = document.exitFullscreen || document.webkitExitFullscreen;
+      var action = on && !native ? request : (!on && native ? exit : null);
+      if (action) {
+        try {
+          var pending = action.call(on ? root : document);
+          if (pending && pending.catch) pending.catch(function () {});
+        } catch (e) { /* 全画面を使えない環境では画面の並べ方だけを切り替える */ }
+      }
+    });
+    function syncNativeFullscreen() {
+      if (!document.fullscreenElement && !document.webkitFullscreenElement) setMaxLayout(false);
+    }
+    document.addEventListener('fullscreenchange', syncNativeFullscreen);
+    document.addEventListener('webkitfullscreenchange', syncNativeFullscreen);
+  }
+
   mainEl.addEventListener('click', function (e) {
     var b = e.target.closest('button'); if (!b) return;
     if (b.classList.contains('opt')) answer(+b.dataset.q, +b.dataset.a);
+    else if (b.hasAttribute('data-reveal')) syncOptions(+b.dataset.reveal, true);
+    else if (b.hasAttribute('data-cq-q')) {
+      S.activeQ = +b.dataset.cqQ;
+      renderCase();
+      document.getElementById('q' + S.activeQ).focus({ preventScroll: true });
+    }
     else if (b.id === 'nextBtn') nextCase();
     else if (b.id === 'retryMiss') restart(true);
     else if (b.id === 'restart') restart(false);
   });
 
   document.addEventListener('keydown', function (e) {
-    if (e.altKey || e.ctrlKey || e.metaKey || S.ci === -1) return;
+    if (e.defaultPrevented || e.altKey || e.ctrlKey || e.metaKey) return;
+    if (e.key === 'Escape' && root.classList.contains('cq-max')) {
+      e.preventDefault();
+      maxBtn.click();
+      return;
+    }
+    if (!S || S.ci === -1 || e.target.closest('input, textarea, select, [contenteditable="true"]')) return;
     var k = curQ(S.ci);
+    var interactive = e.target.closest('button, a, summary');
     if (k !== -1 && /^[1-4]$/.test(e.key)) {
       var ai = S.order[S.ci][k][+e.key - 1];
-      if (ai !== undefined) { e.preventDefault(); answer(k, ai); }
-    } else if (k === -1 && e.key === 'Enter' && !e.target.closest('button, a, input, textarea, select')) {
-      e.preventDefault(); nextCase();
+      var opts = document.getElementById('q' + k).closest('.q').querySelector('.opts');
+      if (ai !== undefined && opts.getClientRects().length) { e.preventDefault(); answer(k, ai); }
+    } else if (!interactive && (e.key === 'Enter' || e.key === ' ')) {
+      var gate = mainEl.querySelector('.reveal-box:not([hidden])');
+      var next = mainEl.querySelector(root.classList.contains('cq-max') ? '.cq-next-q, .cq-last #nextBtn' : '#nextBtn');
+      if (gate && gate.getClientRects().length) {
+        e.preventDefault();
+        gate.click();
+      } else if (e.key === 'Enter' && next && next.getClientRects().length) {
+        e.preventDefault();
+        next.click();
+      }
     }
   });
 
   function start(data) {
     renderHanko();
     S = (data && data.S && data.S.picks && data.S.picks.length === CASES.length) ? data.S : newState();
+    S.revealed = S.revealed || {};
+    if (S.ci !== -1 && S.activeQ == null) {
+      var pending = curQ(S.ci);
+      S.activeQ = pending === -1 ? CASES[S.ci].qs.length - 1 : pending;
+    }
     render();
   }
   if (window.claude && window.claude.hot && window.claude.hot.snapshot) {

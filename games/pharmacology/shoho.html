@@ -6,7 +6,7 @@
 <meta name="robots" content="noindex, nofollow">
 <!-- アクセス数（GoatCounter、Cookie なし・個人を特定しない。2026-11-23 利用者の依頼） -->
 <script data-goatcounter="https://psychogames.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
-<meta name="app-version" content="20261125090109">
+<meta name="app-version" content="20261125092839">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
@@ -36,7 +36,8 @@ img{max-width:100%}
     window.__ipadPlayer = P;
     if (P === 'me') return;
     var pre = 'p:' + P + ':', S = Storage.prototype, g = S.getItem, s = S.setItem, r = S.removeItem;
-    var map = function (k) { return k === 'ipad-player' ? k : pre + k; };
+    // 復習ノートのキーには、すでにプレイヤー名が付いている。
+    var map = function (k) { return k === 'ipad-player' || /^pg-note-v1:/.test(k) ? k : pre + k; };
     S.getItem = function (k) { return g.call(this, map(k)); };
     S.setItem = function (k, v) { return s.call(this, map(k), v); };
     S.removeItem = function (k) { return r.call(this, map(k)); };
@@ -48,6 +49,7 @@ if ('serviceWorker' in navigator) { window.addEventListener('load', function () 
 </head>
 <body>
 <nav class="ipad-bar" aria-label="アプリ"><a href="../../index.html#g=pharmacology">← ゲーム一覧</a><span class="right"><span id="ipadWho"></span><a href="#" class="fbk" id="ipadFbk" target="_blank" rel="noopener">⚑ 不具合・感想</a><button type="button" class="upd" data-upd="manual" aria-label="新しい版を確かめて更新">↻ 更新</button></span></nav>
+<script src="../../review-note.js" data-app="処方チェック" data-where="games/pharmacology/shoho.html" data-group="pharmacology"></script>
 <script>(function(){var P=window.__ipadPlayer||'me';document.getElementById('ipadWho').textContent='プレイヤー：'+(P==='me'?'自分':P);})();
 /* 不具合・感想を送る：どのアプリのどの画面からでも、いまの場所を「どこの不具合か」の欄に自動で入れる（Google フォーム） */
 (function(){var FB='https://docs.google.com/forms/d/e/1FAIpQLSdNJkjXAVATEdI6vKRfg8gmFf87viEZP8qCpqCzv9lQGojGeg/viewform?usp=pp_url&entry.298389701=',APP='処方チェック',a=document.getElementById('ipadFbk');if(!a)return;
@@ -163,6 +165,7 @@ h1{
 .q-h{margin:0; font-size:var(--fs-l); display:flex; gap:10px; align-items:baseline}
 .q-h:focus{outline:none}
 .q-h:focus-visible{outline:3px solid var(--accent); outline-offset:3px}
+.note-sure{display:flex; align-items:center; gap:8px; min-height:44px; width:fit-content; cursor:pointer}
 .q-n{font-family:var(--f-display); font-weight:400; font-size:var(--fs-s); color:var(--accent); border:1.5px solid var(--accent); padding:0 7px; flex:none}
 .opts{list-style:none; margin:0; padding:0; display:grid; gap:8px}
 .opt{
@@ -196,6 +199,62 @@ h1{
   border:1px solid var(--line); border-radius:var(--r); background:var(--panel); color:var(--ink);
 }
 .ghost:hover{border-color:var(--accent)}
+.reveal-box{border-style:dashed;border-color:var(--accent);width:100%}
+.cq-tools{display:flex;justify-content:flex-end;gap:8px;flex-wrap:wrap;padding-top:8px}
+.cq-questions{display:grid;gap:18px;padding:0 18px 20px}
+.cq-steps,.cq-next-q{display:none}
+.is-max:not(.cq-max) .cq-tools{display:none}
+
+/* 共通の全画面。症例と問いはそれぞれの枠の中で読む。 */
+html.cq-max, .cq-max body{height:100%;overflow:hidden}
+html.cq-max{padding:0}
+.cq-max body{
+  padding-top:env(safe-area-inset-top,0px);
+  padding-bottom:env(safe-area-inset-bottom,0px);
+}
+.cq-max .ipad-bar,.cq-max .wrap > :not(.cq-tools,#main){display:none!important}
+.cq-max .wrap{
+  max-width:1360px;height:100%;min-height:0;
+  display:grid;grid-template-rows:auto minmax(0,1fr);gap:8px;padding-bottom:8px
+}
+.cq-max .cq-tools{padding-top:4px}
+.cq-max .case,.cq-max .result{margin-top:0;height:100%}
+.cq-max .result{overflow:auto;align-content:start}
+.cq-max .case{
+  display:grid;grid-template-columns:minmax(0,2fr) minmax(0,3fr);
+  grid-template-rows:auto minmax(0,1fr)
+}
+.cq-max .case-top{grid-column:1/-1;padding:8px 12px;align-items:baseline}
+.cq-max .case-top h2{flex-basis:auto;margin:0;font-size:var(--fs-l)}
+.cq-max .clock{font-size:var(--fs-l)}
+.cq-max .stamp{display:none}
+.cq-max .case-body,.cq-max .cq-questions{
+  min-height:0;min-width:0;gap:8px;padding:10px 12px;align-content:start
+}
+.cq-max .case-body,.cq-max .cq-question-scroll{
+  overflow:auto;overscroll-behavior:contain;scrollbar-gutter:stable
+}
+.cq-max .cq-questions{
+  grid-template-rows:auto minmax(0,1fr) auto;align-content:stretch;border-left:1px solid var(--line)
+}
+.cq-max .cq-steps,.cq-max .cq-actions{display:flex;gap:6px;flex-wrap:wrap}
+.cq-max .cq-next-q{display:block}
+.cq-max .cq-actions:not(.cq-last) #nextBtn{display:none}
+.cq-max .cq-steps [aria-current="step"]{border-color:var(--accent);background:var(--accent-soft)}
+.cq-max .cq-steps .ghost:disabled{opacity:.55;cursor:default}
+.cq-max .cq-question-scroll > .q:not(.cq-active),.cq-max .done-q{display:none}
+.cq-max .cq-active + .done-q{display:flex}
+.cq-max .q{padding:4px;border:0;gap:8px}
+.cq-max .q-h{font-size:var(--fs-m)}
+.cq-max .opt{min-height:44px;padding:6px 10px;font-size:var(--fs-s)}
+.cq-max .q .why{grid-row:2}
+.cq-max .done-q{padding:4px}
+@media (max-width:850px) and (orientation:portrait), (max-width:620px){
+  .cq-max .case{grid-template-columns:minmax(0,1fr);grid-template-rows:auto minmax(0,3fr) minmax(0,7fr)}
+  .cq-max .cq-questions{border-left:0;border-top:1px solid var(--line)}
+  .cq-max .case-body{font-size:var(--fs-s)}
+  .cq-max .memo dt,.cq-max .memo dd{padding:4px 8px}
+}
 
 /* 判子 */
 .stamp{
@@ -215,10 +274,6 @@ h1{
 .result{margin-top:26px; background:var(--panel); border:1px solid var(--line); border-radius:var(--r); padding:20px 18px; display:grid; gap:16px}
 .result h2{margin:0; font-family:var(--f-display); font-weight:400; font-size:var(--fs-xl)}
 .result h2:focus{outline:none}
-.rank{display:flex; align-items:center; gap:18px; flex-wrap:wrap}
-.rank .big{font-family:var(--f-display); font-size:4.4rem; line-height:1; color:var(--seal); text-shadow:3px 3px 0 var(--line)}
-.rank .pts{font-family:var(--f-display); font-size:1.4rem; font-variant-numeric:tabular-nums}
-.rank .best{font-size:var(--fs-xs); color:var(--muted)}
 .log{list-style:none; margin:0; padding:0; display:grid; gap:10px}
 .log li{border-top:1px dashed var(--line); padding-top:10px; display:grid; gap:4px}
 .log .lh{display:flex; gap:10px; align-items:baseline; flex-wrap:wrap}
@@ -350,7 +405,11 @@ tbody tr:last-child th, tbody tr:last-child td{border-bottom:0}
 @media (prefers-reduced-motion: reduce){.sv-draw{stroke-dasharray:none;stroke-dashoffset:0;animation:none}.sv-pulse{animation:none!important}}
 </style>
 
-<div class="wrap">
+<div class="wrap" data-cq-layout="shared">
+  <div class="cq-tools">
+    <button type="button" class="ghost" id="cqOptions" aria-pressed="false">選択肢を最初から出す</button>
+    <button type="button" class="ghost" id="cqMax" aria-pressed="false">⛶ 全画面</button>
+  </div>
   <header class="top">
     <p class="eyebrow">精神科道場 ・ 向精神薬の処方（試作）</p>
     <h1>処方チェック</h1>
@@ -375,8 +434,8 @@ tbody tr:last-child th, tbody tr:last-child td{border-bottom:0}
   <div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
 
   <section class="ref" aria-labelledby="refh">
-    <h2 id="refh">相互作用・注意の早見表</h2>
-    <div class="tbl-wrap">
+    <h2 id="refh" hidden>相互作用・注意の早見表</h2>
+    <div class="tbl-wrap" hidden>
       <table>
         <thead><tr><th scope="col">組み合わせ・状況</th><th scope="col">起きること</th><th scope="col">対応</th></tr></thead>
         <tbody>
@@ -407,13 +466,16 @@ tbody tr:last-child th, tbody tr:last-child td{border-bottom:0}
       title: '82歳・夜中に起きて混乱する', stamp: ['抗コ', 'ベンゾ'], stampName: '高齢者の抗コリン薬とベンゾジアゼピン系',
       story: '82歳の女性。アルツハイマー型認知症でドネペジルを飲んでいる。不眠を訴え、近くの内科でブロチゾラムが出た。さらに眠れないので、家族が市販の睡眠改善薬（ジフェンヒドラミン）も飲ませ始めた。この1週間、夜中に起きて「知らない人がいる」と混乱し、2回転んだ。',
       memo: [['処方', 'ドネペジル 5mg 朝、ブロチゾラム 0.25mg 寝る前'], ['市販薬', 'ジフェンヒドラミン（睡眠改善薬）寝る前'], ['変化', '夜間の混乱、転倒2回']],
+      // 絵の案：薬によるせん妄・転倒は疑いとして示し、感染や脱水なども並べて確かめる流れにする。
       qs: [
-        { q: 'この組み合わせでいちばん問題なのは？', a: ['抗コリン薬とベンゾ系の重なりによるせん妄・転倒', 'ドネペジルの量が足りず、認知症が悪化している', '睡眠薬の量が少なく、不眠が続いているため', '認知症の自然な進行で、薬とは関係がない'],
-          why: '第一世代の抗ヒスタミン薬（ジフェンヒドラミン）は抗コリン作用が強く、高齢者でせん妄・認知機能の低下・便秘・尿閉を起こします。ベンゾジアゼピン系はせん妄・転倒の原因になります。急な夜間の混乱は、まず薬を疑います。', law: '高齢者で避けたい薬（抗コリン薬・ベンゾジアゼピン系）' },
+        // 査読：急な混乱は薬の影響とほかの原因を並行して評価する（NICE CG103 §1.7）。https://www.nice.org.uk/guidance/cg103/chapter/Recommendations
+        { q: 'この組み合わせでいちばん問題なのは？', a: ['抗コリン薬とベンゾ系でせん妄・転倒の危険が増す', 'ドネペジルの量が足りず、認知症が悪化している', '睡眠薬の量が少なく、不眠が続いているため', '認知症の自然な進行で、薬とは関係がない'],
+          why: 'ジフェンヒドラミンは抗コリン作用が強く、高齢者ではせん妄や尿閉を起こすことがあります。ブロチゾラムもせん妄や転倒の危険を高めます。急な混乱は早めに診察し、薬の影響とともに感染や脱水なども調べます。', law: '高齢者で避けたい薬（抗コリン薬・ベンゾジアゼピン系）' },
         { q: 'ドネペジルと抗コリン薬の組み合わせについて正しいのは？', a: ['作用が打ち消し合い、治療の効果が弱まる', '作用が強まり、認知機能がさらに改善する', '同じ酵素で代謝され、ドネペジルが増える', '別々の働きなので、互いに影響しない'],
           why: 'ドネペジルはアセチルコリンを増やして働かせる薬で、抗コリン薬はアセチルコリンの働きを妨げます。認知症の人に抗コリン薬を足すと、治療の効果を打ち消し、せん妄も起こしやすくなります。', law: '薬力学的な拮抗' },
-        { q: '対応として適切なのは？', a: ['市販薬を中止し、ブロチゾラムも漸減。非薬物療法を先に', '睡眠薬をもう1種類追加して、朝までしっかり眠らせる', '抗精神病薬を毎晩定時で追加し、夜間の混乱を抑える', 'ドネペジルを増量して、夜間の混乱と物忘れを改善する'],
-          why: '原因の薬を減らす・やめるのが先です。ベンゾジアゼピン系は急にやめず、ゆっくり減らします。どうしても必要なら、メラトニン受容体作動薬やオレキシン受容体拮抗薬など、せん妄を起こしにくい薬を考えます。家族には市販薬も含めて確認する習慣を伝えます。', law: '減薬（デプレスクライビング）' }
+        // 査読：ベンゾジアゼピン系の漸減が必要かは服用状況と離脱リスクで決める（ASAM などの合同指針）。https://link.springer.com/article/10.1007/s11606-025-09499-2
+        { q: '薬の見直しとして適切なのは？', a: ['市販薬を中止し、ブロチゾラムの服用状況を確認する', '睡眠薬をもう1種類追加して、朝までしっかり眠らせる', '抗精神病薬を毎晩定時で追加し、夜間の混乱を抑える', 'ドネペジルを増量して、夜間の混乱と物忘れを改善する'],
+          why: '市販の睡眠改善薬を中止し、ブロチゾラムも処方医と見直します。連用などで離脱症状のおそれがあれば、急にやめず段階的に減らします。不眠には生活リズムや睡眠環境の調整を先に考えます。', law: '減薬（デプレスクライビング）' }
       ]
     },
     {
@@ -421,11 +483,14 @@ tbody tr:last-child th, tbody tr:last-child td{border-bottom:0}
       title: 'リチウムの人が、腰痛と高血圧で', stamp: ['Li', '濃度'], stampName: 'リチウムと NSAIDs・ACE 阻害薬',
       story: '58歳の男性。双極症で炭酸リチウムを長く飲み、血中濃度は 0.7 mEq/L 前後で安定していた。1か月前に整形外科でロキソプロフェンが、内科でエナラプリルが始まった。この数日、手のふるえが強く、下痢と吐き気、ふらつきがある。',
       memo: [['処方（精神科）', '炭酸リチウム 800mg/日'], ['新しく始まった薬', 'ロキソプロフェン（腰痛）、エナラプリル（高血圧）'], ['症状', '粗いふるえ、下痢・吐き気、ふらつき']],
+      // 絵の案：リチウム濃度の上昇は併用後の一例と示し、一定の速さで必ず中毒域に達するような色帯や表現を避ける。
       qs: [
+        // 査読：併用薬はリチウム濃度を上げるおそれがあり、上がり方は一様でない（リーマス電子添文 10.2）。https://www.pmda.go.jp/PmdaSearch/iyakuDetail/ResultDataSetPDF/400059_1179017F1056_1_22
         { q: 'まず考えることは？', a: ['併用薬によるリチウム中毒', '双極症の再燃（躁病エピソード）', 'ウイルス性胃腸炎がたまたま重なった', '新たに発症したパーキンソン病'],
-          why: 'リチウムは腎臓から排泄されます。NSAIDs・ACE 阻害薬・ARB・サイアザイド系利尿薬は排泄を減らし、血中濃度を上げます。粗いふるえ・消化器症状・ふらつきは中毒のサインです。', law: '相互作用（腎排泄の低下）' },
-        { q: 'すぐにすることは？', a: ['濃度・腎機能・電解質を測り、リチウムを止める', 'β遮断薬でふるえを抑え、外来で様子を見る', '躁の再燃としてリチウムを 200mg 増やす', '他科の薬を続けたまま、1か月後に再診する'],
-          why: '中毒が疑われたら、まず濃度を測り、リチウムを止めます。脱水を補い、重症（意識障害・けいれん・高い濃度）では透析を考えます。', law: '中毒の対応' },
+          why: 'リチウムは腎臓から排泄されます。NSAIDs（非ステロイド性抗炎症薬）や ACE 阻害薬・ARB（血圧を下げる薬）、サイアザイド系利尿薬で血中濃度が上がることがあります。粗いふるえ・消化器症状・ふらつきは中毒のサインです。', law: '相互作用（腎排泄の低下）' },
+        // 査読：中毒を疑えば直ちに投与を止め、透析は症状・腎機能・血中濃度を合わせて判断する（リーマス電子添文 13.2、EXTRIP）。https://www.extrip-workgroup.org/lithium
+        { q: 'すぐにすることは？', a: ['リチウムをすぐ中止し、緊急で採血・全身評価', 'β遮断薬でふるえを抑え、外来で様子を見る', '躁の再燃としてリチウムを 200mg 増やす', '他科の薬を続けたまま、1か月後に再診する'],
+          why: 'リチウムを直ちに中止し、血中濃度・腎機能・電解質を測って救急対応します。脱水があれば補液し、意識低下やけいれんなどがあれば血中濃度にかかわらず透析を急いで検討します。腎機能や血中濃度の推移も透析の判断に使います。', law: '中毒の対応' },
         { q: '今後の処方の工夫は？', a: ['鎮痛はアセトアミノフェンに。併用時は濃度を測る', 'NSAIDs は湿布も含めてすべて使えないと伝える', 'リチウムはやめて、相互作用のない薬へ必ず替える', '降圧薬をサイアザイド系利尿薬に替えてもらう'],
           why: '鎮痛はアセトアミノフェンが無難です。降圧薬はリチウムへの影響が少ないもの（Ca 拮抗薬など）を内科と相談します。サイアザイド系利尿薬もリチウムの濃度を上げます。お薬手帳で他科の処方を確かめる習慣が大切です。', law: '他科との連携' }
       ]
@@ -438,8 +503,9 @@ tbody tr:last-child th, tbody tr:last-child td{border-bottom:0}
       qs: [
         { q: 'この組み合わせで心配なことは？', a: ['セロトニン症候群', 'リチウム中毒', '悪性症候群', '重い低血糖発作'],
           why: 'トラマドールはオピオイド作用に加えてセロトニン・ノルアドレナリンの再取り込みも阻害します。SSRI と重なると、セロトニン症候群（不安・焦燥、発汗、発熱、頻脈、ミオクローヌス、反射の亢進）を起こしえます。トリプタンも重なる要因です。', law: '相互作用（薬力学：セロトニン作用の重なり）' },
-        { q: 'パロキセチンとトラマドールの組み合わせで、もう一つ起こりうることは？', a: ['CYP2D6 阻害で、トラマドールの鎮痛が弱まる', 'トラマドールの作用が何倍にも強まり、呼吸が止まる', 'パロキセチンの濃度が下がり、発作がぶり返す', '代謝の経路が別なので、ほかには何も起こらない'],
-          why: 'トラマドールは CYP2D6 で活性の強い代謝物に変わって鎮痛効果を出します。パロキセチンは CYP2D6 を強く阻害するので、痛み止めが効きにくくなります（タモキシフェンの効果を弱めるのも同じしくみ）。', law: '相互作用（薬物動態：CYP2D6 阻害）' },
+        // 査読：トラマドール自体にも鎮痛作用があり、パロキセチン併用は活性代謝物を減らして鎮痛作用の一部を弱めうる（Laugesen ら）。https://pubmed.ncbi.nlm.nih.gov/15903129/
+        { q: 'パロキセチンとトラマドールの組み合わせで、もう一つ起こりうることは？', a: ['CYP2D6 阻害で、トラマドールの鎮痛が弱まりうる', 'トラマドールの作用が何倍にも強まり、呼吸が止まる', 'パロキセチンの濃度が下がり、発作がぶり返す', '代謝の経路が別なので、ほかには何も起こらない'],
+          why: 'トラマドール自体にも鎮痛作用があり、薬を分解する酵素 CYP2D6 によって、オピオイド作用がより強い代謝物にも変わります。パロキセチンがこの酵素を抑えると、その代謝物が減り、鎮痛効果が弱まることがあります。', law: '相互作用（薬物動態：CYP2D6 阻害）' },
         { q: '歯科への返事として適切なのは？', a: ['アセトアミノフェン単剤などを提案する', 'そのまま処方して問題ないと返事する', 'パロキセチンを中止してから処方してもらう', 'トラマドールを倍量にして確実に効かせる'],
           why: '短期の歯痛なら、アセトアミノフェンや NSAIDs で足りることが多いです。パロキセチンを急にやめると、中断症候群（めまい・電気が走る感覚・焦燥）が出ます。照会への返事は、理由と代わりの案をそろえて書きます。', law: '他科への返信' }
       ]
@@ -449,25 +515,32 @@ tbody tr:last-child th, tbody tr:last-child td{border-bottom:0}
       title: 'クロザピンの人が、入院して禁煙', stamp: ['禁煙', 'CYP1A2'], stampName: '禁煙でクロザピンの濃度が上がる',
       story: '36歳の男性。治療抵抗性統合失調症でクロザピン 400mg を飲み、1日40本たばこを吸っていた。肺炎で入院し、病院は全館禁煙。入院10日目から、昼間も眠り込み、よだれが多く、昨日は手足がぴくっと動いた（ミオクローヌス）。',
       memo: [['処方', 'クロザピン 400mg/日（量は変えていない）'], ['変化', '入院してから禁煙'], ['症状', '強い眠気、流涎、ミオクローヌス']],
+      // 絵の案：禁煙によるクロザピン濃度上昇は一例と示し、症例には肺炎の炎症でも上がりうることを別の矢印で添える。
       qs: [
-        { q: '症状の原因として考えるべきことは？', a: ['禁煙で CYP1A2 が戻り、濃度が上がった', 'クロザピンが急に効かなくなってきた', '肺炎の発熱だけで、薬とは関係がない', '統合失調症の陰性症状が新しく出てきた'],
-          why: 'たばこの煙（タール）は CYP1A2 を誘導し、クロザピン・オランザピンの代謝を速めます。急に禁煙すると数日〜2週ほどで濃度が上がり、鎮静・流涎・けいれんの危険が増します。ニコチンパッチではこの誘導は起こりません。', law: '相互作用（喫煙による CYP1A2 誘導）' },
-        { q: 'このときの対応は？', a: ['量を減らし、可能なら濃度を測る', 'バルプロ酸を加え、量はそのまま', '眠気があるので、急に中止する', '退院まで変えずに様子を見る'],
-          why: '量を減らすのが基本です（目安として3〜4割ほど下がることが多い）。急な中止はリバウンド精神病やコリン性のリバウンドを起こします。シプロフロキサシン・フルボキサミンなど CYP1A2 を阻害する薬も、濃度を上げます。', law: '用量調整' },
+        // 査読：禁煙に加えて肺炎の炎症もクロザピン濃度を上げうる（南オーストラリア州保健当局の指針）。https://www.sahealth.sa.gov.au/wps/wcm/connect/059961804298b3078c77be80c298878e/Clozapine%20Management%20Clinical%20Guideline_13092017.pdf?MOD=AJPERES
+        { q: '症状の原因として考えるべきことは？', a: ['禁煙や肺炎によるクロザピン濃度の上昇', 'クロザピンが急に効かなくなってきた', '肺炎の発熱だけで、薬とは関係がない', '統合失調症の陰性症状が新しく出てきた'],
+          why: 'たばこの煙は代謝酵素 CYP1A2 の働きを強めますが、ニコチンパッチではこの作用は起きません。禁煙すると数日で代謝が遅くなり、クロザピンの濃度が上がることがあります。肺炎の炎症も濃度を上げる要因です。', law: '相互作用（喫煙による CYP1A2 誘導）' },
+        // 査読：けいれんの兆候があれば減量・中止を急いで判断し、感染時は血球数を直ちに調べる（クロザリル電子添文 8.5・11.1.6）。https://www.pmda.go.jp/PmdaSearch/iyakuDetail/ResultDataSetPDF/300242_1179049F1021_1_22
+        { q: 'このときの対応は？', a: ['すぐ診察し、減量や一時中止を判断する', 'バルプロ酸を加え、クロザピンは同量を続ける', '血中濃度の結果が出るまで今の量を続ける', '禁煙に体が慣れるまで、退院時に見直す'],
+          why: '強い眠気やミオクローヌス（手足が急にぴくつく動き）があれば中毒を疑い、速やかに状態を評価して減量・一時中止を判断します。禁煙後は量を3〜4割ほど減らすことが多い目安です。測定できる場合は血中濃度を調べ、感染があるため白血球数と好中球数も直ちに確認します。', law: '用量調整' },
         { q: '退院後、また吸い始めたら？', a: ['濃度が下がるので、量を見直す', '影響はないので、気にしなくてよい', '喫煙者にはクロザピンは使えない', '吸い始めたら、必ず量を2倍にする'],
           why: '喫煙の再開・中止のたびに濃度が動きます。入院・退院のときは、喫煙の状況と量の見直しをセットで確認します。', law: '喫煙と薬の量' }
       ]
     },
     {
       time: '13:30', where: '外来', night: false,
-      title: 'バルプロ酸に、ラモトリギンを足す', stamp: ['皮疹', '半量'], stampName: 'バルプロ酸とラモトリギン',
+      // 査読：「半量」は毎日半量とも読めるため、成人のバルプロ酸併用時の開始間隔を示す（ラミクタール電子添文 6）。
+      title: 'バルプロ酸に、ラモトリギンを足す', stamp: ['皮疹', '隔日'], stampName: 'バルプロ酸とラモトリギン',
       story: '40歳の女性。双極症でバルプロ酸を飲んでいるが、うつ状態をくり返す。再発予防のためにラモトリギンを加えることにした。研修医の処方案は、ラモトリギン 25mg/日から始めて2週ごとに増やす、ふだんどおりの量だった。',
       memo: [['処方', 'バルプロ酸 800mg/日'], ['追加の予定', 'ラモトリギン（研修医の案：25mg/日から）'], ['既往', '薬疹なし']],
+      // 絵の案：ラモトリギンの2曲線は同じ量で比較した濃度の変化として描き、共通の治療域・中毒域と固定の倍数を外す。症例には開始2週間の隔日投与を日付で示す。
       qs: [
-        { q: 'この処方案の問題は？', a: ['濃度が約2倍になり、皮疹の危険が高い', 'ラモトリギンはうつの再発予防に効かない', 'バルプロ酸とラモトリギンは併用禁忌である', '始め方は通常どおりで、問題はない'],
-          why: 'バルプロ酸はラモトリギンのグルクロン酸抱合を阻害し、血中濃度を上げます。スティーブンス・ジョンソン症候群などの重い皮疹は、早く増やすほど、量が多いほど起きやすくなります。添付文書には、バルプロ酸併用時の少ない始め方（隔日投与など）が決められています。', law: '相互作用（代謝の阻害）と皮疹' },
+        // 査読：濃度の倍率を固定せず、重い皮膚障害の危険と成人の併用時の開始量を明記する（ラミクタール電子添文 1・6）。https://www.pmda.go.jp/PmdaSearch/iyakuDetail/ResultDataSetPDF/340278_1139009F1021_1_27
+        { q: 'この処方案の問題は？', a: ['開始量が多く、重い皮膚障害の危険が高い', 'ラモトリギンはうつの再発予防に効かない', 'バルプロ酸とラモトリギンは併用禁忌である', '始め方は通常どおりで、問題はない'],
+          why: 'バルプロ酸はラモトリギンの代謝（グルクロン酸抱合）を遅らせ、血中濃度をおよそ2倍に上げます。開始量が多いと重い皮膚障害の危険が増します。この成人例では最初の2週間は25mgを1日おきに投与し、その後は最新の電子添文に沿って増やします。', law: '相互作用（代謝の阻害）と皮疹' },
+        // 査読：再開時の用量は中断期間や併用薬で変わるため、患者には自己判断で再開しないよう伝える（PMDA公開のラミクタール使用の手引き）。https://www.pmda.go.jp/RMP/www/340278/3d4f70c5-cbf8-43ed-a2c0-ec6492b0fc9d/340278_1139009F1021_01_002RMPm.pdf
         { q: '本人への説明で、いちばん大切なことは？', a: ['発疹・発熱・粘膜の異常で、すぐ中止し受診', '眠気が出たら、自分で量を増やしてよい', '皮疹は軽いことが多く、気にしなくてよい', '飲み忘れたら、次の回に2回分を飲む'],
-          why: '重い皮疹は、多くが始めてから8週以内に起こります。粘膜（口・目・陰部）の症状、発熱、広がる発疹は危険のサインです。何日も飲み忘れたあとは、また少ない量から始め直します。', law: '患者への説明' },
+          why: '重い皮膚障害は開始8週以内に起きやすく、口・目などの粘膜の症状や発熱、広がる発疹は危険のサインです。服用が何日か途切れた場合は、自己判断で再開せず処方医に相談します。', law: '患者への説明' },
         { q: '逆に、カルバマゼピンを飲んでいる人にラモトリギンを足すときは？', a: ['代謝が速まり、ラモトリギンは下がる', 'バルプロ酸と同じく、濃度が上がる', '代謝の経路が別なので、影響はない', 'この組み合わせは併用禁忌である'],
           why: 'カルバマゼピン・フェニトインなどの酵素誘導薬は、ラモトリギンの濃度を下げます。組み合わせる薬によって増やし方が違うので、添付文書の表で確かめます。', law: '相互作用（代謝の誘導）' }
       ]
@@ -477,11 +550,14 @@ tbody tr:last-child th, tbody tr:last-child td{border-bottom:0}
       title: '子どもがほしい、双極症の女性', stamp: ['妊娠', '相談'], stampName: '妊娠を考える人とバルプロ酸',
       story: '28歳の女性。双極症で、バルプロ酸 1000mg で3年間安定している。「来年、子どもがほしい。薬はどうしたらいい？」と相談された。',
       memo: [['処方', 'バルプロ酸 1000mg/日'], ['経過', '3年間再発なし。過去に重い躁病エピソード2回'], ['希望', '来年妊娠したい']],
+      // 絵の案：「気づいてからでは遅い」を、神経管は妊娠に気づく前に形成が進むことがある、気づいた時点でも自己中止せず早めに相談、の2点に置き換える。
       qs: [
+        // 査読：妊娠初期からの危険と、躁状態の治療における国内電子添文の妊婦への投与の扱いを示す（バルプロ酸Na「DSP」電子添文 9.5）。https://www.pmda.go.jp/PmdaSearch/iyakuDetail/ResultDataSetPDF/400093_1139004F1126_1_08
         { q: 'バルプロ酸と妊娠について正しいのは？', a: ['奇形と子の発達への影響の危険が高い', '妊娠中に最も安全な気分安定薬である', '妊娠がわかってから中止すれば問題ない', '量に関係なく、危険はほかの薬と同じ'],
-          why: 'バルプロ酸は、気分安定薬・抗てんかん薬の中でも奇形と発達への影響の危険が高く、量が多いほど危険が増します。器官ができる時期は妊娠に気づく前なので、妊娠を考えている段階から相談することが大切です。', law: '妊娠と薬' },
+          why: 'バルプロ酸は子の先天異常や発達への影響の危険を高めます。脳や脊髄のもとになる神経管は妊娠に気づく前から形成が進むことがあります。国内の電子添文では、躁状態の治療で妊娠中や妊娠の可能性がある場合、治療上やむを得ないときを除いて投与しません。', law: '妊娠と薬' },
+        // 査読：葉酸の補充は妊娠前から相談し、バルプロ酸の見直しと並行して行う（日本産婦人科医会「妊娠と薬」）。https://www.jaog.or.jp/note/%EF%BC%882%EF%BC%89%E5%A6%8A%E5%A8%A0%E3%81%A8%E8%96%AC/
         { q: 'この人への対応として適切なのは？', a: ['妊娠前から切り替えを一緒に考え、葉酸も', '自己判断で、今日からバルプロ酸をやめる', '再発が心配なので、妊娠は勧められないと伝える', '何も変えず、妊娠がわかってから相談に来る'],
-          why: '急な中止は再発の危険が高く、妊娠中・産後の再発は母子にとって大きな負担です。病歴（重い躁）と薬の危険を本人・家族と共有し、計画的に切り替えます。決めるのは本人で、医師は情報と選択肢を示します（共同意思決定）。', law: '共同意思決定' },
+          why: '急な中止は再発の危険を高めます。本人と再発予防と薬の危険を話し合い、妊娠前から計画的な切り替えと葉酸の補充を相談します。葉酸は神経管の先天異常の危険を下げるために使いますが、薬の見直しも必要です。', law: '共同意思決定' },
         { q: '産後について正しいのは？', a: ['産後は再発しやすく、睡眠を守る工夫を', '産後はホルモンの変化で再発しにくい', '授乳中は、すべての向精神薬が使えない', '産後は、薬をいったんやめるのが原則'],
           why: '出産後の数週間は、双極症の再発（とくに躁・混合状態・精神病）の危険が高い時期です。夜間の授乳で睡眠が削られることも引き金になります。授乳と薬は、薬ごとに情報を確かめて決めます。', law: '周産期の再発予防' }
       ]
@@ -491,13 +567,17 @@ tbody tr:last-child th, tbody tr:last-child td{border-bottom:0}
       title: '興奮した人に、ハロペリドールを静注', stamp: ['QT', '延長'], stampName: 'QT 延長の薬の重ねと低カリウム',
       story: '55歳の女性。うつ病でエスシタロプラムを飲んでいる。嘔吐が続いて救急に来たが、強い不安と興奮で点滴を抜こうとする。救急医から「ハロペリドールを静注してよいか」と相談された。採血で K 2.9 mEq/L。心電図は QTc 498ms。',
       memo: [['内服', 'エスシタロプラム 20mg'], ['検査', 'K 2.9 mEq/L（低い）、QTc 498ms（延長）'], ['予定', 'ハロペリドール静注']],
+      // 絵の案：QT のラボでは動かす幅を模式例と明示し、各要因の固定ミリ秒を足すと実測値が予測できるような表示を避ける。QT は QRS の開始から T 波の終わり、QTc は心拍数で補正した値と示す。
+      // 絵の案：症例の心電図は相談時の QTc 498ms とし、解答後に出すハロペリドール併用時の波形には未投与の仮定と明示する。
       qs: [
         { q: 'いちばん心配なことは？', a: ['QT 延長からの致死的な不整脈', '悪性症候群による高熱と筋強剛', 'セロトニン症候群による発熱', '急な低血糖による意識障害'],
           why: 'ハロペリドール（とくに静注）とエスシタロプラムは、どちらも QT を延ばします。低カリウム・低マグネシウム・徐脈・女性・心疾患は危険を高めます。QTc 500ms 前後は要注意の値です。', law: 'QT 延長' },
-        { q: 'まずすることは？', a: ['K・Mg を補い、心電図をモニターする', 'すぐにハロペリドールを静注して鎮める', 'エスシタロプラムを2倍に増やして落ち着かせる', '抗精神病薬を2種類組み合わせて鎮静する'],
-          why: '電解質の補正と心電図の監視が先です。嘔吐による低カリウムは、補えば QT も改善します。不安・興奮には、まず声かけ・環境の調整、必要なら QT への影響が少ない方法を救急医と相談します。', law: '安全な鎮静' },
+        // 査読：QT 延長では原因薬と電解質異常の両方に対応し、補正後に QTc を再評価する（AHA・ACCF、レクサプロ電子添文 2.4）。https://www.jacc.org/doi/10.1016/j.jacc.2010.01.001
+        { q: 'まずすることは？', a: ['静注を見送り、低カリウムの補正と心電図監視', 'すぐにハロペリドールを静注して鎮める', 'エスシタロプラムを2倍に増やして落ち着かせる', '抗精神病薬を2種類組み合わせて鎮静する'],
+          why: 'ハロペリドール静注は見送り、QT を延ばすエスシタロプラムもいったん見合わせます。心電図を監視しながら低カリウムを補正し、マグネシウムも測って不足があれば補い、QTc を再確認します。興奮には声かけや環境調整を行い、必要なら QT への影響が少ない方法を救急医と相談します。', law: '安全な鎮静' },
+        // 査読：QT 延長は国内電子添文上の禁忌で、開始前は心血管系の状態に注意する（レクサプロ電子添文 2.4・8.7）。https://www.pmda.go.jp/PmdaSearch/iyakuDetail/ResultDataSetPDF/790005_1179054F1022_1_21
         { q: 'エスシタロプラムについて正しいのは？', a: ['QT 延長のある人には使えない（禁忌）', 'SSRI は QT にまったく影響しない', '低カリウムのときは量を増やす', '心電図の確認は、とくに必要ない'],
-          why: 'エスシタロプラムは QT 延長のある患者には禁忌で、使う前・増量の前に心電図を確かめます。ほかにも、三環系抗うつ薬・一部の抗精神病薬・マクロライド・抗真菌薬などが QT を延ばします。', law: '禁忌（QT 延長）' }
+          why: '国内の電子添文では、エスシタロプラムは QT 延長のある患者には禁忌です。心疾患、低カリウム、QT を延ばす併用薬などの危険因子を確認し、心電図を取る必要性を判断します。', law: '禁忌（QT 延長）' }
       ]
     },
     {
@@ -505,9 +585,11 @@ tbody tr:last-child th, tbody tr:last-child td{border-bottom:0}
       title: '抗精神病薬が3種類', stamp: ['多剤', 'CP換算'], stampName: '多剤大量の見直し',
       story: '50歳の男性。統合失調症で、ほかの病院から転院してきた。陽性症状は落ち着いているが、日中ぼんやりして、よだれ・便秘・体重増加・ふるえがある。抗精神病薬が3種類出ている。',
       memo: [['処方', 'リスペリドン 6mg、オランザピン 20mg、クロルプロマジン 300mg'], ['ほか', 'ビペリデン 3mg、センノシド'], ['状態', '陽性症状は落ち着いている。過鎮静・副作用が多い']],
+      // 絵の案：CP換算1000mgの線は薬の総量を見直す目安と示し、多剤併用かどうかは薬の種類数で示す。
       qs: [
+        // 査読：クロルプロマジン換算は総量の目安で、併用薬の種類数とは別に評価する（厚労省の等量換算表、総合病院国保旭中央病院の指標38）。https://www.mhlw.go.jp/file/05-Shingikai-12404000-Hokenkyoku-Iryouka/0000102476.pdf https://www.hospital.asahi.chiba.jp/common/pdf/about/tqm/qi/qi_review2024.pdf
         { q: 'クロルプロマジン換算で、合計はおよそ？（リスペリドン 1mg≒100mg、オランザピン 2.5mg≒100mg）', a: ['約1700mg', '約600mg', '約900mg', '約3000mg'],
-          why: 'リスペリドン 6mg≒600mg、オランザピン 20mg≒800mg、クロルプロマジン 300mg で、合計およそ1700mg です。換算値は目安ですが、多剤大量（おおむね1000mg を超える）の目安になります。', law: 'クロルプロマジン換算' },
+          why: 'リスペリドン 6mg≒600mg、オランザピン 20mg≒800mg、クロルプロマジン 300mg で、合計およそ1700mg です。CP換算は総量を同じものさしで見る方法で、1000mg 前後は量を見直す目安の一つです。多剤併用かどうかは薬の種類数で見ます。', law: 'クロルプロマジン換算' },
         { q: '多剤併用について正しいのは？', a: ['上乗せは乏しく、副作用が増える', '3種類のほうが1種類より確実に効く', '症状が安定していれば、そのままがよい', '抗コリン薬は長く続けるのが原則'],
           why: '統合失調症の薬物療法は単剤が基本です。多剤大量は副作用を増やし、認知機能や生活の質を下げます。抗コリン薬（ビペリデン）も、便秘・認知機能の低下・遅発性ジスキネジアの悪化に関わります。', law: '単剤化の原則' },
         { q: '見直しの進め方として適切なのは？', a: ['本人と相談し、1剤ずつ少しずつ減らす', '翌日から、思いきって1剤だけにする', 'すべて中止して、再燃しないか様子を見る', '副作用止めを追加して、副作用を抑える'],
@@ -517,7 +599,6 @@ tbody tr:last-child th, tbody tr:last-child td{border-bottom:0}
   ];
 
   var NQ = CASES.reduce(function (n, c) { return n + c.qs.length; }, 0);
-  var BEST_KEY = 'shoho-check-best';
 
   function lsGet(k) { try { return window.localStorage.getItem(k); } catch (e) { return null; } }
   function lsSet(k, v) { try { window.localStorage.setItem(k, v); } catch (e) { /* 保存できない環境 */ } }
@@ -532,6 +613,8 @@ tbody tr:last-child th, tbody tr:last-child td{border-bottom:0}
       ci: 0,
       picks: CASES.map(function (c) { return c.qs.map(function () { return null; }); }),
       order: CASES.map(function (c) { return c.qs.map(function (q) { return shuffled(q.a.length); }); }),
+      revealed: {},
+      activeQ: 0,
       only: null  // まちがえた患者だけやり直すときの番号の並び
     };
   }
@@ -539,9 +622,20 @@ tbody tr:last-child th, tbody tr:last-child td{border-bottom:0}
   var S;
   var slotsEl = document.getElementById('slots');
   var mainEl = document.getElementById('main');
+  var root = document.documentElement;
+  var layout = mainEl.closest('.wrap').getAttribute('data-cq-layout');
+  var sharedLayout = layout === 'shared';
+  var sharedOptions = layout !== 'shorui';
+  var maxBtn = document.getElementById('cqMax');
+  var optionsBtn = document.getElementById('cqOptions');
+  var ref = document.querySelector('.ref');
+  var refHeading = ref.querySelector('h2');
+  var refTable = ref.querySelector('.tbl-wrap');
 
   // ---- 判子帳
   var HK_KEY = 'shoho-check-hanko-v1', HK_TITLES = [[0, "処方を見る人"], [4, "相互作用に気づく人"], [8, "処方を整える人"], [12, "薬に強い精神科医"], [16, "処方の番人"]], HK_MAX = CASES.length * 2;
+  var optionsKey = HK_KEY + '-show-opts';
+  var alwaysShowOptions = lsGet(optionsKey) === '1';
   var HK = {}; try { HK = JSON.parse(lsGet(HK_KEY) || '{}') || {}; } catch (e) { HK = {}; }
   function hkPts() { var p = 0; CASES.forEach(function (c, i) { p += HK[i] || 0; }); return p; }
   function hkTitle(p) { var t = HK_TITLES[0]; HK_TITLES.forEach(function (x) { if (p >= x[0]) t = x; }); return t; }
@@ -556,7 +650,7 @@ tbody tr:last-child th, tbody tr:last-child td{border-bottom:0}
     document.getElementById('hkGrid').innerHTML = CASES.map(function (c, i) {
       var tr = HK[i] || 0;
       var st = tr ? '<b>' + esc(c.stamp[0]) + '</b>' + (c.stamp[1] ? '<small>' + esc(c.stamp[1]) + '</small>' : '') : '<b>？</b>';
-      return '<li class="hk t' + tr + '"><span class="hk-st" aria-hidden="true">' + st + '</span><span class="hk-t">' + c.time + '</span><span class="hk-n">' + (tr ? esc(c.title) : 'まだ') + '</span><span class="hk-tag">' + ['', '押した', '金・満点'][tr] + '</span></li>';
+      return '<li class="hk t' + tr + '"><span class="hk-st" aria-hidden="true">' + st + '</span><span class="hk-t">' + c.time + '</span><span class="hk-n">' + (tr ? esc(c.title) : 'まだ') + '</span><span class="hk-tag">' + ['', '押した', '金・全問正解'][tr] + '</span></li>';
     }).join('');
   }
   var toastEl = document.getElementById('toast'), toastT = 0;
@@ -598,7 +692,11 @@ tbody tr:last-child th, tbody tr:last-child td{border-bottom:0}
 
   function optsHTML(i, qi, live) {
     var q = CASES[i].qs[qi], pick = S.picks[i][qi];
-    return '<ol class="opts">' + S.order[i][qi].map(function (ai, pos) {
+    var hidden = sharedOptions && pick === null && !alwaysShowOptions && !S.revealed[i + ':' + qi];
+    return (sharedOptions && pick === null
+      ? '<button type="button" class="ghost reveal-box" data-reveal="' + qi + '"' + (hidden ? '' : ' hidden') + '>選択肢を表示</button>'
+      : '') +
+      '<ol class="opts"' + (hidden ? ' hidden' : '') + '>' + S.order[i][qi].map(function (ai, pos) {
       var cls = '', tag = '';
       if (pick !== null) {
         if (ai === 0) { cls = ' right'; tag = '正解'; }
@@ -612,17 +710,30 @@ tbody tr:last-child th, tbody tr:last-child td{border-bottom:0}
 
   function renderCase(pressStamp) {
     var i = S.ci, c = CASES[i], k = curQ(i), s = seq(), pos = s.indexOf(i);
-    var html = '<article class="case" aria-labelledby="caseh">' +
+    var activeQ = S.activeQ;
+    var previousCase = mainEl.querySelector('.case[data-case="' + i + '"] .case-body');
+    var caseScroll = previousCase ? previousCase.scrollTop : 0;
+    var html = '<article class="case" data-case="' + i + '" aria-labelledby="caseh">' +
       (k === -1 ? stampHTML(c, pressStamp ? 'press' : '') : '') +
       '<div class="case-top"><span class="clock">' + c.time + '</span><span class="where">' + esc(c.where) + ' ・ ' + (pos + 1) + '人目 / ' + s.length + '人</span>' +
       '<h2 id="caseh" tabindex="-1">' + esc(c.title) + '</h2></div><div class="case-body">' +
       '<p class="story">' + esc(c.story) + '</p>' +
       '<div class="memo-box"><p class="memo-cap">カルテの要点</p><dl class="memo">' + c.memo.map(function (m) { return '<dt>' + esc(m[0]) + '</dt><dd>' + esc(m[1]) + '</dd>'; }).join('') + '</dl></div>';
 
+    if (sharedLayout) {
+      html += '</div><div class="cq-questions"><nav class="cq-steps" aria-label="問いの切り替え">' +
+        c.qs.map(function (_, qi) {
+          var unavailable = qi !== k && S.picks[i][qi] === null;
+          return '<button type="button" class="ghost" data-cq-q="' + qi + '"' +
+            (qi === activeQ ? ' aria-current="step"' : '') + (unavailable ? ' disabled' : '') + '>問' + (qi + 1) + '</button>';
+        }).join('') + '</nav><div class="cq-question-scroll">';
+    }
+
     c.qs.forEach(function (q, qi) {
       var pick = S.picks[i][qi];
       if (pick === null && qi !== k) return;
-      html += '<section class="q" aria-labelledby="q' + qi + '"><h3 class="q-h" id="q' + qi + '" tabindex="-1"><span class="q-n">問' + (qi + 1) + '</span><span>' + esc(q.q) + '</span></h3>' +
+      html += '<section class="q' + (qi === activeQ ? ' cq-active' : '') + '" aria-labelledby="q' + qi + '"><h3 class="q-h" id="q' + qi + '" tabindex="-1"><span class="q-n">問' + (qi + 1) + '</span><span>' + esc(q.q) + '</span></h3>' +
+        (pick === null && window.PG_NOTE ? '<label class="note-sure"><input type="checkbox" id="noteSure"> 自信あり</label>' : '') +
         optsHTML(i, qi, qi === k);
       if (pick !== null) {
         html += '<p class="why"><b>' + (pick === 0 ? '正解。' : '正解は「' + esc(q.a[0]) + '」。') + '</b>' + esc(q.why) +
@@ -631,25 +742,33 @@ tbody tr:last-child th, tbody tr:last-child td{border-bottom:0}
       html += '</section>';
     });
 
-    if (k === -1) {
-      var isLast = pos === s.length - 1;
-      html += '<p class="done-q">点検：<b>' + esc(c.stampName) + '</b>（' + caseScore(i) + ' / 3 問正解）</p>' +
-        '<button type="button" class="next" id="nextBtn">' + (isLast ? '点検を終える' : '次の処方へ（' + CASES[s[pos + 1]].time + '）') + '</button>';
+    var finished = k === -1;
+    var lastQuestion = activeQ === c.qs.length - 1;
+    if (finished) {
+      html += '<p class="done-q">点検：<b>' + esc(c.stampName) + '</b>（' + caseScore(i) + ' / 3 問正解）</p>';
     }
+    if (sharedLayout) {
+      html += '</div><div class="cq-actions' + (lastQuestion ? ' cq-last' : '') + '">';
+      if (!lastQuestion && S.picks[i][activeQ] !== null) {
+        html += '<button type="button" class="next cq-next-q" data-cq-q="' + (activeQ + 1) + '">次の問いへ</button>';
+      }
+    }
+    if (finished) {
+      var isLast = pos === s.length - 1;
+      html += '<button type="button" class="next" id="nextBtn">' + (isLast ? '点検を終える' : '次の処方へ（' + CASES[s[pos + 1]].time + '）') + '</button>';
+    }
+    if (sharedLayout) html += '</div>';
     html += '</div></article>';
     mainEl.innerHTML = html;
+    if (sharedLayout) mainEl.querySelector('.case-body').scrollTop = caseScroll;
   }
 
   function renderResult() {
-    var right = totalRight(), pts = Math.round(right / NQ * 100);
-    var rank = pts >= 90 ? 'S' : pts >= 75 ? 'A' : pts >= 60 ? 'B' : pts >= 40 ? 'C' : 'D';
-    var best = parseInt(lsGet(BEST_KEY) || '0', 10) || 0;
-    if (!S.only && pts > best) { lsSet(BEST_KEY, String(pts)); best = pts; }
+    var right = totalRight();
     var missed = CASES.map(function (_, i) { return i; }).filter(function (i) { return caseScore(i) < CASES[i].qs.length; });
 
     mainEl.innerHTML = '<section class="result" aria-labelledby="resh"><h2 id="resh" tabindex="-1">点検の記録</h2>' +
-      '<div class="rank"><span class="big">' + rank + '</span><span class="pts">' + pts + '<small class="muted"> ／100</small></span>' +
-      '<span class="best">' + right + ' / ' + NQ + ' 問正解' + (best ? '　自己ベスト ' + best + '点' : '') + '</span></div>' +
+      '<p>' + right + ' / ' + NQ + ' 問正解</p>' +
       '<ol class="log">' + CASES.map(function (c, i) {
         var miss = c.qs.filter(function (q, qi) { return S.picks[i][qi] !== 0; });
         return '<li><div class="lh"><span class="lt">' + c.time + '</span><span class="ls">' + esc(c.title) + '</span><span class="lm muted">' + esc(c.stampName) + '・' + caseScore(i) + '/3</span></div>' +
@@ -663,7 +782,9 @@ tbody tr:last-child th, tbody tr:last-child td{border-bottom:0}
 
   function render(opts) {
     opts = opts || {};
+    if (opts.activeQ != null) S.activeQ = opts.activeQ;
     renderSlots();
+    refHeading.hidden = refTable.hidden = S.ci !== -1;
     if (S.ci === -1) {
       renderResult();
       if (opts.focus) document.getElementById('resh').focus();
@@ -681,10 +802,20 @@ tbody tr:last-child th, tbody tr:last-child td{border-bottom:0}
   function answer(qi, ai) {
     var i = S.ci;
     if (S.picks[i][qi] !== null || curQ(i) !== qi) return;
+    var note = window.PG_NOTE;
+    if (note) {
+      var c = CASES[i], q = c.qs[qi], confidence = document.getElementById('noteSure');
+      var attempt = { id: q.id || [c.title, q.q], q: q.q, sure: Boolean(confidence && confidence.checked) };
+      if (ai === 0) note.hit(attempt);
+      else note.miss(Object.assign(attempt, {
+        picked: q.a[ai], answer: q.a[0], why: q.why, options: q.a,
+        context: [c.title, c.story].concat(c.memo.map(function (m) { return m.join('：'); })).join('\n')
+      }));
+    }
     S.picks[i][qi] = ai;
     var finished = curQ(i) === -1;
     if (finished) awardHanko(i);
-    render({ press: finished });
+    render({ press: finished, activeQ: qi });
     // 解説を読めるように、答えた問いの見出しへフォーカスを戻す
     var h = document.getElementById('q' + qi);
     if (h) h.focus({ preventScroll: true });
@@ -693,6 +824,7 @@ tbody tr:last-child th, tbody tr:last-child td{border-bottom:0}
   function nextCase() {
     var s = seq(), pos = s.indexOf(S.ci);
     S.ci = pos < s.length - 1 ? s[pos + 1] : -1;
+    S.activeQ = 0;
     render({ focus: S.ci === -1 ? true : 'case' });
     if (S.ci === -1) document.getElementById('resh').scrollIntoView({ block: 'start' });
   }
@@ -705,34 +837,116 @@ tbody tr:last-child th, tbody tr:last-child td{border-bottom:0}
         S.order[i] = CASES[i].qs.map(function (q) { return shuffled(q.a.length); });
       });
       S.only = m; S.ci = m[0];
+      S.revealed = {};
+      S.activeQ = 0;
     } else {
       S = newState();
     }
     render({ focus: 'case' });
   }
 
+  function syncOptions(qi, reveal) {
+    var h = document.getElementById('q' + qi);
+    var q = h && h.closest('.q');
+    var gate = q && q.querySelector('.reveal-box');
+    if (!gate) return;
+    var opts = q.querySelector('.opts');
+    var key = S.ci + ':' + qi;
+    if (reveal) S.revealed[key] = true;
+    gate.hidden = alwaysShowOptions || !!S.revealed[key];
+    opts.hidden = !gate.hidden;
+    if (reveal) opts.querySelector('.opt').focus();
+  }
+
+  optionsBtn.hidden = !sharedOptions;
+  optionsBtn.parentNode.hidden = !sharedOptions && !sharedLayout;
+  optionsBtn.setAttribute('aria-pressed', String(alwaysShowOptions));
+  optionsBtn.addEventListener('click', function () {
+    alwaysShowOptions = !alwaysShowOptions;
+    lsSet(optionsKey, alwaysShowOptions ? '1' : '0');
+    optionsBtn.setAttribute('aria-pressed', String(alwaysShowOptions));
+    if (S && S.ci !== -1) syncOptions(curQ(S.ci), false);
+  });
+
+  function setMaxLayout(on) {
+    root.classList.toggle('is-max', on);
+    root.classList.toggle('cq-max', on);
+    maxBtn.setAttribute('aria-pressed', String(on));
+    maxBtn.textContent = on ? '全画面を終了' : '⛶ 全画面';
+  }
+
+  maxBtn.hidden = !sharedLayout;
+  if (sharedLayout) {
+    maxBtn.addEventListener('click', function () {
+      var on = !root.classList.contains('cq-max');
+      setMaxLayout(on);
+      var native = document.fullscreenElement || document.webkitFullscreenElement;
+      var request = root.requestFullscreen || root.webkitRequestFullscreen;
+      var exit = document.exitFullscreen || document.webkitExitFullscreen;
+      var action = on && !native ? request : (!on && native ? exit : null);
+      if (action) {
+        try {
+          var pending = action.call(on ? root : document);
+          if (pending && pending.catch) pending.catch(function () {});
+        } catch (e) { /* 全画面を使えない環境では画面の並べ方だけを切り替える */ }
+      }
+    });
+    function syncNativeFullscreen() {
+      if (!document.fullscreenElement && !document.webkitFullscreenElement) setMaxLayout(false);
+    }
+    document.addEventListener('fullscreenchange', syncNativeFullscreen);
+    document.addEventListener('webkitfullscreenchange', syncNativeFullscreen);
+  }
+
   mainEl.addEventListener('click', function (e) {
     var b = e.target.closest('button'); if (!b) return;
     if (b.classList.contains('opt')) answer(+b.dataset.q, +b.dataset.a);
+    else if (b.hasAttribute('data-reveal')) syncOptions(+b.dataset.reveal, true);
+    else if (b.hasAttribute('data-cq-q')) {
+      S.activeQ = +b.dataset.cqQ;
+      renderCase();
+      document.getElementById('q' + S.activeQ).focus({ preventScroll: true });
+    }
     else if (b.id === 'nextBtn') nextCase();
     else if (b.id === 'retryMiss') restart(true);
     else if (b.id === 'restart') restart(false);
   });
 
   document.addEventListener('keydown', function (e) {
-    if (e.altKey || e.ctrlKey || e.metaKey || S.ci === -1) return;
+    if (e.defaultPrevented || e.altKey || e.ctrlKey || e.metaKey) return;
+    if (e.key === 'Escape' && root.classList.contains('cq-max')) {
+      e.preventDefault();
+      maxBtn.click();
+      return;
+    }
+    if (!S || S.ci === -1 || e.target.closest('input, textarea, select, [contenteditable="true"]')) return;
     var k = curQ(S.ci);
+    var interactive = e.target.closest('button, a, summary');
     if (k !== -1 && /^[1-4]$/.test(e.key)) {
       var ai = S.order[S.ci][k][+e.key - 1];
-      if (ai !== undefined) { e.preventDefault(); answer(k, ai); }
-    } else if (k === -1 && e.key === 'Enter' && !e.target.closest('button, a, input, textarea, select')) {
-      e.preventDefault(); nextCase();
+      var opts = document.getElementById('q' + k).closest('.q').querySelector('.opts');
+      if (ai !== undefined && opts.getClientRects().length) { e.preventDefault(); answer(k, ai); }
+    } else if (!interactive && (e.key === 'Enter' || e.key === ' ')) {
+      var gate = mainEl.querySelector('.reveal-box:not([hidden])');
+      var next = mainEl.querySelector(root.classList.contains('cq-max') ? '.cq-next-q, .cq-last #nextBtn' : '#nextBtn');
+      if (gate && gate.getClientRects().length) {
+        e.preventDefault();
+        gate.click();
+      } else if (e.key === 'Enter' && next && next.getClientRects().length) {
+        e.preventDefault();
+        next.click();
+      }
     }
   });
 
   function start(data) {
     renderHanko();
     S = (data && data.S && data.S.picks && data.S.picks.length === CASES.length) ? data.S : newState();
+    S.revealed = S.revealed || {};
+    if (S.ci !== -1 && S.activeQ == null) {
+      var pending = curQ(S.ci);
+      S.activeQ = pending === -1 ? CASES[S.ci].qs.length - 1 : pending;
+    }
     render();
   }
   if (window.claude && window.claude.hot && window.claude.hot.snapshot) {

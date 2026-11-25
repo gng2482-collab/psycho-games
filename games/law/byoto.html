@@ -6,7 +6,7 @@
 <meta name="robots" content="noindex, nofollow">
 <!-- アクセス数（GoatCounter、Cookie なし・個人を特定しない。2026-11-23 利用者の依頼） -->
 <script data-goatcounter="https://psychogames.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
-<meta name="app-version" content="20261125090109">
+<meta name="app-version" content="20261125092839">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
@@ -36,7 +36,8 @@ img{max-width:100%}
     window.__ipadPlayer = P;
     if (P === 'me') return;
     var pre = 'p:' + P + ':', S = Storage.prototype, g = S.getItem, s = S.setItem, r = S.removeItem;
-    var map = function (k) { return k === 'ipad-player' ? k : pre + k; };
+    // 復習ノートのキーには、すでにプレイヤー名が付いている。
+    var map = function (k) { return k === 'ipad-player' || /^pg-note-v1:/.test(k) ? k : pre + k; };
     S.getItem = function (k) { return g.call(this, map(k)); };
     S.setItem = function (k, v) { return s.call(this, map(k), v); };
     S.removeItem = function (k) { return r.call(this, map(k)); };
@@ -48,6 +49,7 @@ if ('serviceWorker' in navigator) { window.addEventListener('load', function () 
 </head>
 <body>
 <nav class="ipad-bar" aria-label="アプリ"><a href="../../index.html#g=law">← ゲーム一覧</a><span class="right"><span id="ipadWho"></span><a href="#" class="fbk" id="ipadFbk" target="_blank" rel="noopener">⚑ 不具合・感想</a><button type="button" class="upd" data-upd="manual" aria-label="新しい版を確かめて更新">↻ 更新</button></span></nav>
+<script src="../../review-note.js" data-app="当直明けの病棟" data-where="games/law/byoto.html" data-group="law"></script>
 <script>(function(){var P=window.__ipadPlayer||'me';document.getElementById('ipadWho').textContent='プレイヤー：'+(P==='me'?'自分':P);})();
 /* 不具合・感想を送る：どのアプリのどの画面からでも、いまの場所を「どこの不具合か」の欄に自動で入れる（Google フォーム） */
 (function(){var FB='https://docs.google.com/forms/d/e/1FAIpQLSdNJkjXAVATEdI6vKRfg8gmFf87viEZP8qCpqCzv9lQGojGeg/viewform?usp=pp_url&entry.298389701=',APP='当直明けの病棟',a=document.getElementById('ipadFbk');if(!a)return;
@@ -163,6 +165,7 @@ h1{
 .q-h{margin:0; font-size:var(--fs-l); display:flex; gap:10px; align-items:baseline}
 .q-h:focus{outline:none}
 .q-h:focus-visible{outline:3px solid var(--accent); outline-offset:3px}
+.note-sure{display:flex; align-items:center; gap:8px; min-height:44px; width:fit-content; cursor:pointer}
 .q-n{font-family:var(--f-display); font-weight:400; font-size:var(--fs-s); color:var(--accent); border:1.5px solid var(--accent); padding:0 7px; flex:none}
 .opts{list-style:none; margin:0; padding:0; display:grid; gap:8px}
 .opt{
@@ -196,6 +199,62 @@ h1{
   border:1px solid var(--line); border-radius:var(--r); background:var(--panel); color:var(--ink);
 }
 .ghost:hover{border-color:var(--accent)}
+.reveal-box{border-style:dashed;border-color:var(--accent);width:100%}
+.cq-tools{display:flex;justify-content:flex-end;gap:8px;flex-wrap:wrap;padding-top:8px}
+.cq-questions{display:grid;gap:18px;padding:0 18px 20px}
+.cq-steps,.cq-next-q{display:none}
+.is-max:not(.cq-max) .cq-tools{display:none}
+
+/* 共通の全画面。症例と問いはそれぞれの枠の中で読む。 */
+html.cq-max, .cq-max body{height:100%;overflow:hidden}
+html.cq-max{padding:0}
+.cq-max body{
+  padding-top:env(safe-area-inset-top,0px);
+  padding-bottom:env(safe-area-inset-bottom,0px);
+}
+.cq-max .ipad-bar,.cq-max .wrap > :not(.cq-tools,#main){display:none!important}
+.cq-max .wrap{
+  max-width:1360px;height:100%;min-height:0;
+  display:grid;grid-template-rows:auto minmax(0,1fr);gap:8px;padding-bottom:8px
+}
+.cq-max .cq-tools{padding-top:4px}
+.cq-max .case,.cq-max .result{margin-top:0;height:100%}
+.cq-max .result{overflow:auto;align-content:start}
+.cq-max .case{
+  display:grid;grid-template-columns:minmax(0,2fr) minmax(0,3fr);
+  grid-template-rows:auto minmax(0,1fr)
+}
+.cq-max .case-top{grid-column:1/-1;padding:8px 12px;align-items:baseline}
+.cq-max .case-top h2{flex-basis:auto;margin:0;font-size:var(--fs-l)}
+.cq-max .clock{font-size:var(--fs-l)}
+.cq-max .stamp{display:none}
+.cq-max .case-body,.cq-max .cq-questions{
+  min-height:0;min-width:0;gap:8px;padding:10px 12px;align-content:start
+}
+.cq-max .case-body,.cq-max .cq-question-scroll{
+  overflow:auto;overscroll-behavior:contain;scrollbar-gutter:stable
+}
+.cq-max .cq-questions{
+  grid-template-rows:auto minmax(0,1fr) auto;align-content:stretch;border-left:1px solid var(--line)
+}
+.cq-max .cq-steps,.cq-max .cq-actions{display:flex;gap:6px;flex-wrap:wrap}
+.cq-max .cq-next-q{display:block}
+.cq-max .cq-actions:not(.cq-last) #nextBtn{display:none}
+.cq-max .cq-steps [aria-current="step"]{border-color:var(--accent);background:var(--accent-soft)}
+.cq-max .cq-steps .ghost:disabled{opacity:.55;cursor:default}
+.cq-max .cq-question-scroll > .q:not(.cq-active),.cq-max .done-q{display:none}
+.cq-max .cq-active + .done-q{display:flex}
+.cq-max .q{padding:4px;border:0;gap:8px}
+.cq-max .q-h{font-size:var(--fs-m)}
+.cq-max .opt{min-height:44px;padding:6px 10px;font-size:var(--fs-s)}
+.cq-max .q .why{grid-row:2}
+.cq-max .done-q{padding:4px}
+@media (max-width:850px) and (orientation:portrait), (max-width:620px){
+  .cq-max .case{grid-template-columns:minmax(0,1fr);grid-template-rows:auto minmax(0,3fr) minmax(0,7fr)}
+  .cq-max .cq-questions{border-left:0;border-top:1px solid var(--line)}
+  .cq-max .case-body{font-size:var(--fs-s)}
+  .cq-max .memo dt,.cq-max .memo dd{padding:4px 8px}
+}
 
 /* 判子 */
 .stamp{
@@ -215,10 +274,6 @@ h1{
 .result{margin-top:26px; background:var(--panel); border:1px solid var(--line); border-radius:var(--r); padding:20px 18px; display:grid; gap:16px}
 .result h2{margin:0; font-family:var(--f-display); font-weight:400; font-size:var(--fs-xl)}
 .result h2:focus{outline:none}
-.rank{display:flex; align-items:center; gap:18px; flex-wrap:wrap}
-.rank .big{font-family:var(--f-display); font-size:4.4rem; line-height:1; color:var(--seal); text-shadow:3px 3px 0 var(--line)}
-.rank .pts{font-family:var(--f-display); font-size:1.4rem; font-variant-numeric:tabular-nums}
-.rank .best{font-size:var(--fs-xs); color:var(--muted)}
 .log{list-style:none; margin:0; padding:0; display:grid; gap:10px}
 .log li{border-top:1px dashed var(--line); padding-top:10px; display:grid; gap:4px}
 .log .lh{display:flex; gap:10px; align-items:baseline; flex-wrap:wrap}
@@ -270,7 +325,11 @@ tbody tr:last-child th, tbody tr:last-child td{border-bottom:0}
 .foot{margin-top:28px; font-size:var(--fs-xs); color:var(--muted); max-width:52em}
 </style>
 
-<div class="wrap">
+<div class="wrap" data-cq-layout="shared">
+  <div class="cq-tools">
+    <button type="button" class="ghost" id="cqOptions" aria-pressed="false">選択肢を最初から出す</button>
+    <button type="button" class="ghost" id="cqMax" aria-pressed="false">⛶ 全画面</button>
+  </div>
   <header class="top">
     <p class="eyebrow">精神科道場 ・ 精神保健福祉法（2024年4月施行の改正に対応）</p>
     <h1>当直明けの病棟</h1>
@@ -295,8 +354,8 @@ tbody tr:last-child th, tbody tr:last-child td{border-bottom:0}
   <div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
 
   <section class="ref" aria-labelledby="refh">
-    <h2 id="refh">行動制限の早見表</h2>
-    <div class="tbl-wrap">
+    <h2 id="refh" hidden>行動制限の早見表</h2>
+    <div class="tbl-wrap" hidden>
       <table>
         <thead><tr><th scope="col">項目</th><th scope="col">制限できるか</th><th scope="col">判断する人</th><th scope="col">守ること</th></tr></thead>
         <tbody>
@@ -475,7 +534,6 @@ tbody tr:last-child th, tbody tr:last-child td{border-bottom:0}
   ];
 
   var NQ = CASES.reduce(function (n, c) { return n + c.qs.length; }, 0);
-  var BEST_KEY = 'byoto-asa-best';
 
   function lsGet(k) { try { return window.localStorage.getItem(k); } catch (e) { return null; } }
   function lsSet(k, v) { try { window.localStorage.setItem(k, v); } catch (e) { /* 保存できない環境 */ } }
@@ -490,6 +548,8 @@ tbody tr:last-child th, tbody tr:last-child td{border-bottom:0}
       ci: 0,
       picks: CASES.map(function (c) { return c.qs.map(function () { return null; }); }),
       order: CASES.map(function (c) { return c.qs.map(function (q) { return shuffled(q.a.length); }); }),
+      revealed: {},
+      activeQ: 0,
       only: null  // まちがえた患者だけやり直すときの番号の並び
     };
   }
@@ -497,9 +557,20 @@ tbody tr:last-child th, tbody tr:last-child td{border-bottom:0}
   var S;
   var slotsEl = document.getElementById('slots');
   var mainEl = document.getElementById('main');
+  var root = document.documentElement;
+  var layout = mainEl.closest('.wrap').getAttribute('data-cq-layout');
+  var sharedLayout = layout === 'shared';
+  var sharedOptions = layout !== 'shorui';
+  var maxBtn = document.getElementById('cqMax');
+  var optionsBtn = document.getElementById('cqOptions');
+  var ref = document.querySelector('.ref');
+  var refHeading = ref.querySelector('h2');
+  var refTable = ref.querySelector('.tbl-wrap');
 
   // ---- 判子帳
   var HK_KEY = 'byoto-hanko-v1', HK_TITLES = [[0, '病棟の新人'], [4, '回診について行く人'], [8, '病棟の担当医'], [12, '処遇に強い主治医'], [16, '病棟医長']], HK_MAX = 8 * 2;
+  var optionsKey = HK_KEY + '-show-opts';
+  var alwaysShowOptions = lsGet(optionsKey) === '1';
   var HK = {}; try { HK = JSON.parse(lsGet(HK_KEY) || '{}') || {}; } catch (e) { HK = {}; }
   function hkPts() { var p = 0; CASES.forEach(function (c, i) { p += HK[i] || 0; }); return p; }
   function hkTitle(p) { var t = HK_TITLES[0]; HK_TITLES.forEach(function (x) { if (p >= x[0]) t = x; }); return t; }
@@ -514,7 +585,7 @@ tbody tr:last-child th, tbody tr:last-child td{border-bottom:0}
     document.getElementById('hkGrid').innerHTML = CASES.map(function (c, i) {
       var tr = HK[i] || 0;
       var st = tr ? '<b>' + esc(c.stamp[0]) + '</b>' + (c.stamp[1] ? '<small>' + esc(c.stamp[1]) + '</small>' : '') : '<b>？</b>';
-      return '<li class="hk t' + tr + '"><span class="hk-st" aria-hidden="true">' + st + '</span><span class="hk-t">' + c.time + '</span><span class="hk-n">' + (tr ? esc(c.title) : 'まだ') + '</span><span class="hk-tag">' + ['', '押した', '金・満点'][tr] + '</span></li>';
+      return '<li class="hk t' + tr + '"><span class="hk-st" aria-hidden="true">' + st + '</span><span class="hk-t">' + c.time + '</span><span class="hk-n">' + (tr ? esc(c.title) : 'まだ') + '</span><span class="hk-tag">' + ['', '押した', '金・全問正解'][tr] + '</span></li>';
     }).join('');
   }
   var toastEl = document.getElementById('toast'), toastT = 0;
@@ -556,7 +627,11 @@ tbody tr:last-child th, tbody tr:last-child td{border-bottom:0}
 
   function optsHTML(i, qi, live) {
     var q = CASES[i].qs[qi], pick = S.picks[i][qi];
-    return '<ol class="opts">' + S.order[i][qi].map(function (ai, pos) {
+    var hidden = sharedOptions && pick === null && !alwaysShowOptions && !S.revealed[i + ':' + qi];
+    return (sharedOptions && pick === null
+      ? '<button type="button" class="ghost reveal-box" data-reveal="' + qi + '"' + (hidden ? '' : ' hidden') + '>選択肢を表示</button>'
+      : '') +
+      '<ol class="opts"' + (hidden ? ' hidden' : '') + '>' + S.order[i][qi].map(function (ai, pos) {
       var cls = '', tag = '';
       if (pick !== null) {
         if (ai === 0) { cls = ' right'; tag = '正解'; }
@@ -570,17 +645,30 @@ tbody tr:last-child th, tbody tr:last-child td{border-bottom:0}
 
   function renderCase(pressStamp) {
     var i = S.ci, c = CASES[i], k = curQ(i), s = seq(), pos = s.indexOf(i);
-    var html = '<article class="case" aria-labelledby="caseh">' +
+    var activeQ = S.activeQ;
+    var previousCase = mainEl.querySelector('.case[data-case="' + i + '"] .case-body');
+    var caseScroll = previousCase ? previousCase.scrollTop : 0;
+    var html = '<article class="case" data-case="' + i + '" aria-labelledby="caseh">' +
       (k === -1 ? stampHTML(c, pressStamp ? 'press' : '') : '') +
       '<div class="case-top"><span class="clock">' + c.time + '</span><span class="where">' + esc(c.where) + ' ・ ' + (pos + 1) + '人目 / ' + s.length + '人</span>' +
       '<h2 id="caseh" tabindex="-1">' + esc(c.title) + '</h2></div><div class="case-body">' +
       '<p class="story">' + esc(c.story) + '</p>' +
       '<div class="memo-box"><p class="memo-cap">カルテの要点</p><dl class="memo">' + c.memo.map(function (m) { return '<dt>' + esc(m[0]) + '</dt><dd>' + esc(m[1]) + '</dd>'; }).join('') + '</dl></div>';
 
+    if (sharedLayout) {
+      html += '</div><div class="cq-questions"><nav class="cq-steps" aria-label="問いの切り替え">' +
+        c.qs.map(function (_, qi) {
+          var unavailable = qi !== k && S.picks[i][qi] === null;
+          return '<button type="button" class="ghost" data-cq-q="' + qi + '"' +
+            (qi === activeQ ? ' aria-current="step"' : '') + (unavailable ? ' disabled' : '') + '>問' + (qi + 1) + '</button>';
+        }).join('') + '</nav><div class="cq-question-scroll">';
+    }
+
     c.qs.forEach(function (q, qi) {
       var pick = S.picks[i][qi];
       if (pick === null && qi !== k) return;
-      html += '<section class="q" aria-labelledby="q' + qi + '"><h3 class="q-h" id="q' + qi + '" tabindex="-1"><span class="q-n">問' + (qi + 1) + '</span><span>' + esc(q.q) + '</span></h3>' +
+      html += '<section class="q' + (qi === activeQ ? ' cq-active' : '') + '" aria-labelledby="q' + qi + '"><h3 class="q-h" id="q' + qi + '" tabindex="-1"><span class="q-n">問' + (qi + 1) + '</span><span>' + esc(q.q) + '</span></h3>' +
+        (pick === null && window.PG_NOTE ? '<label class="note-sure"><input type="checkbox" id="noteSure"> 自信あり</label>' : '') +
         optsHTML(i, qi, qi === k);
       if (pick !== null) {
         html += '<p class="why"><b>' + (pick === 0 ? '正解。' : '正解は「' + esc(q.a[0]) + '」。') + '</b>' + esc(q.why) +
@@ -589,25 +677,33 @@ tbody tr:last-child th, tbody tr:last-child td{border-bottom:0}
       html += '</section>';
     });
 
-    if (k === -1) {
-      var isLast = pos === s.length - 1;
-      html += '<p class="done-q">判定：<b>' + esc(c.stampName) + '</b>（' + caseScore(i) + ' / 3 問正解）</p>' +
-        '<button type="button" class="next" id="nextBtn">' + (isLast ? '回診を終える' : '次の患者へ（' + CASES[s[pos + 1]].time + '）') + '</button>';
+    var finished = k === -1;
+    var lastQuestion = activeQ === c.qs.length - 1;
+    if (finished) {
+      html += '<p class="done-q">判定：<b>' + esc(c.stampName) + '</b>（' + caseScore(i) + ' / 3 問正解）</p>';
     }
+    if (sharedLayout) {
+      html += '</div><div class="cq-actions' + (lastQuestion ? ' cq-last' : '') + '">';
+      if (!lastQuestion && S.picks[i][activeQ] !== null) {
+        html += '<button type="button" class="next cq-next-q" data-cq-q="' + (activeQ + 1) + '">次の問いへ</button>';
+      }
+    }
+    if (finished) {
+      var isLast = pos === s.length - 1;
+      html += '<button type="button" class="next" id="nextBtn">' + (isLast ? '回診を終える' : '次の患者へ（' + CASES[s[pos + 1]].time + '）') + '</button>';
+    }
+    if (sharedLayout) html += '</div>';
     html += '</div></article>';
     mainEl.innerHTML = html;
+    if (sharedLayout) mainEl.querySelector('.case-body').scrollTop = caseScroll;
   }
 
   function renderResult() {
-    var right = totalRight(), pts = Math.round(right / NQ * 100);
-    var rank = pts >= 90 ? 'S' : pts >= 75 ? 'A' : pts >= 60 ? 'B' : pts >= 40 ? 'C' : 'D';
-    var best = parseInt(lsGet(BEST_KEY) || '0', 10) || 0;
-    if (!S.only && pts > best) { lsSet(BEST_KEY, String(pts)); best = pts; }
+    var right = totalRight();
     var missed = CASES.map(function (_, i) { return i; }).filter(function (i) { return caseScore(i) < CASES[i].qs.length; });
 
     mainEl.innerHTML = '<section class="result" aria-labelledby="resh"><h2 id="resh" tabindex="-1">回診の記録</h2>' +
-      '<div class="rank"><span class="big">' + rank + '</span><span class="pts">' + pts + '<small class="muted"> ／100</small></span>' +
-      '<span class="best">' + right + ' / ' + NQ + ' 問正解' + (best ? '　自己ベスト ' + best + '点' : '') + '</span></div>' +
+      '<p>' + right + ' / ' + NQ + ' 問正解</p>' +
       '<ol class="log">' + CASES.map(function (c, i) {
         var miss = c.qs.filter(function (q, qi) { return S.picks[i][qi] !== 0; });
         return '<li><div class="lh"><span class="lt">' + c.time + '</span><span class="ls">' + esc(c.title) + '</span><span class="lm muted">' + esc(c.stampName) + '・' + caseScore(i) + '/3</span></div>' +
@@ -621,7 +717,9 @@ tbody tr:last-child th, tbody tr:last-child td{border-bottom:0}
 
   function render(opts) {
     opts = opts || {};
+    if (opts.activeQ != null) S.activeQ = opts.activeQ;
     renderSlots();
+    refHeading.hidden = refTable.hidden = S.ci !== -1;
     if (S.ci === -1) {
       renderResult();
       if (opts.focus) document.getElementById('resh').focus();
@@ -639,10 +737,20 @@ tbody tr:last-child th, tbody tr:last-child td{border-bottom:0}
   function answer(qi, ai) {
     var i = S.ci;
     if (S.picks[i][qi] !== null || curQ(i) !== qi) return;
+    var note = window.PG_NOTE;
+    if (note) {
+      var c = CASES[i], q = c.qs[qi], confidence = document.getElementById('noteSure');
+      var attempt = { id: q.id || [c.title, q.q], q: q.q, sure: Boolean(confidence && confidence.checked) };
+      if (ai === 0) note.hit(attempt);
+      else note.miss(Object.assign(attempt, {
+        picked: q.a[ai], answer: q.a[0], why: q.why, options: q.a,
+        context: [c.title, c.story].concat(c.memo.map(function (m) { return m.join('：'); })).join('\n')
+      }));
+    }
     S.picks[i][qi] = ai;
     var finished = curQ(i) === -1;
     if (finished) awardHanko(i);
-    render({ press: finished });
+    render({ press: finished, activeQ: qi });
     // 解説を読めるように、答えた問いの見出しへフォーカスを戻す
     var h = document.getElementById('q' + qi);
     if (h) h.focus({ preventScroll: true });
@@ -651,6 +759,7 @@ tbody tr:last-child th, tbody tr:last-child td{border-bottom:0}
   function nextCase() {
     var s = seq(), pos = s.indexOf(S.ci);
     S.ci = pos < s.length - 1 ? s[pos + 1] : -1;
+    S.activeQ = 0;
     render({ focus: S.ci === -1 ? true : 'case' });
     if (S.ci === -1) document.getElementById('resh').scrollIntoView({ block: 'start' });
   }
@@ -663,34 +772,116 @@ tbody tr:last-child th, tbody tr:last-child td{border-bottom:0}
         S.order[i] = CASES[i].qs.map(function (q) { return shuffled(q.a.length); });
       });
       S.only = m; S.ci = m[0];
+      S.revealed = {};
+      S.activeQ = 0;
     } else {
       S = newState();
     }
     render({ focus: 'case' });
   }
 
+  function syncOptions(qi, reveal) {
+    var h = document.getElementById('q' + qi);
+    var q = h && h.closest('.q');
+    var gate = q && q.querySelector('.reveal-box');
+    if (!gate) return;
+    var opts = q.querySelector('.opts');
+    var key = S.ci + ':' + qi;
+    if (reveal) S.revealed[key] = true;
+    gate.hidden = alwaysShowOptions || !!S.revealed[key];
+    opts.hidden = !gate.hidden;
+    if (reveal) opts.querySelector('.opt').focus();
+  }
+
+  optionsBtn.hidden = !sharedOptions;
+  optionsBtn.parentNode.hidden = !sharedOptions && !sharedLayout;
+  optionsBtn.setAttribute('aria-pressed', String(alwaysShowOptions));
+  optionsBtn.addEventListener('click', function () {
+    alwaysShowOptions = !alwaysShowOptions;
+    lsSet(optionsKey, alwaysShowOptions ? '1' : '0');
+    optionsBtn.setAttribute('aria-pressed', String(alwaysShowOptions));
+    if (S && S.ci !== -1) syncOptions(curQ(S.ci), false);
+  });
+
+  function setMaxLayout(on) {
+    root.classList.toggle('is-max', on);
+    root.classList.toggle('cq-max', on);
+    maxBtn.setAttribute('aria-pressed', String(on));
+    maxBtn.textContent = on ? '全画面を終了' : '⛶ 全画面';
+  }
+
+  maxBtn.hidden = !sharedLayout;
+  if (sharedLayout) {
+    maxBtn.addEventListener('click', function () {
+      var on = !root.classList.contains('cq-max');
+      setMaxLayout(on);
+      var native = document.fullscreenElement || document.webkitFullscreenElement;
+      var request = root.requestFullscreen || root.webkitRequestFullscreen;
+      var exit = document.exitFullscreen || document.webkitExitFullscreen;
+      var action = on && !native ? request : (!on && native ? exit : null);
+      if (action) {
+        try {
+          var pending = action.call(on ? root : document);
+          if (pending && pending.catch) pending.catch(function () {});
+        } catch (e) { /* 全画面を使えない環境では画面の並べ方だけを切り替える */ }
+      }
+    });
+    function syncNativeFullscreen() {
+      if (!document.fullscreenElement && !document.webkitFullscreenElement) setMaxLayout(false);
+    }
+    document.addEventListener('fullscreenchange', syncNativeFullscreen);
+    document.addEventListener('webkitfullscreenchange', syncNativeFullscreen);
+  }
+
   mainEl.addEventListener('click', function (e) {
     var b = e.target.closest('button'); if (!b) return;
     if (b.classList.contains('opt')) answer(+b.dataset.q, +b.dataset.a);
+    else if (b.hasAttribute('data-reveal')) syncOptions(+b.dataset.reveal, true);
+    else if (b.hasAttribute('data-cq-q')) {
+      S.activeQ = +b.dataset.cqQ;
+      renderCase();
+      document.getElementById('q' + S.activeQ).focus({ preventScroll: true });
+    }
     else if (b.id === 'nextBtn') nextCase();
     else if (b.id === 'retryMiss') restart(true);
     else if (b.id === 'restart') restart(false);
   });
 
   document.addEventListener('keydown', function (e) {
-    if (e.altKey || e.ctrlKey || e.metaKey || S.ci === -1) return;
+    if (e.defaultPrevented || e.altKey || e.ctrlKey || e.metaKey) return;
+    if (e.key === 'Escape' && root.classList.contains('cq-max')) {
+      e.preventDefault();
+      maxBtn.click();
+      return;
+    }
+    if (!S || S.ci === -1 || e.target.closest('input, textarea, select, [contenteditable="true"]')) return;
     var k = curQ(S.ci);
+    var interactive = e.target.closest('button, a, summary');
     if (k !== -1 && /^[1-4]$/.test(e.key)) {
       var ai = S.order[S.ci][k][+e.key - 1];
-      if (ai !== undefined) { e.preventDefault(); answer(k, ai); }
-    } else if (k === -1 && e.key === 'Enter' && !e.target.closest('button, a, input, textarea, select')) {
-      e.preventDefault(); nextCase();
+      var opts = document.getElementById('q' + k).closest('.q').querySelector('.opts');
+      if (ai !== undefined && opts.getClientRects().length) { e.preventDefault(); answer(k, ai); }
+    } else if (!interactive && (e.key === 'Enter' || e.key === ' ')) {
+      var gate = mainEl.querySelector('.reveal-box:not([hidden])');
+      var next = mainEl.querySelector(root.classList.contains('cq-max') ? '.cq-next-q, .cq-last #nextBtn' : '#nextBtn');
+      if (gate && gate.getClientRects().length) {
+        e.preventDefault();
+        gate.click();
+      } else if (e.key === 'Enter' && next && next.getClientRects().length) {
+        e.preventDefault();
+        next.click();
+      }
     }
   });
 
   function start(data) {
     renderHanko();
     S = (data && data.S && data.S.picks && data.S.picks.length === CASES.length) ? data.S : newState();
+    S.revealed = S.revealed || {};
+    if (S.ci !== -1 && S.activeQ == null) {
+      var pending = curQ(S.ci);
+      S.activeQ = pending === -1 ? CASES[S.ci].qs.length - 1 : pending;
+    }
     render();
   }
   if (window.claude && window.claude.hot && window.claude.hot.snapshot) {

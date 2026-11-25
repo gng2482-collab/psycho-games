@@ -6,7 +6,7 @@
 <meta name="robots" content="noindex, nofollow">
 <!-- アクセス数（GoatCounter、Cookie なし・個人を特定しない。2026-11-23 利用者の依頼） -->
 <script data-goatcounter="https://psychogames.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
-<meta name="app-version" content="20261125090109">
+<meta name="app-version" content="20261125092839">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
@@ -36,7 +36,8 @@ img{max-width:100%}
     window.__ipadPlayer = P;
     if (P === 'me') return;
     var pre = 'p:' + P + ':', S = Storage.prototype, g = S.getItem, s = S.setItem, r = S.removeItem;
-    var map = function (k) { return k === 'ipad-player' ? k : pre + k; };
+    // 復習ノートのキーには、すでにプレイヤー名が付いている。
+    var map = function (k) { return k === 'ipad-player' || /^pg-note-v1:/.test(k) ? k : pre + k; };
     S.getItem = function (k) { return g.call(this, map(k)); };
     S.setItem = function (k, v) { return s.call(this, map(k), v); };
     S.removeItem = function (k) { return r.call(this, map(k)); };
@@ -48,6 +49,7 @@ if ('serviceWorker' in navigator) { window.addEventListener('load', function () 
 </head>
 <body>
 <nav class="ipad-bar" aria-label="アプリ"><a href="../../index.html#g=pharmacology">← ゲーム一覧</a><span class="right"><span id="ipadWho"></span><a href="#" class="fbk" id="ipadFbk" target="_blank" rel="noopener">⚑ 不具合・感想</a><button type="button" class="upd" data-upd="manual" aria-label="新しい版を確かめて更新">↻ 更新</button></span></nav>
+<script src="../../review-note.js" data-app="薬理ラボ" data-where="games/pharmacology/yakuri.html" data-group="pharmacology"></script>
 <script>(function(){var P=window.__ipadPlayer||'me';document.getElementById('ipadWho').textContent='プレイヤー：'+(P==='me'?'自分':P);})();
 /* 不具合・感想を送る：どのアプリのどの画面からでも、いまの場所を「どこの不具合か」の欄に自動で入れる（Google フォーム） */
 (function(){var FB='https://docs.google.com/forms/d/e/1FAIpQLSdNJkjXAVATEdI6vKRfg8gmFf87viEZP8qCpqCzv9lQGojGeg/viewform?usp=pp_url&entry.298389701=',APP='薬理ラボ',a=document.getElementById('ipadFbk');if(!a)return;
@@ -175,9 +177,7 @@ select{font:inherit;padding:6px 8px;border:1px solid var(--line);border-radius:v
 .ropt{font:inherit;font-weight:700;min-height:56px;padding:8px;border:1px solid var(--line);border-radius:var(--r);background:var(--panel);color:var(--ink);cursor:pointer}
 .ropt.ok{border:2px solid var(--good);background:color-mix(in srgb,var(--good) 14%,var(--panel))}
 .ropt.ng{border:2px solid var(--bad);background:color-mix(in srgb,var(--bad) 10%,var(--panel))}
-.combo{font-family:var(--f-display);color:var(--accent);text-align:center;min-height:1.5em}
-.rwhy{font-size:var(--fs-s);background:var(--strip);border-radius:var(--r);padding:8px 12px;min-height:3em}
-.big{font-family:var(--f-display);font-size:3rem;line-height:1;color:var(--accent)}
+.rwhy{font-size:var(--fs-s);background:var(--strip);border-radius:var(--r);padding:8px 12px}
 .miss{list-style:none;margin:0;padding:0;display:grid;gap:6px;font-size:var(--fs-s)}
 .miss li{border-left:4px solid var(--bad);padding:4px 10px;background:var(--panel)}
 
@@ -212,36 +212,81 @@ select{font:inherit;padding:6px 8px;border:1px solid var(--line);border-radius:v
   .knob .aseg,.knob .sseg{flex:none}
 }
 .ph-top-row{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.ph-controls{display:flex;flex-wrap:wrap;justify-content:flex-end;gap:6px}
+.ph-controls .btn{padding-inline:10px;font-size:var(--fs-s)}
+.ph-mode-name{display:none;font-weight:700}
+.quiz-settings{position:relative}
+.quiz-settings summary{display:flex;align-items:center;list-style:none}
+.quiz-settings summary::-webkit-details-marker{display:none}
+.quiz-settings label{position:absolute;z-index:10;inset-inline-end:0;top:calc(100% + 4px);display:flex;align-items:center;gap:8px;width:max-content;max-width:calc(100vw - 32px);min-height:44px;padding:6px 12px;border:1px solid var(--line);border-radius:var(--r);background:var(--panel)}
+.btn.reveal-box{justify-self:start;border-style:dashed}
+.quiz-main,.quiz-answers,.who-question,.ddi-study{display:grid;gap:12px;min-width:0;align-content:start}
+#whobox{max-width:720px;width:100%;margin:0 auto}
+.quiz-next{margin-top:4px}
+.quiz-feedback h3:focus{outline-offset:0}
+.quiz-feedback details > summary{min-height:44px;cursor:pointer;padding-block:8px}
+.who-effects svg{display:block;width:min(100%,125px);height:auto}
 .ph-theme-btn{flex:none;display:inline-flex;align-items:center;justify-content:center;gap:5px;min-width:44px;min-height:44px;padding:0 11px;border-radius:999px;border:1.5px solid var(--line);background:var(--panel);color:var(--ink);font:inherit;font-size:var(--fs-xs);font-weight:700;cursor:pointer;white-space:nowrap;touch-action:manipulation}
 .ph-theme-btn:hover{border-color:var(--accent)}
 .ph-theme-btn svg{width:17px;height:17px;fill:none;stroke:currentColor;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
 @media (max-width:420px){.ph-theme-lbl{display:none}.ph-theme-btn{padding:0;width:44px}}
 
 .ph-map{margin-top:12px;background:var(--panel);border:1.5px solid var(--line);border-radius:10px;overflow:hidden}
-.ph-map-head{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:7px 12px;background:var(--accent-soft);border-bottom:1px solid var(--line)}
-.ph-map-title{flex:1;min-width:0;display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin:0;font-family:var(--f-display);font-weight:400;font-size:.95rem;color:var(--ink)}
-.ph-badge{font-family:var(--f-body);font-size:.7rem;font-weight:700;padding:2px 8px;border-radius:999px;background:var(--accent);color:var(--accent-ink);white-space:nowrap}
-.ph-toggle{min-height:44px;padding:0 12px;border-radius:8px;border:1px solid var(--line);background:var(--panel);color:var(--ink);font:inherit;font-size:var(--fs-xs);font-weight:700;cursor:pointer;white-space:nowrap;touch-action:manipulation}
+.ph-map-head{min-height:44px;padding:8px 12px;background:var(--accent-soft);cursor:pointer}
 .ph-map-body{padding:12px;display:grid;gap:8px}
-.ph-map-body[hidden]{display:none!important}
-.ph-svg{display:block;width:100%;height:auto;max-width:740px;margin:0 auto}
+.ph-svg{display:block;width:100%;height:auto;max-width:400px;margin:0 auto}
 .ph-svg text{font-family:var(--f-body);fill:var(--ink)}
 .ph-svg .sm{fill:var(--muted)} .ph-svg .sg{fill:var(--good)} .ph-svg .sb{fill:var(--bad)} .ph-svg .sa{fill:var(--accent)}
 @media (prefers-reduced-motion:reduce){
-  .tbar i,.ph-theme-btn,.ph-toggle,.mchip,.mode{transition:none!important;animation:none!important}
+  .tbar i,.ph-theme-btn,.mchip,.mode{transition:none!important;animation:none!important}
 }
+
+html.is-max,html.is-max body{height:100%;overflow:hidden}
+.is-max body{padding-block:max(6px,env(safe-area-inset-top,0px)) max(6px,env(safe-area-inset-bottom,0px))}
+.is-max .wrap{height:100%;max-width:1320px;display:flex;flex-direction:column;gap:8px}
+.is-max .top{padding:0;display:block}
+.is-max .top > :not(.ph-top-row),.is-max .eyebrow,.is-max .foot,.is-max .ipad-bar,.is-max #mini{display:none!important}
+.is-max .ph-mode-name{display:block}
+.is-max .pane{flex:1;min-height:0;margin:0;overflow:auto;overscroll-behavior:contain;align-content:start}
+.is-max #rush,.is-max #who{align-content:stretch;overflow:hidden}
+.is-max #rushbox,.is-max #whobox{display:flex;flex-direction:column;min-height:0}
+.is-max .quiz-main{overflow:auto;overscroll-behavior:contain;padding:4px}
+.is-max .quiz-next{flex-shrink:0}
+.is-max .prompt{min-height:64px;padding:8px 12px}
+.is-max .ropt,.is-max .qopt{min-height:44px;padding:5px 8px;font-size:var(--fs-s)}
+.is-max #dscn{display:flex;flex-wrap:nowrap;overflow-x:auto;padding:4px}
+.is-max #dscn .mchip{flex:none}
+.is-max .anim canvas{max-height:36dvh;object-fit:contain}
+.is-max #ddi .acap{min-height:0}
+.is-max .sticky{position:static}
+@media (min-width:760px) and (orientation:landscape){
+  .is-max #whobox{max-width:1000px}
+  .is-max .who-question{grid-template-columns:minmax(0,1fr) minmax(0,1.25fr);align-items:start}
+  .is-max .ddi-study:has(#dfigure:not([hidden])){grid-template-columns:minmax(0,1fr) minmax(0,1fr);align-items:start}
+}
+@media (min-width:861px){.is-max .sticky{position:sticky;top:4px}}
 </style>
 
 <div class="wrap">
   <header class="top">
-    <p class="eyebrow">精神科道場 ・ 薬理</p>
+    <div class="ph-top-row">
+      <p class="eyebrow">精神科道場 ・ 薬理</p>
+      <span class="ph-mode-name" id="phModeName">ラボ</span>
+      <div class="ph-controls">
+        <details class="quiz-settings">
+          <summary class="btn ghost">設定</summary>
+          <label><input type="checkbox" id="phShowChoices">選択肢を最初から出す</label>
+        </details>
+        <button type="button" class="btn ghost" id="phMaxBtn" aria-pressed="false">⛶ 全画面</button>
+      </div>
+    </div>
     <h1>薬理ラボ</h1>
     <p>向精神薬の効果と副作用の多くは、「どの受容体に、どう働くか」で説明できます。受容体を組み合わせて薬を作り、副作用から受容体を当て、受容体の形から薬を当てて、薬理の地図を頭に入れましょう。</p>
     <div class="modes" role="group" aria-label="モード">
       <button type="button" class="mode" data-m="lab" aria-pressed="true"><b>ラボ</b><small>受容体を組み合わせて薬を作る</small></button>
       <button type="button" class="mode" data-m="anim" aria-pressed="false"><b>しくみアニメ</b><small>シナプスで薬が働く様子を動画で</small></button>
       <button type="button" class="mode" data-m="ddi" aria-pressed="false"><b>のみ合わせ</b><small>CYPと血中濃度を動画で</small></button>
-      <button type="button" class="mode" data-m="rush" aria-pressed="false"><b>受容体ラッシュ</b><small>60秒で、副作用から受容体を当てる</small></button>
+      <button type="button" class="mode" data-m="rush" aria-pressed="false"><b>受容体ラッシュ</b><small>副作用や効果から受容体を当てる</small></button>
       <button type="button" class="mode" data-m="who" aria-pressed="false"><b>この薬だれ？</b><small>受容体の形から薬を当てる</small></button>
       <button type="button" class="mode" data-m="zukan" aria-pressed="false"><b>薬の図鑑</b><small>受容体の形と、試験に出るポイント</small></button>
     </div>
@@ -256,10 +301,16 @@ select{font:inherit;padding:6px 8px;border:1px solid var(--line);border-radius:v
     </div>
     <div class="lab">
       <div class="card">
-        <div class="row"><h3>受容体のつまみ</h3><label class="note">実在の薬を読み込む <select id="load"></select></label><button type="button" class="btn ghost" id="clr">すべて0に</button></div>
+        <div class="row">
+          <h3>受容体のつまみ</h3>
+          <label class="note" id="loadLabel">実在の薬を読み込む <select id="load"></select></label>
+          <button type="button" class="btn ghost" id="clr">すべて0に</button>
+          <button type="button" class="btn" id="missionCheck" hidden>条件を確かめる</button>
+        </div>
         <div class="knobs" id="knobs"></div>
       </div>
-      <div class="sticky">
+      <div class="sticky" id="labOut" role="region" aria-label="効果・副作用の図">
+        <h3 id="missionExplanation" tabindex="-1" hidden>解説・つまみを動かして確かめる</h3>
         <div class="card">
           <div class="bodywrap"><div id="body"></div><div class="eff" id="eff"></div></div>
         </div>
@@ -285,15 +336,18 @@ select{font:inherit;padding:6px 8px;border:1px solid var(--line);border-radius:v
 
   <section class="pane" id="ddi" hidden aria-label="のみ合わせ">
     <div class="mis" id="dscn"></div>
-    <figure class="anim">
-      <canvas id="dcv" aria-label="のみ合わせで血中濃度が変わる様子のグラフ"></canvas>
-      <figcaption>
-        <div class="row"><span class="asteps" id="dsteps"></span><button type="button" class="btn ghost" id="dplay">⏸ 一時停止</button></div>
-        <p class="acap" id="dcap" aria-live="polite"></p>
-      </figcaption>
-    </figure>
-    <div class="card" id="dquiz"></div>
-    <p class="note">同じ量を毎日飲み続けた場合の、1日の平均の血中濃度を、いつもの値を1として描いた模式図です。変化の大きさは文献でよく示される目安で、実際は個人差が大きく、血中濃度の測定と添付文書で確かめてください。</p>
+    <div class="ddi-study">
+      <div class="card" id="dquiz"></div>
+      <figure class="anim" id="dfigure" hidden aria-labelledby="dfigTitle">
+        <figcaption>
+          <h3 id="dfigTitle">血中濃度の変化</h3>
+          <canvas id="dcv" aria-label="のみ合わせで血中濃度が変わる様子のグラフ"></canvas>
+          <div class="row"><span class="asteps" id="dsteps"></span><button type="button" class="btn ghost" id="dplay">⏸ 一時停止</button></div>
+          <p class="acap" id="dcap" aria-live="polite"></p>
+          <p class="note">同じ量を毎日飲み続けた場合の、1日の平均の血中濃度を、いつもの値を1として描いた模式図です。変化の大きさは文献でよく示される目安で、実際は個人差が大きく、血中濃度の測定と添付文書で確かめてください。</p>
+        </figcaption>
+      </figure>
+    </div>
   </section>
 
   <section class="pane" id="rush" hidden aria-label="受容体ラッシュ">
@@ -301,7 +355,7 @@ select{font:inherit;padding:6px 8px;border:1px solid var(--line);border-radius:v
   </section>
 
   <section class="pane" id="who" hidden aria-label="この薬だれ？">
-    <div class="card" id="whobox" style="max-width:720px;width:100%;margin:0 auto"></div>
+    <div class="card" id="whobox"></div>
   </section>
 
   <section class="pane" id="zukan" hidden aria-label="薬の図鑑">
@@ -432,6 +486,19 @@ select{font:inherit;padding:6px 8px;border:1px solid var(--line);border-radius:v
   var KEY = 'pharm-lab-v1', ST = {}; try { ST = JSON.parse(localStorage.getItem(KEY) || '{}') || {}; } catch (e) { ST = {}; }
   if (!ST.mis) ST.mis = {};
   function save() { try { localStorage.setItem(KEY, JSON.stringify(ST)); } catch (e) {} }
+  var choicePref = document.getElementById('phShowChoices');
+  var CHOICES_KEY = 'pharm-lab-show-choices-v1';
+  try { choicePref.checked = localStorage.getItem(CHOICES_KEY) === '1'; } catch (e) {}
+  function quizOptions(quiz, className, html) {
+    return choicePref.checked || quiz.revealed
+      ? '<div class="' + className + '">' + html + '</div>'
+      : '<button type="button" class="btn ghost reveal-box">選択肢を表示</button>';
+  }
+  function noteMiss(q, picked, answer, why, where) {
+    if (!window.PG_NOTE || typeof window.PG_NOTE.miss !== 'function') return;
+    try { window.PG_NOTE.miss({ app: '薬理ラボ', q: q, picked: picked, answer: answer, why: why, where: where }); }
+    catch (e) { /* 記録できない環境でも解説を表示する */ }
+  }
 
   /* ---------- ラボ ---------- */
   var L = {}; function clearL() { T.forEach(function (t) { L[t.id] = [t.acts[0], 0]; }); } clearL();
@@ -446,7 +513,7 @@ select{font:inherit;padding:6px 8px;border:1px solid var(--line);border-radius:v
     { id: 'm7', nm: '乱用の心配が少ないADHD治療薬', c: [['att', '>=', 2, '注意・集中（中以上）'], ['dpd', '=', 0, '依存・乱用なし']], hint: 'ドパミンの取り込み口を直接ふさがない方法は2つあります。', ans: 'ato' },
     { id: 'm8', nm: '吐き気と徐脈が出にくい認知症の薬', c: [['dem', '>=', 2, '認知症の症状を和らげる（中以上）'], ['nau', '=', 0, '吐き気なし'], ['brady', '=', 0, '徐脈なし']], hint: 'アセチルコリンを増やすのとは別の道があります。', ans: 'mem' }
   ];
-  var curMis = null;
+  var curMis = null, missionChecked = false;
   function checkC(ef, c) { var v = ef[c[0]]; return c[1] === '>=' ? v >= c[2] : c[1] === '<=' ? v <= c[2] : v === c[2]; }
   function cos(a, b) {
     var keys = {}, dot = 0, na = 0, nb = 0;
@@ -483,6 +550,16 @@ select{font:inherit;padding:6px 8px;border:1px solid var(--line);border-radius:v
   }
   function renderLabOut() {
     var prof = curProf(), ef = effects(prof);
+    var inMission = curMis != null, predicting = inMission && !missionChecked;
+    document.getElementById('loadLabel').hidden = inMission;
+    document.getElementById('missionCheck').hidden = !predicting;
+    document.getElementById('labOut').hidden = predicting;
+    document.getElementById('missionExplanation').hidden = !inMission;
+    if (predicting) {
+      document.getElementById('mini').textContent = '';
+      renderMis(ef);
+      return;
+    }
     document.getElementById('body').innerHTML = bodySVG(ef);
     function list(k, title) {
       var xs = E.filter(function (e) { return (k === 'b' ? e.k !== 'g' : e.k === 'g') && ef[e.id]; }).sort(function (a, b) { return ef[b.id] - ef[a.id]; });
@@ -503,18 +580,27 @@ select{font:inherit;padding:6px 8px;border:1px solid var(--line);border-radius:v
     var box = document.getElementById('mbox');
     if (curMis == null) { box.innerHTML = ''; return; }
     var m = MIS[curMis], ok = m.c.map(function (c) { return checkC(ef, c); }), all = ok.every(Boolean) && Object.keys(curProf()).length;
+    if (!missionChecked) {
+      box.innerHTML = '<div class="mbox"><b>' + esc(m.nm) + '</b><ul class="conds">' + m.c.map(function (c) { return '<li>' + esc(c[3]) + '</li>'; }).join('') + '</ul></div>';
+      return;
+    }
     if (all && !ST.mis[m.id]) { ST.mis[m.id] = 1; save(); }
     box.innerHTML = '<div class="mbox"><b>' + esc(m.nm) + '</b><ul class="conds">' + m.c.map(function (c, i) { return '<li class="' + (ok[i] ? 'ok' : '') + '">' + esc(c[3]) + '</li>'; }).join('') + '</ul>' +
       (all ? '<p class="clear">ミッション達成！</p><p>この考え方の薬の例：<b>' + esc(DM[m.ans].nm) + '</b>。' + esc(DM[m.ans].pts[0]) + '</p>' : '<details><summary>ヒント</summary><p>' + esc(m.hint) + '</p></details>') + '</div>';
-    if (all) document.querySelectorAll('.mchip')[curMis].innerHTML = '<span class="ok">✓ </span>' + esc(m.nm);
+    if (all) document.querySelector('#mis [data-mi="' + curMis + '"]').innerHTML = '<span class="ok">✓ </span>' + esc(m.nm);
   }
   document.getElementById('knobs').addEventListener('click', function (e) {
     var b = e.target.closest('button'); if (!b) return; var t = b.getAttribute('data-t');
     if (b.hasAttribute('data-a')) L[t][0] = b.getAttribute('data-a'); else L[t][1] = +b.getAttribute('data-s');
     document.getElementById('load').value = ''; renderLab();
   });
-  document.getElementById('mis').addEventListener('click', function (e) { var b = e.target.closest('[data-mi]'); if (!b) return; var i = +b.getAttribute('data-mi'); curMis = curMis === i ? null : i; clearL(); document.getElementById('load').value = ''; renderLab(); });
-  document.getElementById('clr').addEventListener('click', function () { clearL(); document.getElementById('load').value = ''; renderLab(); });
+  document.getElementById('mis').addEventListener('click', function (e) { var b = e.target.closest('[data-mi]'); if (!b) return; var i = +b.getAttribute('data-mi'); curMis = curMis === i ? null : i; missionChecked = false; clearL(); document.getElementById('load').value = ''; renderLab(); });
+  document.getElementById('clr').addEventListener('click', function () { missionChecked = false; clearL(); document.getElementById('load').value = ''; renderLab(); });
+  document.getElementById('missionCheck').addEventListener('click', function () {
+    missionChecked = true;
+    renderLabOut();
+    document.getElementById('missionExplanation').focus();
+  });
   var sel = document.getElementById('load');
   sel.innerHTML = '<option value="">（選ぶ）</option>' + PD.map(function (d) { return '<option value="' + d.id + '">' + esc(d.nm) + '</option>'; }).join('');
   sel.addEventListener('change', function () { var d = DM[sel.value]; if (!d) return; clearL(); Object.keys(d.prof).forEach(function (k) { L[k] = d.prof[k].slice(); }); var v = sel.value; renderLab(); sel.value = v; });
@@ -558,47 +644,73 @@ select{font:inherit;padding:6px 8px;border:1px solid var(--line);border-radius:v
   var RS = null, rtick = null;
   function rushStart() {
     clearInterval(rtick);
-    RS = { q: shuf(RQ), i: 0, score: 0, combo: 0, best: 0, life: 3, left: 60, miss: [], lock: false, over: false, fb: '' };
-    rushNext(); rtick = setInterval(function () { if (!RS || RS.over) return; RS.left -= 0.25; if (RS.left <= 0) { RS.left = 0; rushEnd(); } else { var b = document.querySelector('.tbar i'); if (b) b.style.width = (RS.left / 60 * 100) + '%'; var tt = document.getElementById('rt'); if (tt) tt.textContent = Math.ceil(RS.left) + '秒'; } }, 250);
+    RS = { deck: shuf(RQ), i: 0, right: 0, left: 60, miss: [], over: false, question: null };
+    rushNext();
+    rtick = setInterval(function () {
+      var q = RS.question;
+      if (q.pick !== null || !(q.revealed || choicePref.checked) || document.hidden) return;
+      RS.left -= 0.25;
+      if (RS.left <= 0) { rushEnd(); return; }
+      document.querySelector('#rushbox .tbar i').style.width = (RS.left / 60 * 100) + '%';
+      document.getElementById('rt').textContent = Math.ceil(RS.left) + '秒';
+    }, 250);
   }
   function rushNext() {
-    if (RS.i >= RS.q.length) { RS.q = RS.q.concat(shuf(RQ)); }
-    var q = RS.q[RS.i];
-    q.cur = q.opts ? shuf(q.opts) : shuf([q.a].concat(shuf(POOL.filter(function (p) { return p !== q.a && q.x.indexOf(p) < 0 && p.split(' ')[0] !== q.a.split(' ')[0]; })).slice(0, 3)));
-    RS.lock = false; renderRush();
+    var q = RS.deck[RS.i];
+    var options = q.opts ? shuf(q.opts) : shuf([q.a].concat(shuf(POOL.filter(function (p) { return p !== q.a && q.x.indexOf(p) < 0 && p.split(' ')[0] !== q.a.split(' ')[0]; })).slice(0, 3)));
+    RS.question = { data: q, options: options, pick: null, revealed: false };
+    renderRush();
+    document.getElementById('rushPrompt').focus({ preventScroll: true });
   }
   function rushEnd() {
     clearInterval(rtick); RS.over = true;
-    if (!ST.rush || RS.score > ST.rush) { ST.rush = RS.score; save(); }
     renderRush();
+    document.getElementById('rushResult').focus({ preventScroll: true });
   }
   function renderRush() {
     var el = document.getElementById('rushbox');
-    if (!RS) { el.innerHTML = '<div class="card"><h2>受容体ラッシュ</h2><p>副作用や効果が出てきます。原因の受容体と作用を4つから選んでください。60秒、ライフは3つ。続けて正解するとコンボで点が増えます。</p>' + (ST.rush ? '<p class="note">これまでの最高 ' + ST.rush + '点</p>' : '') + '<div class="row"><button type="button" class="btn" data-r="start">スタート</button></div></div>'; return; }
-    if (RS.over) {
-      el.innerHTML = '<div class="card"><h2>おしまい</h2><p class="big">' + RS.score + '点</p><p>最大コンボ ' + RS.best + '　これまでの最高 ' + ST.rush + '点</p>' +
-        (RS.miss.length ? '<h3>まちがえた問題</h3><ul class="miss">' + RS.miss.map(function (m) { return '<li><b>' + esc(m.p) + '</b> → ' + esc(m.a) + '<br>' + esc(m.why) + '</li>'; }).join('') + '</ul>' : '<p>ノーミス！</p>') +
-        '<div class="row"><button type="button" class="btn" data-r="start">もう一度</button></div></div>';
+    if (!RS) {
+      el.innerHTML = '<div class="card"><h2>受容体ラッシュ</h2><p>副作用や効果から、原因の受容体とその作用を考えます。選択肢を開いてから答えるまで、合計60秒使えます。3問まちがえると終了です。</p><div class="row"><button type="button" class="btn" data-r="start">スタート</button></div></div>';
       return;
     }
-    var q = RS.q[RS.i];
-    el.innerHTML = '<div class="hud"><span>' + RS.score + '点</span><span id="rt">' + Math.ceil(RS.left) + '秒</span><span class="life" aria-label="ライフ' + RS.life + '">' + '♥'.repeat(RS.life) + '<span style="opacity:.25">' + '♥'.repeat(3 - RS.life) + '</span></span></div>' +
-      '<div class="tbar"><i style="width:' + (RS.left / 60 * 100) + '%"></i></div>' +
-      '<div class="prompt"><span><small>原因はどれ？</small>' + esc(q.p) + '</span></div>' +
-      '<div class="ropts">' + q.cur.map(function (o, j) { return '<button type="button" class="ropt" data-ro="' + j + '">' + esc(o) + '</button>'; }).join('') + '</div>' +
-      '<p class="combo">' + (RS.combo >= 2 ? RS.combo + ' コンボ！' : '') + '</p><p class="rwhy" aria-live="polite">' + RS.fb + '</p>';
+    if (RS.over) {
+      el.innerHTML = '<div class="quiz-main card"><h2 id="rushResult" tabindex="-1">おしまい</h2><p>正解 ' + RS.right + ' / ' + (RS.right + RS.miss.length) + '問</p>' +
+        (RS.miss.length ? '<h3>まちがえた問題</h3><ul class="miss">' + RS.miss.map(function (m) { return '<li><b>' + esc(m.p) + '</b> → ' + esc(m.a) + '<br>' + esc(m.why) + '</li>'; }).join('') + '</ul>' : '') +
+        '</div><div class="row quiz-next"><button type="button" class="btn" data-r="start">もう一度</button></div>';
+      return;
+    }
+    var quiz = RS.question, q = quiz.data, answered = quiz.pick !== null;
+    var options = quiz.options.map(function (o, j) {
+      var mark = answered ? (o === q.a ? ' ok' : o === quiz.pick ? ' ng' : '') : '';
+      return '<button type="button" class="ropt' + mark + '" data-ro="' + j + '" data-quiz-choice' + (answered ? ' disabled' : '') + '>' + esc(o) + '</button>';
+    }).join('');
+    var life = 3 - RS.miss.length;
+    el.innerHTML = '<div class="quiz-main"><div class="hud"><span id="rt">' + Math.ceil(RS.left) + '秒</span><span class="life" aria-label="ライフ' + life + '">' + '♥'.repeat(life) + '</span></div>' +
+      '<div class="tbar" aria-hidden="true"><i style="width:' + (RS.left / 60 * 100) + '%"></i></div>' +
+      '<div class="prompt" id="rushPrompt" tabindex="-1"><span><small>原因はどれ？</small>' + esc(q.p) + '</span></div>' +
+      quizOptions(quiz, 'ropts', options) +
+      (answered ? '<div class="rwhy quiz-feedback"><h3 tabindex="-1">' + (quiz.pick === q.a ? '正解' : '正解は「' + esc(q.a) + '」') + '</h3><p>' + esc(q.why) + '</p>' + receptorMap(q.a) + '</div>' : '') + '</div>' +
+      (answered ? '<div class="row quiz-next"><button type="button" class="btn" data-r="next">' + (life && RS.i + 1 < RS.deck.length ? '次へ' : '結果を見る') + '</button></div>' : '');
   }
   document.getElementById('rushbox').addEventListener('click', function (e) {
     var b = e.target.closest('button'); if (!b) return;
     if (b.getAttribute('data-r') === 'start') { rushStart(); return; }
-    if (!b.hasAttribute('data-ro') || RS.lock || RS.over) return;
-    RS.lock = true; var q = RS.q[RS.i], pick = q.cur[+b.getAttribute('data-ro')], ok = pick === q.a;
-    var btns = document.querySelectorAll('.ropt');
-    btns.forEach(function (x, j) { if (q.cur[j] === q.a) x.classList.add('ok'); else if (x === b) x.classList.add('ng'); });
-    if (ok) { RS.combo++; RS.best = Math.max(RS.best, RS.combo); RS.score += 10 * Math.min(5, RS.combo); RS.fb = '○ ' + q.why; }
-    else { RS.combo = 0; RS.life--; RS.miss.push(q); RS.fb = '× 正解は「' + q.a + '」。' + q.why; }
-    document.querySelector('.rwhy').textContent = RS.fb;
-    setTimeout(function () { if (!RS || RS.over) return; if (RS.life <= 0) { rushEnd(); return; } RS.i++; rushNext(); }, ok ? 650 : 1600);
+    if (b.getAttribute('data-r') === 'next') {
+      if (RS.miss.length >= 3 || ++RS.i >= RS.deck.length) rushEnd();
+      else rushNext();
+      return;
+    }
+    if (!b.hasAttribute('data-ro') || RS.over || RS.question.pick !== null) return;
+    var quiz = RS.question, q = quiz.data;
+    quiz.pick = quiz.options[+b.getAttribute('data-ro')];
+    quiz.revealed = true;
+    if (quiz.pick === q.a) RS.right++;
+    else {
+      RS.miss.push(q);
+      noteMiss(q.p, quiz.pick, q.a, q.why, '受容体ラッシュ');
+    }
+    renderRush();
+    document.querySelector('#rushbox .quiz-feedback h3').focus({ preventScroll: true });
   });
 
   /* ---------- この薬だれ？ ---------- */
@@ -612,33 +724,85 @@ select{font:inherit;padding:6px 8px;border:1px solid var(--line);border-radius:v
     WS = { seq: seq.map(function (d) {
       var same = shuf(PD.filter(function (x) { return x !== d && x.cls === d.cls; })).slice(0, 2);
       var other = shuf(PD.filter(function (x) { return x !== d && same.indexOf(x) < 0; })).slice(0, 3 - same.length);
-      return { d: d, opts: shuf([d].concat(same, other)), pick: null };
+      return { d: d, opts: shuf([d].concat(same, other)), pick: null, revealed: false };
     }), i: 0, ok: 0 };
     renderWho();
   }
   function renderWho() {
     var el = document.getElementById('whobox');
     if (WS.i >= WS.seq.length) {
-      if (!ST.who || WS.ok > ST.who) { ST.who = WS.ok; save(); }
-      el.innerHTML = '<h2>おしまい</h2><p class="big">' + WS.ok + ' / ' + WS.seq.length + '</p><p class="note">これまでの最高 ' + ST.who + '</p><div class="row"><button type="button" class="btn" data-w="re">もう一度</button></div>'; return;
+      el.innerHTML = '<div class="quiz-main"><h2 id="whoPrompt" tabindex="-1">おしまい</h2><p>正解 ' + WS.ok + ' / ' + WS.seq.length + '問</p></div><div class="row quiz-next"><button type="button" class="btn" data-w="re">もう一度</button></div>';
+      return;
     }
-    var q = WS.seq[WS.i];
-    el.innerHTML = '<p class="note">' + (WS.i + 1) + ' / ' + WS.seq.length + '　正解 ' + WS.ok + '</p><h2>この受容体の形の薬は？</h2>' + profHTML(q.d.prof) +
-      '<div class="qopts">' + q.opts.map(function (o, j) { var c = 'qopt'; if (q.pick != null) { if (o === q.d) c += ' ok'; else if (j === q.pick) c += ' ng'; } return '<button type="button" class="' + c + '" data-wo="' + j + '"' + (q.pick != null ? ' disabled' : '') + '>' + esc(o.nm) + '<br><small style="font-weight:400;color:var(--muted)">' + esc(o.cls) + '</small></button>'; }).join('') + '</div>' +
-      (q.pick != null ? '<div class="card" style="background:var(--strip)"><b>' + (q.opts[q.pick] === q.d ? '正解！' : 'ちがいます。') + q.d.nm + '</b><ul class="pts">' + q.d.pts.map(function (p) { return '<li>' + esc(p) + '</li>'; }).join('') + '</ul></div><div class="row"><button type="button" class="btn" data-w="next">' + (WS.i < WS.seq.length - 1 ? '次へ' : '結果を見る') + '</button></div>' : '');
+    var q = WS.seq[WS.i], answered = q.pick !== null;
+    var options = q.opts.map(function (o, j) {
+      var mark = answered ? (o === q.d ? ' ok' : j === q.pick ? ' ng' : '') : '';
+      return '<button type="button" class="qopt' + mark + '" data-wo="' + j + '" data-quiz-choice' + (answered ? ' disabled' : '') + '>' + esc(o.nm) + '<br><small style="font-weight:400;color:var(--muted)">' + esc(o.cls) + '</small></button>';
+    }).join('');
+    el.innerHTML = '<div class="quiz-main"><p class="note">' + (WS.i + 1) + ' / ' + WS.seq.length + '</p><h2 id="whoPrompt" tabindex="-1">この受容体の形の薬は？</h2>' +
+      '<div class="who-question">' + profHTML(q.d.prof) + '<div class="quiz-answers">' + quizOptions(q, 'qopts', options) +
+      (answered ? '<div class="rwhy quiz-feedback"><h3 tabindex="-1">' + (q.opts[q.pick] === q.d ? '正解。' : '正解は') + esc(q.d.nm) + '</h3><ul class="pts">' + q.d.pts.map(function (p) { return '<li>' + esc(p) + '</li>'; }).join('') + '</ul>' +
+        '<details class="who-effects"><summary>効果と副作用の図を見る</summary>' + bodySVG(effects(q.d.prof)) + '</details></div>' : '') + '</div></div></div>' +
+      (answered ? '<div class="row quiz-next"><button type="button" class="btn" data-w="next">' + (WS.i < WS.seq.length - 1 ? '次へ' : '結果を見る') + '</button></div>' : '');
   }
   document.getElementById('whobox').addEventListener('click', function (e) {
     var b = e.target.closest('button'); if (!b) return;
-    if (b.hasAttribute('data-wo')) { var q = WS.seq[WS.i]; if (q.pick != null) return; q.pick = +b.getAttribute('data-wo'); if (q.opts[q.pick] === q.d) WS.ok++; renderWho(); return; }
-    var a = b.getAttribute('data-w'); if (a === 'next') { WS.i++; renderWho(); } else if (a === 're') whoStart();
+    if (b.hasAttribute('data-wo')) {
+      var q = WS.seq[WS.i];
+      if (q.pick !== null) return;
+      q.pick = +b.getAttribute('data-wo');
+      q.revealed = true;
+      if (q.opts[q.pick] === q.d) WS.ok++;
+      else noteMiss('この受容体の形の薬は？ ' + T.filter(function (t) { return q.d.prof[t.id]; }).map(function (t) {
+        var p = q.d.prof[t.id]; return t.nm + ' ' + ACT[p[0]] + '（' + p[1] + '）';
+      }).join('、'), q.opts[q.pick].nm, q.d.nm, q.d.pts.join(' '), 'この薬だれ？');
+      renderWho();
+      document.querySelector('#whobox .quiz-feedback h3').focus({ preventScroll: true });
+      return;
+    }
+    var a = b.getAttribute('data-w');
+    if (a === 'next') { WS.i++; renderWho(); }
+    else if (a === 're') whoStart();
+    else return;
+    document.getElementById('whoPrompt').focus({ preventScroll: true });
   });
+
+  /* 受容体の早見図は、回答後の解説と図鑑で使う。 */
+  var MAP_ITEMS = [
+    ['D2 遮断', '幻覚・妄想を抑える', '錐体外路症状・PRL↑', '--c-B'],
+    ['5-HT2A 遮断', 'EPSを和らげる', '（抗精神病薬の補助）', '--c-B'],
+    ['H1 遮断', '鎮静・催眠', '眠気・体重増加', '--c-B'],
+    ['M1 遮断', '（抗コリン作用）', '口渇・便秘・尿閉・せん妄', '--c-B'],
+    ['α1 遮断', '（血管拡張）', '起立性低血圧・めまい', '--c-B'],
+    ['SERT 阻害', '抗うつ・抗不安', '吐き気・性機能障害', '--c-I'],
+    ['GABA-A 増強', '抗不安・催眠・筋弛緩', 'ふらつき・依存・健忘', '--c-M'],
+    ['AChE 阻害', '認知機能低下の抑制', '吐き気・下痢・徐脈', '--c-I']
+  ];
+  function receptorMap(answer) {
+    var items = answer ? MAP_ITEMS.filter(function (it) {
+      return answer === it[0] || answer.indexOf(it[0] + '（') === 0;
+    }) : MAP_ITEMS;
+    if (!items.length) return '';
+    var rows = items.map(function (it, i) {
+      var y = 5 + i * 52;
+      return '<g>' +
+        '<rect x="5" y="' + y + '" width="312" height="46" rx="7" fill="var(--panel)" stroke="var(--line)"/>' +
+        '<rect x="11" y="' + (y + 8) + '" width="92" height="30" rx="5" fill="var(' + it[3] + ')" opacity=".16"/>' +
+        '<text x="57" y="' + (y + 27) + '" text-anchor="middle" font-size="12" font-weight="700">' + esc(it[0]) + '</text>' +
+        '<text x="112" y="' + (y + 20) + '" font-size="12" font-weight="700" class="sg">○ ' + esc(it[1]) + '</text>' +
+        '<text x="112" y="' + (y + 36) + '" font-size="12" class="sb">△ ' + esc(it[2]) + '</text></g>';
+    }).join('');
+    return '<details class="ph-map"><summary class="ph-map-head">受容体と効果・副作用の早見図</summary>' +
+      '<div class="ph-map-body"><svg class="ph-svg" viewBox="0 0 322 ' + (items.length * 52 + 4) +
+      '" role="img" aria-label="受容体と効果・副作用">' + rows + '</svg></div></details>';
+  }
 
   /* ---------- 図鑑 ---------- */
   var CL = ['すべて'], zc = 'すべて';
   DR.forEach(function (d) { var c = d.cls.replace(/（.*）/, ''); if (CL.indexOf(c) < 0) CL.push(c); });
   function renderZukan() {
     document.getElementById('zfil').innerHTML = CL.map(function (c) { return '<button type="button" class="mchip" data-z="' + c + '" aria-pressed="' + (c === zc) + '">' + c + '</button>'; }).join('');
-    document.getElementById('zgrid').innerHTML = DR.filter(function (d) { return zc === 'すべて' || d.cls.replace(/（.*）/, '') === zc; }).map(function (d) {
+    document.getElementById('zgrid').innerHTML = (zc === 'すべて' ? '<li>' + receptorMap() + '</li>' : '') + DR.filter(function (d) { return zc === 'すべて' || d.cls.replace(/（.*）/, '') === zc; }).map(function (d) {
       return '<li class="card"><div class="dname"><b>' + esc(d.nm) + '</b><small>' + esc(d.cls) + '</small></div>' + (d.prof ? profHTML(d.prof) : '<p class="note">受容体1つでは説明しにくい薬</p>') + '<ul class="pts">' + d.pts.map(function (p) { return '<li>' + esc(p) + '</li>'; }).join('') + '</ul>' + (d.prof ? '<div class="row"><button type="button" class="btn ghost" data-lab="' + d.id + '">ラボで開く</button>' + (SCN_OF[d.id] ? '<button type="button" class="btn ghost" data-anim="' + SCN_OF[d.id] + '">▶ しくみアニメ</button>' : '') + '</div>' : '') + '</li>';
     }).join('');
   }
@@ -904,7 +1068,8 @@ select{font:inherit;padding:6px 8px;border:1px solid var(--line);border-radius:v
       cap: ['リチウムは代謝されず、ほぼすべて腎臓から出ていきます。治療域が狭い薬です。', 'NSAIDs（ロキソプロフェンなど）を飲み始めると、腎臓からリチウムを出す力が下がります。ACE阻害薬・ARB、サイアザイド系利尿薬、脱水（下痢・発熱・食事がとれない）でも同じです。', '濃度が上がり、手のふるえの悪化、下痢・嘔吐、ふらつき、意識障害（リチウム中毒）へ。併用を始めたら血中濃度を測ります。痛み止めならアセトアミノフェンは影響が少なめです。'],
       q: ['リチウムの濃度を上げやすい組み合わせは？', ['NSAIDs・ACE阻害薬・サイアザイド系利尿薬・脱水', 'アセトアミノフェン・カフェイン・十分な水分', 'カルバマゼピンの追加と、喫煙を始めること', '食後に飲むことと、朝にまとめて飲むこと']] }
   ];
-  var DX = { i: 0, day: 0, play: true, raf: 0, last: 0, pick: null, ord: null };
+  var DX = { i: 0, day: 0, play: true, raf: 0, last: 0, quizzes: [] };
+  var ddiFigure = document.getElementById('dfigure');
   var DW = 640, DH = 340, DAYS = 21, EVD = 7;
   function ddiCurve(d) {
     /* 1時間ごとに計算。毎日同じ時刻に飲む。基準の1日の平均濃度を1とする */
@@ -956,7 +1121,7 @@ select{font:inherit;padding:6px 8px;border:1px solid var(--line);border-radius:v
     c.fillStyle = '#1f1a29'; c.font = F(12, 1); c.textAlign = 'left'; c.fillText(d.drug + ' ×' + pn.c.toFixed(1), Math.min(X(pn.day) + 10, x1 - 120 * K), Math.max(y0 + 16, Y(pn.c) - 8));
   }
   function ddiFrame(ts) {
-    DX.raf = 0; if (document.getElementById('ddi').hidden) return;
+    DX.raf = 0; if (document.getElementById('ddi').hidden || ddiFigure.hidden) return;
     var dt = DX.last ? Math.min(0.05, (ts - DX.last) / 1000) : 0.016; DX.last = ts;
     if (DX.play && DX.day < DAYS) { DX.day = Math.min(DAYS, DX.day + dt * DAYS / 18); ddiCapSync(); }
     ddiDraw();
@@ -970,36 +1135,131 @@ select{font:inherit;padding:6px 8px;border:1px solid var(--line);border-radius:v
     document.querySelectorAll('[data-dp]').forEach(function (b) { b.setAttribute('aria-pressed', String(+b.getAttribute('data-dp') === ph)); });
   }
   function ddiQuiz() {
-    var d = DDI[DX.i], q = d.q, el = document.getElementById('dquiz');
-    el.innerHTML = '<h3>' + esc(q[0]) + '</h3><div class="qopts">' + DX.ord.map(function (j, k) { var cl = 'qopt'; if (DX.pick != null) { if (j === 0) cl += ' ok'; else if (k === DX.pick) cl += ' ng'; } return '<button type="button" class="' + cl + '" data-dq="' + k + '"' + (DX.pick != null ? ' disabled' : '') + '>' + esc(q[1][j]) + '</button>'; }).join('') + '</div>' +
-      (DX.pick != null ? '<p class="note" style="margin-top:6px">' + (DX.ord[DX.pick] === 0 ? '正解！' : 'ちがいます。正解は「' + esc(q[1][0]) + '」。') + '</p>' : '');
+    var q = DDI[DX.i].q, quiz = DX.quizzes[DX.i], answered = quiz.pick !== null;
+    var options = quiz.order.map(function (j) {
+      var mark = answered ? (j === 0 ? ' ok' : j === quiz.pick ? ' ng' : '') : '';
+      return '<button type="button" class="qopt' + mark + '" data-dq="' + j + '" data-quiz-choice' + (answered ? ' disabled' : '') + '>' + esc(q[1][j]) + '</button>';
+    }).join('');
+    document.getElementById('dquiz').innerHTML = '<h3 id="ddiPrompt" tabindex="-1">' + esc(q[0]) + '</h3>' +
+      quizOptions(quiz, 'qopts', options) +
+      (answered ? '<div class="rwhy quiz-feedback"><h3 tabindex="-1">' + (quiz.pick === 0 ? '正解' : '正解は「' + esc(q[1][0]) + '」') + '</h3></div>' +
+        '<div class="row"><button type="button" class="btn ghost" data-ddi-retry>もう一度考える</button></div>' : '');
+    ddiFigure.hidden = !answered;
+    if (answered) ddiKick();
   }
   function ddiOpen(i) {
-    DX.i = i; DX.day = 0; DX.ph = -1; DX.play = true; DX.pick = null; DX.ord = shuf([0, 1, 2, 3]); DX.curve = ddiCurve(DDI[i]);
+    DX.i = i; DX.day = 0; DX.ph = -1; DX.play = true; DX.curve = ddiCurve(DDI[i]);
+    if (!DX.quizzes[i]) DX.quizzes[i] = { pick: null, order: shuf([0, 1, 2, 3]), revealed: false };
     document.getElementById('dscn').innerHTML = DDI.map(function (d, k) { return '<button type="button" class="mchip" data-di="' + k + '" aria-pressed="' + (k === i) + '">' + (ST.ddi && ST.ddi[d.id] ? '<span class="ok">✓ </span>' : '') + esc(d.nm) + '</button>'; }).join('');
     document.getElementById('dsteps').innerHTML = [0, 1, 2].map(function (j) { return '<button type="button" class="astep" data-dp="' + j + '">' + (j + 1) + '</button>'; }).join('');
     document.getElementById('dplay').textContent = '⏸ 一時停止';
-    ddiCapSync(); ddiQuiz(); ddiKick();
+    ddiCapSync(); ddiQuiz();
   }
   (function () {
     var cv = document.getElementById('dcv'), dpr = Math.min(2, window.devicePixelRatio || 1);
     cv.width = DW * dpr; cv.height = DH * dpr; DX.cx = cv.getContext('2d'); DX.cx.scale(dpr, dpr);
-    document.getElementById('dscn').addEventListener('click', function (e) { var b = e.target.closest('[data-di]'); if (b) ddiOpen(+b.getAttribute('data-di')); });
+    document.getElementById('dscn').addEventListener('click', function (e) {
+      var b = e.target.closest('[data-di]'); if (!b) return;
+      ddiOpen(+b.getAttribute('data-di'));
+      document.getElementById('ddiPrompt').focus({ preventScroll: true });
+    });
     document.getElementById('dsteps').addEventListener('click', function (e) { var b = e.target.closest('[data-dp]'); if (!b) return; var j = +b.getAttribute('data-dp'); DX.day = [0, EVD + 0.01, Math.min(DAYS, EVD + Math.max(3, Math.min(8, DDI[DX.i].on)) + 0.01)][j]; DX.ph = -1; ddiCapSync(); ddiKick(); });
     document.getElementById('dplay').addEventListener('click', function () { if (DX.day >= DAYS) { DX.day = 0; DX.ph = -1; DX.play = true; } else DX.play = !DX.play; this.textContent = DX.play ? '⏸ 一時停止' : '▶ 再生'; ddiCapSync(); ddiKick(); });
-    document.getElementById('dquiz').addEventListener('click', function (e) { var b = e.target.closest('[data-dq]'); if (!b || DX.pick != null) return; DX.pick = +b.getAttribute('data-dq'); if (DX.ord[DX.pick] === 0) { if (!ST.ddi) ST.ddi = {}; ST.ddi[DDI[DX.i].id] = 1; save(); } ddiQuiz(); });
+    document.getElementById('dquiz').addEventListener('click', function (e) {
+      if (e.target.closest('[data-ddi-retry]')) {
+        delete DX.quizzes[DX.i];
+        ddiOpen(DX.i);
+        document.getElementById('ddiPrompt').focus({ preventScroll: true });
+        return;
+      }
+      var b = e.target.closest('[data-dq]'), quiz = DX.quizzes[DX.i];
+      if (!b || quiz.pick !== null) return;
+      var d = DDI[DX.i];
+      quiz.pick = +b.getAttribute('data-dq');
+      quiz.revealed = true;
+      if (quiz.pick === 0) {
+        if (!ST.ddi) ST.ddi = {};
+        ST.ddi[d.id] = 1;
+        save();
+      } else noteMiss(d.q[0], d.q[1][quiz.pick], d.q[1][0], d.cap.join(' '), 'のみ合わせ・' + d.nm);
+      ddiQuiz();
+      document.querySelector('#dquiz .quiz-feedback h3').focus({ preventScroll: true });
+    });
   })();
 
   /* ---------- モード ---------- */
+  var mode = 'lab';
   function setMode(m) {
+    mode = m;
     ['lab', 'anim', 'ddi', 'rush', 'who', 'zukan'].forEach(function (id) { document.getElementById(id).hidden = id !== m; });
-    if (m === 'ddi') { if (!document.getElementById('dscn').innerHTML) ddiOpen(0); else ddiKick(); }
+    if (m === 'ddi') { if (!DX.quizzes.length) ddiOpen(0); else ddiQuiz(); }
     if (m === 'anim') { if (!document.getElementById('ascn').innerHTML) animOpen(AN.sc); else animKick(); }
+    if (m === 'who') renderWho();
     document.querySelectorAll('.mode').forEach(function (b) { b.setAttribute('aria-pressed', String(b.getAttribute('data-m') === m)); });
+    document.getElementById('phModeName').textContent = document.querySelector('.mode[data-m="' + m + '"] b').textContent;
     document.body.classList.toggle('labmode', m === 'lab');
     if (m !== 'rush' && RS && !RS.over) { clearInterval(rtick); RS = null; renderRush(); }
   }
   document.querySelector('.modes').addEventListener('click', function (e) { var b = e.target.closest('[data-m]'); if (b) setMode(b.getAttribute('data-m')); });
+
+  var quizViews = {
+    rush: { render: renderRush, current: function () { return RS && !RS.over && RS.question; } },
+    who: { render: renderWho, current: function () { return WS.seq[WS.i]; } },
+    ddi: { render: ddiQuiz, current: function () { return DX.quizzes[DX.i]; } }
+  };
+  document.addEventListener('click', function (e) {
+    var b = e.target.closest('.reveal-box');
+    if (!b) return;
+    var view = quizViews[mode], pane = document.getElementById(mode);
+    view.current().revealed = true;
+    view.render();
+    pane.querySelector('[data-quiz-choice]').focus();
+  });
+  choicePref.addEventListener('change', function () {
+    try { localStorage.setItem(CHOICES_KEY, choicePref.checked ? '1' : '0'); } catch (e) {}
+    var view = quizViews[mode];
+    if (view && view.current()) view.render();
+  });
+  document.addEventListener('keydown', function (e) {
+    if (e.altKey || e.ctrlKey || e.metaKey || e.defaultPrevented ||
+        e.target.closest('input, select, textarea, summary, a, [contenteditable]')) return;
+    if (!quizViews[mode]) return;
+    var pane = document.getElementById(mode), gate = pane.querySelector('.reveal-box');
+    if (gate && (e.key === 'Enter' || e.key === ' ') && !e.target.closest('button')) {
+      e.preventDefault();
+      if (!e.repeat) gate.click();
+    } else if (!gate && /^[1-4]$/.test(e.key)) {
+      var option = pane.querySelectorAll('[data-quiz-choice]:not(:disabled)')[Number(e.key) - 1];
+      if (option) {
+        e.preventDefault();
+        if (!e.repeat) option.click();
+      }
+    }
+  });
+  var fullscreenButton = document.getElementById('phMaxBtn'), root = document.documentElement;
+  function setMaxLayout(on) {
+    root.classList.toggle('is-max', on);
+    fullscreenButton.setAttribute('aria-pressed', String(on));
+    fullscreenButton.textContent = on ? '全画面を終了' : '⛶ 全画面';
+  }
+  function nativeFullscreen() { return document.fullscreenElement || document.webkitFullscreenElement; }
+  function toggleMax(on) {
+    setMaxLayout(on);
+    var action = on ? (root.requestFullscreen || root.webkitRequestFullscreen)
+      : nativeFullscreen() && (document.exitFullscreen || document.webkitExitFullscreen);
+    if (!action) return;
+    try {
+      var result = action.call(on ? root : document);
+      if (result && result.catch) result.catch(function () { /* ページ内の全画面表示に切り替える */ });
+    } catch (e) { /* ページ内の全画面表示に切り替える */ }
+  }
+  fullscreenButton.addEventListener('click', function () { toggleMax(!root.classList.contains('is-max')); });
+  function syncNativeFullscreen() { if (!nativeFullscreen()) setMaxLayout(false); }
+  document.addEventListener('fullscreenchange', syncNativeFullscreen);
+  document.addEventListener('webkitfullscreenchange', syncNativeFullscreen);
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape' && root.classList.contains('is-max')) toggleMax(false);
+  });
   document.body.classList.add('labmode');
   renderLab(); renderRush(); whoStart(); renderZukan();
   var h = (location.hash || '').slice(1); if (['anim', 'ddi', 'rush', 'who', 'zukan'].indexOf(h) >= 0) setMode(h);
@@ -1007,7 +1267,7 @@ select{font:inherit;padding:6px 8px;border:1px solid var(--line);border-radius:v
 })();
 </script>
 <script>
-/* 薬理ラボ：明暗切替ボタン・受容体ひと目マップ図解・スマホ操作性補助（Gemini 担当） */
+/* 薬理ラボ：明暗切替ボタン（Gemini 担当） */
 (function(){
   'use strict';
   if(window.__phVisInit) return;
@@ -1018,17 +1278,13 @@ select{font:inherit;padding:6px 8px;border:1px solid var(--line);border-radius:v
   if(!head) return;
 
   // --- 1. ヘッダー明暗切替 ---
-  var eyebrow = head.querySelector('.eyebrow');
-  if(eyebrow && !document.getElementById('phThemeBtn')){
-    var row = document.createElement('div');
-    row.className = 'ph-top-row';
-    eyebrow.parentNode.insertBefore(row, eyebrow);
-    row.appendChild(eyebrow);
+  var controls = head.querySelector('.ph-controls');
+  if(controls && !document.getElementById('phThemeBtn')){
     var tbtn = document.createElement('button');
     tbtn.type = 'button';
     tbtn.id = 'phThemeBtn';
     tbtn.className = 'ph-theme-btn';
-    row.appendChild(tbtn);
+    controls.appendChild(tbtn);
 
     function isDark(){
       var t = root.getAttribute('data-theme');
@@ -1054,57 +1310,6 @@ select{font:inherit;padding:6px 8px;border:1px solid var(--line);border-radius:v
     syncTheme();
   }
 
-  // --- 2. 受容体→効果・副作用 ひと目マップ（折りたたみ式） ---
-  var ITEMS = [
-    ['D2 遮断', '幻覚・妄想を抑える', '錐体外路症状・PRL↑', '--c-B'],
-    ['5-HT2A 遮断', 'EPSを和らげる', '（抗精神病薬の補助）', '--c-B'],
-    ['H1 遮断', '鎮静・催眠', '眠気・体重増加', '--c-B'],
-    ['M1 遮断', '（抗コリン作用）', '口渇・便秘・尿閉・せん妄', '--c-B'],
-    ['α1 遮断', '（血管拡張）', '起立性低血圧・めまい', '--c-B'],
-    ['SERT 阻害', '抗うつ・抗不安', '吐き気・性機能障害', '--c-I'],
-    ['GABA-A 増強', '抗不安・催眠・筋弛緩', 'ふらつき・依存・健忘', '--c-M'],
-    ['AChE 阻害', '認知機能低下の抑制', '吐き気・下痢・徐脈', '--c-I']
-  ];
-
-  var rowsSvg = ITEMS.map(function(it, i){
-    var col = i % 2, rw = Math.floor(i / 2);
-    var x = 10 + col * 274, y = 10 + rw * 54;
-    return '<g>' +
-      '<rect x="'+x+'" y="'+y+'" width="264" height="46" rx="7" fill="var(--panel)" stroke="var(--line)"/>' +
-      '<rect x="'+(x+6)+'" y="'+(y+8)+'" width="76" height="30" rx="5" fill="var('+it[3]+')" opacity=".16"/>' +
-      '<text x="'+(x+44)+'" y="'+(y+27)+'" text-anchor="middle" font-size="10.5" font-weight="700">'+it[0]+'</text>' +
-      '<text x="'+(x+90)+'" y="'+(y+20)+'" font-size="10" font-weight="700" class="sg">○ '+it[1]+'</text>' +
-      '<text x="'+(x+90)+'" y="'+(y+36)+'" font-size="10" class="sb">△ '+it[2]+'</text>' +
-    '</g>';
-  }).join('');
-
-  var mapEl = document.createElement('section');
-  mapEl.className = 'ph-map';
-  mapEl.id = 'phMap';
-  mapEl.setAttribute('aria-label', '受容体と効果・副作用のひと目マップ');
-  mapEl.innerHTML =
-    '<div class="ph-map-head">' +
-      '<h2 class="ph-map-title"><span class="ph-badge">早見図</span>主要受容体 → 効果（○）と副作用（△）</h2>' +
-      '<button type="button" class="ph-toggle" id="phMapToggle" aria-expanded="false" aria-controls="phMapBody">ひらく</button>' +
-    '</div>' +
-    '<div class="ph-map-body" id="phMapBody" hidden>' +
-      '<svg class="ph-svg" viewBox="0 0 558 232" role="img" aria-label="主要受容体の作用と副作用の早見マップ">' + rowsSvg + '</svg>' +
-    '</div>';
-
-  var legend = head.querySelector('.legend');
-  if(legend && legend.parentNode){
-    legend.parentNode.insertBefore(mapEl, legend.nextSibling);
-  } else {
-    head.appendChild(mapEl);
-  }
-
-  document.getElementById('phMapToggle').addEventListener('click', function(){
-    var b = document.getElementById('phMapBody');
-    var open = !b.hidden;
-    b.hidden = open;
-    this.setAttribute('aria-expanded', open ? 'false' : 'true');
-    this.textContent = open ? 'ひらく' : 'たたむ';
-  });
 })();
 </script>
 

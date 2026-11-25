@@ -6,7 +6,7 @@
 <meta name="robots" content="noindex, nofollow">
 <!-- アクセス数（GoatCounter、Cookie なし・個人を特定しない。2026-11-23 利用者の依頼） -->
 <script data-goatcounter="https://psychogames.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
-<meta name="app-version" content="20261125090109">
+<meta name="app-version" content="20261125092839">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
@@ -36,7 +36,8 @@ img{max-width:100%}
     window.__ipadPlayer = P;
     if (P === 'me') return;
     var pre = 'p:' + P + ':', S = Storage.prototype, g = S.getItem, s = S.setItem, r = S.removeItem;
-    var map = function (k) { return k === 'ipad-player' ? k : pre + k; };
+    // 復習ノートのキーには、すでにプレイヤー名が付いている。
+    var map = function (k) { return k === 'ipad-player' || /^pg-note-v1:/.test(k) ? k : pre + k; };
     S.getItem = function (k) { return g.call(this, map(k)); };
     S.setItem = function (k, v) { return s.call(this, map(k), v); };
     S.removeItem = function (k) { return r.call(this, map(k)); };
@@ -48,6 +49,7 @@ if ('serviceWorker' in navigator) { window.addEventListener('load', function () 
 </head>
 <body>
 <nav class="ipad-bar" aria-label="アプリ"><a href="../../index.html#g=exposure-runner">← ゲーム一覧</a><span class="right"><span id="ipadWho"></span><a href="#" class="fbk" id="ipadFbk" target="_blank" rel="noopener">⚑ 不具合・感想</a><button type="button" class="upd" data-upd="manual" aria-label="新しい版を確かめて更新">↻ 更新</button></span></nav>
+<script src="../../review-note.js" data-app="曝露ランナー" data-where="games/exposure-runner/bakuro.html" data-group="exposure-runner"></script>
 <script>(function(){var P=window.__ipadPlayer||'me';document.getElementById('ipadWho').textContent='プレイヤー：'+(P==='me'?'自分':P);})();
 /* 不具合・感想を送る：どのアプリのどの画面からでも、いまの場所を「どこの不具合か」の欄に自動で入れる（Google フォーム） */
 (function(){var FB='https://docs.google.com/forms/d/e/1FAIpQLSdNJkjXAVATEdI6vKRfg8gmFf87viEZP8qCpqCzv9lQGojGeg/viewform?usp=pp_url&entry.298389701=',APP='曝露ランナー',a=document.getElementById('ipadFbk');if(!a)return;
@@ -90,7 +92,7 @@ h1{margin:0;font-family:var(--f-display);font-weight:400;font-size:clamp(30px,6v
 
 .tabs{display:grid;gap:8px}
 .row{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
-.tab{font:inherit;font-family:var(--f-display);font-size:14px;color:var(--ink);background:var(--panel);border:1px solid var(--line);border-radius:6px;padding:5px 12px;cursor:pointer;display:flex;gap:6px;align-items:baseline}
+.tab{font:inherit;font-family:var(--f-display);font-size:14px;color:var(--ink);background:var(--panel);border:1px solid var(--line);border-radius:6px;padding:8px 14px;min-height:44px;cursor:pointer;display:inline-flex;gap:6px;align-items:center}
 .tab:hover:not(:disabled){border-color:var(--accent)}
 .tab[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
 .tab:disabled{cursor:not-allowed;color:var(--muted);border-style:dashed}
@@ -106,7 +108,10 @@ h1{margin:0;font-family:var(--f-display);font-weight:400;font-size:clamp(30px,6v
 
 .stage{background:var(--panel);border:1px solid var(--line);border-radius:6px;overflow:hidden;min-width:0}
 .hud{display:flex;flex-wrap:wrap;align-items:center;gap:6px 14px;padding:8px 12px;font-family:var(--f-display);border-bottom:1px solid var(--line);min-height:44px}
-.hearts{color:var(--seal);font-size:16px;letter-spacing:1px;line-height:1}
+.hearts{color:var(--seal);font-size:15px;letter-spacing:0;line-height:1;display:inline-flex;align-items:center;gap:6px;flex-wrap:wrap}
+.hpbar{width:76px;height:10px;border:1px solid var(--line);background:var(--paper);border-radius:3px;overflow:hidden;display:inline-block;position:relative;vertical-align:middle}
+.hpbar i{position:absolute;inset:0 auto 0 0;background:var(--seal);width:100%;transition:width .2s}
+.hpnum{font-size:13px;color:var(--ink);font-variant-numeric:tabular-nums}
 .water{display:flex;align-items:center;gap:6px;font-size:13px}
 .meter{width:96px;height:10px;border:1px solid var(--line);background:var(--paper);display:block;position:relative}
 .meter i{position:absolute;inset:0 auto 0 0;background:var(--water);width:100%}
@@ -131,14 +136,16 @@ h1{margin:0;font-family:var(--f-display);font-weight:400;font-size:clamp(30px,6v
 .chartwrap{overflow-x:auto;border:1px solid var(--line);border-radius:6px;background:var(--paper);padding:6px}
 .chartwrap svg{display:block;width:100%;min-width:320px;height:auto}
 .pad.act4{grid-template-columns:1fr 1fr 1.3fr 1.3fr}
-.hudbtns{margin-left:auto;display:flex;gap:6px}
-.sndbtn{font:inherit;font-family:var(--f-display);font-size:13px;color:var(--ink);background:transparent;border:1px solid var(--line);border-radius:4px;padding:2px 10px;cursor:pointer}
+.hudbtns{margin-left:auto;display:flex;flex-wrap:wrap;gap:6px}
+.sndbtn{font:inherit;font-family:var(--f-display);font-size:13px;color:var(--ink);background:transparent;border:1px solid var(--line);border-radius:6px;padding:6px 12px;min-height:44px;cursor:pointer;display:inline-flex;align-items:center;justify-content:center}
 .sndbtn[aria-pressed="false"]{color:var(--muted);border-style:dashed}
+html.is-max,html.is-max body{overflow:hidden;height:100%;margin:0;padding:0}
 .stage.full{border:0;border-radius:0;display:flex;flex-direction:column;background:var(--panel)}
 .stage.full:not(.fs){width:100%;height:100%}
 .stage.fs{position:fixed;inset:0;z-index:30;padding:env(safe-area-inset-top,0px) env(safe-area-inset-right,0px) env(safe-area-inset-bottom,0px) env(safe-area-inset-left,0px)}
 .stage.full .screen{flex:1;min-height:0;container-type:size;display:grid;place-items:center;background:var(--paper)}
 .stage.full canvas{width:min(100cqw,calc(100cqh * 16 / 9));height:auto}
+.stage.full .modal{position:fixed;inset:0;z-index:40}
 body.fslock{overflow:hidden}
 /* 全画面：画面の高さに合わせて文字・ハート・ゲージを大きくする */
 .stage.full{--fz:clamp(15px,2.6vh,32px)}
@@ -183,19 +190,30 @@ body.fslock{overflow:hidden}
 .chip.wait{color:var(--warn);border-color:var(--warn)}
 .chip.none{color:var(--muted);border-style:dashed}
 
-.screen{position:relative}
+.screen{position:relative;overflow:hidden}
 canvas{display:block;width:100%;aspect-ratio:16/9;image-rendering:pixelated;background:#cfe2e2;touch-action:none;transition:filter .6s}
-.toast{position:absolute;left:50%;top:10px;transform:translateX(-50%);width:max-content;max-width:calc(100% - 20px);background:var(--panel);color:var(--ink);border:1px solid var(--line);border-radius:6px;padding:6px 14px;font-size:13px;line-height:1.5;box-shadow:0 4px 14px rgb(0 0 0 / .18);display:grid;text-align:center;pointer-events:none}
-.toast b{font-family:var(--f-display);font-weight:400;font-size:15px}
-.startov{position:absolute;inset:0;display:grid;place-items:center;background:rgb(14 28 26 / .5);text-align:center;color:#ffffff;padding:12px}
+.toast{position:absolute;left:50%;bottom:14%;top:auto;transform:translateX(-50%);width:max-content;max-width:min(92%,560px);background:rgba(16,26,24,.92);color:#ffffff;border:2px solid var(--accent);border-radius:10px;padding:10px 18px;font-size:clamp(14px,2.3vw,19px);line-height:1.45;box-shadow:0 8px 24px rgb(0 0 0 / .35);display:grid;gap:2px;text-align:center;pointer-events:none;z-index:8}
+.toast b{font-family:var(--f-display);font-weight:400;font-size:clamp(16px,2.7vw,22px);color:#ffe48f}
+.pbanner{position:absolute;inset:0;z-index:14;display:grid;place-items:center;padding:12px;background:rgba(10,18,16,.56);backdrop-filter:blur(2px)}
+.pbanner-card{width:min(94%,560px);max-height:92%;overflow-y:auto;background:var(--panel);color:var(--ink);border:3px solid var(--accent);border-radius:10px;padding:14px 18px;box-shadow:0 14px 36px rgb(0 0 0 / .38);display:grid;gap:10px}
+.pbanner-tag{margin:0;font-family:var(--f-display);font-size:12px;letter-spacing:.08em;color:var(--accent)}
+.pbanner-title{margin:0 0 4px;font-family:var(--f-display);font-weight:400;font-size:clamp(18px,3.2vw,24px);line-height:1.3}
+.pbanner-txt{margin:0;font-size:clamp(14px,2.2vw,18px);line-height:1.55}
+.pbanner-foot{display:flex;flex-wrap:wrap;justify-content:flex-end;align-items:center;gap:8px}
+.startov{position:absolute;inset:0;display:grid;place-items:center;background:rgb(14 28 26 / .62);text-align:center;color:#ffffff;padding:12px;overflow-y:auto;z-index:10}
+.startov > div{max-width:min(92%,520px);display:grid;gap:6px;justify-items:center}
 .startov .stg{margin:0;font-family:var(--f-display);font-size:14px;letter-spacing:.2em}
-.startov .stn{margin:0 0 12px;font-family:var(--f-display);font-size:clamp(20px,4.4vw,30px);line-height:1.3}
-.startov .hint{margin:8px 0 0;font-size:12px;opacity:.85}
-.btn{font-family:var(--f-display);font-size:18px;padding:8px 24px;border-radius:4px;border:2px solid var(--accent);background:var(--accent);color:var(--accent-ink);cursor:pointer}
+.startov .stn{margin:0 0 4px;font-family:var(--f-display);font-size:clamp(20px,4.4vw,30px);line-height:1.3}
+.ov-karte{width:100%;text-align:left;background:rgba(14,24,22,.82);border:1px solid rgba(255,255,255,.32);border-radius:8px;padding:8px 12px;font-size:clamp(12px,1.9vw,14px);line-height:1.5;margin:2px 0 6px}
+.ov-karte b{color:#ffe48f}
+.startov .hint{margin:4px 0 0;font-size:12px;opacity:.9}
+.btn{font-family:var(--f-display);font-size:18px;padding:8px 22px;min-height:44px;border-radius:6px;border:2px solid var(--accent);background:var(--accent);color:var(--accent-ink);cursor:pointer;display:inline-flex;align-items:center;justify-content:center;gap:6px}
 .btn.sub{background:transparent;color:var(--accent)}
 .btn.night{background:var(--night);border-color:var(--night);color:#ffffff}
 .startov .btn{border-color:#ffffff}
 .btn:focus-visible,.pad button:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+.reveal-box{display:flex;flex-wrap:wrap;gap:10px 14px;align-items:center;justify-content:space-between;padding:14px 16px;border:2px dashed var(--accent);border-radius:8px;background:color-mix(in srgb,var(--accent) 8%,transparent);margin-top:8px}
+.reveal-box p{margin:0;font-size:14px;color:var(--ink)}
 
 .pad{display:none;grid-template-columns:1fr 1fr 1.6fr;gap:10px;padding:10px;border-top:1px solid var(--line)}
 .pad button{height:64px;font-family:var(--f-display);font-size:20px;border:1px solid var(--line);border-radius:8px;background:var(--paper);color:var(--ink);touch-action:none;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none}
@@ -243,15 +261,15 @@ kbd{font-family:var(--f-display);font-size:12px;border:1px solid var(--line);bor
 .z.lock{background:transparent;border-style:dashed;color:var(--muted)}
 .note{margin:10px 0 0;font-size:12px;color:var(--muted)}
 
-.modal{position:fixed;inset:0;z-index:20;display:grid;place-items:center;padding:16px;background:rgb(8 18 16 / .58);overflow:auto}
-.sheet{width:100%;max-width:740px;background:var(--panel);color:var(--ink);border-radius:8px;padding:20px;box-shadow:0 20px 50px rgb(0 0 0 / .3)}
+.modal{position:fixed;inset:0;z-index:20;display:grid;place-items:center;padding:14px;background:rgb(8 18 16 / .58);overflow:auto}
+.sheet{width:100%;max-width:740px;max-height:calc(100dvh - 28px);overflow-y:auto;background:var(--panel);color:var(--ink);border-radius:8px;padding:20px;box-shadow:0 20px 50px rgb(0 0 0 / .3)}
 .rxhead{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:baseline;gap:4px 12px;border-bottom:4px double var(--ink);padding-bottom:6px;margin-bottom:12px}
 .rxhead h2{font-family:var(--f-display);font-weight:400;font-size:26px;margin:0;letter-spacing:.06em}
 .rxhead span{font-size:13px;color:var(--muted)}
 .rxhead.bad h2{color:var(--seal)}
 .ptline{font-size:14px;background:var(--paper);border:1px solid var(--line);border-radius:4px;padding:8px 12px;margin:0 0 12px}
 .cards{display:grid;gap:10px}
-.card{position:relative;text-align:left;font:inherit;color:inherit;background:var(--paper);border:1px solid var(--line);border-radius:6px;padding:12px;cursor:pointer;display:grid;gap:3px;line-height:1.5;align-content:start}
+.card{position:relative;text-align:left;font:inherit;color:inherit;background:var(--paper);border:1px solid var(--line);border-radius:6px;padding:12px;min-height:44px;cursor:pointer;display:grid;gap:3px;line-height:1.5;align-content:start}
 .card:hover{border-color:var(--accent)}
 .card:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
 .card .k{font-family:var(--f-display);font-size:12px;color:var(--muted)}
@@ -307,18 +325,27 @@ kbd{font-family:var(--f-display);font-size:12px;border:1px solid var(--line);bor
         <span class="water" id="waterbox">水分<span class="meter" id="meter"><i id="wfill"></i></span></span>
         <span class="lv" id="lv" hidden>Li <b id="lvv">0.00</b> mEq/L</span>
         <span class="chips" id="chips"></span>
-        <span class="hudbtns"><button type="button" class="sndbtn" id="snd" aria-pressed="true">♪ 音あり</button><button type="button" class="sndbtn" id="shk" aria-pressed="true">揺れ あり</button><button type="button" class="sndbtn" id="fsbtn" aria-pressed="false">全画面</button></span>
+        <span class="hudbtns"><button type="button" class="sndbtn" id="kartebtn">カルテ</button><button type="button" class="sndbtn" id="snd" aria-pressed="true">♪ 音あり</button><button type="button" class="sndbtn" id="shk" aria-pressed="true">揺れ あり</button><button type="button" class="sndbtn" id="fsbtn" aria-pressed="false">⛶ 全画面</button></span>
       </div>
       <div class="screen">
         <div class="tl" id="tl" aria-hidden="true"><div class="dpad" id="dpad"><span class="arm u" data-k="j">▲<small>ジャンプ</small></span><span class="arm l" data-k="l">◀</span><span class="hub"></span><span class="arm r" data-k="r">▶</span><span class="arm d" data-k="act" id="darm"></span><span class="knob" id="knob"></span></div><span class="tjump">右側を押してもジャンプ</span><button type="button" class="tact" id="tact" hidden>行動</button></div>
         <canvas id="cv" width="960" height="540" aria-label="横スクロールのゲーム画面。怖い場面の前にとどまり、不安が下がるのを待ちながら右へ進む"></canvas>
         <div class="toast" id="toast" hidden><b></b><span></span></div>
+        <div class="pbanner" id="pbanner" hidden role="dialog" aria-modal="true" aria-labelledby="pbTitle">
+          <div class="pbanner-card">
+            <p class="pbanner-tag">お知らせ（一時停止）</p>
+            <h3 class="pbanner-title" id="pbTitle"></h3>
+            <p class="pbanner-txt" id="pbTxt"></p>
+            <div class="pbanner-foot"><button type="button" class="btn" id="pbOk">▶ 続ける</button></div>
+          </div>
+        </div>
         <div class="startov" id="startov">
           <div>
             <p class="stg" id="ovNo">第1面</p>
             <p class="stn" id="ovName">統合失調症・急性期</p>
+            <div class="ov-karte" id="ovKarte"></div>
             <button class="btn" id="startbtn" type="button">はじめる</button>
-            <p class="hint">はじめる前に、カルテを読んでおこう</p>
+            <p class="hint">はじめる前にカルテを読んでおこう（新しい情報が出ると自動で一時停止します）</p>
           </div>
         </div>
       </div>
@@ -375,12 +402,12 @@ kbd{font-family:var(--f-display);font-size:12px;border:1px solid var(--line);bor
 <script>
 (()=>{
 'use strict';
-/*@EDITION*/const EDITION={loops:false,showMg:false,store:'bakuro-runner-v1',adv:'bakuro-adv'};
-const W=480,H=270,T=16,COLS=120,ROWS=17,FLAGX=113*T+6,MAXH=10;
+/*@EDITION*/const EDITION={loops:false,showMg:false,store:'bakuro-runner-v1',adv:'bakuro-adv',showOpt:'bakuro-showopt-v1'};
+const W=480,H=270,T=16,COLS=120,ROWS=17,FLAGX=113*T+6,MAXH=100;
 const PF='"DotGothic16","Hiragino Kaku Gothic ProN",monospace';
 const $=id=>document.getElementById(id);
 const cv=$('cv'),ctx=cv.getContext('2d');
-const modal=$('modal'),sheet=$('sheet'),toastEl=$('toast');
+const modal=$('modal'),sheet=$('sheet'),toastEl=$('toast'),pbanner=$('pbanner');
 let S=2;
 function resize(){const r=cv.getBoundingClientRect();const d=window.devicePixelRatio||1;S=Math.max(1,Math.min(4,Math.ceil((r.width||W)*d/W)));if(cv.width!==W*S){cv.width=W*S;cv.height=H*S;}}
 try{new ResizeObserver(resize).observe(cv)}catch(e){addEventListener('resize',resize)}
@@ -657,7 +684,7 @@ XS({id:'ptsd',no:5,expo:'anx',music:'dlr',name:'PTSD（心的外傷後ストレ�
  safety:[[18,13,'思い出さない','止'],[46,13,'お酒','酒'],[73,13,'思い出さない','止']],
  pre(){const u=G.pt.tags.includes('unsafe');return {title:'治療を始める前に',ic:u?'家族':'交差点',line:u?'夫からの暴力は、今も続いている。':'事故から1年。今は安全な生活を送っている。',opts:[
    OPT('持続エクスポージャー療法を始める','想像曝露・現実曝露',u?'×':'◎',u?'危険が続いている状況では、まず安全の確保。曝露はそのあとに。':'安全な状況なら、トラウマに焦点を当てた治療（持続エクスポージャー療法など）が勧められる。',
-     ()=>{cp('hier');cp('pe');if(u){G.hearts-=3;sfx('hurt');return '危険が続く中で曝露をして、症状が悪化した';}return '治療を始めた';}),
+     ()=>{cp('hier');cp('pe');if(u){G.hearts=Math.max(0,G.hearts-15);sfx('hurt');return '危険が続く中で曝露をして、症状が悪化した';}return '治療を始めた';}),
    OPT('まず安全を確保し、支援につなぐ','安全の確保',u?'◎':'△',u?'避難・相談窓口・警察などと連携し、安全な環境を整えてから治療する。':'今は安全なので、曝露を始めてよい。',()=>{cp('hier');cp('safefirst');return u?'安全な場所に移った。ここから治療を始める':'安全を確かめた';}),
    OPT('思い出さないように指導する','回避','×','回避はPTSDの症状を長引かせる。',()=>{cp('hier');G.gates.forEach(g=>g.sens=1.15);return expoAvoidChoice('避けるほど怖さが増した');}),
    OPT('ベンゾジアゼピン系で落ち着かせる','薬物療法','×','PTSDにはベンゾジアゼピン系は勧められない。薬物療法ではSSRIを使う。',()=>{cp('hier');G.habK=.6;return '慣れるのに時間がかかりそう';})]};},
@@ -766,6 +793,7 @@ const ZF=[];
 /*@ZUKAN-END*/
 let Z={d:[],f:[],c:[],c2:[],a:[]};
 const AK=EDITION.adv;let ADV=false;try{ADV=localStorage.getItem(AK)==='on';}catch(e){}
+const SOK=EDITION.showOpt;let SHOW_OPT=false;try{SHOW_OPT=localStorage.getItem(SOK)==='on';}catch(e){}
 try{const s=localStorage.getItem(ZK);if(s){const o=JSON.parse(s);if(o&&Array.isArray(o.d)&&Array.isArray(o.f))Z={d:o.d,f:o.f,c:Array.isArray(o.c)?o.c:[],c2:Array.isArray(o.c2)?o.c2:[],a:Array.isArray(o.a)?o.a:[]};}}catch(e){}
 function saveZ(){try{localStorage.setItem(ZK,JSON.stringify(Z))}catch(e){}}
 function unlockD(id){if((id.startsWith('dx:')||id.startsWith('cp:')||DRUGS[id]||EXTRA[id])&&!Z.d.includes(id)){Z.d.push(id);saveZ();renderZukan();}}
@@ -790,8 +818,9 @@ function renderTabs(){
   $('tabs').innerHTML=`<div class="row">${loops}</div>
     <div class="row">${STAGES.map((s,i)=>`<button type="button" class="tab" data-i="${i}" aria-pressed="${i===cur}">第${s.no}面 ${s.short}${Z[key].includes(s.id)?'<span class="ok">✓</span>':''}${Z.a.includes(s.id+':'+loop)?'<span class="ok">★</span>':''}</button>`).join('')}</div>`;
   $('tabs').querySelectorAll('[data-i]').forEach(b=>b.addEventListener('click',()=>{if(!modal.hidden)return;newGame(+b.dataset.i);}));
-  $('tabs').querySelector('.row').insertAdjacentHTML('beforeend',`<button type="button" class="tab adv" id="advbtn" aria-pressed="${ADV}">上級者モード</button><span class="lockmsg">${ADV?'解説・その場の採点・副作用の名前を伏せる（★がつく）':''}</span>`);
+  $('tabs').querySelector('.row').insertAdjacentHTML('beforeend',`<button type="button" class="tab adv" id="advbtn" aria-pressed="${ADV}">上級者モード</button><button type="button" class="tab" id="showoptbtn" aria-pressed="${SHOW_OPT}">選択肢を最初から出す</button><span class="lockmsg">${ADV?'解説・その場の採点・副作用の名前を伏せる（★がつく）':''}</span>`);
   $('advbtn').addEventListener('click',()=>{if(!modal.hidden)return;ADV=!ADV;try{localStorage.setItem(AK,ADV?'on':'off');}catch(e){}newGame(cur);});
+  $('showoptbtn').addEventListener('click',()=>{if(!modal.hidden)return;SHOW_OPT=!SHOW_OPT;try{localStorage.setItem(SOK,SHOW_OPT?'on':'off');}catch(e){}renderTabs();});
   $('tabs').querySelectorAll('[data-loop]').forEach(b=>b.addEventListener('click',()=>{if(!modal.hidden||b.disabled)return;loop=+b.dataset.loop;newGame(cur);}));
 }
 
@@ -844,6 +873,7 @@ function newGame(si,retry){
   IT=st.water==='none'?[]:L.waters.map(([tx,ty])=>({x:tx*T+3,y:ty*T+2,w:10,h:14,taken:false}));
   $('waterbox').hidden=st.water==='none';meter.classList.toggle('bal',st.water==='balance');
   tq.length=0;clearTimeout(tTimer);tBusy=false;toastEl.hidden=true;
+  pq.length=0;pbanner.hidden=true;
   cv.style.filter='none';lastBlur='';
   clearKeys();
   const pt=G.pt;
@@ -854,6 +884,7 @@ function newGame(si,retry){
   if(st.expo)expoInit();
   sh('kHistT','kHist',pt.hist);sh('kGoalT','kGoal',l2?pt.goal:'');renderTests();
   $('ovNo').textContent=`第${st.no}面${l2?'　2周目':''}`;$('ovName').textContent=st.name;
+  $('ovKarte').innerHTML=ptBlock(pt);
   $('startbtn').classList.toggle('night',l2);
   $('startov').hidden=false;
   renderTabs();renderHUD(true);
@@ -882,12 +913,33 @@ function switchTo(id){
   if(id==='li'){G.li=Math.max(G.li,.6);G.liBase=.7;}
 }
 function addDrug(id,k){G.added.push(id);unlockD(id);applyFx(id,k||1,true);}
-function contraHit(id,tag){if(!G.contraTags.includes(tag))G.contraTags.push(tag);if(!G.contra.includes(id))G.contra.push(id);G.hearts--;see('contra');}
+function contraHit(id,tag){if(!G.contraTags.includes(tag))G.contraTags.push(tag);if(!G.contra.includes(id))G.contra.push(id);G.hearts=Math.max(10,G.hearts-8);see('contra');}
 function pop(x,y,txt,col){G.pops.push({x,y,txt,col:col||'#1d7566',t:1.1});}
-const tq=[];let tBusy=false,tTimer=0;
+const tq=[],pq=[];let tBusy=false,tTimer=0,pOpenedAt=0;
 const FXL=Object.values(FX).map(f=>f.label).concat(['セロトニン','悪性症候群','リチウム']);
-function toast(a,b,raw){if(ADV&&!raw&&G&&G.state!=='intro'&&FXL.some(l=>(a+(b||'')).includes(l))){a='体の様子がおかしい…';b='何が起きているか考えよう';}tq.push([a,b]);if(!tBusy)nextToast();}
-function nextToast(){clearTimeout(tTimer);const it=tq.shift();if(!it){tBusy=false;toastEl.hidden=true;return;}tBusy=true;toastEl.querySelector('b').textContent=it[0];toastEl.querySelector('span').textContent=it[1];toastEl.hidden=false;tTimer=setTimeout(nextToast,clamp(1500+(it[0]+it[1]).length*55,2700,6500));}
+function showNextPause(){
+  if(!pbanner.hidden||!modal.hidden||!G||G.state==='end'||G.state==='intro')return;
+  const it=pq.shift();if(!it)return;
+  G.state='pause';clearKeys();pOpenedAt=performance.now();
+  $('pbTitle').textContent=it.a;$('pbTxt').textContent=it.b||'';
+  pbanner.hidden=false;$('pbOk').focus();
+}
+function dismissPause(){
+  if(pbanner.hidden)return;
+  pbanner.hidden=true;
+  if(pq.length&&modal.hidden&&G.state!=='end'){showNextPause();return;}
+  if(G&&G.state==='pause'){G.state='play';last=performance.now();keys.l=held.l;keys.r=held.r;}
+}
+$('pbOk').addEventListener('click',dismissPause);
+pbanner.addEventListener('click',e=>{if(e.target===pbanner&&performance.now()-pOpenedAt>350)dismissPause();});
+function toast(a,b,raw,opts){
+  opts=opts||{};
+  if(ADV&&!raw&&G&&G.state!=='intro'&&FXL.some(l=>(a+(b||'')).includes(l))){a='体の様子がおかしい…';b='何が起きているか考えよう';}
+  if(opts.brief){tq.push([a,b]);if(!tBusy)nextToast();return;}
+  pq.push({a,b});
+  if(G&&G.state==='play'&&modal.hidden)showNextPause();
+}
+function nextToast(){clearTimeout(tTimer);const it=tq.shift();if(!it){tBusy=false;toastEl.hidden=true;return;}tBusy=true;toastEl.querySelector('b').textContent=it[0];toastEl.querySelector('span').textContent=it[1];toastEl.hidden=false;tTimer=setTimeout(nextToast,clamp(1600+(it[0]+it[1]).length*55,2800,6000));}
 function hint(key,a,b){if(!G.hints.has(key)){G.hints.add(key);toast(a,b);}}
 
 function moveBody(b,onHead){
@@ -916,10 +968,10 @@ function hitBlock(tx,ty){
 }
 function hurt(fell){
   if(!fell&&P.inv>0)return;
-  G.hearts--;sfx('hurt');
+  G.hearts=Math.max(0,G.hearts-(fell?5:4));sfx('hurt');renderHUD(true);
   if(G.hearts<=0){end('dead');return;}
-  if(fell){P.x=G.cp*T+2;P.y=12*T;P.vx=P.vy=0;}else{P.vy=-4.5;P.vx=-P.face*2;}
-  P.inv=1.6;
+  if(fell){P.x=G.cp*T+2;P.y=12*T;P.vx=P.vy=0;}else{P.vy=-4.2;P.vx=-P.face*1.8;}
+  P.inv=2.4;
 }
 function grow(nw){
   if(nw<=P.w+.01)return;
@@ -930,6 +982,7 @@ function grow(nw){
 let justUnlocked=false;
 function end(r){
   if(G.state==='end')return;
+  pq.length=0;pbanner.hidden=true;
   G.state='end';G.end=r;if(G.st.expo)expoFinal();renderHUD(true);musicStop();sfx(r==='clear'?'clear':'over');
   if(r==='nms')see('nms');
   if(r==='litox')see('litox');
@@ -983,7 +1036,7 @@ function updPlayer(dt){
   const av=Math.max(fxI('activation'),fxI('manicsw'));
   if(av>0){G.avT-=dt;if(G.avT<=0){G.avT=3+Math.random()*2;G.dash=.7;G.dashDir=P.face||1;pop(P.x+P.w/2,P.y-6,'イライラ','#bb3333');}}
   if(G.dash>0){G.dash-=dt;P.vx=G.dashDir*3.3;}
-  if(P.on)P.coy=.08;else P.coy-=dt;
+  if(P.on)P.coy=.16;else P.coy-=dt;
   if(G.jbuf>0)G.jbuf-=dt;
   if(G.jbuf>0&&P.coy>0&&G.freeze<=0){P.vy=-jmp;P.coy=0;G.jbuf=0;P.jumping=true;G.jumpedNow=true;sfx('jump');}
   if(!keys.j&&P.jumping&&P.vy<-3)P.vy=-3;
@@ -1102,7 +1155,8 @@ function update(dt){
 let hudSig='',lastBlur='',lastHearts=-1;
 const chipsEl=$('chips'),wfill=$('wfill'),meter=$('meter'),lvEl=$('lv');
 function renderHUD(force){
-  if(force||G.hearts!==lastHearts){lastHearts=G.hearts;const h=clamp(G.hearts,0,MAXH);$('hearts').textContent='♥'.repeat(h)+'♡'.repeat(MAXH-h);}
+  if(force||G.hearts!==lastHearts){lastHearts=G.hearts;const hp=clamp(Math.round(G.hearts),0,MAXH),hc=Math.ceil(hp/10);
+    $('hearts').innerHTML=`<span>${'♥'.repeat(hc)}${'♡'.repeat(10-hc)}</span><span class="hpbar"><i style="width:${hp}%"></i></span><span class="hpnum">${hp}/${MAXH}</span>`;}
   const bal=G.st.water==='balance';wfill.style.width=(G.water/(bal?150:100)*100).toFixed(1)+'%';meter.classList.toggle('low',G.water<25);meter.classList.toggle('hi',bal&&G.water>105&&G.water<=120);meter.classList.toggle('over',bal&&G.water>120);
   lvEl.hidden=!hasLi();
   if(hasLi()){$('lvv').textContent=G.li.toFixed(2);lvEl.classList.toggle('hi',G.li>1.2&&G.li<1.5);lvEl.classList.toggle('tox',G.li>=1.5);}
@@ -1127,12 +1181,43 @@ function renderHUD(force){
 }
 
 /* ========== 処方の画面 ========== */
-function openSheet(html){G.state='modal';SND.duck=true;clearKeys();sheet.innerHTML=html;modal.hidden=false;const f=sheet.querySelector('button:not(:disabled)');if(f)f.focus();}
+let modalPrevState='play';
+function openSheet(html,keepState){
+  if(!keepState)modalPrevState='play';
+  pbanner.hidden=true;
+  G.state='modal';SND.duck=true;clearKeys();sheet.innerHTML=html;modal.hidden=false;
+  const rvBtn=sheet.querySelector('.reveal-btn');
+  if(rvBtn){
+    rvBtn.addEventListener('click',()=>{
+      const box=sheet.querySelector('.reveal-box'),cards=sheet.querySelector('.cards');
+      if(box)box.hidden=true;
+      if(cards){cards.hidden=false;const fc=cards.querySelector('.card:not(:disabled)');if(fc)fc.focus();}
+    });
+    rvBtn.focus();return;
+  }
+  const f=sheet.querySelector('button:not(:disabled)');if(f)f.focus();
+}
 function closeModal(){modal.hidden=true;sheet.innerHTML='';G.state='play';SND.duck=false;last=performance.now();
-  keys.l=held.l;keys.r=held.r;document.querySelectorAll('.pad button').forEach(b=>b.classList.toggle('on',!!keys[b.dataset.k]));}
+  keys.l=held.l;keys.r=held.r;document.querySelectorAll('.pad button').forEach(b=>b.classList.toggle('on',!!keys[b.dataset.k]));
+  if(G.state==='play'&&pq.length)showNextPause();}
+function openKarteModal(){
+  if(!modal.hidden||!G||G.state==='end')return;
+  modalPrevState=G.state;
+  const pt=G.pt,hier=$('kHier')&&!$('kHier').hidden?`<br><b>${$('kHierT').textContent}</b><br>${$('kHier').innerHTML}`:'';
+  openSheet(`<div class="rxhead"><h2>カルテ確認</h2><span>第${G.st.no}面 ${G.st.name}</span></div>
+    <p class="ptline">${ptBlock(pt)}${hier}</p>
+    <div class="actions"><button type="button" class="btn" id="karteClose">ゲームに戻る</button></div>`,true);
+  $('karteClose').addEventListener('click',()=>{
+    const prev=modalPrevState;modalPrevState='play';
+    modal.hidden=true;sheet.innerHTML='';G.state=prev;SND.duck=false;last=performance.now();
+    if(prev==='pause')pbanner.hidden=false;
+  });
+}
+$('kartebtn').addEventListener('click',openKarteModal);
 function cardsHTML(list){
   const w=list.length===3?180:260,l2=G.loop===2;
-  return `<div class="cards" style="grid-template-columns:repeat(auto-fit,minmax(min(100%,${w}px),1fr))">${list.map((o,i)=>`<button type="button" class="card" data-i="${i}"><span class="k">[${i+1}]${ADV?'':'　'+(o.cls||'')}</span><span class="n">${o.name}</span>${!ADV&&o.rec?`<span class="r">${o.rec}</span>`:''}${(l2||EDITION.showMg)&&o.mg?`<span class="mg">${o.mg}</span>`:''}${!ADV&&o.note?`<span class="t">${o.note}</span>`:''}</button>`).join('')}</div>`;
+  const rev=SHOW_OPT?'':`<div class="reveal-box"><p>まず自分で考えてみよう（Enter / Space でも表示できます）</p><button type="button" class="btn reveal-btn">選択肢を表示</button></div>`;
+  return `${rev}<div class="cards"${SHOW_OPT?'':' hidden'} style="grid-template-columns:repeat(auto-fit,minmax(min(100%,${w}px),1fr))">${list.map((o,i)=>`<button type="button" class="card" data-i="${i}"><span class="k">[${i+1}]${ADV?'':'　'+(o.cls||'')}</span><span class="n">${o.name}</span>${!ADV&&o.rec?`<span class="r">${o.rec}</span>`:''}${(l2||EDITION.showMg)&&o.mg?`<span class="mg">${o.mg}</span>`:''}${!ADV&&o.note?`<span class="t">${o.note}</span>`:''}</button>`).join('')}</div>`;
 }
 function openMain(){
   if(G.st.diag)return openDiag();
@@ -1213,7 +1298,7 @@ function openResult(){
   const fail=r!=='clear',nc=fail?'btn sub':'btn';
   const nextBtn=(justUnlocked?'<button type="button" class="btn night" id="go2">2周目へ</button>':'')+(!last?`<button type="button" class="${nc}" id="next">第${STAGES[cur+1].no}面へ</button>`:`<button type="button" class="${nc}" id="first">第1面へ</button>`);
   openSheet(`<div class="rxhead${r==='clear'?'':' bad'}"><h2>${title}</h2><span>第${G.st.no}面${l2?'（2周目）':''}${ADV?'・上級者モード':''}　${sub}</span></div>${banner}
-    <div class="stats"><div><span>タイム</span><b>${mm}:${String(ss).padStart(2,'0')}</b></div><div><span>${G.st.expo?'乗り越えた場面':'改善した症状'}</span><b>${G.st.expo?expoCleared():G.stomps}</b></div><div><span>残りハート</span><b>${Math.max(0,G.hearts)}</b></div>${G.grades.length?`<div><span>判断スコア</span><b>${sc} / ${mx}</b></div>`:''}</div>
+    <div class="stats"><div><span>タイム</span><b>${mm}:${String(ss).padStart(2,'0')}</b></div><div><span>${G.st.expo?'乗り越えた場面':'改善した症状'}</span><b>${G.st.expo?expoCleared():G.stomps}</b></div><div><span>残り体力</span><b>${Math.max(0,Math.round(G.hearts))} / ${MAXH}</b></div>${G.grades.length?`<div><span>判断スコア</span><b>${sc} / ${mx}</b></div>`:''}</div>
     ${G.st.expo?expoChart():''}<h3>${G.st.expo?'今回の練習':'今回の処方'}</h3><p>${G.st.expo?expoSummary():rx}</p>
     <h3>${G.st.expo?'判断と行動':'処方の判断'}</h3>${gl}
     ${G.st.expo?'':`<h3>体験した副作用・できごと</h3>${fxl}`}
@@ -1602,7 +1687,8 @@ function syncFs(){
   if(nativeFs()){stageEl.classList.add('full');stageEl.classList.remove('fs');}
   else if(!stageEl.classList.contains('fs'))stageEl.classList.remove('full');
   const on=stageEl.classList.contains('full');
-  $('fsbtn').textContent=on?'全画面を終了':'全画面';$('fsbtn').setAttribute('aria-pressed',String(on));
+  document.documentElement.classList.toggle('is-max',on);
+  $('fsbtn').textContent=on?'⛶ 全画面を終了':'⛶ 全画面';$('fsbtn').setAttribute('aria-pressed',String(on));
   document.body.classList.toggle('fslock',stageEl.classList.contains('fs'));resize();
 }
 async function toggleFs(){
@@ -1660,7 +1746,7 @@ function expoFlood(){ // フラッディング：強い場面から並べ替え�
 }
 function expoStart(){
   G.state='play';audioInit();if(SND.ctx&&SND.ctx.state!=='running')SND.ctx.resume();musicStart();$('startov').hidden=true;last=performance.now();
-  toast(`第${G.st.no}面 スタート`,G.st.expo==='ba'?'気分を待たずに、小さな活動から':'怖い場面に近づき、不安が下がるまでとどまろう');
+  toast(`第${G.st.no}面 スタート`,G.st.expo==='ba'?'気分を待たずに、小さな活動から':'怖い場面に近づき、不安が下がるまでとどまろう',true,{brief:true});
   if(G.st.pre)openDecision('pre');
 }
 function expoSpeed(){
@@ -2064,13 +2150,24 @@ const held={l:false,r:false,j:false}; // 実際に押されているキー（選
 addEventListener('keydown',e=>{
   const kh=KM[e.code];if(kh&&kh!=='act')held[kh]=true;
   if(!modal.hidden){
+    const kc=$('karteClose');
+    if(kc&&(e.key==='Escape'||e.key==='Enter')){e.preventDefault();kc.click();return;}
+    const rv=sheet.querySelector('.reveal-box:not([hidden]) .reveal-btn');
+    if(rv){
+      if(e.key==='Enter'||e.code==='Space'){e.preventDefault();rv.click();}
+      return;
+    }
     const n=parseInt(e.key,10);
-    if(n>=1&&n<=4){const b=sheet.querySelectorAll('.card')[n-1];if(b&&!b.disabled){e.preventDefault();b.click();}}
+    if(n>=1&&n<=4){const b=sheet.querySelectorAll('.cards:not([hidden]) .card')[n-1];if(b&&!b.disabled){e.preventDefault();b.click();}}
+    return;
+  }
+  if(!pbanner.hidden){
+    if((e.key==='Enter'||e.code==='Space')&&performance.now()-pOpenedAt>260){e.preventDefault();dismissPause();}
     return;
   }
   if(G.state==='intro'&&e.key==='Enter'&&!(e.target&&e.target.closest&&e.target.closest('.tab'))){e.preventDefault();start();return;}
   const k=KM[e.code];if(!k)return;
-  if(G.state==='play'){e.preventDefault();if(k==='act'){if(!e.repeat&&G.st.expo)expoAct();return;}if(k==='j'&&!keys.j&&!e.repeat)G.jbuf=.12;keys[k]=true;}
+  if(G.state==='play'){e.preventDefault();if(k==='act'){if(!e.repeat&&G.st.expo)expoAct();return;}if(k==='j'&&!keys.j&&!e.repeat)G.jbuf=.18;keys[k]=true;}
 });
 addEventListener('keyup',e=>{const k=KM[e.code];if(k){keys[k]=false;if(k!=='act')held[k]=false;}});
 addEventListener('blur',()=>{clearKeys();held.l=held.r=held.j=false;});
