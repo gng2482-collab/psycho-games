@@ -6,7 +6,7 @@
 <meta name="robots" content="noindex, nofollow">
 <!-- アクセス数（GoatCounter、Cookie なし・個人を特定しない。2026-11-23 利用者の依頼） -->
 <script data-goatcounter="https://psychogames.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
-<meta name="app-version" content="20261125132557">
+<meta name="app-version" content="20261125152428">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
@@ -119,7 +119,6 @@ h1{
 .how li{border-top:3px double var(--ink); padding-top:8px; font-size:var(--fs-s); display:grid; gap:2px}
 .how b{font-family:var(--f-display); font-weight:400; font-size:var(--fs-m); letter-spacing:.04em}
 .how .n{color:var(--accent)}
-.score-rule{font-size:var(--fs-xs); color:var(--muted)}
 .toolbar{display:flex; flex-wrap:wrap; align-items:center; gap:8px 14px}
 .switch{
   font:inherit; font-size:var(--fs-s); font-weight:700; display:inline-flex; align-items:center; gap:10px;
@@ -144,7 +143,6 @@ h1{
 .tab-no{font-family:var(--f-display); font-size:var(--fs-xs); color:var(--accent); letter-spacing:.08em; display:flex; justify-content:space-between; gap:6px}
 .tab-ok{color:var(--accent); font-family:var(--f-body); font-weight:700}
 .tab-t{font-weight:700; font-size:var(--fs-s); line-height:1.45}
-.tab-s{font-size:var(--fs-xs); color:var(--muted); font-variant-numeric:tabular-nums}
 
 /* 依頼1件分 */
 .case{margin-top:26px}
@@ -158,9 +156,6 @@ h1{
 .step-h:focus{outline:none}
 .step-h:focus-visible{outline:3px solid var(--accent); outline-offset:4px}
 .step-n{font-size:var(--fs-s); color:var(--accent); border:1.5px solid var(--accent); padding:0 8px; letter-spacing:.06em}
-.step.locked .step-h{color:var(--muted)}
-.step.locked .step-n{color:var(--muted); border-color:var(--line)}
-.locked-note{color:var(--muted); font-size:var(--fs-s); border:1px dashed var(--line); padding:12px 14px; border-radius:var(--r)}
 .step-lead{font-size:var(--fs-s); max-width:46em}
 
 /* 依頼票 */
@@ -221,7 +216,6 @@ h1{
 .fb:focus{outline:none}
 .fb-h{display:flex; flex-wrap:wrap; align-items:center; gap:6px 12px; font-weight:700; font-size:var(--fs-m)}
 .fb-h .tag{font-family:var(--f-display); font-weight:400; font-size:var(--fs-xs); letter-spacing:.12em; color:var(--accent); border:1px solid var(--accent); padding:0 6px}
-.fb-pts{font-family:var(--f-display); font-weight:400; font-variant-numeric:tabular-nums}
 .all{list-style:none; padding:0; display:grid; gap:8px}
 .all li{display:grid; grid-template-columns:1.6em minmax(0,1fr); gap:4px 8px; padding-top:8px; border-top:1px dotted var(--line)}
 .all .why{grid-column:2; color:var(--muted)}
@@ -277,7 +271,7 @@ h1{
 .tray-h:focus{outline:none}
 .chips{display:flex; flex-wrap:wrap; gap:6px}
 .chip{
-  font:inherit; font-size:var(--fs-s); padding:5px 12px; min-height:36px; border-radius:999px; cursor:pointer;
+  font:inherit; font-size:var(--fs-s); padding:5px 12px; min-height:44px; border-radius:999px; cursor:pointer;
   border:1px solid var(--accent); color:var(--accent); background:var(--panel); display:inline-flex; align-items:center; gap:6px;
 }
 .chip.static{cursor:default; color:var(--ink); border-color:var(--line)}
@@ -287,7 +281,7 @@ h1{
   position:sticky; bottom:0; z-index:5; background:var(--panel);
   border:1px solid var(--line); border-top:4px double var(--ink);
   padding:10px 14px calc(10px + env(safe-area-inset-bottom, 0px));
-  display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1fr) auto; gap:8px 18px; align-items:center;
+  display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:8px 18px; align-items:center;
   box-shadow:0 -12px 24px -20px var(--shadow);
 }
 .budget.static{position:static}
@@ -309,12 +303,9 @@ h1{
 .verdicts li{display:grid; grid-template-columns:minmax(0,1fr) auto; gap:2px 10px; padding:8px 0; border-top:1px dotted var(--line)}
 .verdicts .nm{font-weight:700}
 .verdicts .rs{grid-column:1 / -1; color:var(--muted)}
-.breakdown{font-size:var(--fs-xs); color:var(--muted); font-variant-numeric:tabular-nums}
 .subh{font-weight:700; font-size:var(--fs-s)}
 
 /* 報告書 */
-.mul{font-size:var(--fs-s); background:var(--panel); border:1px solid var(--line); border-radius:var(--r); padding:8px 12px}
-.mul b{font-family:var(--f-display); font-weight:400; color:var(--accent); font-size:var(--fs-m)}
 .report{
   background:var(--panel); border:1px solid var(--line); padding:18px clamp(14px, 3vw, 30px) 16px;
   box-shadow:0 12px 26px -20px var(--shadow); display:grid; gap:0; font-size:var(--fs-s);
@@ -351,8 +342,7 @@ h1{
 .g-cut{position:absolute; top:-4px; bottom:-4px; width:2px; margin-left:-1px; background:var(--seal)}
 
 /* 問い */
-.qs{display:grid; gap:0}
-.q{padding:16px 0; border-top:1px solid var(--line); display:grid; gap:10px}
+.q{display:grid; gap:10px}
 .q-h{font-weight:700}
 .q-h:focus{outline:none}
 .q-n{font-family:var(--f-display); font-weight:400; color:var(--accent); margin-right:8px}
@@ -360,16 +350,9 @@ h1{
 
 /* 結果 */
 .result-box{background:var(--panel); border:1px solid var(--ink); padding:20px clamp(14px, 3vw, 28px); display:grid; gap:18px}
-.total{display:flex; flex-wrap:wrap; align-items:center; gap:8px 18px}
-.total-n{font-family:var(--f-display); font-size:clamp(3.2rem, 14vw, 4.6rem); line-height:1; color:var(--accent); font-variant-numeric:tabular-nums}
-.total-d{font-family:var(--f-display); color:var(--muted)}
-.total-stamp{font-family:var(--f-display); border:3px solid var(--seal); color:var(--seal); padding:4px 12px; transform:rotate(-6deg); letter-spacing:.12em; animation:stamp2 .32s ease-out both}
-.total-stamp.ok{border-color:var(--accent); color:var(--accent)}
-@keyframes stamp2{from{transform:rotate(-6deg) scale(1.6); opacity:0} to{transform:rotate(-6deg) scale(1); opacity:1}}
 .sumrows{list-style:none; padding:0; display:grid}
-.sumrows li{display:grid; grid-template-columns:minmax(0,1fr) auto auto; gap:2px 12px; align-items:center; padding:10px 0; border-top:1px solid var(--line)}
+.sumrows li{display:grid; grid-template-columns:minmax(0,1fr) auto; gap:2px 12px; align-items:center; padding:10px 0; border-top:1px solid var(--line)}
 .sumrows .lbl{font-weight:700}
-.sumrows .pts{font-family:var(--f-display); font-variant-numeric:tabular-nums}
 .sumrows .rs{grid-column:1 / -1; font-size:var(--fs-s); color:var(--muted)}
 .result-box h4{margin:0 0 6px; font-family:var(--f-display); font-weight:400; font-size:var(--fs-l); letter-spacing:.04em}
 .points{padding-left:1.2em; display:grid; gap:6px; font-size:var(--fs-s)}
@@ -398,7 +381,6 @@ h1{
   .slip-grid{grid-template-columns:1fr}
   .slip-grid > div{grid-template-columns:1fr; gap:0}
   .budget{grid-template-columns:minmax(0,1fr) minmax(0,1fr); gap:6px 14px; padding-top:8px; padding-bottom:calc(8px + env(safe-area-inset-bottom, 0px))}
-  .budget .send{grid-column:1 / -1; width:100%; padding-block:8px}
   .rep-info > div{grid-template-columns:1fr; gap:0}
   .bar-row{grid-template-columns:minmax(0,7.5em) 2.4em minmax(0,1fr)}
   .written{flex-direction:row}
@@ -507,9 +489,49 @@ body.room-mode .order-only{display:none!important}
 .sort-keys svg,.sort-cur svg{width:100%;height:100%}
 
 /* /ROOM-CSS */
+.screen-tools{display:flex; align-items:center; justify-content:flex-end; gap:8px; padding-top:8px}
+.worksheet,.worksheet-pane,.worksheet-content{display:grid; gap:14px; min-width:0}
+.step-actions{display:flex; flex-wrap:wrap; justify-content:space-between; gap:8px}
+.step-actions .primary{margin-inline-start:auto}
+.reveal-box{width:100%; border-style:dashed}
+.report-preview .report-comment,.report-preview .g-cut,.report-preview .gauge .bar-legend{display:none}
+
+/* 全画面では症例・報告書と回答欄の中だけをスクロールする */
+html.is-max{padding:0; overflow:hidden}
+.is-max body{
+  height:100vh; height:100dvh; overflow:hidden;
+  padding-block:max(8px,env(safe-area-inset-top,0px)) max(8px,env(safe-area-inset-bottom,0px));
+}
+.is-max .wrap{height:100%; max-width:1360px; display:grid; grid-template-rows:auto minmax(0,1fr); gap:8px}
+.is-max .ipad-bar,.is-max .top,.is-max nav[aria-label="依頼の一覧"],.is-max .zukan,.is-max .foot{display:none}
+.is-max .screen-tools{padding:0}
+.is-max #case,.is-max #room{min-height:0}
+.is-max #room{margin:0; overflow:auto}
+.is-max .case{height:100%; display:grid; grid-template-rows:auto minmax(0,1fr); margin:0}
+.is-max .case-h{display:flex; flex-wrap:wrap; align-items:baseline; gap:4px 12px}
+.is-max .case-h h2,.is-max .step-h{font-size:var(--fs-l)}
+.is-max .step{min-height:0; margin:0}
+.is-max .worksheet{
+  grid-template-columns:repeat(2,minmax(0,1fr)); grid-template-rows:auto minmax(0,1fr) auto;
+  gap:8px 12px;
+}
+.is-max .worksheet > .step-h,.is-max .step-actions{grid-column:1 / -1}
+.is-max .worksheet-pane,.is-max .result-box{
+  min-height:0; overflow:auto; overscroll-behavior:contain; align-content:start;
+}
+.is-max .worksheet-pane{border:1px solid var(--line); border-radius:var(--r); padding:6px}
+.is-max .worksheet-content{align-content:start}
+.is-max .result-step{grid-template-rows:auto minmax(0,1fr) auto}
+.is-max .budget{top:0; bottom:auto; padding:8px 10px; box-shadow:none}
+@media (orientation:portrait), (max-width:720px){
+  .is-max .worksheet{grid-template-columns:minmax(0,1fr); grid-template-rows:auto minmax(0,2fr) minmax(0,3fr) auto}
+  .is-max .slip,.is-max .report{padding:10px}
+  .is-max .opt{padding:7px 10px}
+}
 </style>
 
 <div class="wrap">
+  <div class="screen-tools"><button type="button" class="switch" id="maxBtn" aria-pressed="false">⛶ 全画面</button></div>
   <header class="top">
     <p class="eyebrow">精神科専門医試験の勉強に・心理検査に慣れていない医師の練習に</p>
     <h1>心理検査オーダー</h1>
@@ -523,10 +545,10 @@ body.room-mode .order-only{display:none!important}
       <li><b><span class="n">その2</span> 検査を組む</b>年齢と体力（時間と負担の上限）に合わせて、検査カードを組み合わせます。</li>
       <li><b><span class="n">その3</span> 報告書を読む</b>届いた報告書から、読み方と次の一手を選びます。</li>
     </ol>
-    <p class="score-rule">配点は依頼票20点・検査の組み合わせ50点・報告書の読み30点。70点以上でクリア（✓）です。</p>
     <div class="toolbar">
+      <button type="button" class="switch" id="optionsBtn" aria-pressed="false"><span class="knob" aria-hidden="true"></span>選択肢を最初から出す</button>
       <button type="button" class="switch" id="advBtn" aria-pressed="false"><span class="knob" aria-hidden="true"></span><span id="advLabel">上級者モード：オフ</span></button>
-      <p class="note">上級者モードでは、カードの「わかること」と途中の採点を隠します。採点は最後にまとめて出ます。</p>
+      <p class="note">上級者モードでは、講評と解説を最後にまとめて表示します。</p>
     </div>
   </header>
 
@@ -612,22 +634,24 @@ body.room-mode .order-only{display:none!important}
   'use strict';
 
   /* ---------- 保存（使えなくても動く） ---------- */
-  var LS_KEY = 'kensa-order-v1', ADV_KEY = 'kensa-order-adv', CLEAR = 70;
+  var LS_KEY = 'kensa-order-v1', ADV_KEY = 'kensa-order-adv', OPTIONS_KEY = 'kensa-order-show-options';
   function lsGet(k) { try { return window.localStorage.getItem(k); } catch (e) { return null; } }
   function lsSet(k, v) { try { window.localStorage.setItem(k, v); } catch (e) { /* 保存できない環境 */ } }
-  var saved = { clear: {}, seen: [] };
+  var saved = { clear: {}, completed: [], seen: [] };
   try {
     var raw = lsGet(LS_KEY);
     if (raw) {
       var o = JSON.parse(raw);
       if (o && typeof o === 'object') {
         if (o.clear && typeof o.clear === 'object') saved.clear = o.clear;
+        if (Array.isArray(o.completed)) saved.completed = o.completed;
         if (Array.isArray(o.seen)) saved.seen = o.seen;
       }
     }
   } catch (e) { /* 壊れた記録は無視 */ }
   function persist() { lsSet(LS_KEY, JSON.stringify(saved)); }
   var adv = lsGet(ADV_KEY) === '1';
+  var showOptions = lsGet(OPTIONS_KEY) === '1';
 
   /* ---------- 検査カード ---------- */
   var CATS = ['知能・発達', '神経心理・認知症', '症状評価・質問紙', '人格・投影法', '情報収集', '特別'];
@@ -685,29 +709,16 @@ body.room-mode .order-only{display:none!important}
     return '<img class="cic" src="' + CICU[cat] + '" alt="">';
   }
 
-  /* ---------- 採点の決まり ---------- */
-  var G = {
-    '◎': { ref: 20, q: 15, mul: 1, mulL: '×1.0', cls: 'g-a' },
-    '○': { ref: 14, q: 10, mul: 0.85, mulL: '×0.85', cls: 'g-b' },
-    '△': { ref: 8, q: 5, mul: 0.7, mulL: '×0.7', cls: 'g-c' },
-    '×': { ref: 0, q: 0, mul: 0.5, mulL: '×0.5', cls: 'g-d' }
-  };
-  var MULTXT = {
-    '◎': '依頼の目的と使い道がはっきりしていたので、報告書は主治医の疑問にまっすぐ答えています。',
-    '○': '知りたいことは伝わりましたが、使い道が書かれていなかったので、支援の提案は省かれています。',
-    '△': '依頼の目的がはっきりしなかったので、報告書は結果の説明にとどまっています。',
-    '×': '依頼の目的がはっきりしなかったので、報告書は結果の説明にとどまっています。'
-  };
+  /* ---------- 講評の表示 ---------- */
+  var G = { '◎': 'g-a', '○': 'g-b', '△': 'g-c', '×': 'g-d' };
   var V = {
-    need: { label: '必要', cls: 'v-need', pen: 0 },
-    good: { label: 'あると良い', cls: 'v-good', pen: 0 },
-    no: { label: '不要', cls: 'v-no', pen: 4 },
-    heavy: { label: '負担が大きすぎる', cls: 'v-heavy', pen: 5 },
-    age: { label: '対象年齢外', cls: 'v-age', pen: 6 }
+    need: { label: '必要', cls: 'v-need' },
+    good: { label: 'あると良い', cls: 'v-good' },
+    no: { label: '不要', cls: 'v-no' },
+    heavy: { label: '負担が大きすぎる', cls: 'v-heavy' },
+    age: { label: '対象年齢外', cls: 'v-age' }
   };
-  var PEN_OVER = 6, PEN_TRAP = 8;
-  function gradeOf(f) { return f >= 0.9 ? '◎' : f >= 0.7 ? '○' : f >= 0.4 ? '△' : '×'; }
-  function grHTML(g) { return '<span class="gr ' + G[g].cls + '">' + g + '</span>'; }
+  function grHTML(g) { return '<span class="gr ' + G[g] + '">' + g + '</span>'; }
 
   /* ---------- 報告書の部品 ---------- */
   function bars(rows) {
@@ -724,6 +735,7 @@ body.room-mode .order-only{display:none!important}
       (label ? '<p class="bar-legend">' + label + '</p>' : '') + '</div>';
   }
   function P(t) { return '<p>' + t + '</p>'; }
+  function reportComment(t) { return '<p class="report-comment">' + t + '</p>'; }
 
   /* ---------- 依頼（8件） ---------- */
   var CASES = [
@@ -768,7 +780,7 @@ body.room-mode .order-only{display:none!important}
       },
       rep: {
         wais: '<p>群指数（知能をいくつかの側面に分けた得点。平均は100）</p>' + bars([['言語理解', 112], ['知覚推理', 106], ['ワーキングメモリー', 80], ['処理速度', 76], ['全検査IQ', 96]]) +
-          P('言語理解と知覚推理は平均から平均の上。ワーキングメモリー（聞いたことを覚えておきながら作業する力）と処理速度（簡単な作業をすばやく正確にこなす力）が低く、群指数の間の差が大きい。全検査IQ 96を、この方の力を代表する数字として扱うには注意が必要。'),
+          reportComment('言語理解と知覚推理は平均から平均の上。ワーキングメモリー（聞いたことを覚えておきながら作業する力）と処理速度（簡単な作業をすばやく正確にこなす力）が低く、群指数の間の差が大きい。全検査IQ 96を、この方の力を代表する数字として扱うには注意が必要。'),
         caars: P('本人用・観察者用（同居の母が記入）とも、不注意の得点が高い。多動・衝動性は本人用でやや高い。'),
         seiku: P('母から：小学生の頃から忘れ物が多く、通知表には毎年「うっかりミスが多い」「話を最後まで聞けない」と書かれていた。宿題の出し忘れも多かった。'),
         asrs: P('スクリーニングで陽性（ADHDの可能性を示す範囲）。'),
@@ -950,7 +962,7 @@ body.room-mode .order-only{display:none!important}
       },
       rep: {
         wisc: '<p>5つの主要指標（知能をいくつかの側面に分けた得点。平均は100）</p>' + bars([['言語理解', 108], ['視空間', 110], ['流動性推理', 104], ['ワーキングメモリー', 92], ['処理速度', 88], ['全検査IQ', 102]]) +
-          P('全検査IQは平均域。ワーキングメモリーと処理速度はやや低めだが、平均に近い範囲。'),
+          reportComment('全検査IQは平均域。ワーキングメモリーと処理速度はやや低めだが、平均に近い範囲。'),
         straw: P('音読の速さと正確さが、ひらがな・カタカナ・漢字のいずれでも学年の平均を大きく下回る。書き取りでも誤りが多い。'),
         seiku: P('母から：話し始めは早く、話すのは得意。ひらがなを覚えるのに時間がかかった。担任から：算数の計算は速く正確。教科書の音読でつっかえ、問題文を読み上げてもらうと文章題も解ける。'),
         conners: P('保護者用・教師用とも、不注意・多動性はいずれも平均の範囲。')
@@ -1033,7 +1045,7 @@ body.room-mode .order-only{display:none!important}
         aq: P('カットオフ（境目の点）以上。人とのやりとりや、変化への苦手さを本人が自覚している。'),
         pars: P('母から：幼児期は同じ道順でないと泣いて嫌がった。掃除機など大きな音を怖がった（感覚過敏）。ひとり遊びが多かった。小学校では「おとなしくまじめな子」と言われていた。'),
         ados: P('会話のなかで、視線や身ぶりを話に合わせて使うことが少なく、相手の話に合わせた応じ方にも所見がある（社会的コミュニケーションの所見）。一方で、丁寧なことばづかいで場に合わせようとする努力がうかがえた。'),
-        wais: bars([['言語理解', 121], ['知覚推理', 104], ['ワーキングメモリー', 98], ['処理速度', 82], ['全検査IQ', 105]]) + P('言語理解が高く、処理速度が低い。ことばの力で周りに合わせてきた一方、作業の速さを求められると疲れやすい。')
+        wais: bars([['言語理解', 121], ['知覚推理', 104], ['ワーキングメモリー', 98], ['処理速度', 82], ['全検査IQ', 105]]) + reportComment('言語理解が高く、処理速度が低い。ことばの力で周りに合わせてきた一方、作業の速さを求められると疲れやすい。')
       },
       sum: function (x) {
         var src = [];
@@ -1206,9 +1218,9 @@ body.room-mode .order-only{display:none!important}
       rep: {
         defer: '<p><b>延期の理由：</b>入院3日目で幻聴が活発で、興奮もある。今検査をすると、結果が症状に強く左右され、人格の特徴として読むことができない。長い検査は本人の負担も大きい。</p>' +
           '<p><b>落ち着いてからの提案：</b>退院後の生活や仕事に向けて、知りたいことをはっきりさせてから依頼する。たとえば、生活の力に関わる認知機能（WAIS-IVなど）。人格の理解が必要なら、質問紙と投影法の組み合わせを検討する。</p>',
-        panss: P('陽性症状（幻聴・妄想・興奮など）が高い。陰性症状（意欲の低下・感情の平板化など）は中くらい。治療の効果を追うため、同じ尺度で定期的に評価する。'),
+        panss: P('陽性症状（幻聴・妄想・興奮など）が高い。陰性症状（意欲の低下・感情の平板化など）は中くらい。') + reportComment('治療の効果を追うため、同じ尺度で定期的に評価する。'),
         obs: P('病棟では、ひとりごとと空笑（周りから見て理由のない笑い）がみられる。夜は眠りが浅い。スタッフの声かけには短く応じる。'),
-        rorsch: P('開始したが、幻聴に気をとられて集中が続かず、途中で中断した。得られた反応は症状の影響が強く、人格の特徴としては読めない。'),
+        rorsch: P('開始したが、幻聴に気をとられて集中が続かず、途中で中断した。') + reportComment('得られた反応は症状の影響が強く、人格の特徴としては読めない。'),
         mmpi: P('記入を始めたが、「質問に自分への悪口が書いてある」と言って途中でやめた。結果は出せない。')
       },
       sum: function (x) {
@@ -1378,7 +1390,7 @@ body.room-mode .order-only{display:none!important}
           ? '4歳にWISC-VやWAIS-IVを選んでいます。WISC-Vは5歳0か月から、WAIS-IVは16歳0か月からです。幼児には新版K式や田中ビネーを使います。' : null;
       },
       rep: {
-        kshiki: '<p>発達指数（同じ年齢の子と比べた発達の進み具合。100が年齢相応）</p>' + bars([['認知・適応', 95], ['言語・社会', 72]]) + P('認知・適応はほぼ年齢相応。言語・社会が低く、領域の間に差がある。'),
+        kshiki: '<p>発達指数（同じ年齢の子と比べた発達の進み具合。100が年齢相応）</p>' + bars([['認知・適応', 95], ['言語・社会', 72]]) + reportComment('認知・適応はほぼ年齢相応。言語・社会が低く、領域の間に差がある。'),
         binet: P('IQ 85。ことばで答える問題では年齢より下の段階からつまずき、図形や手先を使う問題は年齢相応に通過した。この年齢では領域ごとの得点は出ないため、通過した問題の内容から得意・不得意を読みとった。'),
         pars: P('母から：初語が遅かった。指さしや、見てほしいものを持ってくることはあった。強いこだわりや感覚の過敏は目立たない。'),
         obs: P('検査者とのやりとりを楽しみ、うまくいくと笑顔で母を振り返った。ことばで答える場面では、身ぶりや指さしで伝えようとした。'),
@@ -1429,43 +1441,35 @@ body.room-mode .order-only{display:none!important}
   var cur = 0;
   var states = {};
   function getS(i) {
-    if (!states[i]) states[i] = { ref: null, refDone: false, sel: new Set(), sent: false, ev: null, ans: [null, null], done: false, res: null };
+    if (!states[i]) states[i] = { step: 0, opened: new Set(), ref: null, refDone: false, sel: new Set(), sent: false, ev: null, ans: [null, null], done: false };
     return states[i];
   }
   function showFb(s) { return !adv || s.done; }
+  function choicesOpen(s, step) {
+    return showOptions || s.opened.has(step) || (step === 0 ? s.refDone : step === 1 ? s.sent : s.ans[step - 2] != null);
+  }
+  function revealHTML() {
+    return '<button type="button" class="btn reveal-box" data-act="reveal">選択肢を表示</button>';
+  }
   function nameOf(id) { return CARDS[id].name; }
 
   function evalBattery(c, sel) {
+    var totals = liveTotals(sel);
     var ids = c.hand.filter(function (id) { return sel.has(id); });
     var tags = c.tags.map(function (t) {
       return { id: t.id, label: t.label, cards: t.cards, ok: t.cards.some(function (id) { return sel.has(id) && c.v[id][0] !== 'age'; }) };
     });
-    var covered = tags.filter(function (t) { return t.ok; }).length;
-    var time = 0, burden = 0, pen = 0, counts = { need: 0, good: 0, no: 0, heavy: 0, age: 0 };
-    ids.forEach(function (id) {
-      time += CARDS[id].min; burden += CARDS[id].burden;
-      var v = c.v[id][0]; counts[v]++; pen += V[v].pen;
-    });
-    var overT = time > c.budget.time, overB = burden > c.budget.burden;
+    var overT = totals.time > c.budget.time, overB = totals.burden > c.budget.burden;
     var trap = c.trap ? c.trap(sel) : null;
-    if (overT) pen += PEN_OVER;
-    if (overB) pen += PEN_OVER;
-    if (trap) pen += PEN_TRAP;
-    var covPts = Math.round(40 * covered / tags.length);
-    var pts = Math.max(0, Math.min(50, covPts + 10 - pen));
-    return { ids: ids, tags: tags, covered: covered, covPts: covPts, time: time, burden: burden, overT: overT, overB: overB, trap: trap, counts: counts, pen: pen, pts: pts };
+    var omitted = tags.filter(function (t) { return !t.ok; });
+    var unsuitable = ids.filter(function (id) { return !['need', 'good'].includes(c.v[id][0]); });
+    return { ids: ids, tags: tags, omitted: omitted, unsuitable: unsuitable,
+      overT: overT, overB: overB, trap: trap };
   }
 
-  function finish(i) {
-    var c = CASES[i], s = getS(i);
-    var rg = c.refs[s.ref].g;
-    var qpts = s.ans.reduce(function (a, o, k) { return a + G[c.qs[k].opts[o].g].q; }, 0);
-    var read = Math.round(qpts * G[rg].mul);
-    var total = G[rg].ref + s.ev.pts + read;
-    s.res = { ref: G[rg].ref, bat: s.ev.pts, qpts: qpts, read: read, total: total };
+  function finish(c, s) {
     s.done = true;
-    var prev = saved.clear[c.id];
-    if (typeof prev !== 'number' || total > prev) saved.clear[c.id] = total;
+    if (!saved.completed.includes(c.id)) saved.completed.push(c.id);
     persist();
   }
 
@@ -1476,6 +1480,9 @@ body.room-mode .order-only{display:none!important}
   var zkCount = document.getElementById('zkCount');
   var advBtn = document.getElementById('advBtn');
   var advLabel = document.getElementById('advLabel');
+  var optionsBtn = document.getElementById('optionsBtn');
+  var maxBtn = document.getElementById('maxBtn');
+  var root = document.documentElement;
   var RM = window.matchMedia ? window.matchMedia('(prefers-reduced-motion: reduce)') : { matches: false };
 
   function pipsHTML(n) {
@@ -1487,38 +1494,29 @@ body.room-mode .order-only{display:none!important}
 
   function renderTabs() {
     tabsEl.innerHTML = CASES.map(function (c, i) {
-      var best = saved.clear[c.id], has = typeof best === 'number', ok = has && best >= CLEAR;
+      var completed = saved.completed.includes(c.id) || typeof saved.clear[c.id] === 'number';
       return '<button type="button" class="tab" data-tab="' + i + '" data-k="tab-' + i + '" aria-current="' + (i === cur ? 'true' : 'false') + '">' +
-        '<span class="tab-no"><span>依頼' + (i + 1) + '</span>' + (ok ? '<span class="tab-ok" aria-label="クリア">✓</span>' : '') + '</span>' +
-        '<span class="tab-t">' + c.tab + '</span>' +
-        '<span class="tab-s">' + (has ? '最高 ' + best + '点' : '未挑戦') + '</span></button>';
+        '<span class="tab-no"><span>依頼' + (i + 1) + '</span>' + (completed ? '<span class="tab-ok" aria-label="回答済み">✓</span>' : '') + '</span>' +
+        '<span class="tab-t">' + c.tab + '</span></button>';
     }).join('');
   }
 
-  function step1HTML(c, s) {
-    var p = c.pt, fb = showFb(s), body;
-    if (s.refDone) {
-      body = '<div class="written"><p class="written-t">' + c.refs[s.ref].t + '</p><span class="stamp" aria-hidden="true">依頼</span></div>';
-    } else {
-      body = '<div class="opts" role="group" aria-labelledby="refq">' + c.refs.map(function (r, k) {
-        return '<button type="button" class="opt" data-ref="' + k + '" data-k="ref-' + k + '" aria-pressed="' + (s.ref === k) + '">' + r.t + '</button>';
-      }).join('') + '</div>' +
-        '<div class="actions"><button type="button" class="btn primary" data-act="refsend" data-k="refsend"' + (s.ref == null ? ' disabled' : '') + '>この文で依頼票を出す</button>' +
-        '<span class="hint">' + (s.ref == null ? '依頼の目的を1つ選んでください。' : '出したあとは書き直せません。') + '</span></div>';
-    }
-    var fbh = '';
-    if (s.refDone && fb) {
-      var r = c.refs[s.ref];
-      fbh = '<div class="fb"><p class="fb-h"><span class="tag">講評</span>' + grHTML(r.g) + '<span class="fb-pts">' + G[r.g].ref + ' / 20点</span></p>' + P(r.why) +
-        '<p class="subh">4つの書き方の比べ</p><ul class="all">' + c.refs.map(function (o) {
-          return '<li>' + grHTML(o.g) + '<span>' + o.t + '</span><span class="why">' + o.why + '</span></li>';
-        }).join('') + '</ul></div>';
-    } else if (s.refDone) {
-      fbh = '<p class="pending">依頼票を出しました。採点は最後に表示します。</p>';
-    }
-    return '<section class="step" id="st1" aria-labelledby="st1h">' +
-      '<h3 class="step-h" id="st1h" tabindex="-1"><span class="step-n">その1</span>依頼票を書く</h3>' +
-      '<div class="slip"><div class="slip-head"><span class="slip-title">心理検査依頼票</span><span class="slip-meta">心理検査室 御中　依頼医：あなた（主治医）</span></div>' +
+  function actionHTML(act, label, primary, disabled) {
+    return '<button type="button" class="btn' + (primary ? ' primary' : '') + '" data-act="' + act + '"' +
+      (disabled ? ' disabled' : '') + '>' + label + '</button>';
+  }
+
+  function worksheetHTML(head, left, right, actions) {
+    return '<section class="step worksheet" aria-labelledby="steph">' +
+      '<h3 class="step-h" id="steph" tabindex="-1">' + head + '</h3>' +
+      '<div class="worksheet-pane" tabindex="0" role="region" aria-label="症例・資料">' + left + '</div>' +
+      '<div class="worksheet-pane answer-pane" tabindex="0" role="region" aria-label="回答・解説"><div class="worksheet-content">' + right + '</div></div>' +
+      '<div class="step-actions">' + actions + '</div></section>';
+  }
+
+  function slipHTML(c) {
+    var p = c.pt;
+    return '<div class="slip"><div class="slip-head"><span class="slip-title">心理検査依頼票</span><span class="slip-meta">心理検査室 御中　依頼医：あなた（主治医）</span></div>' +
       '<dl class="slip-grid">' +
       '<div><dt>患者</dt><dd>' + p.name + '</dd></div>' +
       '<div><dt>年齢・性別</dt><dd>' + p.age + '・' + p.sex + '（' + p.job + '）</dd></div>' +
@@ -1526,7 +1524,32 @@ body.room-mode .order-only{display:none!important}
       '<div class="wide"><dt>困りごと</dt><dd>' + c.trouble + '</dd></div>' +
       '<div class="wide"><dt>主治医の疑問</dt><dd>' + c.question + '</dd></div>' +
       '<div class="wide"><dt>検査での配慮</dt><dd>' + c.care + '</dd></div>' +
-      '</dl><div class="slip-q"><p class="slip-qh" id="refq">依頼の目的（依頼票に書く文を選ぶ）</p>' + body + '</div></div>' + fbh + '</section>';
+      '</dl></div>';
+  }
+
+  function step1HTML(c, s) {
+    var body = revealHTML(), feedback = '', action = '', fb = s.refDone && showFb(s);
+    if (fb) {
+      body = '<div class="written"><p class="written-t">' + c.refs[s.ref].t + '</p><span class="stamp" aria-hidden="true">依頼</span></div>';
+    } else if (choicesOpen(s, 0)) {
+      body = '<div class="opts" role="group" aria-labelledby="refq">' + c.refs.map(function (r, k) {
+        return '<button type="button" class="opt" data-ref="' + k + '" data-k="ref-' + k + '" aria-pressed="' + (s.ref === k) +
+          '"' + (s.refDone ? ' disabled' : '') + '>' + r.t + '</button>';
+      }).join('') + '</div>';
+      action = actionHTML('refsend', 'この文で依頼票を出す', true, s.ref == null);
+    }
+    if (s.refDone) action = actionHTML('forward', '検査を組む', true);
+    if (fb) {
+      var r = c.refs[s.ref];
+      feedback = '<div class="fb" id="feedback" tabindex="-1"><p class="fb-h"><span class="tag">講評</span>' + grHTML(r.g) + '</p>' + P(r.why) +
+        '<p class="subh">4つの書き方の比べ</p><ul class="all">' + c.refs.map(function (o) {
+          return '<li>' + grHTML(o.g) + '<span>' + o.t + '</span><span class="why">' + o.why + '</span></li>';
+        }).join('') + '</ul></div>';
+    } else if (s.refDone) {
+      feedback = '<p class="pending" id="feedback" tabindex="-1">依頼票を出しました。講評は最後に表示します。</p>';
+    }
+    var right = '<p class="q-h" id="refq">依頼の目的（依頼票に書く文を選ぶ）</p>' + (fb ? body + feedback : feedback + body);
+    return worksheetHTML('<span class="step-n">その1</span>依頼票を書く', slipHTML(c), right, action);
   }
 
   function cardHTML(c, s, id) {
@@ -1546,26 +1569,23 @@ body.room-mode .order-only{display:none!important}
       '<span class="card-rows">' +
       '<span class="row"><span class="k">対象年齢</span><span class="v">' + d.age + '</span></span>' +
       '<span class="row"><span class="k">所要時間</span><span class="v">' + d.time + '</span></span>' +
-      (adv ? '' : '<span class="row"><span class="k">わかること</span><span class="v">' + d.know + '</span></span>') +
+      (fb ? '<span class="row"><span class="k">わかること</span><span class="v">' + d.know + '</span></span>' : '') +
       '</span><span class="card-foot"><span class="pick">' + pick + '</span>' + badge + '</span></button>';
   }
 
-  function liveTotals(s) {
+  function liveTotals(sel) {
     var t = 0, b = 0;
-    s.sel.forEach(function (id) { t += CARDS[id].min; b += CARDS[id].burden; });
+    sel.forEach(function (id) { t += CARDS[id].min; b += CARDS[id].burden; });
     return { time: t, burden: b };
   }
 
   function step2HTML(c, s) {
-    var head = '<h3 class="step-h" id="st2h" tabindex="-1"><span class="step-n">その2</span>検査を組む（テストバッテリー）</h3>';
-    if (!s.refDone) return '<section class="step locked" id="st2" aria-labelledby="st2h">' + head + '<p class="locked-note">依頼票を出すと開きます。</p></section>';
-    var fb = s.sent && showFb(s);
-    var tot = liveTotals(s), B = c.budget;
-    var needs = '<div class="needs"><p class="needs-h">この依頼で知りたいこと</p><ul>' + c.tags.map(function (t, k) {
-      var cls = '';
-      if (fb) cls = s.ev.tags[k].ok ? 'ok' : 'ng';
-      return '<li class="' + cls + '">' + t.label + '</li>';
-    }).join('') + '</ul><p class="limit">' + c.pt.name + '（' + c.pt.age + '）の上限：時間 <b>' + B.time + '分</b>・負担 <b>' + B.burden + '</b>。' + B.why + '。</p></div>';
+    var head = '<span class="step-n">その2</span>検査を組む（テストバッテリー）';
+    var tot = liveTotals(s.sel), B = c.budget;
+    var needs = '<div class="needs"><p class="limit">' + c.pt.name + '（' + c.pt.age + '）の上限：時間 <b>' + B.time + '分</b>・負担 <b>' + B.burden + '</b>。' + B.why + '。</p></div>';
+    var body = '<p class="step-lead">テストバッテリー（目的に合わせて複数の検査を組み合わせること）を作ります。</p>' + needs;
+    var actions = actionHTML('back', '依頼票へ戻る');
+    if (!choicesOpen(s, 1)) return worksheetHTML(head, slipHTML(c), body + revealHTML(), actions);
     var hand = '<div class="hand" role="group" aria-label="検査カード">' + c.hand.map(function (id) { return cardHTML(c, s, id); }).join('') + '</div>';
     var chips = s.sel.size ? c.hand.filter(function (id) { return s.sel.has(id); }).map(function (id) {
       return s.sent ? '<span class="chip static">' + nameOf(id) + '</span>'
@@ -1581,50 +1601,46 @@ body.room-mode .order-only{display:none!important}
       '<div class="m-track" role="img" aria-label="時間 ' + tot.time + '分、上限' + B.time + '分"><div class="m-fill" style="width:' + Math.min(100, tot.time / B.time * 100).toFixed(1) + '%"></div></div></div>' +
       '<div class="meter' + (overB ? ' over' : '') + '"><div class="m-top"><span>負担</span><span class="m-val">' + tot.burden + ' / ' + B.burden + '</span></div>' +
       '<div class="pips" role="img" aria-label="負担 ' + tot.burden + '、上限' + B.burden + '">' + pips + '</div></div>' +
-      (s.sent ? '<span class="hint">依頼を出しました</span>'
-        : '<button type="button" class="btn primary send" data-act="send" data-k="send"' + (s.sel.size ? '' : ' disabled') + '>この組み合わせで依頼を出す</button>') +
       ((overT || overB) ? '<p class="over-note">' + (overT && overB ? '時間と負担' : overT ? '時間' : '負担') + 'が上限超え：疲れると結果の信頼性が下がります</p>' : '') +
       '</div>';
     var note = '<p class="hint">時間と負担は本人の分です。保護者面接や行動観察は数えません。</p>';
-    var fbh = '';
-    if (s.sent && fb) fbh = fb2HTML(c, s);
-    else if (s.sent) fbh = '<p class="pending">依頼を出しました。採点は最後に表示します。</p>';
-    return '<section class="step" id="st2" aria-labelledby="st2h">' + head +
-      '<p class="step-lead">テストバッテリー（目的に合わせて複数の検査を組み合わせること）を作ります。カードを押すと組み合わせに入り、もう一度押すと外れます。</p>' +
-      needs + hand + tray + note + budget + fbh + '</section>';
+    body += budget + hand + tray + note;
+    if (s.sent) {
+      body = (showFb(s) ? fb2HTML(c, s) : '<p class="pending" id="feedback" tabindex="-1">依頼を出しました。講評は最後に表示します。</p>') + body;
+      actions += actionHTML('forward', '報告書を読む', true);
+    } else {
+      actions += actionHTML('send', 'この組み合わせで依頼を出す', true, !s.sel.size);
+    }
+    return worksheetHTML(head, slipHTML(c), body, actions);
   }
 
   function fb2HTML(c, s) {
     var e = s.ev;
-    var issues = [];
-    if (e.counts.no) issues.push('不要 ' + e.counts.no + '件（−' + e.counts.no * V.no.pen + '）');
-    if (e.counts.heavy) issues.push('負担が大きすぎる ' + e.counts.heavy + '件（−' + e.counts.heavy * V.heavy.pen + '）');
-    if (e.counts.age) issues.push('対象年齢外 ' + e.counts.age + '件（−' + e.counts.age * V.age.pen + '）');
-    if (e.overT) issues.push('時間の上限超え（−' + PEN_OVER + '）');
-    if (e.overB) issues.push('負担の上限超え（−' + PEN_OVER + '）');
-    if (e.trap) issues.push('落とし穴（−' + PEN_TRAP + '）');
-    var breakdown = '知りたいこと ' + e.covered + '/' + e.tags.length + '（' + e.covPts + '点）＋基本点10' + (issues.length ? '　' + issues.join('　') : '　減点なし');
+    var needs = '<div class="needs"><p class="needs-h">この依頼で知りたいこと</p><ul>' + e.tags.map(function (t) {
+      return '<li class="' + (t.ok ? 'ok' : 'ng') + '">' + t.label + '</li>';
+    }).join('') + '</ul></div>';
     var list = '<ul class="verdicts">' + e.ids.map(function (id) {
       var v = c.v[id];
       return '<li><span class="nm">' + nameOf(id) + '</span><span class="vb ' + V[v[0]].cls + '">' + V[v[0]].label + '</span><span class="rs">' + v[1] + '</span></li>';
     }).join('') + '</ul>';
-    var miss = e.tags.filter(function (t) { return !t.ok; });
+    var miss = e.omitted;
     var missH = miss.length ? '<p class="subh">足りなかったこと</p><ul class="verdicts">' + miss.map(function (t) {
       return '<li><span class="nm">' + t.label + '</span><span class="vb v-miss">入っていない</span><span class="rs">' + t.cards.map(nameOf).join(' か ') + 'が必要でした。' + c.v[t.cards[0]][1] + '</span></li>';
     }).join('') + '</ul>' : '';
     var over = (e.overT || e.overB) ? P('上限を超えると疲れがたまり、後半の検査は実際より低く出るなど、結果の信頼性が下がります。') : '';
     var trap = e.trap ? '<p class="trap"><span class="trap-tag">落とし穴</span><span>' + e.trap + '</span></p>' : '';
-    return '<div class="fb" id="fb2" tabindex="-1"><p class="fb-h"><span class="tag">講評</span>' + grHTML(gradeOf(e.pts / 50)) + '<span class="fb-pts">' + e.pts + ' / 50点</span></p>' +
-      '<p class="breakdown">' + breakdown + '</p>' + trap + over +
+    return '<div class="fb" id="feedback" tabindex="-1"><p class="fb-h"><span class="tag">講評</span></p>' +
+      needs + trap + over +
       '<p class="subh">組み込んだ検査の判定</p>' + list + missH + '</div>';
   }
 
   function reportHTML(c, s) {
+    var complete = s.done;
     var e = s.ev, sel = s.sel;
     var x = { has: function (id) { return sel.has(id) && c.v[id] && c.v[id][0] !== 'age'; } };
     var defer = sel.has('defer');
     var order = defer ? ['defer'].concat(e.ids.filter(function (id) { return id !== 'defer'; })) : e.ids;
-    var secs = order.map(function (id) {
+    var secs = order.filter(function (id) { return complete || id !== 'defer'; }).map(function (id) {
       var v = c.v[id][0], body, skip = false;
       if (v === 'age') { body = P('対象年齢外のため実施しませんでした。'); skip = true; }
       else if (defer && id !== 'defer' && id !== 'panss' && id !== 'obs') { body = P('延期したため実施しませんでした。'); skip = true; }
@@ -1633,92 +1649,96 @@ body.room-mode .order-only{display:none!important}
       else body = P(c.defaultNo || '実施しましたが、今回の依頼に役立つ所見は特にありませんでした。');
       return '<section class="rep-sec' + (skip ? ' skip' : '') + '"><h5>' + nameOf(id) + '</h5>' + body + '</section>';
     }).join('');
-    var miss = e.tags.filter(function (t) { return !t.ok; });
-    var missH = miss.length ? '<section class="rep-miss"><h5>評価できなかったこと</h5><ul>' + miss.map(function (t) {
+    var miss = e.omitted;
+    var missH = complete && miss.length ? '<section class="rep-miss"><h5>評価できなかったこと</h5><ul>' + miss.map(function (t) {
       return '<li>「' + t.label + '」は、' + t.cards.map(nameOf).join(' か ') + 'が組まれていないため、評価できませんでした。</li>';
     }).join('') + '</ul></section>' : '';
-    var g = c.refs[s.ref].g, sm = c.sum(x), summary;
-    if (g === '◎') summary = P(sm[0]) + P(sm[1]);
-    else if (g === '○') summary = P(sm[0]) + '<p class="muted">結果の使い道が依頼票に書かれていなかったため、支援の提案は省きました。</p>';
-    else summary = '<p class="muted">依頼の目的がはっきりしなかったため、各検査の結果の説明にとどめます。主治医の疑問への答えは書いていません。</p>';
+    var g = c.refs[s.ref].g, summary = '';
+    if (complete) {
+      var sm = c.sum(x);
+      if (g === '◎') summary = P(sm[0]) + P(sm[1]);
+      else if (g === '○') summary = P(sm[0]) + '<p class="muted">結果の使い道が依頼票に書かれていなかったため、支援の提案は省きました。</p>';
+      else summary = '<p class="muted">依頼の目的がはっきりしなかったため、各検査の結果の説明にとどめます。主治医の疑問への答えは書いていません。</p>';
+    }
     var over = (e.overT || e.overB) ? '<p class="rep-note">予定していた' + (e.overT && e.overB ? '時間と負担' : e.overT ? '時間' : '負担') + 'を超えたため、後半は疲れが目立ちました。後半に行った検査の結果は、実際より低く出ている可能性があります。</p>' : '';
-    return '<article class="report" aria-label="心理検査報告書">' +
+    return '<article class="report' + (complete ? '' : ' report-preview') + '" aria-label="心理検査報告書">' +
       '<div class="rep-head"><span class="rep-title">心理検査報告書</span><span class="rep-meta">' + c.pt.name + '（' + c.pt.age + '・' + c.pt.sex + '）　心理検査室より</span></div>' +
       '<dl class="rep-info"><div><dt>依頼の目的</dt><dd>' + c.refs[s.ref].t + '</dd></div>' +
       '<div><dt>組んだ検査</dt><dd>' + e.ids.map(nameOf).join('、') + '</dd></div></dl>' +
       over + secs + missH +
-      '<section class="rep-sum"><h5>まとめ（依頼への答え）</h5>' + summary + '</section>' +
+      (summary ? '<section class="rep-sum"><h5>まとめ（依頼への答え）</h5>' + summary + '</section>' : '') +
       '<p class="rep-sign">担当：公認心理師（架空）</p></article>';
   }
 
-  function qHTML(c, s, q, k) {
-    var a = s.ans[k], fb = showFb(s);
-    var missT = (q.tags || []).map(function (tid) { return s.ev.tags.filter(function (t) { return t.id === tid; })[0]; })
-      .filter(function (t) { return t && !t.ok; });
-    var missNote = missT.length ? '<div class="q-miss"><p><span class="vb v-miss">結果なし</span> この問いに使う結果は、今回の組み合わせでは得られていません。</p><p>参考：' + q.ref + '</p></div>' : '';
-    var opts = '<div class="opts" role="group" aria-labelledby="q' + k + 'h">' + q.opts.map(function (o, j) {
-      var mark = (a != null && fb) ? grHTML(o.g) : '';
-      return '<button type="button" class="opt round" data-q="' + k + '" data-o="' + j + '" data-k="q' + k + '-' + j + '" aria-pressed="' + (a === j) + '"' + (a != null ? ' disabled' : '') + '>' + mark + '<span>' + o.t + '</span></button>';
-    }).join('') + '</div>';
-    var fbh = '';
-    if (a != null && fb) {
-      var g = q.opts[a].g;
-      fbh = '<div class="fb" id="fbq' + k + '" tabindex="-1"><p class="fb-h"><span class="tag">解説</span>' + grHTML(g) + '<span class="fb-pts">' + G[g].q + ' / 15点</span></p>' + P(q.why) +
-        (missT.length ? '<p class="muted">今回は「' + missT.map(function (t) { return t.label; }).join('」「') + '」を調べる検査（' + missT.map(function (t) { return t.cards.map(nameOf).join(' か '); }).join('、') + '）を組んでいなかったため、報告書にこの情報がありませんでした。</p>' : '') + '</div>';
-    } else if (a != null) {
-      fbh = '<p class="pending" id="fbq' + k + '" tabindex="-1">回答しました。採点は最後に表示します。</p>';
+  function step3HTML(c, s, k) {
+    var q = c.qs[k], a = s.ans[k], fb = a != null && showFb(s);
+    var missing = (q.tags || []).some(function (id) {
+      return s.ev.omitted.some(function (tag) { return tag.id === id; });
+    });
+    // 急性期の症例の参考所見には、延期や経過観察に使う尺度が含まれる。
+    var reference = missing && (c.id !== 'c6' || fb) ? '<p>参考：' + q.ref + '</p>' : '';
+    var note = missing ? '<div class="q-miss"><p><span class="vb v-miss">結果なし</span> この問いに使う結果は、今回の組み合わせでは得られていません。</p>' + reference + '</div>' : '';
+    var opts = revealHTML();
+    if (choicesOpen(s, k + 2)) {
+      opts = '<div class="opts" role="group" aria-labelledby="reportq">' + q.opts.map(function (o, j) {
+        return '<button type="button" class="opt round" data-o="' + j + '" data-k="q-' + j + '" aria-pressed="' +
+          (a === j) + '"' + (a != null ? ' disabled' : '') + '>' + (fb ? grHTML(o.g) : '') + '<span>' + o.t + '</span></button>';
+      }).join('') + '</div>';
     }
-    return '<div class="q"><p class="q-h" id="q' + k + 'h" tabindex="-1"><span class="q-n">問' + (k + 1) + '</span>' + q.q + '</p>' + missNote + opts + fbh + '</div>';
+    var feedback = '';
+    if (fb) {
+      feedback = '<div class="fb" id="feedback" tabindex="-1"><p class="fb-h"><span class="tag">解説</span>' +
+        grHTML(q.opts[a].g) + '</p>' + P(q.why) + '</div>';
+    } else if (a != null) {
+      feedback = '<p class="pending" id="feedback" tabindex="-1">回答しました。解説は最後に表示します。</p>';
+    }
+    var back = actionHTML('back', k === 0 ? '検査の組み合わせへ戻る' : '前の問いへ');
+    var next = a == null ? '' : actionHTML('forward', k === 0 ? '次の問いへ' : 'まとめを見る', true);
+    var right = '<div class="q"><p class="q-h" id="reportq">' + q.q + '</p>' + note + feedback + opts + '</div>';
+    return worksheetHTML('<span class="step-n">その3</span>報告書を読む　問' + (k + 1) + ' / ' + c.qs.length,
+      reportHTML(c, s), right, back + next);
   }
 
-  function step3HTML(c, s) {
-    var head = '<h3 class="step-h" id="st3h" tabindex="-1"><span class="step-n">その3</span>報告書を読む</h3>';
-    if (!s.sent) return '<section class="step locked" id="st3" aria-labelledby="st3h">' + head + '<p class="locked-note">検査の依頼を出すと、報告書が届きます。</p></section>';
-    var g = c.refs[s.ref].g;
-    var mul = showFb(s) ? '<p class="mul">報告書の役立ち度 <b>' + G[g].mulL + '</b>（依頼票 ' + g + '）。' + MULTXT[g] + 'この欄の点数に掛かります。</p>' : '';
-    return '<section class="step" id="st3" aria-labelledby="st3h">' + head + mul + reportHTML(c, s) +
-      '<div class="qs">' + c.qs.map(function (q, k) { return qHTML(c, s, q, k); }).join('') + '</div></section>';
+  function batteryIssues(c, e) {
+    var issues = e.unsuitable.map(function (id) {
+      return nameOf(id) + '（' + V[c.v[id][0]].label + '）';
+    });
+    if (e.omitted.length) issues.push('足りなかったこと ' + e.omitted.map(function (t) { return t.label; }).join('、'));
+    if (e.overT) issues.push('時間の上限超え');
+    if (e.overB) issues.push('負担の上限超え');
+    if (e.trap) issues.push(e.trap);
+    return issues;
   }
 
-  function resultHTML(c, s, i) {
-    if (!s.done) return '';
-    var r = s.res, e = s.ev, rg = c.refs[s.ref].g;
-    var ok = r.total >= CLEAR;
-    var batIssues = [];
-    if (e.covered < e.tags.length) batIssues.push('足りないもの ' + (e.tags.length - e.covered) + '件');
-    if (e.counts.no) batIssues.push('不要 ' + e.counts.no + '件');
-    if (e.counts.heavy) batIssues.push('負担が大きすぎる ' + e.counts.heavy + '件');
-    if (e.counts.age) batIssues.push('対象年齢外 ' + e.counts.age + '件');
-    if (e.overT || e.overB) batIssues.push('上限超え');
-    if (e.trap) batIssues.push('落とし穴');
-    var batR = '知りたいこと ' + e.covered + '/' + e.tags.length + '。' + (batIssues.length ? batIssues.join('、') + '。' : '過不足のない組み合わせです。');
-    var g1 = c.qs[0].opts[s.ans[0]].g, g2 = c.qs[1].opts[s.ans[1]].g;
-    var readR = '問1 ' + g1 + '・問2 ' + g2 + '（' + r.qpts + '点）に、報告書の役立ち度 ' + G[rg].mulL + ' を掛けました。';
-    var refR = c.refs[s.ref].why.split('。')[0] + '。';
-    var model = '<div class="chips">' + c.model.cards.map(function (id) { return '<span class="chip static">' + nameOf(id) + '</span>'; }).join('') + '</div>' + '<p style="margin-top:8px">' + c.model.note + '</p>';
-    return '<section class="step" id="st4" aria-labelledby="st4h">' +
-      '<h3 class="step-h" id="st4h" tabindex="-1"><span class="step-n">結果</span>' + c.title + '</h3>' +
-      '<div class="result-box">' +
-      '<div class="total"><span class="total-n">' + r.total + '</span><span class="total-d">/ 100点</span><span class="total-stamp' + (ok ? ' ok' : '') + '">' + (ok ? 'クリア ✓' : 'もう一歩') + '</span>' +
-      (ok ? '' : '<span class="hint">70点以上でクリアです。</span>') + '</div>' +
+  function resultHTML(c, s) {
+    var e = s.ev, r = c.refs[s.ref], issues = batteryIssues(c, e);
+    var read = c.qs.map(function (q, k) { return '問' + (k + 1) + ' ' + q.opts[s.ans[k]].g; }).join('・');
+    var model = '<div class="chips">' + c.model.cards.map(function (id) { return '<span class="chip static">' + nameOf(id) + '</span>'; }).join('') +
+      '</div><p style="margin-top:8px">' + c.model.note + '</p>';
+    return '<section class="step result-step" aria-labelledby="steph">' +
+      '<h3 class="step-h" id="steph" tabindex="-1"><span class="step-n">まとめ</span>' + c.title + '</h3>' +
+      '<div class="result-box" tabindex="0" aria-label="今回のまとめ">' +
       '<ol class="sumrows">' +
-      '<li><span class="lbl">その1 依頼票を書く</span><span class="pts">' + r.ref + ' / 20</span>' + grHTML(rg) + '<span class="rs">' + refR + '</span></li>' +
-      '<li><span class="lbl">その2 検査を組む</span><span class="pts">' + r.bat + ' / 50</span>' + grHTML(gradeOf(r.bat / 50)) + '<span class="rs">' + batR + '</span></li>' +
-      '<li><span class="lbl">その3 報告書を読む</span><span class="pts">' + r.read + ' / 30</span>' + grHTML(gradeOf(r.read / 30)) + '<span class="rs">' + readR + '</span></li>' +
+      '<li><span class="lbl">依頼票を書く</span>' + grHTML(r.g) + '<span class="rs">' + r.why + '</span></li>' +
+      '<li><span class="lbl">検査を組む</span><span class="rs">' + (issues.length ? issues.join('／') : '過不足のない組み合わせです。') + '</span></li>' +
+      '<li><span class="lbl">報告書を読む</span><span class="rs">' + read + '</span></li>' +
       '</ol>' +
-      (adv ? '<p class="hint">上級者モードで隠していた講評と解説を、上のそれぞれの欄に出しました。</p>' : '') +
+      (adv ? '<p class="hint">前の問いに戻ると、講評と解説を確認できます。</p>' : '') +
       '<div><h4>模範の組み合わせ</h4>' + model + '</div>' +
       '<div><h4>試験に出るポイント</h4><ul class="points">' + c.points.map(function (t) { return '<li>' + t + '</li>'; }).join('') + '</ul></div>' +
-      '<div class="actions"><button type="button" class="btn" data-act="retry" data-k="retry">もう一度</button>' +
-      '<button type="button" class="btn primary" data-act="next" data-k="next">次の依頼へ</button></div>' +
-      '</div></section>';
+      '</div><div class="step-actions">' + actionHTML('back', '報告書・解説へ') +
+      actionHTML('retry', 'もう一度') + actionHTML('next', '次の依頼へ', true) + '</div></section>';
   }
 
   function renderCase() {
-    var c = CASES[cur], s = getS(cur);
+    var c = CASES[cur], s = getS(cur), page;
+    if (s.step === 0) page = step1HTML(c, s);
+    else if (s.step === 1) page = step2HTML(c, s);
+    else if (s.step < 4) page = step3HTML(c, s, s.step - 2);
+    else page = resultHTML(c, s);
     caseEl.innerHTML = '<article class="case" aria-labelledby="caseh">' +
       '<header class="case-h"><p class="case-no">依頼 ' + (cur + 1) + ' / ' + CASES.length + '</p><h2 id="caseh" tabindex="-1">' + c.title + '</h2></header>' +
-      step1HTML(c, s) + step2HTML(c, s) + step3HTML(c, s) + resultHTML(c, s, cur) + '</article>';
+      page + '</article>';
   }
 
   function renderZukan() {
@@ -1747,7 +1767,13 @@ body.room-mode .order-only{display:none!important}
 
   function render(keepFocus) {
     var ae = document.activeElement, k = keepFocus && ae && ae.getAttribute ? ae.getAttribute('data-k') : null;
-    renderTabs(); renderCase(); renderZukan();
+    if (keepFocus) {
+      var panes = Array.from(caseEl.querySelectorAll('.worksheet-pane'), function (pane) { return pane.scrollTop; });
+      renderCase();
+      caseEl.querySelectorAll('.worksheet-pane').forEach(function (pane, i) { pane.scrollTop = panes[i]; });
+    } else {
+      renderTabs(); renderCase(); renderZukan();
+    }
     if (k) {
       var el = document.querySelector('[data-k="' + k + '"]');
       if (el && !el.disabled) el.focus({ preventScroll: true });
@@ -1758,8 +1784,82 @@ body.room-mode .order-only{display:none!important}
     var el = document.getElementById(id);
     if (!el) return;
     el.focus({ preventScroll: true });
-    if (scroll !== false) el.scrollIntoView({ behavior: RM.matches ? 'auto' : 'smooth', block: 'start' });
+    if (scroll === false) return;
+    if (root.classList.contains('is-max')) {
+      var pane = el.closest('.worksheet-pane');
+      if (pane) pane.scrollTop += el.getBoundingClientRect().top - pane.getBoundingClientRect().top - 8;
+    } else {
+      el.scrollIntoView({ behavior: RM.matches ? 'auto' : 'smooth', block: 'start' });
+    }
   }
+
+  function record(c, step, q, picked, answer, why, options, correct) {
+    var note = window.PG_NOTE;
+    if (!note) return;
+    var data = {
+      app: '心理検査オーダー', id: c.id + '-' + step, q: q, picked: picked, answer: answer,
+      why: why, options: options, context: c.title + '。' + c.course + ' ' + c.trouble
+    };
+    if (correct) {
+      if (typeof note.hit === 'function') note.hit(data);
+    } else if (typeof note.miss === 'function') {
+      note.miss(data);
+    }
+  }
+
+  function recordChoice(c, step, q, options, picked, why) {
+    var best = options.find(function (o) { return o.g === '◎'; });
+    record(c, step, q, picked.t, best.t, why, options.map(function (o) { return o.t; }), picked === best);
+  }
+
+  function setMax(on) {
+    root.classList.toggle('is-max', on);
+    maxBtn.setAttribute('aria-pressed', String(on));
+    maxBtn.textContent = on ? '全画面を終了' : '⛶ 全画面';
+  }
+
+  function fullscreenElement() {
+    return document.fullscreenElement || document.webkitFullscreenElement;
+  }
+
+  function leaveMax() {
+    setMax(false);
+    var exit = document.exitFullscreen || document.webkitExitFullscreen || document.webkitCancelFullScreen;
+    if (fullscreenElement() === root && exit) {
+      try { Promise.resolve(exit.call(document)).catch(function () {}); } catch (e) { /* 画面の並べ方は戻してある */ }
+    }
+  }
+
+  maxBtn.addEventListener('click', function () {
+    if (root.classList.contains('is-max')) { leaveMax(); return; }
+    setMax(true);
+    if (caseEl.getClientRects().length) focusTo('steph', false);
+    var request = root.requestFullscreen || root.webkitRequestFullscreen || root.webkitRequestFullScreen;
+    if (request) {
+      try { Promise.resolve(request.call(root)).catch(function () {}); } catch (e) { /* 全画面用の並べ方を使う */ }
+    }
+  });
+
+  function fullscreenChanged() {
+    if (!fullscreenElement()) setMax(false);
+    else if (fullscreenElement() === root && !root.classList.contains('is-max')) leaveMax();
+  }
+  document.addEventListener('fullscreenchange', fullscreenChanged);
+  document.addEventListener('webkitfullscreenchange', fullscreenChanged);
+
+  document.addEventListener('keydown', function (ev) {
+    if (ev.key === 'Escape' && root.classList.contains('is-max')) { leaveMax(); return; }
+    if (ev.defaultPrevented || ev.repeat || ev.altKey || ev.ctrlKey || ev.metaKey || ev.shiftKey ||
+        caseEl.getClientRects().length === 0 || ev.target.closest('input,textarea,select,[contenteditable]')) return;
+    if (ev.key === 'Enter' || ev.key === ' ') {
+      var reveal = caseEl.querySelector('[data-act="reveal"]');
+      if (!reveal || ev.target.closest('button,a,summary')) return;
+      ev.preventDefault(); reveal.click();
+    } else if (/^[1-9]$/.test(ev.key)) {
+      var option = caseEl.querySelectorAll('[data-ref],[data-card],[data-o]')[+ev.key - 1];
+      if (option && !option.disabled) { ev.preventDefault(); option.focus(); option.click(); }
+    }
+  });
 
   /* ---------- 操作 ---------- */
   caseEl.addEventListener('click', function (ev) {
@@ -1768,11 +1868,13 @@ body.room-mode .order-only{display:none!important}
     var c = CASES[cur], s = getS(cur);
     if (b.hasAttribute('data-ref')) {
       if (s.refDone) return;
+      s.opened.add(0);
       s.ref = +b.getAttribute('data-ref');
       render(true); return;
     }
     if (b.hasAttribute('data-card')) {
       if (!s.refDone || s.sent) return;
+      s.opened.add(1);
       var id = b.getAttribute('data-card');
       if (s.sel.has(id)) s.sel.delete(id); else s.sel.add(id);
       render(true); return;
@@ -1784,24 +1886,40 @@ body.room-mode .order-only{display:none!important}
       if (!document.activeElement || document.activeElement === document.body) focusTo('trayh', false);
       return;
     }
-    if (b.hasAttribute('data-q')) {
-      if (!s.sent || s.done) return;
-      var qk = +b.getAttribute('data-q'), o = +b.getAttribute('data-o');
+    if (b.hasAttribute('data-o')) {
+      var qk = s.step - 2, o = +b.getAttribute('data-o'), q = c.qs[qk];
       if (s.ans[qk] != null) return;
       s.ans[qk] = o;
-      if (s.ans[0] != null && s.ans[1] != null) { finish(cur); render(false); focusTo('st4h'); }
-      else { render(false); focusTo('fbq' + qk, false); }
+      recordChoice(c, 'report-' + qk, q.q, q.opts, q.opts[o], q.why);
+      if (s.ans.every(function (a) { return a != null; })) finish(c, s);
+      caseEl.querySelector('.answer-pane').scrollTop = 0;
+      render(true); renderTabs(); focusTo('feedback');
       return;
     }
     var act = b.getAttribute('data-act');
-    if (act === 'refsend') {
+    if (act === 'reveal') {
+      s.opened.add(s.step);
+      render(true);
+      caseEl.querySelector('[data-ref],[data-card],[data-o]').focus();
+    } else if (act === 'refsend') {
       if (s.ref == null || s.refDone) return;
-      s.refDone = true; render(false); focusTo('st2h');
+      s.refDone = true;
+      var r = c.refs[s.ref];
+      recordChoice(c, 'referral', '依頼票には何と書きますか。', c.refs, r, r.why);
+      render(true); focusTo('feedback');
     } else if (act === 'send') {
       if (!s.sel.size || s.sent) return;
       s.sent = true; s.ev = evalBattery(c, s.sel);
+      var issues = batteryIssues(c, s.ev);
+      record(c, 'battery', 'この依頼にはどの検査を組み合わせますか。', s.ev.ids.map(nameOf).join('、'),
+        '模範例：' + c.model.cards.map(nameOf).join('、'), issues.concat(c.model.note).join('／'), [], issues.length === 0);
       s.sel.forEach(function (cid) { if (saved.seen.indexOf(cid) < 0) saved.seen.push(cid); });
-      persist(); render(false); focusTo('st3h');
+      persist();
+      caseEl.querySelector('.answer-pane').scrollTop = 0;
+      render(true); renderZukan(); focusTo('feedback');
+    } else if (act === 'forward' || act === 'back') {
+      s.step += act === 'forward' ? 1 : -1;
+      render(false); focusTo('steph');
     } else if (act === 'retry') {
       delete states[cur]; render(false); focusTo('caseh');
     } else if (act === 'next') {
@@ -1822,9 +1940,17 @@ body.room-mode .order-only{display:none!important}
     syncAdv(); render(false);
   });
 
+  optionsBtn.addEventListener('click', function () {
+    showOptions = !showOptions;
+    lsSet(OPTIONS_KEY, showOptions ? '1' : '0');
+    optionsBtn.setAttribute('aria-pressed', String(showOptions));
+    render(true);
+  });
+
   var m = /^#c([1-8])$/.exec(location.hash || '');
   if (m) cur = +m[1] - 1;
   syncAdv();
+  optionsBtn.setAttribute('aria-pressed', String(showOptions));
   render(false);
 })();
 </script>

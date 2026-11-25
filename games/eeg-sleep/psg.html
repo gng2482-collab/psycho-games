@@ -6,7 +6,7 @@
 <meta name="robots" content="noindex, nofollow">
 <!-- アクセス数（GoatCounter、Cookie なし・個人を特定しない。2026-11-23 利用者の依頼） -->
 <script data-goatcounter="https://psychogames.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
-<meta name="app-version" content="20261125132557">
+<meta name="app-version" content="20261125152428">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
@@ -206,15 +206,12 @@ h1{font-family:var(--f-display);font-weight:400;margin:0;font-size:clamp(2.1rem,
 .res-t{width:100%;border-collapse:collapse;font-size:var(--fs-s)}
 .res-t th,.res-t td{border-bottom:1px solid var(--line);padding:3px 6px;text-align:left}
 .res-t td.n{text-align:right;font-family:var(--f-mono)}
-.big{font-family:var(--f-display);font-size:2.6rem;line-height:1.1;color:var(--accent)}
-.row-btn{display:flex;flex-wrap:wrap;gap:8px}
 .kbd{font-size:var(--fs-xs);color:var(--muted)}
 #djHyp{cursor:pointer}
 /* 症例で読む */
 .cs-list{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:8px;list-style:none;margin:8px 0 0;padding:0}
 .cs-card{font:inherit;width:100%;height:100%;text-align:left;cursor:pointer;color:var(--ink);background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:10px 12px;display:grid;gap:2px}
 .cs-card:hover{border-color:var(--accent)}
-.cs-card[aria-current="true"]{border:2px solid var(--accent)}
 .cs-card b{font-size:var(--fs-m)} .cs-card small{color:var(--muted);font-size:var(--fs-xs)}
 .cs-card .done{font-size:var(--fs-xs);color:var(--ok);font-weight:700}
 .cs-vig{background:var(--panel);border:1px solid var(--line);border-left:4px solid var(--accent);border-radius:8px;padding:10px 14px;font-size:var(--fs-s);line-height:1.75}
@@ -225,7 +222,7 @@ h1{font-family:var(--f-display);font-weight:400;margin:0;font-size:clamp(2.1rem,
 .cs-tbl th,.cs-tbl td{border:1px solid var(--line);padding:4px 10px;text-align:center}
 .cs-tbl th{background:var(--accent-soft);font-weight:400;font-size:var(--fs-xs)}
 .cs-q{display:grid;gap:6px;border-top:1px solid var(--line);padding-top:8px}
-.cs-q h4{margin:0;font-size:var(--fs-m)}
+.cs-q h3{margin:0;font-size:var(--fs-m)}
 .cs-why{font-size:var(--fs-s);line-height:1.65;border-left:3px solid var(--accent);padding:2px 0 2px 10px}
 /* 睡眠図あてクイズ */
 .hq-wrap{display:grid;grid-template-columns:minmax(0,1fr) 360px;gap:12px;padding-top:8px;align-items:start}
@@ -256,7 +253,6 @@ h1{font-family:var(--f-display);font-weight:400;margin:0;font-size:clamp(2.1rem,
 .ev-types{display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:6px}
 .ev-types button{min-height:48px;border-radius:10px;border:2px solid var(--accent);background:var(--panel);color:var(--accent);font-weight:700;cursor:pointer}
 .ev-types button:hover{background:var(--accent-soft)}
-.ev-types button.cancel{border-color:var(--line);color:var(--muted)}
 .ev-list{list-style:none;margin:0;padding:0;display:grid;gap:4px}
 .ev-list li{display:flex;align-items:center;gap:8px;font-size:var(--fs-s);border:1px solid var(--line);border-radius:8px;padding:4px 8px;background:var(--sheet)}
 .ev-list li .sw{width:12px;height:12px;border-radius:3px;flex:none}
@@ -307,13 +303,64 @@ h1{font-family:var(--f-display);font-weight:400;margin:0;font-size:clamp(2.1rem,
 @media (prefers-reduced-motion:reduce){
   .pt-leg,.pt-arm,.act.flash,.sl-theme-btn,.sl-toggle{transition:none!important;animation:none!important}
 }
+
+.appbar{gap:6px}
+.appbar span{min-width:0;overflow:hidden;text-overflow:ellipsis}
+.appbar .sl-theme-btn{order:1}
+.psg-tools{display:flex;flex:none;gap:6px;margin-left:auto}
+.psg-tools~.sl-theme-btn{margin-left:0}
+.psg-tools button{min-width:44px}
+.reveal-box{width:100%;border:2px dashed var(--accent);color:var(--accent);background:var(--accent-soft);font-weight:700;white-space:normal}
+#psgSettings{width:min(390px,calc(100% - 32px));padding:16px;color:var(--ink);background:var(--panel);border:1px solid var(--line);border-radius:10px}
+#psgSettings::backdrop{background:#0008}
+#psgSettings h2{margin:0 0 8px;font-size:var(--fs-l)}
+#psgSettings label{display:flex;align-items:center;gap:8px;min-height:44px}
+#psgSettings input{width:20px;height:20px}
+.psg-panel-body{display:grid;align-content:start;gap:6px;min-width:0;min-height:0}
+.psg-panel-actions{display:flex;flex-wrap:wrap;gap:6px}
+.psg-panel-body summary{min-height:44px;align-content:center;cursor:pointer}
+
+:root.is-max,:root.is-max body{overflow:hidden}
+:root.is-max{padding-block:0}
+:root.is-max body{padding-bottom:0}
+.is-max .ipad-bar{display:none}
+.is-max .wrap{max-width:none;height:100vh;height:100dvh;padding-block:env(safe-area-inset-top,0px) env(safe-area-inset-bottom,0px);display:flex;flex-direction:column}
+.is-max .wrap>section{display:flex;flex-direction:column;flex:1;min-height:0}
+.is-max #home,.is-max #csList{overflow:auto;overscroll-behavior:contain}
+.is-max .appbar{padding-block:4px;flex:none}
+.is-max .appbar b{display:none}
+.is-max .desk,.is-max .hq-wrap{flex:1;height:auto;min-height:0;align-items:stretch;padding-bottom:6px}
+.is-max #desk .d-main,.is-max #djDesk .d-main{grid-template-rows:auto auto minmax(0,1fr)}
+.is-max #evDesk .ev-main{grid-template-rows:auto minmax(0,1fr)}
+.is-max .d-side,.is-max .hq-main{min-height:0;overflow:auto;overscroll-behavior:contain}
+.is-max #djDesk .d-side{grid-template-rows:auto minmax(0,1fr);overflow:hidden}
+.is-max #evDesk .d-side{grid-template-rows:minmax(0,1fr);overflow:hidden}
+.is-max #djHypStat,.is-max .kbd[data-psg-keys]{display:none}
+.is-max .hq-main{align-content:start}
+.is-max #hqCv{height:clamp(200px,42dvh,460px)}
+.is-max .cs-hyp,.is-max .cs-clip{height:clamp(200px,36dvh,400px)}
+.is-max :is(#djEx,#evEx,#hqEx,#csEx){display:flex;flex-direction:column;min-height:0}
+.is-max .psg-panel-body{flex:1;overflow:auto;overscroll-behavior:contain}
+.is-max .psg-panel-actions{flex:none}
+@media (max-width:900px), (orientation:portrait){
+  .is-max .desk,.is-max .hq-wrap{grid-template-columns:minmax(0,1fr);grid-template-rows:minmax(0,44fr) minmax(0,56fr);gap:6px}
+}
+@media (max-width:560px){
+  .appbar a{padding-inline:8px}
+  .appbar .act,.sl-top-row .act{padding-inline:6px}
+  .appbar .sl-theme-btn{margin-left:0}
+  .is-max .appbar>span,.is-max #hypq .tbar .lb{display:none}
+  .is-max #hqCv{height:clamp(200px,32dvh,460px)}
+  .is-max .hyp canvas{height:45px}
+  .is-max .dj-ans button{min-height:44px;font-size:1.15rem}
+}
 </style>
 
 <div class="wrap" id="app">
   <!-- ホーム -->
   <main id="home">
     <section class="hero">
-      <p class="eyebrow">精神科道場　PSG（睡眠ポリグラフ検査）</p>
+      <div class="sl-top-row"><p class="eyebrow">精神科道場　PSG（睡眠ポリグラフ検査）</p></div>
       <h1>睡眠よみ道場</h1>
       <p class="tag">一晩の記録は、長くて読みにくい。<br>ここでは、<em>眠らせて、止めて、読める。</em></p>
       <canvas class="hero-cv" id="heroCv" aria-label="閉塞性無呼吸の記録が流れる見本"></canvas>
@@ -395,7 +442,6 @@ h1{font-family:var(--f-display);font-weight:400;margin:0;font-size:clamp(2.1rem,
         <div class="tbar">
           <span class="tb-item"><span class="lb">表示</span><span class="seg" id="djGrp"><button type="button" data-g="neuro">脳・目・筋</button><button type="button" data-g="all">全部</button></span></span>
           <span class="tb-item"><span class="lb">記録</span><span class="seg" id="djLv"><button type="button" data-lv="0">入門：健康な人</button><button type="button" data-lv="1">実践：無呼吸の人</button></span></span>
-          <button type="button" class="act" id="djHint" aria-pressed="false">ヒント（目印を出す）</button>
         </div>
         <div class="hyp"><canvas id="djHyp" role="img" aria-label="あなたの睡眠図と正解"></canvas><span class="hyp-stat" id="djHypStat">上：あなたの判定　下：正解（答えた区切りだけ）。印を押すと、その区切りを見直せます。</span></div>
         <div class="trace"><canvas id="djCv" role="img" aria-label="30秒の記録"></canvas></div>
@@ -403,10 +449,11 @@ h1{font-family:var(--f-display);font-weight:400;margin:0;font-size:clamp(2.1rem,
       <aside class="d-side">
         <div class="card ctl">
           <div class="dj-top"><h3>この30秒の段階は？</h3><span class="dj-no" id="djNo"></span></div>
-          <div class="dj-ans" id="djAns">
+          <button type="button" class="act reveal-box" id="djReveal" data-psg-reveal aria-controls="djAns">選択肢を表示</button>
+          <div class="dj-ans" id="djAns" hidden>
             <button type="button" data-a="W">W<small>覚醒</small></button><button type="button" data-a="N1">N1<small>うとうと</small></button><button type="button" data-a="N2">N2<small>浅い</small></button><button type="button" data-a="N3">N3<small>深い</small></button><button type="button" data-a="R">R<small>レム</small></button>
           </div>
-          <p class="kbd">パソコンはキーでも：W・1・2・3・R、次へは Enter</p>
+          <p class="kbd" data-psg-keys>パソコンはキーでも：W・1・2・3・R、次へは Enter</p>
         </div>
         <div class="card ex" id="djEx" aria-live="polite"></div>
       </aside>
@@ -453,6 +500,13 @@ h1{font-family:var(--f-display);font-weight:400;margin:0;font-size:clamp(2.1rem,
     </div>
   </section>
   <div class="toast" id="toast" role="status" hidden></div>
+  <dialog id="psgSettings" aria-labelledby="psgSettingsTitle">
+    <form method="dialog">
+      <h2 id="psgSettingsTitle">設定</h2>
+      <label><input type="checkbox" id="psgAlways"> 選択肢を最初から出す</label>
+      <button type="submit" class="act">閉じる</button>
+    </form>
+  </dialog>
 </div>
 
 <script>
@@ -474,6 +528,99 @@ h1{font-family:var(--f-display);font-weight:400;margin:0;font-size:clamp(2.1rem,
   function toast(html) { var el = document.getElementById('toast'); el.innerHTML = html; el.hidden = false; clearTimeout(toastT); toastT = setTimeout(function () { el.hidden = true; }, 3600); }
   function esc(v) { return String(v).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); }
   function css(v) { return getComputedStyle(document.documentElement).getPropertyValue(v).trim(); }
+
+  var root = document.documentElement, app = document.getElementById('app');
+  var settings = document.getElementById('psgSettings'), always = document.getElementById('psgAlways');
+  var optionKey = 'psg-show-options-v1';
+  always.checked = lsGet(optionKey) === '1';
+  function choicesVisible(opened) { return opened || always.checked; }
+  function revealButton() { return '<button type="button" class="act reveal-box" data-psg-reveal>選択肢を表示</button>'; }
+  function renderPanel(panel, body, actions) {
+    panel.innerHTML = '<div class="psg-panel-body">' + body + '</div>' + (actions ? '<div class="psg-panel-actions">' + actions + '</div>' : '');
+  }
+  function focusControl(selector) {
+    var b = document.querySelector(selector);
+    if (b) b.focus({ preventScroll: true });
+  }
+  function textOnly(html) {
+    var node = document.createElement('div');
+    node.innerHTML = html;
+    return node.textContent;
+  }
+  function recordMiss(data) {
+    var note = window.PG_NOTE;
+    if (note && typeof note.miss === 'function') {
+      var noteScript = document.querySelector('script[data-app][data-where]');
+      data.app = '睡眠よみ道場';
+      if (noteScript) data.where = noteScript.dataset.where + location.hash;
+      note.miss(data);
+    }
+  }
+  function keyboardQuiz(e, mode) {
+    return document.body.dataset.mode === mode && !settings.open && !e.defaultPrevented && !e.repeat &&
+      !e.metaKey && !e.ctrlKey && !e.altKey && !e.target.closest('input,select,textarea,[contenteditable="true"]');
+  }
+  function actionKey(e) {
+    return (e.key === 'Enter' || e.key === ' ') && !e.target.closest('button,a');
+  }
+
+  var fullscreenButtons = [], wasNativeFullscreen = false;
+  function fullElement() { return document.fullscreenElement || document.webkitFullscreenElement; }
+  function setMax(on) {
+    root.classList.toggle('is-max', on);
+    fullscreenButtons.forEach(function (b) {
+      b.textContent = on ? '全画面を終了' : '⛶ 全画面';
+      b.setAttribute('aria-pressed', String(on));
+    });
+    window.scrollTo(0, 0);
+    fitDesk();
+  }
+  function callFullscreen(target, fn) {
+    if (!fn) return;
+    try {
+      var result = fn.call(target);
+      if (result && result.catch) result.catch(function () {});
+    } catch (e) { /* 全画面 API を使えない端末では表示だけ切り替える */ }
+  }
+  function leaveFullscreen() {
+    if (fullElement() === root) callFullscreen(document, document.exitFullscreen || document.webkitExitFullscreen);
+  }
+  function toggleMax() {
+    var on = root.classList.contains('is-max');
+    setMax(!on);
+    if (on) leaveFullscreen();
+    else callFullscreen(root, root.requestFullscreen || root.webkitRequestFullscreen);
+  }
+  function syncMax() {
+    if (fullElement() === root) {
+      wasNativeFullscreen = true;
+      if (!root.classList.contains('is-max')) leaveFullscreen();
+    }
+    else if (wasNativeFullscreen) { wasNativeFullscreen = false; setMax(false); }
+  }
+  document.addEventListener('fullscreenchange', syncMax);
+  document.addEventListener('webkitfullscreenchange', syncMax);
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape' && !settings.open && root.classList.contains('is-max')) toggleMax();
+  });
+  function addTools(bar) {
+    var tools = document.createElement('div');
+    tools.className = 'psg-tools';
+    tools.innerHTML = '<button type="button" class="act" aria-haspopup="dialog">設定</button><button type="button" class="act" aria-pressed="false">⛶ 全画面</button>';
+    tools.firstElementChild.addEventListener('click', function () { settings.showModal(); });
+    tools.lastElementChild.addEventListener('click', toggleMax);
+    fullscreenButtons.push(tools.lastElementChild);
+    bar.appendChild(tools);
+  }
+  app.querySelectorAll('.appbar, .sl-top-row').forEach(addTools);
+  always.addEventListener('change', function () {
+    lsSet(optionKey, always.checked ? '1' : '0');
+    var mode = document.body.dataset.mode;
+    if (mode === 'stage') djSync();
+    else if (mode === 'event') evSync();
+    else if (mode === 'hypq') hqSync();
+    else if (mode === 'cases') csRender();
+  });
 
   // 帯域を通した雑音（2次の帯域通過フィルタ）。最初に強さをそろえておく
   function BP(f0, q) {
@@ -769,12 +916,12 @@ h1{font-family:var(--f-display);font-weight:400;margin:0;font-size:clamp(2.1rem,
     // 方眼：30秒表示は1秒ごと、2分・5分は10秒ごと。30秒の区切りは太く
     ctx.font = '700 12px ' + css('--f-body'); var stLab = o.label !== undefined ? o.label : '本当の段階：' + STG_NAME[S.stage], stW = stLab ? ctx.measureText(stLab).width : 0;
     if (stLab) { ctx.fillStyle = css('--sheet'); ctx.fillRect(W - stW - 14, 0, stW + 14, 15); ctx.fillStyle = css('--accent'); ctx.fillText(stLab, W - stW - 8, 12); }
-    var minor = win === 30 ? 1 : 10;
+    var minor = win === 30 ? 1 : 10, timeLabelStep = W < 450 ? 10 : 5;
     for (var s = Math.ceil(tStart / minor) * minor; s <= tEnd; s += minor) {
       var x = LW + (s - tStart) * pxPerS, isEp = Math.abs(s % 30) < 1e-6;
       ctx.strokeStyle = isEp ? grid2 : grid; ctx.lineWidth = isEp ? 1.4 : 1;
       ctx.beginPath(); ctx.moveTo(x + 0.5, top - 2); ctx.lineTo(x + 0.5, H - 2); ctx.stroke();
-      if ((isEp || (win === 30 && s % 5 === 0)) && x < W - stW - 70) { ctx.fillStyle = muted; ctx.font = '10px ' + css('--f-mono'); ctx.fillText(clock(s), x + 3, 11); }
+      if ((isEp || (win === 30 && s % timeLabelStep === 0)) && x < W - stW - 70) { ctx.fillStyle = muted; ctx.font = '10px ' + css('--f-mono'); ctx.fillText(clock(s), x + 3, 11); }
     }
     // 線
     var n = Math.round(win * FS), iEnd = Math.round(tEnd * FS), i0 = iEnd - n;
@@ -941,7 +1088,7 @@ h1{font-family:var(--f-display);font-weight:400;margin:0;font-size:clamp(2.1rem,
   });
 
   /* ====================== ステージ判定道場 ====================== */
-  var DJ = { n: 20, i: 0, truth: [], ans: [], t0: [], feat: [], answered: false, hint: false, grp: 'neuro', lv: +(lsGet('psg-dj-lv') || 0), done: false, view: -1 };
+  var DJ = { n: 20, i: 0, truth: [], ans: [], t0: [], feat: [], answered: false, opened: false, grp: 'neuro', lv: +(lsGet('psg-dj-lv') || 0), done: false, view: -1 };
   // 1回分の段階の並び（20区切り＝10分）。自然な順番だけを使い、5つの段階を必ず入れる
   function makeRound(n) {
     var NEXT = { W: [['N1', 1]], N1: [['N2', 0.85], ['W', 0.15]], N2: [['N3', 0.4], ['R', 0.4], ['W', 0.2]], N3: [['N2', 1]], R: [['W', 0.45], ['N2', 0.55]] };
@@ -1015,58 +1162,72 @@ h1{font-family:var(--f-display);font-weight:400;margin:0;font-size:clamp(2.1rem,
     var t0 = S.wi / FS; for (var k = 0; k < 30 * FS; k++) step();
     DJ.t0[DJ.i] = t0; DJ.feat[DJ.i] = epochFeat(t0);
     var ft = DJ.feat[DJ.i], tr0 = DJ.truth[DJ.i]; if (tr0 === 'N3' && ft.sw < 20) ft.sw = 20; else if (tr0 !== 'N3' && ft.sw >= 20) ft.sw = 19; // 徐波の割合は概算なので、境目で説明と食いちがわないようにそろえる
-    DJ.answered = false; DJ.hint = false; djSync();
+    DJ.answered = false; DJ.opened = false; djSync();
+  }
+  function djReveal() {
+    DJ.opened = true;
+    djSync();
+    focusControl('#djAns button');
   }
   function djAnswer(a) {
-    if (DJ.done || DJ.answered) return;
-    DJ.ans[DJ.i] = a; DJ.answered = true; lsSet('psg-tried', '1'); djSync();
+    if (DJ.done || DJ.answered || !choicesVisible(DJ.opened)) return;
+    var truth = DJ.truth[DJ.i];
+    DJ.ans[DJ.i] = a; DJ.answered = true; lsSet('psg-tried', '1');
+    if (a !== truth) recordMiss({
+      id: 'stage:' + DJ.lv + ':' + truth, q: 'この30秒の睡眠段階は？',
+      picked: STG_NAME[a], answer: STG_NAME[truth], why: textOnly(WHY[truth](DJ.feat[DJ.i])),
+      options: STG.map(function (key) { return STG_NAME[key]; })
+    });
+    djSync();
+    focusControl('#djEx [data-dj="next"]');
   }
   function djNext() {
     if (!DJ.answered && !DJ.done) return;
     if (DJ.done) { djStart(); return; }
     if (DJ.i + 1 >= DJ.n) { djFinish(); return; }
     DJ.i++; djEpoch();
+    focusControl(choicesVisible(DJ.opened) ? '#djAns button' : '#djReveal');
   }
   function djFinish() {
     DJ.done = true; DJ.view = -1;
-    var ok = DJ.ans.filter(function (a, i) { return a === DJ.truth[i]; }).length, pct = Math.round(ok / DJ.n * 100);
-    var key = 'psg-dj-best-' + DJ.lv, best = +(lsGet(key) || 0); DJ.newBest = pct > best; if (pct > best) lsSet(key, String(pct));
-    DJ.pct = pct; DJ.best = Math.max(best, pct); djSync();
+    djSync();
+    focusControl('#djEx [data-dj="again"]');
   }
   function djSync() {
     var view = DJ.done ? DJ.view : DJ.i, show = view >= 0;
     setSeg('djGrp', 'data-g', DJ.grp); setSeg('djLv', 'data-lv', DJ.lv);
-    document.getElementById('djHint').setAttribute('aria-pressed', String(DJ.hint)); document.getElementById('djHint').disabled = DJ.answered || DJ.done;
     document.getElementById('djNo').innerHTML = DJ.done ? (show ? '区切り <b>' + (view + 1) + '</b> / ' + DJ.n : 'おしまい') : '区切り <b>' + (DJ.i + 1) + '</b> / ' + DJ.n;
     var answeredView = DJ.done ? show : DJ.answered, pick = show ? DJ.ans[view] : null, tr = show ? DJ.truth[view] : null;
+    var visible = answeredView || (!DJ.done && choicesVisible(DJ.opened));
+    document.getElementById('djAns').hidden = !visible;
+    document.getElementById('djReveal').hidden = DJ.done || visible;
     document.querySelectorAll('#djAns button').forEach(function (b) {
       var a = b.getAttribute('data-a'); b.disabled = answeredView || DJ.done; b.classList.toggle('pick', !!(answeredView && a === pick && a !== tr)); b.classList.toggle('truth', !!(answeredView && a === tr));
     });
-    var ex = document.getElementById('djEx'), h = '';
+    var ex = document.getElementById('djEx'), h = '', actions = '';
     if (DJ.done && !show) {
       var by = {}; STG.forEach(function (s0) { by[s0] = [0, 0]; }); DJ.truth.forEach(function (t, i) { by[t][1]++; if (DJ.ans[i] === t) by[t][0]++; });
-      var msg = DJ.pct >= 90 ? '判定者として十分です。' : DJ.pct >= 80 ? '上出来。専門の判定者どうしの一致率（およそ8割）と同じくらいです。' : DJ.pct >= 60 ? 'あと一歩。まちがえた区切りを、睡眠図の印から見直してみましょう。' : 'まずは「触ってみる」で、各段階の手がかりを見比べてみましょう。';
-      h = '<h3>結果</h3><p class="big">' + DJ.pct + '%</p><p>' + DJ.n + '区切り中 ' + DJ.ans.filter(function (a, i) { return a === DJ.truth[i]; }).length + ' 区切りが正解（' + (DJ.lv ? '実践' : '入門') + 'の自己ベスト ' + DJ.best + '%' + (DJ.newBest ? '　更新！' : '') + '）</p><p>' + msg + '</p>' +
+      h = '<h3>結果</h3>' +
         '<table class="res-t"><tr><th>段階</th><th>正解 / 出題</th></tr>' + STG.map(function (s0) { return '<tr><td>' + STG_NAME[s0] + '</td><td class="n">' + by[s0][0] + ' / ' + by[s0][1] + '</td></tr>'; }).join('') + '</table>' +
-        '<p class="kbd">上の睡眠図の印を押すと、その区切りを見直せます。</p><div class="row-btn"><button type="button" class="btn" data-dj="again">もう1回（新しい10分）</button><a class="act" href="#lab" style="text-decoration:none;display:inline-flex;align-items:center;color:inherit">触ってみるへ</a></div>';
+        '<p class="kbd">睡眠図の印を押すと、その区切りを見直せます。</p>';
+      actions = '<button type="button" class="btn" data-dj="again">もう1回（新しい10分）</button><a class="act" href="#lab" style="text-decoration:none;display:inline-flex;align-items:center;color:inherit">触ってみるへ</a>';
     } else if (answeredView) {
       var f = DJ.feat[view], ok = pick === tr;
       h = '<p class="verdict ' + (ok ? 'ok' : 'ng') + '">' + (ok ? '正解！' : 'ざんねん') + '</p>' +
         (ok ? '' : '<p>あなた：<b>' + STG_NAME[pick] + '</b>　正解：<b>' + STG_NAME[tr] + '</b></p>') +
         '<p>' + WHY[tr](f) + '</p>' + (ok || !TIP[pick + '>' + tr] ? '' : '<p class="ev">' + TIP[pick + '>' + tr] + '</p>') +
         '<h3>この30秒の手がかり</h3>' + clueHTML(f) +
-        (DJ.done ? '<div class="row-btn"><button type="button" class="act" data-dj="sum">結果にもどる</button></div>' : '<div class="row-btn"><button type="button" class="btn" data-dj="next">' + (DJ.i + 1 >= DJ.n ? '結果を見る' : '次の30秒へ ▶') + '</button></div>');
-    } else {
-      h = '<h3>見る順番</h3><ul><li><span class="ch">O2</span> の α波は半分以上？ → W</li><li><span class="ch">C4</span>・<span class="ch">F4</span> に紡錘波・K複合？ → N2</li><li><span class="ch">F4</span> の大きな徐波が20％以上？ → N3</li><li>あごが最低で、鋭い目の動き？ → R</li><li>どれでもなく、低い θ 波 → N1</li></ul>' +
-        (DJ.lv ? '<p class="ev">実践：無呼吸のあとの覚醒反応で、α波が数秒だけ出ます。30秒の半分を超えなければ、段階は変えません。</p>' : '');
-    }
-    ex.innerHTML = h;
+        '<details><summary>段階の見分け方</summary><ul><li><span class="ch">O2</span> の α波は半分以上？ → W</li><li><span class="ch">C4</span>・<span class="ch">F4</span> に紡錘波・K複合？ → N2</li><li><span class="ch">F4</span> の大きな徐波が20％以上？ → N3</li><li>あごが最低で、鋭い目の動き？ → R</li><li>どれでもなく、低い θ 波 → N1</li></ul>' +
+        (DJ.lv ? '<p class="ev">実践：無呼吸のあとの覚醒反応で、α波が数秒だけ出ます。30秒の半分を超えなければ、段階は変えません。</p>' : '') + '</details>';
+      actions = DJ.done ? '<button type="button" class="act" data-dj="sum">結果にもどる</button>' : '<button type="button" class="btn" data-dj="next">' + (DJ.i + 1 >= DJ.n ? '結果を見る' : '次の30秒へ ▶') + '</button>';
+    } else h = '<p>30秒の波形を読んで、睡眠の段階を考えましょう。</p>';
+    renderPanel(ex, h, actions);
   }
   function djDraw() {
     var view = DJ.done ? DJ.view : DJ.i;
     if (view < 0) view = DJ.n - 1;
     var answered = DJ.done ? DJ.view >= 0 : DJ.answered;
-    drawTrace({ cv: document.getElementById('djCv'), tEnd: DJ.t0[view] + 30, win: 30, grp: DJ.grp, marks: answered || DJ.hint, label: answered ? '正解：' + STG_NAME[DJ.truth[view]] : '' });
+    drawTrace({ cv: document.getElementById('djCv'), tEnd: DJ.t0[view] + 30, win: 30, grp: DJ.grp, marks: answered, label: answered ? '正解：' + STG_NAME[DJ.truth[view]] : '' });
     djDrawHyp();
   }
   function djDrawHyp() {
@@ -1089,18 +1250,24 @@ h1{font-family:var(--f-display);font-weight:400;margin:0;font-size:clamp(2.1rem,
     var cur = DJ.done ? DJ.view : DJ.i; if (cur >= 0) { ctx.fillStyle = color(css('--mark'), 0.4); ctx.fillRect(LW + cur * ew, 2, ew, H - 4); }
   }
   document.getElementById('djAns').addEventListener('click', function (e) { var b = e.target.closest('button'); if (b) djAnswer(b.getAttribute('data-a')); });
+  document.getElementById('djReveal').addEventListener('click', djReveal);
   document.getElementById('djEx').addEventListener('click', function (e) { var b = e.target.closest('[data-dj]'); if (!b) return; var k = b.getAttribute('data-dj'); if (k === 'next') djNext(); else if (k === 'again') djStart(); else if (k === 'sum') { DJ.view = -1; djSync(); } });
   document.getElementById('djGrp').addEventListener('click', function (e) { var b = e.target.closest('button'); if (!b) return; DJ.grp = b.getAttribute('data-g'); djSync(); });
   document.getElementById('djLv').addEventListener('click', function (e) { var b = e.target.closest('button'); if (!b) return; var lv = +b.getAttribute('data-lv'); if (lv === DJ.lv) return; DJ.lv = lv; lsSet('psg-dj-lv', String(lv)); djStart(); toast(lv ? '実践：無呼吸の人の記録です。覚醒反応や呼吸の乱れが混じります。' : '入門：健康な人の記録です。'); });
-  document.getElementById('djHint').addEventListener('click', function () { DJ.hint = !DJ.hint; djSync(); });
   document.getElementById('djHyp').addEventListener('click', function (e) {
     if (!DJ.done) return; var r = this.getBoundingClientRect(), ew = (r.width - 56 - 8) / DJ.n, k = Math.floor((e.clientX - r.left - 56) / ew);
     if (k >= 0 && k < DJ.n) { DJ.view = k; djSync(); }
   });
   document.addEventListener('keydown', function (e) {
-    if (document.body.dataset.mode !== 'stage' || e.metaKey || e.ctrlKey || e.altKey) return;
+    if (!keyboardQuiz(e, 'stage')) return;
     var m = { w: 'W', W: 'W', '0': 'W', '1': 'N1', '2': 'N2', '3': 'N3', r: 'R', R: 'R', '5': 'R' }[e.key];
-    if (m) { djAnswer(m); e.preventDefault(); } else if (e.key === 'Enter' || e.key === ' ') { if (DJ.answered || DJ.done) { djNext(); e.preventDefault(); } }
+    if (m && choicesVisible(DJ.opened)) { djAnswer(m); e.preventDefault(); }
+    else if (actionKey(e)) {
+      if (DJ.done && DJ.view >= 0) { DJ.view = -1; djSync(); }
+      else if (DJ.answered || DJ.done) djNext();
+      else if (!choicesVisible(DJ.opened)) djReveal();
+      e.preventDefault();
+    }
   });
 
   /* ====================== イベント判定 ======================
@@ -1144,7 +1311,7 @@ h1{font-family:var(--f-display);font-weight:400;margin:0;font-size:clamp(2.1rem,
     plm: '脚の動き（LM）：脚の筋電図が0.5〜10秒、はっきり上がる。',
     aro: '覚醒反応：10秒以上眠ったあと、脳波が3秒以上急に速くなる（α波・速い波）。'
   };
-  var EV = { i: 0, scene: null, marks: [], pending: null, checked: false, res: null, tot: { ok: 0, n: 0 }, grp: 'auto', done: false, drag: null };
+  var EV = { i: 0, scene: null, marks: [], pending: null, checked: false, res: null, grp: 'auto', done: false, drag: null };
 
   function evBuild(k) {
     var tpl = SCENES[k];
@@ -1163,63 +1330,76 @@ h1{font-family:var(--f-display);font-weight:400;margin:0;font-size:clamp(2.1rem,
     });
     while (S.wi / FS < t0 + tpl.win + 1) step();
     EV.scene = { k: k, tpl: tpl, t0: t0, win: tpl.win, truth: truth };
-    EV.marks = []; EV.pending = null; EV.checked = false; EV.res = null;
+    EV.marks = []; EV.pending = null; EV.drag = null; EV.checked = false; EV.res = null;
     evSync();
   }
-  function evStart() { EV.i = 0; EV.tot = { ok: 0, n: 0 }; EV.done = false; evBuild(0); }
+  function evStart() { EV.i = 0; EV.done = false; evBuild(0); }
   function evGrp() { if (EV.grp === 'all') return 'all'; return EV.scene && EV.scene.tpl.kind === 'resp' ? 'resp' : 'neuro'; }
   // 比べる：本当の出来事の長さの半分以上（または付けた範囲の半分以上）が重なれば「同じ出来事を付けた」とみなす
   function ovl(a, b) { return Math.max(0, Math.min(a.t1, b.t1) - Math.max(a.t0, b.t0)); }
   function evCheck() {
-    var sc = EV.scene, used = {}, res = [], ok = 0, n = 0;
-    sc.truth.forEach(function (tr) {
+    if (EV.checked || EV.pending) return;
+    var sc = EV.scene, used = {}, res = [];
+    sc.truth.forEach(function (tr, index) {
       var best = -1, bo = 0;
       EV.marks.forEach(function (m, mi) { if (used[mi]) return; var o = ovl(m, tr); if (o > bo && (o >= 0.5 * (tr.t1 - tr.t0) || o >= 0.5 * (m.t1 - m.t0))) { bo = o; best = mi; } });
       if (tr.type === 'none') {
-        if (best >= 0) { used[best] = true; res.push({ cls: 'ng', h: '数えないものを付けた', why: tr.why, tr: tr }); n++; }
+        if (best >= 0) { used[best] = true; res.push({ cls: 'ng', h: '数えないものを付けた', why: tr.why, tr: tr, index: index, picked: EV_TYPES[EV.marks[best].type].n, answer: '数えない' }); }
         else res.push({ cls: 'skip', h: '数えないもの（付けなくて正解）', why: tr.why, tr: tr });
         return;
       }
-      n++;
-      if (best < 0) { res.push({ cls: 'ng', h: '見落とし：' + EV_TYPES[tr.type].n, why: tr.why, tr: tr }); return; }
-      used[best] = true; var m = EV.marks[best];
-      if (m.type === tr.type) { ok++; res.push({ cls: 'ok', h: '正解：' + EV_TYPES[tr.type].n, why: tr.why, tr: tr }); }
-      else res.push({ cls: 'ng', h: '種類ちがい：' + EV_TYPES[m.type].n + ' と付けた → 正しくは ' + EV_TYPES[tr.type].n, why: tr.why, tr: tr });
+      var answer = EV_TYPES[tr.type].n;
+      if (best < 0) { res.push({ cls: 'ng', h: '見落とし：' + answer, why: tr.why, tr: tr, index: index, picked: '範囲を付けなかった', answer: answer }); return; }
+      used[best] = true;
+      var m = EV.marks[best], picked = EV_TYPES[m.type].n;
+      if (m.type === tr.type) res.push({ cls: 'ok', h: '正解：' + answer, why: tr.why, tr: tr });
+      else res.push({ cls: 'ng', h: '種類ちがい：' + picked + ' と付けた → 正しくは ' + answer, why: tr.why, tr: tr, index: index, picked: picked, answer: answer });
     });
-    EV.marks.forEach(function (m, mi) { if (!used[mi]) { n++; res.push({ cls: 'ng', h: '余分：' + EV_TYPES[m.type].n + '（ここには数える出来事はない）', why: 'なにも起きていないところか、出来事の一部だけを付けています。始まりから終わりまでを1つの範囲で付けます。', tr: m }); } });
+    EV.marks.forEach(function (m, mi) { if (!used[mi]) res.push({ cls: 'ng', h: '余分：' + EV_TYPES[m.type].n + '（ここには数える出来事はない）', why: 'なにも起きていないところか、出来事の一部だけを付けています。始まりから終わりまでを1つの範囲で付けます。', tr: m, index: 'extra:' + mi, picked: EV_TYPES[m.type].n, answer: '数えない' }); });
     res.sort(function (a, b) { return a.tr.t0 - b.tr.t0; });
-    EV.res = { list: res, ok: ok, n: n }; EV.checked = true; EV.tot.ok += ok; EV.tot.n += n;
+    EV.res = res; EV.checked = true;
+    res.forEach(function (r) {
+      if (r.cls === 'ng') recordMiss({
+        id: 'event:' + sc.k + ':' + r.index, q: sc.tpl.title + '。' + fmtT(r.tr.t0) + '〜' + fmtT(r.tr.t1) + 'の範囲には何を付ける？',
+        picked: r.picked, answer: r.answer, why: r.why,
+        options: KIND_TYPES[sc.tpl.kind].map(function (type) { return EV_TYPES[type].n; }).concat('数えない')
+      });
+    });
     evSync();
+    focusControl('#evEx [data-ev2="next"]');
   }
   function evNext() {
     if (EV.done) { evStart(); return; }
-    if (EV.i + 1 >= SCENES.length) { EV.done = true; var pct = EV.tot.n ? Math.round(EV.tot.ok / EV.tot.n * 100) : 0; var best = +(lsGet('psg-ev-best') || 0); EV.pct = pct; EV.newBest = pct > best; if (pct > best) lsSet('psg-ev-best', String(pct)); EV.best = Math.max(best, pct); evSync(); return; }
+    if (EV.i + 1 >= SCENES.length) { EV.done = true; evSync(); focusControl('#evEx [data-ev2="again"]'); return; }
     EV.i++; evBuild(EV.i);
   }
   function fmtT(t) { return (t - EV.scene.t0).toFixed(1) + '秒'; }
   function evSync() {
-    var sc = EV.scene, ex = document.getElementById('evEx'), h = '';
+    var sc = EV.scene, ex = document.getElementById('evEx'), h = '', actions = '';
     setSeg('evGrp', 'data-g', EV.grp);
     document.getElementById('evNo').innerHTML = EV.done ? 'おしまい' : '場面 <b>' + (EV.i + 1) + '</b> / ' + SCENES.length;
     if (EV.done) {
-      h = '<h3>結果</h3><p class="big">' + EV.pct + '%</p><p>' + EV.tot.n + ' 個中 ' + EV.tot.ok + ' 個が正解（自己ベスト ' + EV.best + '%' + (EV.newBest ? '　更新！' : '') + '）。数えないものを付けたり、余分に付けたりすると、分母が増えます。</p>' +
-        '<p>' + (EV.pct >= 85 ? '判定のルールが身についています。' : EV.pct >= 60 ? 'あと一歩。「数えないもの」の理由を読み直してみましょう。' : 'まずは「触ってみる」で、無呼吸・低呼吸・脚の動き・覚醒反応を起こして見比べましょう。') + '</p>' +
-        '<div class="row-btn"><button type="button" class="btn" data-ev2="again">もう1回（少しずつ変わる）</button><a class="act" href="#lab" style="text-decoration:none;display:inline-flex;align-items:center;color:inherit">触ってみるへ</a></div>';
-      ex.innerHTML = h; return;
+      h = '<h3>全' + SCENES.length + '場面おしまい</h3>';
+      actions = '<button type="button" class="btn" data-ev2="again">もう1回（少しずつ変わる）</button><a class="act" href="#lab" style="text-decoration:none;display:inline-flex;align-items:center;color:inherit">触ってみるへ</a>';
+      renderPanel(ex, h, actions); return;
     }
-    h = '<h3>' + esc(sc.tpl.title) + '</h3><p class="ev-task">' + KIND_TASK[sc.tpl.kind] + '</p><p class="ev-rule">' + KIND_RULE[sc.tpl.kind] + '</p>';
+    h = '<h3>' + esc(sc.tpl.title) + '</h3>';
+    if (!EV.checked) h += '<p class="ev-task">' + KIND_TASK[sc.tpl.kind] + '</p>';
     if (EV.pending && !EV.checked) {
-      h += '<p><b>この範囲（' + fmtT(EV.pending.t0) + '〜' + fmtT(EV.pending.t1) + '）は？</b></p><div class="ev-types">' + KIND_TYPES[sc.tpl.kind].map(function (k) { return '<button type="button" data-evt="' + k + '" style="border-color:' + EV_TYPES[k].col + ';color:' + EV_TYPES[k].col + '">' + EV_TYPES[k].n + '</button>'; }).join('') + '<button type="button" class="cancel" data-evt="cancel">取り消す</button></div>';
+      h += '<p><b>この範囲（' + fmtT(EV.pending.t0) + '〜' + fmtT(EV.pending.t1) + '）は？</b></p>';
+      h += choicesVisible(EV.pending.opened) ?
+        '<div class="ev-types">' + KIND_TYPES[sc.tpl.kind].map(function (k, i) { return '<button type="button" data-evt="' + k + '">' + (i + 1) + '　' + EV_TYPES[k].n + '</button>'; }).join('') + '</div>' : revealButton();
     }
-    if (EV.marks.length) h += '<p><b>付けた範囲</b></p><ul class="ev-list">' + EV.marks.map(function (m, i) { return '<li><span class="sw" style="background:' + EV_TYPES[m.type].col + '"></span>' + EV_TYPES[m.type].n + '　' + fmtT(m.t0) + '〜' + fmtT(m.t1) + (EV.checked ? '' : '<button type="button" class="del" data-evdel="' + i + '">消す</button>') + '</li>'; }).join('') + '</ul>';
-    else if (!EV.pending) h += '<p class="ev-rule">まだ付けていません。出来事がないと思えば、付けずに「答え合わせ」でもかまいません。</p>';
-    if (!EV.checked) h += '<div class="row-btn"><button type="button" class="btn" data-ev2="check"' + (EV.pending ? ' disabled' : '') + '>答え合わせ</button></div>';
+    if (!EV.checked && EV.marks.length) h += '<p><b>付けた範囲</b></p><ul class="ev-list">' + EV.marks.map(function (m, i) { return '<li><span class="sw" style="background:' + EV_TYPES[m.type].col + '"></span>' + EV_TYPES[m.type].n + '　' + fmtT(m.t0) + '〜' + fmtT(m.t1) + '<button type="button" class="del" data-evdel="' + i + '">消す</button></li>'; }).join('') + '</ul>';
+    else if (!EV.checked && !EV.pending) h += '<p class="ev-rule">出来事がないと思えば、範囲を付けずに答え合わせできます。</p>';
+    if (!EV.checked) actions = EV.pending ? '<button type="button" class="act" data-evt="cancel">範囲を取り消す</button>' : '<button type="button" class="btn" data-ev2="check">答え合わせ</button>';
     else {
-      h += '<p class="verdict ' + (EV.res.ok === EV.res.n ? 'ok' : 'ng') + '">' + EV.res.ok + ' / ' + EV.res.n + '</p><ul class="ev-res">' + EV.res.list.map(function (r) { return '<li class="' + r.cls + '"><b>' + esc(r.h) + '（' + fmtT(r.tr.t0) + '〜）</b>' + esc(r.why) + '</li>'; }).join('') + '</ul>' +
+      h += '<ul class="ev-res">' + EV.res.map(function (r) { return '<li class="' + r.cls + '"><b>' + esc(r.h) + '（' + fmtT(r.tr.t0) + '〜）</b>' + esc(r.why) + '</li>'; }).join('') + '</ul>' +
         '<p class="ev-rule">記録の上：実線の枠が本当の出来事、点線の枠は数えないもの。色の帯があなたの付けた範囲です。</p>' +
-        '<div class="row-btn"><button type="button" class="btn" data-ev2="next">' + (EV.i + 1 >= SCENES.length ? '結果を見る' : '次の場面へ ▶') + '</button></div>';
+        '<details><summary>判定の目安</summary><p class="ev-rule">' + KIND_RULE[sc.tpl.kind] + '</p></details>';
+      actions = '<button type="button" class="btn" data-ev2="next">' + (EV.i + 1 >= SCENES.length ? '練習を終える' : '次の場面へ ▶') + '</button>';
     }
-    ex.innerHTML = h;
+    renderPanel(ex, h, actions);
   }
   function evDraw() {
     if (!EV.scene) return;
@@ -1247,21 +1427,46 @@ h1{font-family:var(--f-display);font-weight:400;margin:0;font-size:clamp(2.1rem,
       if (b - a < 0.4) { toast('記録の上を、出来事の始まりから終わりまで横になぞってください。'); return; }
       var types = KIND_TYPES[EV.scene.tpl.kind];
       if (types.length === 1) { EV.marks.push({ t0: a, t1: b, type: types[0] }); EV.marks.sort(function (x, y) { return x.t0 - y.t0; }); }
-      else EV.pending = { t0: a, t1: b };
+      else EV.pending = { t0: a, t1: b, opened: false };
       evSync();
       // 細い画面では、種類を選ぶボタンが記録の下にあるので、見えるところまで送る
-      if (window.innerWidth <= 900) document.getElementById('evEx').scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+      if (!root.classList.contains('is-max') && window.innerWidth <= 900) document.getElementById('evEx').scrollIntoView({ block: 'nearest' });
     });
+    cv.addEventListener('pointercancel', function () { EV.drag = null; });
   })();
+  function evReveal() {
+    EV.pending.opened = true;
+    evSync();
+    focusControl('#evEx .ev-types button');
+  }
+  function evPick(k) {
+    if (!EV.pending) return;
+    if (k !== 'cancel') {
+      if (!choicesVisible(EV.pending.opened)) return;
+      EV.marks.push({ t0: EV.pending.t0, t1: EV.pending.t1, type: k });
+      EV.marks.sort(function (x, y) { return x.t0 - y.t0; });
+    }
+    EV.pending = null;
+    evSync();
+  }
   document.getElementById('evEx').addEventListener('click', function (e) {
     var b = e.target.closest('button'); if (!b) return;
-    if (b.hasAttribute('data-evt')) { var k = b.getAttribute('data-evt'); if (k !== 'cancel' && EV.pending) { EV.marks.push({ t0: EV.pending.t0, t1: EV.pending.t1, type: k }); EV.marks.sort(function (x, y) { return x.t0 - y.t0; }); } EV.pending = null; evSync(); }
+    if (b.hasAttribute('data-psg-reveal')) evReveal();
+    else if (b.hasAttribute('data-evt')) evPick(b.getAttribute('data-evt'));
     else if (b.hasAttribute('data-evdel')) { EV.marks.splice(+b.getAttribute('data-evdel'), 1); evSync(); }
     else if (b.getAttribute('data-ev2') === 'check') evCheck();
     else if (b.getAttribute('data-ev2') === 'next') evNext();
     else if (b.getAttribute('data-ev2') === 'again') evStart();
   });
   document.getElementById('evGrp').addEventListener('click', function (e) { var b = e.target.closest('button'); if (!b) return; EV.grp = b.getAttribute('data-g'); evSync(); });
+  document.addEventListener('keydown', function (e) {
+    if (!keyboardQuiz(e, 'event') || !EV.pending) return;
+    if (actionKey(e) && !choicesVisible(EV.pending.opened)) { e.preventDefault(); evReveal(); }
+    else if (/^[1-3]$/.test(e.key) && choicesVisible(EV.pending.opened)) {
+      e.preventDefault();
+      evPick(KIND_TYPES[EV.scene.tpl.kind][+e.key - 1]);
+    }
+  });
 
   /* ====================== 睡眠図あてクイズ ======================
      一晩（23:00 消灯〜6:30、30秒×900区切り）の睡眠図を、人ごとの特徴を入れて作る（HQP の make）。
@@ -1361,7 +1566,7 @@ h1{font-family:var(--f-display);font-weight:400;margin:0;font-size:clamp(2.1rem,
     HQ.qs = pool.slice(0, HQ.n).map(function (k) {
       var others = pool.filter(function (x) { return x !== k && (HQ_CONFLICT[k] || []).indexOf(x) === -1; }).sort(function () { return rnd() - 0.5; }).slice(0, 4);
       var opts = others.concat([k]).sort(function () { return rnd() - 0.5; });
-      var r = HQP[k].make(); return { k: k, r: r, m: hqMetrics(r), opts: opts, pick: null };
+      var r = HQP[k].make(); return { k: k, r: r, m: hqMetrics(r), opts: opts, pick: null, opened: false };
     });
     HQ.i = 0; HQ.done = false; hqSync();
   }
@@ -1371,24 +1576,25 @@ h1{font-family:var(--f-display);font-weight:400;margin:0;font-size:clamp(2.1rem,
     var q = HQ.qs[HQ.i], ex = document.getElementById('hqEx'), met = document.getElementById('hqMet');
     document.getElementById('hqNo').innerHTML = HQ.done ? 'おしまい' : '問 <b>' + (HQ.i + 1) + '</b> / ' + HQ.qs.length;
     if (HQ.done) {
-      var ok = HQ.qs.filter(function (x) { return x.pick === x.k; }).length, pct = Math.round(ok / HQ.qs.length * 100), key = 'psg-hq-best-' + HQ.lv, best = +(lsGet(key) || 0);
-      if (pct > best) lsSet(key, String(pct));
-      ex.innerHTML = '<h3>結果</h3><p class="big">' + ok + ' / ' + HQ.qs.length + '</p><p>' + (HQ.lv ? '上級' : '入門') + 'の自己ベスト ' + Math.max(best, pct) + '%' + (pct > best ? '　更新！' : '') + '</p><ul class="hq-pts">' +
-        HQ.qs.map(function (x) { return '<li>' + (x.pick === x.k ? '○ ' : '× ') + esc(HQP[x.k].who) + '</li>'; }).join('') + '</ul><div class="row-btn"><button type="button" class="btn" data-hq="again">もう1回（新しい夜）</button></div>';
+      var results = '<h3>結果</h3><ul class="hq-pts">' +
+        HQ.qs.map(function (x) { return '<li>' + (x.pick === x.k ? '○ ' : '× ') + esc(HQP[x.k].who) + '</li>'; }).join('') + '</ul>';
+      renderPanel(ex, results, '<button type="button" class="btn" data-hq="again">もう1回（新しい夜）</button>');
       met.innerHTML = ''; return;
     }
     var m = q.m, show = !HQ.lv || q.pick;
     var items = [['眠っていた時間', hm2(m.tst), m.tst < 360], ['睡眠効率', m.se + '%', m.se < 85], ['寝つくまで', Math.round(m.sol) + '分', m.sol >= 30], ['レム潜時', m.rl == null ? 'なし' : Math.round(m.rl) + '分', m.rl != null && (m.rl < 60 || m.rl > 150)], ['中途覚醒', Math.round(m.waso) + '分', m.waso >= 45], ['N3', m.n3 + '%', m.n3 < 8], ['レム', m.rem + '%', m.rem > 28 || m.rem < 15], ['AHI', m.ahi.toFixed(0), m.ahi >= 15], ['最低SpO2', m.minSp + '%', m.minSp < 88], ['PLM指数', m.plmi.toFixed(0), m.plmi >= 15]];
     met.innerHTML = show ? items.map(function (x) { return '<div class="' + (x[2] && q.pick ? 'hot' : '') + '">' + x[0] + '<b>' + x[1] + '</b></div>'; }).join('') : '<div style="grid-column:1/-1">上級：数字は答えたあとに出ます。</div>';
-    var h = '<h3>この一晩は、どの人？</h3><ol class="hq-opts">' + q.opts.map(function (k, i) {
-      var cls = '', tag = ''; if (q.pick) { if (k === q.k) { cls = ' right'; tag = '正解'; } else if (k === q.pick) { cls = ' wrong'; tag = 'あなた'; } else cls = ' dim'; }
-      return '<li><button type="button" class="hq-opt' + cls + '" data-hqa="' + k + '"' + (q.pick ? ' disabled' : '') + '><span class="k">' + (i + 1) + '</span><span>' + esc(HQP[k].who) + '</span><span class="v">' + tag + '</span></button></li>';
-    }).join('') + '</ol>';
+    var h = '<h3>この一晩は、どの人？</h3>', actions = '';
     if (q.pick) h += '<p class="verdict ' + (q.pick === q.k ? 'ok' : 'ng') + '">' + (q.pick === q.k ? '正解！' : 'ざんねん') + '</p><ul class="hq-pts">' + HQP[q.k].pts.map(function (t) { return '<li>' + esc(t) + '</li>'; }).join('') + '</ul>' +
       (q.pick !== q.k ? '<p class="ev-rule">あなたの選んだ人なら：' + esc(HQP[q.pick].pts[0]) + '</p>' : '') +
-      '<p class="ev-rule">睡眠図の黄色い帯が、見るところです。赤い枠の数字が、目立つ値です。</p><div class="row-btn"><button type="button" class="btn" data-hq="next">' + (HQ.i + 1 >= HQ.qs.length ? '結果を見る' : '次の問へ ▶') + '</button></div>';
-    else h += '<p class="ev-rule">見るところ：寝つくまでの長さ、レムが来るまでの長さ、N3 の量、夜中や明け方の目覚め' + (HQ.lv ? '' : '、呼吸の出来事・SpO2・脚の動き') + '。</p>';
-    ex.innerHTML = h;
+      '<p class="ev-rule">睡眠図の黄色い帯が、見るところです。赤い枠の数字が、目立つ値です。</p>';
+    if (q.pick || choicesVisible(q.opened)) h += '<ol class="hq-opts">' + q.opts.map(function (k, i) {
+      var cls = '', tag = ''; if (q.pick) { if (k === q.k) { cls = ' right'; tag = '正解'; } else if (k === q.pick) { cls = ' wrong'; tag = 'あなた'; } else cls = ' dim'; }
+        return '<li><button type="button" class="hq-opt' + cls + '" data-hqa="' + k + '"' + (q.pick ? ' disabled' : '') + '><span class="k">' + (i + 1) + '</span><span>' + esc(HQP[k].who) + '</span><span class="v">' + tag + '</span></button></li>';
+    }).join('') + '</ol>';
+    else h += revealButton();
+    if (q.pick) actions = '<button type="button" class="btn" data-hq="next">' + (HQ.i + 1 >= HQ.qs.length ? '結果を見る' : '次の問へ ▶') + '</button>';
+    renderPanel(ex, h, actions);
   }
   // 睡眠図を描く。症例で読むからも使う（cvArg・rArg・rowsArg：下の段を出すか、mkArg：黄色い目印を出すか）
   function hqDraw(cvArg, rArg, rowsArg, mkArg) {
@@ -1420,22 +1626,51 @@ h1{font-family:var(--f-display);font-weight:400;margin:0;font-size:clamp(2.1rem,
       else { ctx.strokeStyle = L[2]; ctx.lineWidth = 1.3; ctx.beginPath(); r.sp.forEach(function (v, e4) { var yy3 = yb + band - (clamp(v, 75, 100) - 75) / 25 * band; if (e4 === 0) ctx.moveTo(x(e4), yy3); else ctx.lineTo(x(e4), yy3); }); ctx.stroke(); ctx.lineWidth = 1; ctx.fillStyle = css('--muted'); ctx.fillText('90%', W - 34, yb + band - (15 / 25) * band - 2); }
     });
   }
+  function hqReveal(q) {
+    q.opened = true; hqSync(); focusControl('#hqEx [data-hqa]');
+  }
+  function hqPick(k) {
+    var q = HQ.qs[HQ.i];
+    if (!q || HQ.done || q.pick || !choicesVisible(q.opened) || q.opts.indexOf(k) < 0) return;
+    q.pick = k; lsSet('psg-tried', '1');
+    if (k !== q.k) recordMiss({
+      id: 'hypq:' + q.k, q: 'この一晩の睡眠図は、どの人のもの？',
+      picked: HQP[k].who, answer: HQP[q.k].who, why: HQP[q.k].pts.join(' '),
+      options: q.opts.map(function (key) { return HQP[key].who; })
+    });
+    hqSync();
+    focusControl('#hqEx [data-hq="next"]');
+  }
+  function hqNext() {
+    if (HQ.i + 1 >= HQ.qs.length) HQ.done = true;
+    else HQ.i++;
+    hqSync();
+    if (root.classList.contains('is-max')) document.querySelector('#hypq .hq-main').scrollTop = 0;
+    else window.scrollTo(0, 0);
+    focusControl('#hqEx :is([data-psg-reveal],[data-hqa],[data-hq="again"])');
+  }
   document.getElementById('hqEx').addEventListener('click', function (e) {
     var b = e.target.closest('button'); if (!b) return; var q = HQ.qs[HQ.i];
-    if (b.hasAttribute('data-hqa') && q && !q.pick) { q.pick = b.getAttribute('data-hqa'); lsSet('psg-tried', '1'); hqSync(); }
-    else if (b.getAttribute('data-hq') === 'next') { if (HQ.i + 1 >= HQ.qs.length) HQ.done = true; else HQ.i++; hqSync(); window.scrollTo({ top: 0, behavior: 'smooth' }); }
+    if (b.hasAttribute('data-psg-reveal')) hqReveal(q);
+    else if (b.hasAttribute('data-hqa')) hqPick(b.getAttribute('data-hqa'));
+    else if (b.getAttribute('data-hq') === 'next') hqNext();
     else if (b.getAttribute('data-hq') === 'again') hqStart();
   });
   document.getElementById('hqLv').addEventListener('click', function (e) { var b = e.target.closest('button'); if (!b) return; var lv = +b.getAttribute('data-lv'); if (lv === HQ.lv) return; HQ.lv = lv; lsSet('psg-hq-lv', String(lv)); hqStart(); });
   document.addEventListener('keydown', function (e) {
-    if (document.body.dataset.mode !== 'hypq' || e.metaKey || e.ctrlKey || e.altKey) return; var q = HQ.qs[HQ.i]; if (!q || HQ.done) return;
-    if (!q.pick && /^[1-5]$/.test(e.key)) { var k = q.opts[+e.key - 1]; if (k) { q.pick = k; hqSync(); e.preventDefault(); } }
-    else if (q.pick && e.key === 'Enter') { if (HQ.i + 1 >= HQ.qs.length) HQ.done = true; else HQ.i++; hqSync(); e.preventDefault(); }
+    if (!keyboardQuiz(e, 'hypq')) return; var q = HQ.qs[HQ.i]; if (!q || HQ.done) return;
+    if (!q.pick && choicesVisible(q.opened) && /^[1-5]$/.test(e.key)) { hqPick(q.opts[+e.key - 1]); e.preventDefault(); }
+    else if (actionKey(e)) {
+      if (q.pick) hqNext();
+      else if (!choicesVisible(q.opened)) hqReveal(q);
+      else return;
+      e.preventDefault();
+    }
   });
 
   /* ====================== 症例で読む ======================
      症例ごとに、国試の形の病歴、資料（一晩の睡眠図・記録の切り出し・表）、3つの問い。
-     記録の切り出し（clip）は、記録の仕組みで台本どおりに作る。資料の黄色い目印は、最初の問いに答えると出る。
+     記録の切り出し（clip）は、記録の仕組みで台本どおりに作る。資料の黄色い目印は、最初の問いの解説に出す。
      各問いの a[0] が正解（表示するときに並べ替える）。 */
   function hqNight(k, tweak) { var r = HQP[k].make(); if (tweak) tweak(r); return r; }
   var CASES = [
@@ -1506,7 +1741,7 @@ h1{font-family:var(--f-display);font-weight:400;margin:0;font-size:clamp(2.1rem,
           why: '睡眠不足・発熱・ストレス・騒音は、きっかけになります。けがを防ぐ工夫が第一です。無理に起こすと混乱して暴れることがあります。けがの危険が高い、回数が多いときは、薬（ベンゾジアゼピン系など）を考えることもあります。' }
       ] }
   ];
-  var CS = { ci: null, picks: {}, opt: {}, r: null, clip: null };
+  var CS = { ci: null, qi: 0, picks: {}, opened: {}, opt: {}, r: null, clip: null };
   var CS_KEY = 'psg-cases-v1', CSDONE = {}; try { CSDONE = JSON.parse(lsGet(CS_KEY) || '{}') || {}; } catch (e) { CSDONE = {}; }
   function walkNight() {
     var r = HQP.healthy.make(), a = r.a, i = a.indexOf('N3'); if (i < 0) i = 60;
@@ -1533,49 +1768,93 @@ h1{font-family:var(--f-display);font-weight:400;margin:0;font-size:clamp(2.1rem,
     CS.ci = i; var c = CASES[i];
     CS.r = c.hyp ? (c.hyp === 'walk' ? walkNight() : HQP[c.hyp].make()) : null;
     CS.clip = c.clip ? csClip(c.clip) : null;
-    if (!CS.picks[c.id]) { CS.picks[c.id] = []; CS.opt[c.id] = c.qs.map(function (q) { return q.a.map(function (_, k) { return k; }).sort(function () { return rnd() - 0.5; }); }); }
-    csRender(); var b = document.getElementById('csBody'); if (b) b.scrollIntoView({ block: 'start', behavior: 'smooth' });
+    if (!CS.picks[c.id]) {
+      CS.picks[c.id] = []; CS.opened[c.id] = [];
+      CS.opt[c.id] = c.qs.map(function (q) { return q.a.map(function (_, k) { return k; }).sort(function () { return rnd() - 0.5; }); });
+    }
+    CS.qi = Math.min(CS.picks[c.id].length, c.qs.length - 1);
+    csRender(true);
+    if (!root.classList.contains('is-max')) document.getElementById('csBody').scrollIntoView({ block: 'start' });
+    csFocus();
   }
-  function csRender() {
-    document.getElementById('csList').innerHTML = CASES.map(function (c, i) { var d = CSDONE[c.id]; return '<li><button type="button" class="cs-card" data-cs="' + i + '" aria-current="' + (CS.ci === i) + '"><b>' + esc(c.name) + '</b><small>' + esc(c.who) + '</small>' + (d != null ? '<span class="done">' + esc(c.cat) + '　' + d + ' / 3</span>' : '') + '</button></li>'; }).join('');
-    var body = document.getElementById('csBody'); body.hidden = CS.ci == null; if (CS.ci == null) return;
-    var c = CASES[CS.ci], pk = CS.picks[c.id], m = '';
-    m += '<div class="cs-vig"><b>' + esc(c.who) + '</b>　' + esc(c.vig) + '</div>';
-    if (CS.r) m += '<canvas class="cs-hyp" id="csHyp" role="img" aria-label="一晩の睡眠図"></canvas><p class="cs-cap">一晩の睡眠図（23:00 消灯〜6:30）と、呼吸・SpO2・脚・レム中の体動</p>';
-    if (CS.clip) m += '<canvas class="cs-clip" id="csClip" role="img" aria-label="記録の切り出し"></canvas><p class="cs-cap">' + esc(c.clipCap) + '</p>';
-    if (c.table) m += '<div style="overflow-x:auto">' + c.table + '</div><p class="cs-cap">' + esc(c.tableCap) + '</p>';
-    document.getElementById('csMat').innerHTML = m;
-    var h = '<h3>' + (pk.length >= c.qs.length ? esc(c.cat) : '症例 ' + (CS.ci + 1)) + '</h3>';
-    c.qs.forEach(function (q, qi) {
-      if (qi > pk.length) return;
-      var pick = pk[qi];
-      h += '<div class="cs-q"><h4>問' + (qi + 1) + '　' + esc(q.q) + '</h4><ol class="hq-opts">' + CS.opt[c.id][qi].map(function (ai, pos) {
+  function csRender(newCase) {
+    var list = document.getElementById('csList'), body = document.getElementById('csBody');
+    body.hidden = CS.ci == null; list.hidden = !body.hidden;
+    if (body.hidden) {
+      list.innerHTML = CASES.map(function (c, i) { return '<li><button type="button" class="cs-card" data-cs="' + i + '"><b>' + esc(c.name) + '</b><small>' + esc(c.who) + '</small>' + (CSDONE[c.id] != null ? '<span class="done">回答済み</span>' : '') + '</button></li>'; }).join('');
+      return;
+    }
+    var c = CASES[CS.ci], qi = CS.qi, q = c.qs[qi], pick = CS.picks[c.id][qi];
+    if (newCase) {
+      var m = '<div class="cs-vig"><b>' + esc(c.who) + '</b>　' + esc(c.vig) + '</div>';
+      if (CS.clip) m += '<canvas class="cs-clip" id="csClip" role="img" aria-label="記録の切り出し"></canvas><p class="cs-cap">' + esc(c.clipCap) + '</p>';
+      if (CS.r) m += '<canvas class="cs-hyp" id="csHyp" role="img" aria-label="一晩の睡眠図"></canvas><p class="cs-cap">一晩の睡眠図（23:00 消灯〜6:30）と、呼吸・SpO2・脚・レム中の体動</p>';
+      if (c.table) m += '<div style="overflow-x:auto">' + c.table + '</div><p class="cs-cap">' + esc(c.tableCap) + '</p>';
+      var material = document.getElementById('csMat');
+      material.innerHTML = m;
+      material.scrollTop = 0;
+    }
+    var h = '<p class="ev-no">症例 ' + (CS.ci + 1) + '　問 ' + (qi + 1) + ' / ' + c.qs.length + '</p><div class="cs-q"><h3>' + esc(q.q) + '</h3>';
+    if (pick != null) h += '<p class="cs-why"><b>' + (pick === 0 ? '正解。' : '正解は「' + esc(q.a[0]) + '」。') + '</b>' + esc(q.why) + '</p>';
+    if (pick != null || choicesVisible(CS.opened[c.id][qi])) {
+      h += '<ol class="hq-opts">' + CS.opt[c.id][qi].map(function (ai, pos) {
         var cls = '', tag = ''; if (pick != null) { if (ai === 0) { cls = ' right'; tag = '正解'; } else if (ai === pick) { cls = ' wrong'; tag = 'あなた'; } else cls = ' dim'; }
-        return '<li><button type="button" class="hq-opt' + cls + '" data-csa="' + qi + ':' + ai + '"' + (pick != null ? ' disabled' : '') + '><span class="k">' + (pos + 1) + '</span><span>' + esc(q.a[ai]) + '</span><span class="v">' + tag + '</span></button></li>';
+        return '<li><button type="button" class="hq-opt' + cls + '" data-csa="' + ai + '"' + (pick != null ? ' disabled' : '') + '><span class="k">' + (pos + 1) + '</span><span>' + esc(q.a[ai]) + '</span><span class="v">' + tag + '</span></button></li>';
       }).join('') + '</ol>';
-      if (pick != null) h += '<p class="cs-why"><b>' + (pick === 0 ? '正解。' : '正解は「' + esc(q.a[0]) + '」。') + '</b>' + esc(q.why) + '</p>';
-      h += '</div>';
-    });
-    if (pk.length >= c.qs.length) {
-      var ok = pk.filter(function (x) { return x === 0; }).length;
-      h += '<p class="verdict ' + (ok === 3 ? 'ok' : 'ng') + '">' + ok + ' / 3</p>' + (CS.ci + 1 < CASES.length ? '<div class="row-btn"><button type="button" class="btn" data-csn="1">次の症例へ ▶</button></div>' : '<p class="ev-rule">6症例おしまい。上の一覧から、もう一度選べます。</p>');
-    } else if (pk.length === 0) h += '<p class="ev-rule">資料の黄色い目印は、問1に答えると出ます。</p>';
-    document.getElementById('csEx').innerHTML = h;
+    } else h += revealButton();
+    var actions = '<button type="button" class="act" data-cs-list>症例一覧</button>';
+    if (qi > 0) actions += '<button type="button" class="act" data-cs-prev>前の問へ</button>';
+    if (pick != null) {
+      if (qi + 1 < c.qs.length) actions += '<button type="button" class="btn" data-cs-next>次の問へ ▶</button>';
+      else if (CS.ci + 1 < CASES.length) actions += '<button type="button" class="btn" data-csn>次の症例へ ▶</button>';
+      else h += '<p>最後の症例です。ほかの症例は一覧から選べます。</p>';
+    }
+    renderPanel(document.getElementById('csEx'), h + '</div>', actions);
   }
   function csDraw() {
-    if (CS.ci == null) return; var c = CASES[CS.ci], shown = (CS.picks[c.id] || []).length > 0;
+    if (CS.ci == null) return; var c = CASES[CS.ci], shown = CS.qi === 0 && CS.picks[c.id][0] != null;
     var hc = document.getElementById('csHyp'); if (hc && CS.r) hqDraw(hc, CS.r, true, shown);
     var cc = document.getElementById('csClip'); if (cc && CS.clip) drawTrace({ cv: cc, tEnd: CS.clip.t0 + CS.clip.win, win: CS.clip.win, grp: CS.clip.grp, marks: shown, label: '' });
   }
+  function csFocus() {
+    focusControl('#csEx :is([data-psg-reveal],[data-csa]:not(:disabled),[data-cs-next],[data-csn])');
+  }
+  function csReveal(c) {
+    CS.opened[c.id][CS.qi] = true;
+    csRender(); csFocus();
+  }
+  function csPick(c, ai) {
+    var qi = CS.qi, pk = CS.picks[c.id], q = c.qs[qi];
+    if (qi !== pk.length || !choicesVisible(CS.opened[c.id][qi]) || q.a[ai] == null) return;
+    pk[qi] = ai; lsSet('psg-tried', '1');
+    if (ai !== 0) recordMiss({
+      id: 'cases:' + c.id + ':' + qi, q: q.q, picked: q.a[ai], answer: q.a[0], why: q.why,
+      context: c.who + '　' + c.vig, options: CS.opt[c.id][qi].map(function (index) { return q.a[index]; })
+    });
+    if (pk.length === c.qs.length) {
+      var ok = pk.filter(function (x) { return x === 0; }).length;
+      if (CSDONE[c.id] == null || ok > CSDONE[c.id]) { CSDONE[c.id] = ok; lsSet(CS_KEY, JSON.stringify(CSDONE)); }
+    }
+    csRender(); csFocus();
+  }
   document.getElementById('cases').addEventListener('click', function (e) {
     var b = e.target.closest('button'); if (!b) return;
+    var c = CASES[CS.ci];
     if (b.hasAttribute('data-cs')) csOpen(+b.getAttribute('data-cs'));
-    else if (b.hasAttribute('data-csa')) {
-      var c = CASES[CS.ci], pk = CS.picks[c.id], v = b.getAttribute('data-csa').split(':'), qi = +v[0];
-      if (pk[qi] != null || qi !== pk.length) return; pk[qi] = +v[1]; lsSet('psg-tried', '1');
-      if (pk.length === c.qs.length) { var ok = pk.filter(function (x) { return x === 0; }).length; if (CSDONE[c.id] == null || ok > CSDONE[c.id]) { CSDONE[c.id] = ok; lsSet(CS_KEY, JSON.stringify(CSDONE)); } }
-      csRender();
-    } else if (b.hasAttribute('data-csn')) csOpen(CS.ci + 1);
+    else if (b.hasAttribute('data-psg-reveal')) csReveal(c);
+    else if (b.hasAttribute('data-csa')) csPick(c, +b.getAttribute('data-csa'));
+    else if (b.hasAttribute('data-cs-list')) {
+      var i = CS.ci; CS.ci = null; csRender(); focusControl('[data-cs="' + i + '"]');
+    } else if (b.hasAttribute('data-cs-prev')) { CS.qi--; csRender(); csFocus(); }
+    else if (b.hasAttribute('data-cs-next')) { CS.qi++; csRender(); csFocus(); }
+    else if (b.hasAttribute('data-csn')) csOpen(CS.ci + 1);
+  });
+  document.addEventListener('keydown', function (e) {
+    if (!keyboardQuiz(e, 'cases') || CS.ci == null) return;
+    var c = CASES[CS.ci], qi = CS.qi, shown = choicesVisible(CS.opened[c.id][qi]);
+    if (CS.picks[c.id][qi] != null) return;
+    if (shown && /^[1-4]$/.test(e.key)) { e.preventDefault(); csPick(c, CS.opt[c.id][qi][+e.key - 1]); }
+    else if (!shown && actionKey(e)) { e.preventDefault(); csReveal(c); }
   });
 
   /* ====================== 回す ====================== */
@@ -1693,15 +1972,7 @@ h1{font-family:var(--f-display);font-weight:400;margin:0;font-size:clamp(2.1rem,
     return b;
   }
 
-  var eyebrow = document.querySelector('#home .eyebrow');
-  if(eyebrow){
-    var row = document.createElement('div');
-    row.className = 'sl-top-row';
-    eyebrow.parentNode.insertBefore(row, eyebrow);
-    row.appendChild(eyebrow);
-    row.appendChild(makeThemeBtn());
-  }
-  document.querySelectorAll('.appbar').forEach(function(bar){
+  document.querySelectorAll('.appbar, .sl-top-row').forEach(function(bar){
     bar.appendChild(makeThemeBtn());
   });
   if(window.matchMedia){
