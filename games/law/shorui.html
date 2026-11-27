@@ -6,7 +6,7 @@
 <meta name="robots" content="noindex, nofollow">
 <!-- アクセス数（GoatCounter、Cookie なし・個人を特定しない。2026-11-23 利用者の依頼） -->
 <script data-goatcounter="https://psychogames.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
-<meta name="app-version" content="20261125152428">
+<meta name="app-version" content="20261127203041">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
@@ -182,7 +182,23 @@ h1{
 .opt.wrong{border-color:var(--seal); background:var(--seal-soft)}
 .opt.wrong .v{color:var(--seal)}
 .opt.dim{opacity:.62}
-.why{border-left:3px solid var(--accent); padding:4px 0 4px 12px; font-size:var(--fs-s); max-width:44em}
+.why{border-left:3px solid var(--line); padding:4px 0 4px 12px; font-size:var(--fs-s); max-width:44em; margin-top:6px}
+/* 回答後：判定・要点・くわしく（2026-11-27） */
+.verdict{display:flex; flex-wrap:wrap; align-items:baseline; gap:4px 12px; padding:8px 12px; border-radius:var(--r); font-weight:700}
+.verdict.ok{background:var(--ok-soft); color:var(--ok)}
+.verdict.ng{background:var(--seal-soft); color:var(--seal)}
+.vd-mark{font-family:var(--f-display); font-weight:400; font-size:var(--fs-xl); letter-spacing:.06em}
+.vd-ans{color:var(--ink); font-size:var(--fs-s)}
+.point{font-weight:700; line-height:1.65; padding-left:12px; border-left:4px solid var(--accent); max-width:40em}
+/* 答え終わって次の問いへ進んだら、選ばなかった選択肢はたたむ（正解とあなたの答えだけ残す） */
+.q:not(.cq-active) .opts li:has(.opt.dim){display:none}
+details.more{font-size:var(--fs-s)}
+details.more > summary{cursor:pointer; min-height:44px; display:flex; align-items:center; gap:6px; color:var(--accent); font-weight:700; width:fit-content}
+details.more > summary::marker{content:''}
+details.more > summary::before{content:'＋'; display:inline-grid; place-items:center; width:22px; height:22px; border:1.5px solid var(--accent); border-radius:50%; font-size:.8rem}
+details.more[open] > summary::before{content:'－'}
+@media (prefers-reduced-motion: no-preference){ .verdict{animation:vdpop .32s cubic-bezier(.2,1.4,.4,1)} }
+@keyframes vdpop{from{transform:scale(.92); opacity:0} to{transform:none; opacity:1}}
 .why b{font-weight:700}
 .why .law{display:block; margin-top:4px; font-size:var(--fs-xs); color:var(--muted)}
 .done-q{font-size:var(--fs-s); color:var(--muted); display:flex; gap:8px; align-items:baseline}
@@ -324,7 +340,7 @@ tbody th{white-space:nowrap}
 tbody tr:last-child th, tbody tr:last-child td{border-bottom:0}
 .foot{margin-top:28px; font-size:var(--fs-xs); color:var(--muted); max-width:52em}
 
-/* 書類の締め切り：A の部屋「入院のカレンダー」＋期限のものさし＋役割と提出先図＋全画面モード（Gemini 担当） */
+/* 書類の締め切り：入口カード＋Aの部屋「入院のカレンダー」＋期限のものさし＋役割と提出先図＋全画面モード（Gemini 担当） */
 :root{
   --sv-bg:#f3f6fb;
   --sv-card:#ffffff;
@@ -397,9 +413,113 @@ tbody tr:last-child th, tbody tr:last-child td{border-bottom:0}
   .sv-max-btn,.sv-gate-pref{padding:0 9px;font-size:.72rem}
 }
 
+/* ================= 最初の画面で遊びたくなる入口カード（2026-11-27 短く・楽しく） ================= */
+.sv-intro-card{
+  background:var(--panel);border:2px solid var(--accent);border-radius:12px;
+  padding:14px 16px;display:grid;grid-template-columns:1.25fr 1fr;gap:14px;align-items:center;
+  box-shadow:0 4px 16px color-mix(in srgb, var(--accent) 12%, transparent);
+}
+@media (max-width:680px){
+  .sv-intro-card{grid-template-columns:1fr;padding:12px}
+}
+.sv-intro-main{display:grid;gap:10px;min-width:0}
+.sv-intro-badges{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.sv-intro-pill{
+  display:inline-flex;align-items:center;gap:4px;padding:3px 10px;border-radius:999px;
+  font-size:.76rem;font-weight:700;background:var(--accent-soft);color:var(--accent);
+  border:1px solid color-mix(in srgb, var(--accent) 45%, var(--line));
+}
+.sv-intro-pill.time{background:var(--sv-gold-soft);color:var(--sv-gold);border-color:var(--sv-gold)}
+.sv-intro-copy{
+  margin:0;font-size:.96rem;font-weight:700;line-height:1.5;color:var(--ink);
+  display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;
+}
+.sv-intro-actions{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.sv-start-btn{
+  min-height:48px;padding:8px 18px;border-radius:999px;border:0;
+  background:var(--accent);color:var(--accent-ink);font:inherit;font-size:.95rem;font-weight:700;
+  cursor:pointer;display:inline-flex;align-items:center;justify-content:center;gap:8px;
+  touch-action:manipulation;box-shadow:0 3px 10px color-mix(in srgb, var(--accent) 30%, transparent);
+  transition:transform .12s,filter .15s;
+}
+.sv-start-btn:hover{filter:brightness(1.08)}
+.sv-start-btn:active{transform:scale(.97)}
+.sv-sub-start-btn{
+  min-height:46px;padding:6px 14px;border-radius:999px;border:1.5px solid var(--accent);
+  background:var(--paper);color:var(--accent);font:inherit;font-size:var(--fs-xs);font-weight:700;
+  cursor:pointer;display:inline-flex;align-items:center;justify-content:center;gap:6px;
+  touch-action:manipulation;transition:background .15s,transform .12s;
+}
+.sv-sub-start-btn:hover{background:var(--accent-soft)}
+.sv-sub-start-btn:active{transform:scale(.97)}
+.sv-intro-art{
+  position:relative;border-radius:10px;overflow:hidden;border:1.5px solid var(--line);
+  background:var(--sv-cal-bg);
+}
+.sv-intro-art .sv-illust-box,
+.sv-intro-art .sv-illust-box.has-img,
+.sv-intro-art .sv-illust-box img{max-height:168px}
+.sv-intro-art-tag{
+  position:absolute;left:8px;bottom:8px;padding:2px 9px;border-radius:999px;
+  background:color-mix(in srgb, var(--panel) 90%, transparent);color:var(--ink);
+  border:1px solid var(--line);font-size:.72rem;font-weight:700;
+}
+
+/* 遊び方折りたたみ */
+details.sv-howto{
+  background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:0 12px;
+  font-size:var(--fs-xs);color:var(--muted);
+}
+details.sv-howto > summary{
+  min-height:44px;cursor:pointer;display:flex;align-items:center;gap:6px;
+  font-weight:700;color:var(--accent);list-style:none;
+}
+details.sv-howto > summary::-webkit-details-marker{display:none}
+details.sv-howto > summary::before{
+  content:'＋';display:inline-grid;place-items:center;width:20px;height:20px;
+  border:1.5px solid var(--accent);border-radius:50%;font-size:.75rem;flex:none;
+}
+details.sv-howto[open] > summary::before{content:'－'}
+.sv-howto-body{
+  padding:4px 0 12px;border-top:1px dashed var(--line);display:grid;gap:6px;line-height:1.55;
+}
+.sv-howto-list{margin:0;padding-left:1.3em;display:grid;gap:3px;color:var(--ink)}
+
+/* 数字・単位の強調バッジ（2026-11-27 短く・楽しく） */
+.sv-big-num{
+  display:inline-flex;align-items:baseline;gap:3px;padding:2px 9px;border-radius:6px;
+  font-family:var(--f-display);font-size:1.08rem;font-weight:700;line-height:1.25;
+  background:var(--accent-soft);color:var(--accent);border:1.5px solid var(--accent);
+  font-variant-numeric:tabular-nums;white-space:nowrap;
+}
+.sv-big-num.warn{background:var(--seal-soft);color:var(--seal);border-color:var(--seal)}
+.sv-big-num.ok{background:var(--ok-soft);color:var(--ok);border-color:var(--ok)}
+.sv-big-num.gold{background:var(--sv-gold-soft);color:var(--sv-gold);border-color:var(--sv-gold)}
+
+/* 枠内の2行制限と「くわしく」折りたたみ */
+.sv-2line{
+  display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;
+  line-height:1.4;
+}
+details.sv-more{font-size:.74rem;color:var(--muted);margin-top:2px}
+details.sv-more > summary{
+  min-height:44px;cursor:pointer;display:inline-flex;align-items:center;gap:5px;
+  color:var(--accent);font-weight:700;list-style:none;padding:2px 6px;border-radius:6px;
+}
+details.sv-more > summary::-webkit-details-marker{display:none}
+details.sv-more > summary::before{
+  content:'＋';display:inline-grid;place-items:center;width:18px;height:18px;
+  border:1.5px solid var(--accent);border-radius:50%;font-size:.7rem;flex:none;
+}
+details.sv-more[open] > summary::before{content:'－'}
+.sv-more-body{
+  padding:6px 8px;margin-top:2px;border-radius:6px;background:var(--paper);
+  border:1px dashed var(--line);line-height:1.48;color:var(--ink);display:grid;gap:4px;
+}
+
 /* ================= A の部屋：入院のカレンダー ================= */
 .sv-room-a{
-  margin-top:20px;background:var(--panel);border:2px solid var(--line);
+  margin-top:18px;background:var(--panel);border:2px solid var(--line);
   border-radius:10px;overflow:hidden;
   box-shadow:0 3px 14px color-mix(in srgb, var(--ink) 8%, transparent);
 }
@@ -410,13 +530,13 @@ tbody tr:last-child th, tbody tr:last-child td{border-bottom:0}
 .sv-room-title-wrap{flex:1;min-width:220px;display:grid;gap:2px}
 .sv-room-title{
   display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin:0;
-  font-family:var(--f-display);font-weight:400;font-size:1.15rem;line-height:1.3;color:var(--ink);
+  font-family:var(--f-display);font-weight:400;font-size:1.12rem;line-height:1.3;color:var(--ink);
 }
 .sv-room-badge{
   font-family:var(--f-body);font-size:.72rem;font-weight:700;padding:2px 9px;border-radius:999px;
   background:var(--accent);color:var(--accent-ink);white-space:nowrap;letter-spacing:.04em;
 }
-.sv-room-sub{font-size:var(--fs-xs);color:var(--muted);line-height:1.45}
+.sv-room-sub{font-size:var(--fs-xs);color:var(--muted);line-height:1.4}
 .sv-room-toggle{
   min-height:44px;padding:0 14px;border-radius:8px;border:1.5px solid var(--line);
   background:var(--panel);color:var(--ink);font:inherit;font-size:var(--fs-xs);font-weight:700;
@@ -424,7 +544,7 @@ tbody tr:last-child th, tbody tr:last-child td{border-bottom:0}
 }
 .sv-room-toggle:hover{border-color:var(--accent)}
 
-.sv-room-body{padding:14px;display:grid;gap:14px}
+.sv-room-body{padding:12px 14px;display:grid;gap:12px}
 .sv-room-body[hidden]{display:none!important}
 
 /* 3モード切替タブ */
@@ -463,13 +583,13 @@ tbody tr:last-child th, tbody tr:last-child td{border-bottom:0}
   border-color:var(--accent);background:var(--accent-soft);color:var(--accent);
   box-shadow:inset 0 0 0 1px var(--accent);
 }
-.sv-course-btn small{font-size:.7rem;font-weight:400;color:var(--muted);line-height:1.2}
+.sv-course-btn small{font-size:.7rem;font-weight:700;color:var(--muted);line-height:1.2}
 .sv-course-btn[aria-pressed="true"] small{color:var(--ink)}
 
-/* カレンダー帯（出来事ステップ＆SVGカレンダー表示） */
+/* カレンダー帯（出来事ステップ） */
 .sv-cal-panel{
   background:var(--sv-bg);border:1.5px solid var(--line);border-radius:9px;
-  padding:10px 12px;display:grid;gap:10px;
+  padding:8px 10px;display:grid;gap:8px;
 }
 .sv-cal-top{
   display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap;
@@ -482,17 +602,17 @@ tbody tr:last-child th, tbody tr:last-child td{border-bottom:0}
   background:var(--accent);color:var(--accent-ink);font-size:.72rem;font-weight:700;
 }
 .sv-cal-score{
-  font-family:var(--f-display);font-size:var(--fs-s);color:var(--accent);font-variant-numeric:tabular-nums;
+  font-family:var(--f-display);font-size:1rem;color:var(--accent);font-variant-numeric:tabular-nums;
 }
 
-/* カレンダーのステップマス */
+/* カレンダーのステップマス（2行以内） */
 .sv-cal-grid{
-  display:grid;grid-template-columns:repeat(auto-fit,minmax(125px,1fr));gap:6px;
+  display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:6px;
 }
 .sv-cal-cell{
-  min-height:60px;padding:7px 9px;border-radius:8px;border:1.5px solid var(--line);
+  min-height:52px;padding:6px 9px;border-radius:8px;border:1.5px solid var(--line);
   background:var(--panel);color:var(--ink);font:inherit;text-align:left;cursor:pointer;
-  display:grid;gap:3px;align-content:space-between;position:relative;touch-action:manipulation;
+  display:grid;gap:2px;align-content:center;position:relative;touch-action:manipulation;
   transition:border-color .15s,background .15s,transform .1s;
 }
 .sv-cal-cell:hover{border-color:var(--accent)}
@@ -500,20 +620,15 @@ tbody tr:last-child th, tbody tr:last-child td{border-bottom:0}
   border-color:var(--accent);border-width:2px;
   box-shadow:0 2px 8px color-mix(in srgb, var(--accent) 22%, transparent);
 }
-.sv-cal-cell.is-done{
-  border-color:var(--ok);background:var(--sv-cal-done);
-}
+.sv-cal-cell.is-done{border-color:var(--ok);background:var(--sv-cal-done)}
 .sv-cal-cell.is-warn{
   border-color:var(--seal);background:var(--sv-cal-warn);
-  animation:svShake .32s ease-in-out;
+  animation:svShake .26s ease-in-out;
 }
 @keyframes svShake{
   0%,100%{transform:translateX(0)}
   25%{transform:translateX(-3px)}
   75%{transform:translateX(3px)}
-}
-@media (prefers-reduced-motion: reduce){
-  .sv-cal-cell.is-warn{animation:none}
 }
 .sv-cal-day{
   font-family:var(--f-display);font-size:.76rem;color:var(--lamp);
@@ -521,25 +636,28 @@ tbody tr:last-child th, tbody tr:last-child td{border-bottom:0}
 }
 .sv-cal-cell.is-done .sv-cal-day{color:var(--ok)}
 .sv-cal-cell.is-warn .sv-cal-day{color:var(--seal);font-weight:700}
-.sv-cal-ev{font-size:.78rem;font-weight:700;line-height:1.3}
-.sv-cal-st{font-size:.68rem;color:var(--muted)}
-.sv-cal-cell.is-done .sv-cal-st{color:var(--ok);font-weight:700}
-.sv-cal-cell.is-warn .sv-cal-st{color:var(--seal);font-weight:700}
+.sv-cal-ev{
+  font-size:.78rem;font-weight:700;line-height:1.3;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+}
 
 /* 現在の出来事ヘッダー＆操作ボタン群 */
 .sv-stage-bar{
-  display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;
-  padding:10px 12px;border-radius:8px;background:var(--panel);border:1px solid var(--line);
+  display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap;
+  padding:8px 12px;border-radius:8px;background:var(--panel);border:1px solid var(--line);
 }
-.sv-stage-info{flex:1;min-width:220px;display:grid;gap:3px}
+.sv-stage-info{flex:1;min-width:200px;display:grid;gap:2px}
 .sv-stage-h{
-  margin:0;font-family:var(--f-display);font-weight:400;font-size:1.05rem;color:var(--ink);
+  margin:0;font-family:var(--f-display);font-weight:400;font-size:1rem;color:var(--ink);
   display:flex;align-items:center;gap:8px;flex-wrap:wrap;
 }
-.sv-stage-desc{font-size:var(--fs-xs);color:var(--muted);line-height:1.5}
+.sv-stage-desc{
+  font-size:var(--fs-xs);color:var(--muted);line-height:1.4;
+  display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;
+}
 .sv-stage-actions{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
 .sv-act-btn{
-  min-height:44px;padding:6px 12px;border-radius:8px;border:1.5px solid var(--line);
+  min-height:44px;padding:6px 11px;border-radius:8px;border:1.5px solid var(--line);
   background:var(--paper);color:var(--ink);font:inherit;font-size:var(--fs-xs);font-weight:700;
   cursor:pointer;touch-action:manipulation;white-space:nowrap;transition:border-color .15s,background .15s;
 }
@@ -548,22 +666,19 @@ tbody tr:last-child th, tbody tr:last-child td{border-bottom:0}
 .sv-act-btn.warn-btn[aria-pressed="true"]{background:var(--seal);color:#fff}
 .sv-act-btn.ok-btn{border-color:var(--ok);color:var(--ok);background:var(--ok-soft)}
 
-/* 落ちてくる書類カード群 */
+/* 落ちてくる書類カード群（2行以内・手応え0.26s） */
 .sv-cards{
-  display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:12px;
+  display:grid;grid-template-columns:repeat(auto-fit,minmax(275px,1fr));gap:10px;
 }
 .sv-doc-card{
   background:var(--sv-card);border:1.5px solid var(--line);border-radius:9px;
-  padding:12px;display:grid;gap:10px;align-content:start;position:relative;
+  padding:10px 12px;display:grid;gap:8px;align-content:start;position:relative;
   box-shadow:0 2px 6px color-mix(in srgb, var(--ink) 5%, transparent);
-  animation:svDrop .32s cubic-bezier(.2,1.2,.4,1) both;
+  animation:svDrop .24s cubic-bezier(.2,1.2,.4,1) both;
 }
 @keyframes svDrop{
-  from{opacity:0;transform:translateY(-10px)}
+  from{opacity:0;transform:translateY(-6px)}
   to{opacity:1;transform:none}
-}
-@media (prefers-reduced-motion: reduce){
-  .sv-doc-card{animation:none}
 }
 .sv-doc-card.is-ok{
   border-color:var(--ok);background:color-mix(in srgb, var(--ok) 5%, var(--sv-card));
@@ -573,8 +688,8 @@ tbody tr:last-child th, tbody tr:last-child td{border-bottom:0}
 }
 
 .sv-doc-head{
-  display:flex;align-items:flex-start;justify-content:space-between;gap:8px;
-  border-bottom:1px dashed var(--line);padding-bottom:8px;
+  display:flex;align-items:center;justify-content:space-between;gap:8px;
+  border-bottom:1px dashed var(--line);padding-bottom:6px;
 }
 .sv-doc-title-wrap{display:grid;gap:3px;min-width:0}
 .sv-doc-badges{display:flex;align-items:center;gap:5px;flex-wrap:wrap}
@@ -587,7 +702,7 @@ tbody tr:last-child th, tbody tr:last-child td{border-bottom:0}
   background:var(--sv-blue-soft);color:var(--sv-blue);
 }
 .sv-doc-title{
-  margin:0;font-size:.96rem;font-weight:700;line-height:1.35;color:var(--ink);
+  margin:0;font-size:.92rem;font-weight:700;line-height:1.3;color:var(--ink);
 }
 .sv-doc-stamp{
   flex:none;width:44px;height:44px;border-radius:50%;border:2px dashed var(--line);
@@ -597,17 +712,26 @@ tbody tr:last-child th, tbody tr:last-child td{border-bottom:0}
 .sv-doc-card.is-ok .sv-doc-stamp{
   border:2.5px solid var(--ok);color:var(--ok);font-weight:700;transform:rotate(-10deg);
   background:var(--ok-soft);
+  animation:svStampPop .26s cubic-bezier(.2,1.4,.4,1) both;
 }
 .sv-doc-card.is-ng .sv-doc-stamp{
   border:2.5px solid var(--seal);color:var(--seal);font-weight:700;
   background:var(--seal-soft);
+  animation:svStampPop .24s cubic-bezier(.2,1.3,.4,1) both;
 }
-.sv-doc-prompt{font-size:var(--fs-xs);color:var(--muted);line-height:1.45}
+@keyframes svStampPop{
+  from{transform:scale(1.45) rotate(4deg);opacity:.3}
+  to{transform:scale(1) rotate(-10deg);opacity:1}
+}
+.sv-doc-prompt{
+  font-size:var(--fs-xs);color:var(--muted);line-height:1.38;
+  display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;
+}
 
 /* カード内のスロット選択（誰が書く・するか ／ いつ［期限］） */
-.sv-slot-group{display:grid;gap:5px}
+.sv-slot-group{display:grid;gap:4px}
 .sv-slot-lbl{
-  font-size:.75rem;font-weight:700;color:var(--ink);
+  font-size:.74rem;font-weight:700;color:var(--ink);
   display:flex;align-items:center;justify-content:space-between;gap:6px;
 }
 .sv-slot-lbl span.st-ok{color:var(--ok)}
@@ -616,23 +740,33 @@ tbody tr:last-child th, tbody tr:last-child td{border-bottom:0}
   display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:5px;
 }
 .sv-chip{
-  min-height:44px;padding:5px 8px;border-radius:7px;border:1px solid var(--line);
-  background:var(--paper);color:var(--ink);font:inherit;font-size:.76rem;line-height:1.3;
+  min-height:44px;padding:4px 8px;border-radius:7px;border:1px solid var(--line);
+  background:var(--paper);color:var(--ink);font:inherit;font-size:.75rem;line-height:1.28;
   text-align:left;cursor:pointer;touch-action:manipulation;
   display:flex;align-items:center;justify-content:space-between;gap:4px;
   transition:border-color .12s,background .12s;
 }
+.sv-chip > span:first-child{
+  display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;
+}
 .sv-chip:hover{border-color:var(--accent)}
 .sv-chip[aria-pressed="true"].is-right{
   border-color:var(--ok);border-width:1.5px;background:var(--ok-soft);color:var(--ok);font-weight:700;
+  animation:svChipPop .22s cubic-bezier(.2,1.35,.4,1);
 }
 .sv-chip[aria-pressed="true"].is-wrong{
   border-color:var(--seal);border-width:1.5px;background:var(--seal-soft);color:var(--seal);font-weight:700;
+  animation:svShake .24s ease-in-out;
+}
+@keyframes svChipPop{
+  0%{transform:scale(.95)}
+  60%{transform:scale(1.03)}
+  100%{transform:scale(1)}
 }
 
-/* 判定フィードバック（提出先・根拠・期限を過ぎると何が起きるか） */
+/* 判定フィードバック（要点2行以内＋大きな数字バッジ＋くわしく折りたたみ） */
 .sv-doc-fb{
-  padding:8px 10px;border-radius:7px;font-size:var(--fs-xs);line-height:1.5;
+  padding:7px 10px;border-radius:7px;font-size:var(--fs-xs);line-height:1.42;
   display:grid;gap:4px;
 }
 .sv-doc-fb.fb-ok{
@@ -641,13 +775,13 @@ tbody tr:last-child th, tbody tr:last-child td{border-bottom:0}
 .sv-doc-fb.fb-ng{
   background:var(--seal-soft);border-left:3.5px solid var(--seal);color:var(--ink);
 }
+.sv-fb-top{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.sv-fb-summary{
+  font-weight:700;line-height:1.38;
+  display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;
+}
 .sv-doc-fb b.ok-h{color:var(--ok)}
 .sv-doc-fb b.ng-h{color:var(--seal)}
-.sv-doc-meta{
-  display:flex;flex-wrap:wrap;gap:4px 12px;font-size:.72rem;color:var(--muted);
-  border-top:1px dashed var(--line);padding-top:4px;margin-top:2px;
-}
-.sv-doc-meta strong{color:var(--ink)}
 
 /* カレンダー下部ナビ（前の場面 / 次の場面） */
 .sv-stage-nav{
@@ -686,20 +820,19 @@ tbody tr:last-child th, tbody tr:last-child td{border-bottom:0}
   display:grid;gap:6px;align-content:start;
 }
 .sv-band-h{
-  margin:0;font-family:var(--f-display);font-size:.9rem;color:var(--accent);
+  margin:0;font-family:var(--f-display);font-size:.92rem;color:var(--accent);
   border-bottom:1.5px solid var(--line);padding-bottom:4px;
   display:flex;align-items:center;justify-content:space-between;
 }
 .sv-band-items{list-style:none;margin:0;padding:0;display:grid;gap:5px}
 .sv-band-item{
   padding:6px 8px;border-radius:6px;border:1px solid var(--line);background:var(--paper);
-  font-size:.76rem;line-height:1.4;display:grid;gap:2px;
+  font-size:.76rem;line-height:1.36;display:grid;gap:3px;
 }
 .sv-band-item.is-dim{opacity:.28}
 .sv-band-item.is-hi{border-color:var(--accent);background:var(--accent-soft)}
 .sv-band-item.is-abolished{border-style:dashed;border-color:var(--seal);background:var(--seal-soft)}
 .sv-band-item b{color:var(--ink)}
-.sv-band-item .bi-meta{font-size:.7rem;color:var(--muted)}
 
 /* ================= タブ3：誰が書く・誰に出す？（役割と提出先図） ================= */
 .sv-role-bar{
@@ -723,16 +856,16 @@ tbody tr:last-child th, tbody tr:last-child td{border-bottom:0}
 }
 .sv-role-card{
   padding:8px 10px;border-radius:7px;border:1px solid var(--line);background:var(--paper);
-  font-size:var(--fs-xs);line-height:1.45;display:grid;gap:3px;
+  font-size:var(--fs-xs);line-height:1.38;display:grid;gap:3px;
 }
 .sv-note-box{
   padding:8px 12px;border-radius:8px;background:var(--paper);border:1px dashed var(--line);
-  font-size:var(--fs-xs);color:var(--muted);line-height:1.5;
+  font-size:var(--fs-xs);color:var(--muted);line-height:1.45;
 }
 
 /* ================= 選択肢を最初は隠す（考えてから出す）＆ Bの部屋（症例の問い） ================= */
 .sv-room-b-head{
-  margin-top:26px;padding:10px 14px;border-radius:8px;
+  margin-top:24px;padding:10px 14px;border-radius:8px;
   background:var(--panel);border:1.5px solid var(--line);
   display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap;
 }
@@ -747,7 +880,7 @@ tbody tr:last-child th, tbody tr:last-child td{border-bottom:0}
 
 .sv-case-hero{
   background:var(--sv-bg);border:1.5px solid var(--line);border-radius:9px;
-  padding:10px 12px;display:grid;gap:8px;
+  padding:8px 10px;display:grid;gap:6px;
 }
 .sv-case-hero-top{
   display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap;
@@ -766,29 +899,66 @@ tbody tr:last-child th, tbody tr:last-child td{border-bottom:0}
 /* 挿絵（IMG["sr-case1"〜"sr-case8"] または未生成時の枠保持プレースホルダー） */
 .sv-illust{margin:0;display:grid;gap:4px}
 .sv-illust-box{
-  width:100%;aspect-ratio:16/9;max-height:220px;border-radius:8px;overflow:hidden;
+  width:100%;aspect-ratio:16/9;max-height:210px;border-radius:8px;overflow:hidden;
   border:1px solid var(--line);background:var(--sv-cal-bg);
   display:flex;flex-direction:column;align-items:center;justify-content:center;
   padding:10px;text-align:center;gap:4px;
 }
-.sv-illust-box.has-img{padding:0;aspect-ratio:auto;max-height:240px;background:var(--sv-cal-bg)}
-.sv-illust-box img{width:100%;height:auto;max-height:240px;object-fit:contain;display:block;margin:0 auto}
+.sv-illust-box.has-img{padding:0;aspect-ratio:auto;max-height:224px;background:var(--sv-cal-bg)}
+.sv-illust-box img{width:100%;height:auto;max-height:224px;object-fit:contain;display:block;margin:0 auto}
 .sv-illust-ph-tag{
   font-family:var(--f-display);font-size:.72rem;padding:2px 8px;border-radius:999px;
   background:var(--panel);color:var(--accent);border:1px solid var(--line);
 }
 .sv-illust-ph-alt{font-size:.74rem;color:var(--muted);line-height:1.4;max-width:34em}
-.sv-illust-cap{font-size:.72rem;color:var(--muted);line-height:1.35}
+.sv-illust-cap{
+  font-size:.74rem;color:var(--muted);line-height:1.35;
+  display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;
+}
 
-/* 24問の回答後解説図 */
+/* 回答した瞬間の手応え演出（0.3秒以内、reduced-motion対応） */
+.opt.right{animation:svAnsRight .25s cubic-bezier(.2,1.35,.4,1)}
+.opt.wrong{animation:svShake .25s ease-in-out}
+.verdict{
+  position:relative;overflow:hidden;
+  animation:svVerdictStamp .25s cubic-bezier(.2,1.4,.4,1) both!important;
+}
+.verdict::after{
+  content:'適法・確認済';margin-left:auto;padding:1px 8px;border-radius:999px;
+  font-family:var(--f-display);font-size:.74rem;border:1.5px solid currentColor;
+  transform:rotate(-4deg);
+}
+.verdict.ng::after{content:'期限・担当を再確認'}
+.point{animation:svPointSlide .24s ease-out both}
+@keyframes svAnsRight{
+  0%{transform:scale(.97)}
+  60%{transform:scale(1.015)}
+  100%{transform:scale(1)}
+}
+@keyframes svVerdictStamp{
+  from{transform:scale(.94) translateY(-3px);opacity:0}
+  to{transform:none;opacity:1}
+}
+@keyframes svPointSlide{
+  from{opacity:0;transform:translateX(-5px)}
+  to{opacity:1;transform:none}
+}
+@media (prefers-reduced-motion: reduce){
+  .sv-cal-cell.is-warn,.sv-doc-card,.sv-doc-card.is-ok .sv-doc-stamp,.sv-doc-card.is-ng .sv-doc-stamp,
+  .sv-chip[aria-pressed="true"].is-right,.sv-chip[aria-pressed="true"].is-wrong,
+  .opt.right,.opt.wrong,.verdict,.point{animation:none!important}
+}
+
+/* 24問の回答後解説図（数字バッジ＋2行以内キャプション） */
 .sv-qvis{
   margin-top:6px;background:var(--sv-bg);border:1.5px solid var(--line);
-  border-radius:8px;padding:10px 12px;display:grid;gap:6px;overflow:hidden;
+  border-radius:8px;padding:8px 11px;display:grid;gap:5px;overflow:hidden;
 }
 .sv-qvis-head{
   display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap;
   font-size:var(--fs-xs);font-weight:700;color:var(--accent);
 }
+.sv-qvis-kpis{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
 .sv-qvis-tag{
   display:inline-flex;align-items:center;padding:1px 8px;border-radius:999px;
   background:var(--accent-soft);color:var(--accent);border:1px solid var(--accent);
@@ -796,7 +966,10 @@ tbody tr:last-child th, tbody tr:last-child td{border-bottom:0}
 }
 .sv-qvis-svg{display:block;width:100%;height:auto;max-width:680px;margin:0 auto}
 .sv-qvis-svg text{font-family:var(--f-body);fill:var(--ink)}
-.sv-qvis-cap{font-size:var(--fs-xs);color:var(--muted);line-height:1.45}
+.sv-qvis-cap{
+  font-size:var(--fs-xs);color:var(--ink);font-weight:700;line-height:1.4;
+  display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;
+}
 
 /* 早見表の3区分バッジ（本人への書面 ／ 院内記録 ／ 院外への届出） */
 .sv-dest-legend{
@@ -838,6 +1011,8 @@ html.is-max .top .eyebrow,
 html.is-max .top h1,
 html.is-max .top .lead,
 html.is-max .top .rule,
+html.is-max .top .sv-intro-card,
+html.is-max .top .sv-howto,
 html.is-max .sv-room-b-head,
 html.is-max .board,
 html.is-max .hanko,
@@ -866,7 +1041,7 @@ html.is-max[data-sv-max-room="a"] .sv-room-body{
   overflow-y:auto;overscroll-behavior:contain;align-content:start;gap:8px;
 }
 html.is-max[data-sv-max-room="a"] .sv-cal-panel{padding:6px 10px;gap:6px}
-html.is-max[data-sv-max-room="a"] .sv-cal-cell{min-height:48px;padding:5px 7px}
+html.is-max[data-sv-max-room="a"] .sv-cal-cell{min-height:46px;padding:5px 7px}
 html.is-max[data-sv-max-room="a"] .sv-stage-bar{padding:6px 10px}
 html.is-max[data-sv-max-room="a"] .sv-doc-card{padding:8px 10px;gap:6px}
 
@@ -1008,7 +1183,7 @@ html.is-max[data-sv-max-room="b"] .result{
         <tbody>
           <tr><th scope="row">医療保護入院の告知</th><td>入院時。本人への告知は症状のため医療・保護に支障がある間に限り、入院から4週間を経過する日まで延期できる</td><td>管理者。延期した場合は告知しなかった事項、延期の理由、実際に告知した日を診療録に記載</td><td>本人と同意した家族等に書面で</td><td>精神保健福祉法 第33条の3／施行規則 第15条の18</td></tr>
           <tr><th scope="row">医療保護入院の届</th><td>医療保護入院から10日以内</td><td>管理者。同意書を添える</td><td>最寄りの保健所長を経て都道府県知事等</td><td>精神保健福祉法 第33条第9項／施行規則 第15条の16</td></tr>
-          <tr><th scope="row">入院診療計画書</th><td>入院後7日以内に文書で説明。入院前に外来で文書を渡し説明した場合も扱いは同じ</td><td>医師・看護師などが共同で作成。説明日と説明者を診療録に記載</td><td>本人（理解できない場合は家族等）。写しは診療録へ</td><td>基本診療料の施設基準の取扱い通知（令和8年3月5日 保医発0305第7号）別添2 第1の1</td></tr>
+          <tr><th scope="row">入院診療計画書</th><td>入院後7日以内に文書で説明。入院前に外来で文書を渡し説明した場合も扱いは同じ</td><td>医師・看護師などが共同で作成。説明日と説明者を診療録に記載</td><td>本人（理解できない場合は家族等）に交付。写しは診療録へ</td><td>基本診療料の施設基準の取扱い通知（令和8年3月5日 保医発0305第7号）別添2 第1の1</td></tr>
           <tr><th scope="row">退院後生活環境相談員の選任</th><td>医療保護入院または措置入院の措置を採った日から7日以内</td><td>管理者。精神保健福祉士や公認心理師など所定の資格を有する者から選ぶ</td><td>院内で選任。相談員が本人・家族等の相談に応じる</td><td>精神保健福祉法 第29条の6・第33条の4／施行規則 第15条の2・第15条の3</td></tr>
           <tr><th scope="row">応急入院の告知</th><td>応急入院を始める時</td><td>管理者。入院の旨と理由、退院等の請求に関することなどを知らせる</td><td>本人に書面で</td><td>精神保健福祉法 第33条の7（第29条第3項を準用）</td></tr>
           <tr><th scope="row">応急入院の届</th><td>応急入院を始めたら直ちに</td><td>管理者。応急入院を行った理由などを届ける</td><td>最寄りの保健所長を経て都道府県知事等</td><td>精神保健福祉法 第33条の6第5項／施行規則 第16条の3</td></tr>
@@ -1016,7 +1191,7 @@ html.is-max[data-sv-max-room="b"] .result{
           <tr><th scope="row">身体的拘束の記録</th><td>拘束のたびに。始めるには指定医の判断が必要</td><td>指定医が制限の内容・開始と解除の日時・制限を行ったときの症状を記載。拘束の事実と理由も記載</td><td>診療録。本人には理由を知らせるよう努める</td><td>精神保健福祉法 第36条第3項・第19条の4の2／施行規則 第4条の2第5号／昭和63年厚生省告示第129号・第130号 第四</td></tr>
           <tr><th scope="row">医療保護入院の期間を定める</th><td>入院時・更新時。入院から6か月を経過するまでは3か月、経過後は6か月の範囲内</td><td>管理者が期間を決める</td><td>院内で決定。入院時・更新時に書面で告知</td><td>精神保健福祉法 第33条第1項・第6項、第33条の3／施行規則 第15条の6</td></tr>
           <tr><th scope="row">医療保護入院者退院支援委員会</th><td>更新するなら期間満了前に審議。満了の1か月前から開催できる</td><td>管理者が開催。主治医、看護師または准看護師、退院後生活環境相談員などが参加</td><td>結果を本人と通知を受けて出席を希望した家族等に知らせる。開催日などの記録は5年間保存</td><td>施行規則 第15条の11〜第15条の13／令和5年11月27日 障発1127第1号</td></tr>
-          <tr><th scope="row">医療保護入院を更新するための通知・同意</th><td>原則として満了の1か月前から2週間前までに通知。みなし同意には、通知から2週間を経過した日が満了日前で、同日までに不同意がないことなどが必要</td><td>管理者が同意を求める。定期的な連絡が取れていない場合などは、みなし同意を使えない</td><td>入院時に同意した家族等（2回目以降は前回の更新に同意した家族等）に通知</td><td>精神保健福祉法 第33条第6項・第8項／施行規則 第15条の10・第15条の14・第15条の15</td></tr>
+          <tr><th scope="row">医療保護入院を更新するための通知・同意</th><td>原則として満了の1か月前から2週間前までに通知。みなし同意には、通知を出してから2週間が経つ日が満了日前で、同日までに不同意がないことなどが必要</td><td>管理者が同意を求める。定期的な連絡が取れていない場合などは、みなし同意を使えない</td><td>入院時に同意した家族等（2回目以降は前回の更新に同意した家族等）に通知</td><td>精神保健福祉法 第33条第6項・第8項／施行規則 第15条の10・第15条の14・第15条の15</td></tr>
           <tr><th scope="row">医療保護入院の更新の告知</th><td>更新時。本人への告知は症状のため医療・保護に支障がある間に限り、更新から4週間を経過する日まで延期できる</td><td>管理者。更新の旨と理由、退院等の請求に関することなどを知らせる。延期した場合は診療録に記載</td><td>本人と更新に同意した家族等に書面で</td><td>精神保健福祉法 第33条の3／施行規則 第15条の18</td></tr>
           <tr><th scope="row">医療保護入院の更新の届</th><td>更新後10日以内</td><td>管理者。同意書を添える。みなし同意の場合はその旨を示す</td><td>最寄りの保健所長を経て都道府県知事等</td><td>精神保健福祉法 第33条第9項／施行規則 第15条の16</td></tr>
           <tr><th scope="row">任意入院の時の書面</th><td>入院時</td><td>管理者が退院等の請求に関することなどを知らせる。本人が任意で入院する旨を記した書面を渡す</td><td>告知の書面は本人へ。本人の書面は管理者が受領</td><td>精神保健福祉法 第21条第1項</td></tr>
@@ -1027,7 +1202,7 @@ html.is-max[data-sv-max-room="b"] .result{
         </tbody>
       </table>
     </div>
-    <p class="foot">登場人物はすべて架空です。2024年4月施行の改正後の精神保健福祉法・施行規則に基づく、2026年11月時点の学習用の要約です。都道府県知事等は都道府県知事または指定都市の市長を指します。実務では最新の法令・通知と施設の手順を確認し、届の初日・休日の数え方や、様式・出し方は管轄の自治体に確認してください。<br><a href="https://www.mhlw.go.jp/web/t_doc?dataId=80126000&amp;dataType=0">精神保健福祉法</a> ・ <a href="https://www.mhlw.go.jp/web/t_doc?dataId=80128000&amp;dataType=0&amp;pageNo=1">施行規則</a> ・ <a href="https://www.mhlw.go.jp/content/001194706.pdf">2024年施行の通知</a> ・ <a href="https://www.mhlw.go.jp/content/001266765.pdf">更新の通知・回答期間</a> ・ <a href="https://www.mhlw.go.jp/web/t_doc?dataId=80135000&amp;dataType=0&amp;pageNo=1">告示第129号</a> ・ <a href="https://www.mhlw.go.jp/web/t_doc?dataId=80136000&amp;dataType=0&amp;pageNo=1">告示第130号</a> ・ <a href="https://www.mhlw.go.jp/content/12400000/001700250.pdf">基本診療料の施設基準の取扱い通知</a></p>
+    <p class="foot">登場人物はすべて架空です。2024年4月施行の改正後の精神保健福祉法・施行規則に基づく、2026年11月時点の学習用の要約です。都道府県知事等は都道府県知事または指定都市の市長を指します。実務では最新の法令・通知と施設の手順を確認し、届の初日・休日の数え方や、様式・出し方は管轄の自治体に確認してください。<br><a href="https://www.mhlw.go.jp/web/t_doc?dataId=80126000&amp;dataType=0">精神保健福祉法</a> ・ <a href="https://www.mhlw.go.jp/web/t_doc?dataId=80128000&amp;dataType=0&amp;pageNo=1">施行規則</a> ・ <a href="https://www.mhlw.go.jp/content/001194706.pdf">2024年施行の通知</a> ・ <a href="https://www.mhlw.go.jp/content/001266765.pdf">更新の通知・回答期間</a> ・ <a href="https://www.mhlw.go.jp/web/t_doc?dataId=80135000&amp;dataType=0&amp;pageNo=1">告示第129号</a> ・ <a href="https://www.mhlw.go.jp/web/t_doc?dataId=80136000&amp;dataType=0&amp;pageNo=1">告示第130号</a> ・ <a href="https://www.mhlw.go.jp/content/12400000/001757361.pdf">基本診療料の施設基準の取扱い通知</a></p>
   </section>
 </div>
 
@@ -1043,46 +1218,54 @@ var CASES = [
   {
     time: '金曜 21:00', where: '精神科救急外来', night: true,
     title: '金曜の夜に病棟へ', stamp: ['入院', '初日'], stampName: '医療保護入院の初日',
-    story: '32歳の男性。幻聴で眠れず、食事も取れなくなった。精神保健指定医（法律で定められた診察や判定を担う医師）が診察し、本人の同意による入院は難しいと判断した。家族等に当たる姉が書面で同意し、医療保護入院になった。本人は落ち着いて話を聞ける。',
-    memo: [['入院', '金曜21時に病棟へ'], ['同意書', '姉の署名あり'], ['本人', '「入院の理由を教えてください」']],
+    story: '32歳の男性。幻聴で眠れず食べられない。指定医が本人の同意による入院は難しいと判断し、姉の書面同意で医療保護入院となった。',
+    memo: [['入院', '金曜21時に病棟へ'], ['診察', '精神保健指定医（法律で定められた診察や判定を担う医師）が診察'], ['同意書', '家族等に当たる姉の署名あり'], ['本人', '落ち着いて「入院の理由を教えてください」']],
     vis: '金曜夜の病棟で本人が理由を尋ねる場面。時計と曜日、姉が書面に署名したことだけを示す。',
     qs: [
+      // 第33条の3の例外は本人の告知だけに適用されるため、原則と延期の条件を示す。
       { q: 'この入院の理由や退院を求める手続きは、誰が誰にどう知らせる？',
-        a: ['管理者が、本人と同意した姉に書面で知らせる', '主治医が、本人と同意した姉に口頭で知らせる', '管理者が、同意した姉だけに書面で知らせる', '指定医が、最寄りの保健所に書面で知らせる'],
-        why: '病院の管理者（通常は院長）が、入院時に本人と同意した家族等へ書面で知らせます。姉への交付や口頭説明だけでは足りず、保健所を経由するのは別の手続きである入院の届です。',
-        law: '精神保健福祉法 第33条の3',
+        a: ['管理者が本人と同意した姉に書面で通知', '主治医が本人と同意した姉に口頭で通知', '管理者が同意した姉だけに書面で通知', '指定医が最寄りの保健所に書面で通知'],
+        point: '管理者が本人と同意した姉に書面で知らせる。',
+        why: '病院の管理者（通常は院長）が、入院時に本人と同意した家族等へ書面で知らせます。姉だけへの交付や口頭説明では足りません。本人への告知は、症状のため医療・保護に支障がある間に限り入院から4週間を経過する日まで延期でき、その場合は診療録に記載しますが、落ち着いて理由を尋ねるこの本人に延期する理由は見当たりません。保健所を経由するのは入院の届です。',
+        law: '精神保健福祉法 第33条の3／施行規則 第15条の18',
         vis: '管理者から本人と姉へ書面が届く2本の矢印を、院外に出す入院届と色・ラベルで区別する。' },
       { q: '姉の同意書を添える入院の届は、誰がいつ出す？',
-        a: ['管理者が、医療保護入院から10日以内に届け出る', '指定医が、医療保護入院から7日以内に届け出る', '管理者が、次回の入院期間の更新と一緒に届け出る', '主治医が、患者への告知を終えた時点で届け出る'],
+        a: ['管理者が医療保護入院から10日以内に届け出る', '指定医が医療保護入院から7日以内に届け出る', '管理者が次回の入院期間の更新と一緒に届け出る', '主治医が本人への告知を終えた時点で届け出る'],
+        point: '管理者は入院から10日以内に同意書を添えて届ける。',
         why: '管理者が同意書を添え、入院から10日以内に最寄りの保健所長を経て都道府県知事等に届けます。指定医の診察記録、本人への告知、次回の更新は別の手続きです。初日と休日の扱いは勤務先の自治体に確かめます。',
         law: '精神保健福祉法 第33条第9項／施行規則 第15条の16',
         vis: '入院の時点から「10日以内」の帯を伸ばし、保健所から都道府県知事等へ進む矢印を重ねる。具体的な締切日は表示しない。' },
-      { q: '翌週、入院診療計画書の説明と退院後生活環境相談員の選任が未実施と分かった。どう進める？',
-        a: ['実際の入院日を確認し、チームで説明を進め、管理者に選任を依頼する', '入院届の控えを本人に渡し、相談員は退院日が決まってから選ぶ', '指定医に治療方針を書いてもらい、相談員は最初の回診で決める', '姉の同意書を診療録に添付し、計画の説明と相談員の選任を済ませる'],
-        why: '入院診療計画書は医師・看護師などが作り、入院後7日以内に原則として本人に文書で説明します。退院後の生活を相談できる担当者は、管理者が医療保護入院から7日以内に選任します。同意書や入院届の控えで代用せず、説明日と説明者は実際のとおり診療録に残します。',
+      // 入院診療計画書（施設基準）と相談員の選任（精神保健福祉法）は根拠が別。
+      { q: '翌週、入院診療計画書の交付・説明と退院後生活環境相談員の選任が未実施と分かった。どう進める？',
+        a: ['チームで計画書を交付・説明、管理者に選任依頼', '入院届の控えを渡し、退院日が決まってから選任', '指定医が方針を書き、最初の回診で相談員を選任', '姉の同意書を診療録に添え、説明・選任に代える'],
+        point: '計画書は入院後7日以内に交付・説明。相談員も7日以内に選任。',
+        why: '入院診療計画書は医師・看護師などが共同で作り、入院後7日以内に本人（理解できない場合は家族等）へ文書を交付して説明します。退院後の生活を相談できる担当者は、管理者が医療保護入院から7日以内に選任します。入院届の控えや同意書で代用せず、説明日と説明者は実際のとおり診療録に残します。',
         law: '保医発0305第7号 別添2 第1の1／精神保健福祉法 第33条の4・第29条の6／施行規則 第15条の3',
-        vis: '入院を起点に「文書で説明」と「相談員を選任」を2段に並べ、両方の7日以内の帯に担当者を添える。' }
+        vis: '入院を起点に「計画書を渡して説明」と「相談員を選任」を2段に並べ、両方の7日以内の帯に担当者を添える。' }
     ]
   },
   {
     time: '翌朝 8:30', where: '精神科救急病棟', night: false,
     title: '翌朝、家族と連絡がついた', stamp: ['応急', 'から'], stampName: '応急入院から医療保護入院へ',
-    story: '41歳の女性。急に混乱し、治療の話が通じず、昨夜は家族等から同意が得られなかった。指定された病院で指定医が診察し、応急入院となった。翌朝、指定医が改めて医療保護入院の要件を確認し、家族等に当たる母が同意した。管理者は今朝から医療保護入院とした。',
-    memo: [['昨夜', '応急入院を開始'], ['今朝', '指定医が再診察。母が書面で同意'], ['形態', '今朝から医療保護入院']],
+    story: '41歳の女性。急に混乱。昨夜は家族等の同意が得られず応急入院。翌朝、指定医が要件を確認し、母の同意で医療保護入院に切り替えた。',
+    memo: [['昨夜', '治療の話が通じず、指定された病院で指定医が診察し応急入院'], ['今朝', '指定医が再診察。家族等に当たる母が書面で同意'], ['形態', '管理者が今朝から医療保護入院とした']],
     vis: '昨夜の外来と今朝の病棟を並べ、連絡が取れた母が書面に署名する場面を描く。届出先や期限は伏せる。',
     qs: [
       { q: '昨夜の応急入院が始まった時点で、管理者が行う書面の手続きは？',
-        a: ['本人に書面で告知し、応急入院の届を直ちに出す', '家族の同意書を待ち、医療保護入院の届を後日出す', '本人に書面で告知し、72時間が過ぎてから届け出る', '院内で入院理由を記録し、退院が決まった時点で届け出る'],
+        a: ['本人に書面で告知し、応急入院を直ちに届ける', '家族の同意を待ち、後日医療保護入院を届ける', '本人に書面で告知し、72時間後に届ける', '院内に入院理由を記録し、退院決定後に届ける'],
+        point: '応急入院の開始時に本人に書面で告知し、直ちに届ける。',
         why: '応急入院を始めたときは、管理者が本人に理由などを書面で知らせ、最寄りの保健所長を経て都道府県知事等へ直ちに届けます。72時間は指定医の診察による応急入院の上限です。家族の同意を待つと、昨夜の届出を遅らせることになります。',
         law: '精神保健福祉法 第33条の6第1項・第5項、第33条の7',
         vis: '昨夜の開始時点から「本人に告知」と「直ちに届出」の2本を分け、入院の上限は別の帯で示す。' },
       { q: '今朝の医療保護入院について、同意書と入院の届はどう扱う？',
-        a: ['母の同意書を添え、管理者が今朝の入院から10日以内に届ける', '応急入院の届に母の同意書を足し、その書類を入院の届とする', '母の同意書は診療録に保管し、入院期間を更新したときに添える', '母の同意書を添え、指定医が今朝の診察から7日以内に届ける'],
+        a: ['管理者が今朝から10日以内に母の同意書を添え提出', '昨夜の応急入院届に母の同意書を足して兼用', '母の同意書は保管し、期間の更新時に添付', '指定医が今朝の診察から7日以内に同意書を添え提出'],
+        point: '管理者が今朝の入院から10日以内に母の同意書を添えて届ける。',
         why: '今朝の医療保護入院から10日以内に、管理者が母の同意書を添えて届け出ます。昨夜の応急入院届や将来の更新届と別です。母の同意を昨夜にさかのぼらせず、今朝の医療保護入院について本人と母に書面で知らせます。',
         law: '精神保健福祉法 第33条第1項・第9項、第33条の3',
         vis: '昨夜の応急入院と今朝の医療保護入院から、別々の届出カードを出す。母の同意書は今朝のカードにつなぐ。' },
       { q: '昨夜の応急入院届が未提出と分かった。実務上、まずどうする？',
-        a: ['管理者にすぐ共有し、実際の経過を整理して保健所に連絡する', '今朝の医療保護入院届を先に出し、昨夜の届は次の更新まで保留する', '昨夜の日付で提出済みと記録し、今日の届に同意書を添えて出す', '母が同意したことを診療録に追記し、昨夜は任意入院と扱う'],
+        a: ['管理者にすぐ共有し、経過を整理して保健所へ連絡', '今朝の医療保護入院を届け、昨夜の届は更新時まで保留', '昨夜の日付で提出済みと記録、今日の届に同意書添付', '母の同意を診療録に追記し、昨夜は任意入院と扱う'],
+        point: '管理者と事実を共有し、保健所に提出方法を確認する。',
         why: '応急入院の届は直ちに行う手続きです。遅れに気づいたら管理者に共有し、事実を示して保健所に提出方法を確認し、速やかに対応します。入院形態や提出日の記録を書き換えず、今朝の手続きと分けて扱います。',
         law: '精神保健福祉法 第33条の6第5項（届出義務）',
         vis: '「昨夜の開始」「今朝の未提出発見」「保健所へ連絡」の実際の順序を示す。' }
@@ -1091,22 +1274,26 @@ var CASES = [
   {
     time: '翌朝 8:00', where: '精神科病棟', night: false,
     title: '夜から続く隔離', stamp: ['隔離', '記録'], stampName: '隔離の開始と解除',
-    story: '28歳の男性。強い興奮が続き、医師が昨夜22時に隔離（本人が自由には出られない部屋で過ごすこと）を始めた。今朝8時、声かけには応じるが落ち着きがなく、担当医は隔離を続ける必要があるか見直している。昨夜の医師は指定医ではない。',
-    memo: [['開始', '昨夜22時'], ['引き継ぎ', '開始時は非指定医が診察'], ['現在', '朝8時。隔離中']],
+    // 告示第130号に沿い、興奮に加えて危険の程度と代わりの方法の検討を示す。
+    story: '28歳の男性。興奮が強く、他の患者に危険が及ぶおそれが著しく高いため、昨夜22時に医師が隔離を開始。今朝8時も落ち着かず、担当医が継続の必要性を見直している。',
+    memo: [['開始', '昨夜22時。指定医ではない医師が診察'], ['開始時の判断', '他の患者への危険が著しく高く、隔離以外の方法では回避が著しく困難'], ['隔離', '本人が自由には出られない部屋で過ごすこと'], ['現在', '朝8時。隔離中で声かけには応じる']],
     vis: '夜22時から朝8時までの経過と、朝の診察で本人が声かけに応じる様子を描く。時間の境界や担当者の答えは伏せる。',
     qs: [
       { q: '開始した医師が診療録に残し、解除したときに追記する内容は？',
-        a: ['隔離を行った旨と理由、開始・解除の日時', '病室の番号と担当看護師名、医師の巡回予定', '家族への連絡日時と返答、説明書の保管先', '本人の入院形態と入院日、今後の治療計画'],
+        a: ['隔離を行った旨と理由、開始・解除の日時', '病室番号、担当看護師名、医師の巡回予定', '家族への連絡日時と返答、説明書の保管先', '本人の入院形態と入院日、今後の治療計画'],
+        point: '隔離を行った事実と理由、開始・解除の日時を残す。',
         why: '隔離を行った事実・理由・開始と解除の日時を診療録に残し、本人には理由を知らせるよう努めます。部屋番号や家族への連絡、入院形態の記録だけでは、いつ何のために自由を制限したかを確認できません。',
         law: '昭和63年厚生省告示第130号 第三',
         vis: '診療録の例で「理由」「開始」「解除」に印を付け、記録の両端を時刻の線で結ぶ。' },
       { q: '診察の結果、12時間を超えて隔離を続ける必要がありそうだ。何を手配する？',
-        a: ['12時間を超える前に、指定医の診察と判断を手配する', '12時間を超えた後、指定医に継続の可否を相談する', '毎日の診察を続け、開始した医師の判断で翌朝まで延ばす', '本人に理由を伝え、家族の同意を得て夕方まで延ばす'],
+        a: ['12時間を超える前に指定医の診察と判断を手配', '12時間を超えた後で指定医に継続を相談', '毎日診察し、開始した医師の判断で翌朝まで継続', '本人に理由を伝え、家族の同意で夕方まで継続'],
+        point: '12時間を超えて続けるなら、超える前に指定医の判断が必要。',
         why: '12時間を超える隔離には指定医の判断が要ります。指定医は制限内容、開始・解除の日時、症状を診療録に残します。日々の診察や家族の同意は指定医の判断に代わらず、隔離が不要になれば解除します。',
         law: '精神保健福祉法 第36条第3項・第19条の4の2／施行規則 第4条の2第5号／昭和63年厚生省告示第129号・第130号 第三',
         vis: '昨夜22時から翌10時に12時間の目印を置き、超えて継続する場合の指定医の判断を手前に示す。' },
       { q: '昼前に解除したが、夕方、診療録に解除時刻がないと気づいた。どうする？',
-        a: ['当時の記録を照合し、実際の解除日時と追記日時を残す', '朝の診察時刻を解除日時と推定し、その時刻で記録する', '解除に気づいた夕方の時刻を、そのまま解除日時にする', '病棟の申し送りに解除の旨だけを残し、診療録はそのままにする'],
+        a: ['当時の記録を照合し、解除日時と追記日時を残す', '朝の診察時刻から推定した解除日時を記録', '夕方に気づいた時刻をそのまま解除日時にする', '解除は申し送りにだけ残し、診療録はそのまま'],
+        point: '当時の記録を確かめ、実際の解除日時と追記日時を残す。',
         why: '必要なのは実際に解除した日時です。当時の記録や担当者から確認できた事実を、追記した日時が分かる形で残します。朝の診察や夕方の発見を解除時刻として記載せず、申し送りは診療録の代わりにしません。',
         law: '昭和63年厚生省告示第130号 第三（解除日時の記録）',
         vis: '実際の解除と夕方の記載を別の印で示し、「行った時刻」と「書いた時刻」を見比べる。' }
@@ -1115,22 +1302,25 @@ var CASES = [
   {
     time: '13:30', where: '精神科病棟', night: false,
     title: '身体的拘束中の申し送り', stamp: ['拘束', '記録'], stampName: '身体的拘束と臨床的観察',
-    story: '55歳の女性。混乱が強く、見守りと声かけを続けても重いけがにつながる動作が止まらない。指定医が診察し、身体的拘束（帯などで一時的に身体の動きを制限すること）を始めた。午後の申し送りで、看護師が「さっきより落ち着いてきた」と伝えた。',
-    memo: [['開始', '指定医が診察して開始'], ['観察', '看護師が状態を引き継ぐ'], ['変化', '午後は呼びかけに応じる']],
+    story: '55歳の女性。混乱が強く、見守りや声かけでも重いけがにつながる動作が止まらず、指定医が身体的拘束を開始。午後は落ち着いてきた。',
+    memo: [['開始', '指定医が診察して開始'], ['身体的拘束', '帯などで一時的に身体の動きを制限すること'], ['観察', '看護師が午後の申し送りで「さっきより落ち着いてきた」と報告'], ['変化', '午後は呼びかけに応じる']],
     vis: '看護師がベッド脇で本人に声をかけ、交代する職員に反応の変化を伝える。具体的な拘束方法は描かない。',
     qs: [
       { q: '身体的拘束を判断した指定医が、診療録に残す内容は？',
-        a: ['制限の内容・理由、開始と解除の日時、制限を始めたときの症状', '制限の内容と開始時刻、家族の連絡先、担当看護師の氏名', '直近の処方と入院形態、病棟内の移動先、次の診察予定', '家族に説明した内容と署名、拘束中の観察担当者の一覧'],
+        a: ['制限の内容・理由、開始・解除日時、開始時の症状', '制限の内容と開始時刻、家族連絡先、担当看護師名', '直近の処方・入院形態、移動先、次の診察予定', '家族への説明と署名、拘束中の観察担当者一覧'],
+        point: '拘束の内容・理由と開始・解除の日時、開始時の症状を記録する。',
         why: '身体的拘束は時間の長さにかかわらず指定医の判断が必要です。指定医の記録には制限内容・開始と解除の日時・症状が必要で、拘束を行った旨と理由も診療録に残します。家族の署名や看護記録だけでは補えません。',
         law: '精神保健福祉法 第36条第3項・第19条の4の2／施行規則 第4条の2第5号／昭和63年厚生省告示第129号・第130号 第四',
         vis: '指定医の診療録の見本で、開始時と解除時にそれぞれ記録する事項を位置で示す。' },
       { q: '身体的拘束が続く間の観察と診察はどうする？',
-        a: ['原則として常時観察し、医師が頻回に診察して必要性を見直す', '原則として定時に観察し、医師は毎日の回診で必要性を見直す', '看護師が定時に観察し、本人が希望したときに医師が診察する', '原則として常時観察し、医師は開始時と解除時だけ診察する'],
+        a: ['原則常時観察し、医師が頻回に診察し見直す', '原則定時観察し、医師が毎日の回診で見直す', '看護師が定時観察し、本人の希望時に医師が診察', '原則常時観察し、医師は開始と解除時だけ診察'],
+        point: '拘束中は原則常時観察し、医師が頻回に診察する。',
         why: '身体的拘束中は原則として常時の臨床的観察を行い、医師が頻回に診察します。隔離での「原則少なくとも毎日1回」をそのまま当てはめたり、本人の希望や解除時まで診察を待ったりすると、変化を見逃します。',
         law: '昭和63年厚生省告示第130号 第三・第四',
         vis: '時間の線に連続した観察の帯と、複数の診察の印を重ねる。診察間隔を固定の数字で描かない。' },
       { q: '状態が落ち着き、開始時の理由も診療録に見当たらない。いまどうする？',
-        a: ['直ちに医師と状態を見直し、確認できた開始時の事実を追記する', '拘束を続け、次の定時回診までに看護記録を診療録へ転記する', '開始時の理由欄を今の症状で埋め、解除の判断を翌朝に延ばす', '家族に同意を取り直し、初めの記録が見つかるまでは拘束を続ける'],
+        a: ['すぐ医師と見直し、確認した開始時の事実を追記', '拘束を続け、次の定時回診までに看護記録を転記', '今の症状を開始理由に書き、解除判断は翌朝に', '家族に再同意を求め、開始記録発見まで拘束'],
+        point: '拘束の必要性をすぐ見直し、開始時の理由は確認して追記する。',
         why: 'まず現在の必要性と代わりの方法を見直し、必要がなくなれば解除します。開始時の理由は当時の記録や判断した医師から確認して追記します。現在の症状で過去の理由を埋めたり、記録や同意を理由に拘束を続けたりしません。',
         law: '昭和63年厚生省告示第130号 第四（早期の切り替え・診療録）',
         vis: '「今の診察と解除の検討」「開始時の事実の確認」を別の列で進め、書類の完了が解除の条件に見えないようにする。' }
@@ -1139,22 +1329,25 @@ var CASES = [
   {
     time: '月曜 9:30', where: '退院支援の打ち合わせ', night: false,
     title: '入院の満了が近い', stamp: ['期間', '更新'], stampName: '医療保護入院の期間更新',
-    story: '46歳の男性。医療保護入院の初回の期間満了が1週間後に迫っている。自宅への退院を予定していたが、症状が急に悪化し、予定どおり退院できるか再評価している。入院時に同意した姉への更新の通知はまだ出ていない。',
-    memo: [['満了', '1週間後'], ['容体', '退院予定だったが症状が悪化'], ['準備', '入院時は姉が同意。更新の通知は未発送']],
+    story: '46歳の男性。医療保護入院の初回満了まで1週間。退院予定だったが急に症状が悪化した。入院に同意した姉へ更新の通知はまだ出していない。',
+    memo: [['満了', '1週間後'], ['容体', '症状が悪化し、自宅への退院が可能か再評価中'], ['準備', '入院時は姉が同意。更新の通知は未発送']],
     vis: '机のカレンダーに満了まで1週間と示し、退院支援の打ち合わせを描く。通知や委員会の期限は伏せる。',
     qs: [
       { q: 'この期間を更新するなら、満了前にそろえる手続きは？',
-        a: ['指定医の診察と判定、退院支援委員会の審議、家族等の同意', '主治医の意見、本人に渡す治療計画書、入院届の控えの確認', '指定医の診察と判定、定期病状報告、入院時の同意書の再提出', '退院支援委員会の審議、看護記録の確認、本人への面談の実施'],
+        a: ['指定医の診察・判定、退院支援委員会の審議、家族等の同意', '主治医の意見、本人用の治療計画書、入院届の控え', '指定医の診察・判定、定期病状報告、入院時の同意書', '退院支援委員会の審議、看護記録の確認、本人との面談'],
+        point: 'この症例の更新には指定医の判定、委員会の審議、家族等の同意が必要。',
         why: 'この症例では、指定医が引き続き要件に当たると判定し、委員会で退院支援を審議し、家族等から更新の同意を得たうえで、管理者が期間を更新します。入院時の同意や主治医だけの判断で更新はできません。医療保護入院の定期病状報告は2024年4月から廃止されています。',
         law: '精神保健福祉法 第33条第6項・第38条の2／令和5年11月27日 障発1127第1号',
         vis: '満了の前に3つの手続きカードを置く。委員会のカードは退院後の支援先につながる絵にする。' },
       { q: '満了まで1週間。姉にいま初めて通知し、返事がなければ更新への同意と扱える？',
-        a: ['扱えない。明示の同意を確かめ、満了前に管理者と方針を決める', '扱える。病院と姉が定期的に連絡していれば、満了時に同意とする', '扱える。姉の入院時の同意書を添え、満了前に更新の決裁を取る', '扱えない。満了後に2週間たつまで待ち、返事がなければ更新する'],
-        why: '通知は原則、満了の1か月前から2週間前までです。みなし同意（一定の条件で同意があったものと扱う制度）には、所定の相手への通知や定期的な連絡に加え、通知から2週間を経過した日が満了日前で、その日までに不同意の意思表示がないことが必要です。この症例では回答期間が足りず、入院時の同意書や満了後の追認で代用できません。',
+        a: ['扱えない。明示の同意を確かめ満了前に管理者と協議', '扱える。姉と定期連絡があれば満了時に同意とする', '扱える。入院時の同意書で満了前に更新を決裁', '扱えない。満了から2週間待ち、返事がなければ更新'],
+        point: '満了まで1週間では、みなし同意に必要な2週間が取れない。',
+        why: '通知は原則、満了の1か月前から2週間前までです。みなし同意（一定の条件で同意があったものと扱う制度）には、所定の相手への通知や定期的な連絡に加え、通知を出してから2週間が経つ日が満了日前で、その日までに不同意の意思表示がないことが必要です。この症例では回答期間が足りず、入院時の同意書や満了後の追認で代用できません。',
         law: '精神保健福祉法 第33条第8項／施行規則 第15条の10・第15条の14・第15条の15',
-        vis: '原則の通知期間と、今回の通知から2週間の帯を別段に置く。今回の帯が満了線を越えることを示す。' },
+        vis: '原則の通知期間と、今回の通知を出してから2週間が経つ日を別段に示す。今回は2週間が経つ日を満了線の後ろに置く。' },
       { q: '姉から明示の同意が得られ、診察と審議も終え、正式に更新した。更新の届は誰がいつ出す？',
-        a: ['管理者が、更新から10日以内に姉の同意書を添えて届ける', '指定医が、診察から7日以内に委員会の議事録を添えて届ける', '主治医が、委員会を開いた日から10日以内に診療録を添えて届ける', '管理者が、次の入院期間の満了日までに定期病状報告として届ける'],
+        a: ['管理者が更新から10日以内に姉の同意書を添え提出', '指定医が診察から7日以内に委員会議事録を添え提出', '主治医が審議から10日以内に診療録を添え提出', '管理者が次の満了日までに定期病状報告として提出'],
+        point: '管理者が更新から10日以内に姉の同意書を添えて届ける。',
         why: '更新の届は、管理者が更新から10日以内に最寄りの保健所長を経て都道府県知事等へ出します。この症例は姉の同意書を添え、みなし同意の要件を満たした例ではその旨を示します。診察日・審議の日から数える手続きや定期病状報告と混同せず、更新時は本人と同意した家族等への書面による告知も行います。',
         law: '精神保健福祉法 第33条第9項・第33条の3／施行規則 第15条の16',
         vis: '満了前の準備と更新後の届を分け、10日以内の帯を正式な更新時点から始める。' }
@@ -1163,22 +1356,25 @@ var CASES = [
   {
     time: '15:00', where: '精神科病棟の面談室', night: false,
     title: '「今日、退院したい」', stamp: ['任意', '退院'], stampName: '任意入院中の退院の申出',
-    story: '36歳の女性。自分で入院を選んだが、午後3時に「今日退院したい」と申し出た。指定医が診察し、今は医療と保護のため入院の継続が必要と判断した。管理者は退院を一時的に制限することを決めた。',
-    memo: [['入院形態', '任意入院'], ['本人', '午後3時に退院を希望'], ['診察', '精神保健指定医が診察']],
+    story: '36歳の女性。任意入院中、午後3時に退院を希望。指定医が医療と保護のため入院継続が必要と判断し、管理者は退院を一時的に制限した。',
+    memo: [['入院形態', '任意入院（本人が自分で選んだ入院）'], ['本人', '午後3時に「今日退院したい」'], ['診察', '精神保健指定医が診察']],
     vis: '面談で本人が退院を申し出た場面と、午後3時の時計を描く。上限や書面の答えは伏せる。',
     qs: [
       { q: '退院を一時的に制限する際に必要な告知は？',
-        a: ['管理者が、退院を制限する旨と理由などを本人に書面で知らせる', '担当医が、退院を制限する旨と理由などを家族に口頭で知らせる', '管理者が、本人には口頭で伝え、詳細は診療録だけに書き残す', '担当医が、入院時に本人から受け取った任意入院の書面で代用する'],
+        a: ['管理者が本人に退院制限の旨・理由などを書面で告知', '担当医が家族に退院制限の旨・理由などを口頭で告知', '管理者が本人には口頭で伝え、詳細は診療録に記録', '担当医が入院時に本人から受け取った書面で代用'],
+        point: '管理者が本人に退院制限の旨や理由などを書面で知らせる。',
         why: '管理者は、本人に退院制限を行う旨と理由、退院等の請求に関することなどを書面で知らせます。家族への説明や、入院時に本人から受け取った書面では、今回の制限を本人に告知したことになりません。',
         law: '精神保健福祉法 第21条第1項・第7項',
         vis: '入院時に本人から病院へ渡った書面と、制限時に管理者から本人へ渡す書面を、向きの異なる矢印で示す。' },
       { q: '今回の退院制限の上限と、指定医の診療録の記載を正しく組み合わせたものは？',
-        a: ['72時間まで。開始と解除の日時、制限を始めたときの症状を記録する', '12時間まで。開始と解除の日時、制限を始めたときの症状を記録する', '72時間まで。退院の申出と家族への連絡だけを記録する', 'おおむね72時間。開放処遇の制限を始めた理由だけを記録する'],
+        a: ['72時間まで。開始・解除日時と開始時の症状を記録', '12時間まで。開始・解除日時と開始時の症状を記録', '72時間まで。退院の申出と家族への連絡だけ記録', 'おおむね72時間。開放処遇を制限した理由だけ記録'],
+        point: '指定医の診察なら上限72時間。開始・解除の日時と開始時の症状を記録。',
         why: '指定医の診察による退院制限は72時間が上限で、指定医は開始と解除の日時・開始時の症状を診療録に書きます。12時間は基準を満たす病院で緊急やむを得ないときに特定医師が診察した場合です。開放処遇の制限（病院への出入りなどの制限）は、退院そのものを止める手続きと別です。',
         law: '精神保健福祉法 第21条第3項〜第5項、第19条の4の2／施行規則 第4条の2第1号',
         vis: '指定医の72時間と特定医師の特例の12時間を別の線で表示し、上下とも「上限」と明記する。' },
       { q: '夕方、本人に書面が渡っていないと分かった。制限は続いている。まずどうする？',
-        a: ['管理者にすぐ共有し、必要性を見直し、継続するなら直ちに書面で知らせる', '朝まで病棟で経過を見てから、制限が続いていれば書面を本人に渡す', '今から発行した書面を、開始時に本人に渡したものとして記録する', '入院時に受け取った本人の書面を確認し、今回の説明は家族に任せる'],
+        a: ['管理者にすぐ共有し、見直して継続なら直ちに書面告知', '朝まで様子を見て、制限が続いていれば書面を渡す', '今の書面を、開始時に本人へ渡したとして記録', '入院時の本人の書面を確認し、今回の説明は家族に頼む'],
+        point: '必要性を見直し、制限を続けるなら本人にすぐ書面で告知する。',
         why: '退院制限を続ける必要性を見直し、継続する場合は管理者が本人に速やかに書面で知らせ、実際の経過を残します。告知の遅れで制限の上限は延びません。開始時に渡したことにせず、入院時の書面で代用もしません。',
         law: '精神保健福祉法 第21条第2項・第3項・第7項',
         vis: '制限を始めた印と実際の告知の印を離して置き、告知が遅れても上限の位置は動かさない。' }
@@ -1187,22 +1383,25 @@ var CASES = [
   {
     time: '9月 10:00', where: '精神科病棟の書類点検', night: false,
     title: '初めての定期病状報告', stamp: ['措置', '報告'], stampName: '措置入院の定期病状報告',
-    story: '50歳の男性。6月に都道府県知事による措置入院となり、現在も入院中。9月の書類点検で、担当医が「次の定期病状報告は半年たってからでしょうか」と尋ねた。',
+    story: '50歳の男性。6月に都道府県知事による措置入院となり、9月も入院中。書類点検で担当医が「定期病状報告は半年たってからか」と尋ねた。',
     memo: [['入院', '6月に措置入院'], ['現在', '9月。措置入院中'], ['報告', 'これまでの定期報告はなし']],
     vis: '6月の入院と9月の点検をカレンダーに置く。どの月が報告月かは強調しない。',
     qs: [
       { q: '最初の定期病状報告はいつ行う？',
-        a: ['入院月の翌月の7月を初月とし、3か月目の9月に報告する', '入院月の6月を初月とし、3か月目の8月に報告する', '入院月の翌月の7月を初月とし、6か月目の12月に初めて報告する', '医療保護入院の更新と同じく、入院期間の満了前に初めて報告する'],
+        a: ['入院翌月の7月を初月とし、3か月目の9月に報告', '入院月の6月を初月とし、3か月目の8月に報告', '入院翌月の7月を初月とし、6か月目の12月に初回報告', '医療保護入院の更新と同様に、期間満了前に初回報告'],
+        point: '措置入院は入院月の翌月が初月。最初の報告は3か月目の9月。',
         why: '措置入院の定期報告は、入院措置の翌月が初月です。入院から6か月を経過するまでは3か月ごとの各月に報告し、その後は6か月ごとの各月が原則です。6月を初月に数えたり、医療保護入院の更新手順を当てはめたりしません。',
         law: '精神保健福祉法 第38条の2第1項／施行規則 第19条',
         vis: '6月の入院から7月・8月・9月へ進め、7月を「初月」、9月を「最初の報告月」と示す。提出日は表示しない。' },
       { q: 'ここでの定期病状報告は、誰の診察を根拠に、誰がどこへ出す？',
-        a: ['指定医の診察を根拠に、管理者が保健所長を経て都道府県知事等へ出す', '主治医の病棟記録だけを根拠に、管理者が都道府県知事等へ直接出す', '指定医の診察を根拠に、その指定医が審査会へ直接提出する', '看護師の観察記録を根拠に、相談員が市町村へ報告する'],
+        a: ['指定医の診察を基に管理者が保健所長経由で知事等へ', '主治医の病棟記録だけで管理者が知事等へ直接報告', '指定医が自分の診察を基に審査会へ直接報告', '看護師の観察記録を基に相談員が市町村へ報告'],
+        point: '指定医の診察に基づき、管理者が保健所長経由で知事等へ報告。',
         why: '症状や経過、今後の治療方針などは指定医の診察の結果に基づき、管理者が最寄りの保健所長を経て都道府県知事等に報告します。主治医の記録などは資料になりますが、指定医の診察、管理者の報告、保健所を経る経路をそれぞれ確認します。',
         law: '精神保健福祉法 第38条の2第1項／施行規則 第19条・第4条の2第6号',
         vis: '指定医の診察記録が管理者の報告につながり、保健所長を経て都道府県知事等に届く流れを示す。' },
       { q: '後日、指定医が「入院を続けなくても精神障害による自傷他害のおそれはない」と判断した。管理者はどうする？',
-        a: ['症状消退届を直ちに出し、都道府県知事等の措置解除の手続きにつなげる', '次の定期病状報告に経過を書き、その提出日まで院内で対応する', '医療保護入院の退院届と同じように、実際の退院後10日以内に出す', '指定医の判断を診療録に残し、管理者が院内の決裁だけで措置を解除する'],
+        a: ['直ちに症状消退届を出し、知事等の措置解除へ', '次の定期病状報告に記し、提出日まで院内で対応', '医療保護入院と同様、実際の退院後10日以内に提出', '指定医の判断を記録し、管理者の院内決裁で措置解除'],
+        point: '症状消退届は直ちに提出。措置を解除するのは知事等。',
         why: '措置入院を続ける理由がなくなったと指定医が判断したときは、管理者が直ちに最寄りの保健所長を経て症状消退届を出します。措置を解除するのは都道府県知事等です。定期報告や医療保護入院の退院届とは、目的も時期も異なります。',
         law: '精神保健福祉法 第29条の4・第29条の5',
         vis: '定期報告のカレンダーとは別に、指定医の判断から即時の届、知事等の措置解除へ矢印を引く。' }
@@ -1211,22 +1410,25 @@ var CASES = [
   {
     time: '木曜 11:00', where: '退院時の面談', night: false,
     title: '退院した日の書類', stamp: ['退院', '届出'], stampName: '医療保護入院からの退院',
-    story: '39歳の男性。医療保護入院中に症状が落ち着き、退院後の通院先も決まった。火曜に退院日が決まり、木曜の午前に家族が迎えに来て自宅へ帰った。',
-    memo: [['入院形態', '医療保護入院'], ['予定の決定', '火曜'], ['実際の退院', '木曜の午前']],
+    story: '39歳の男性。医療保護入院中に症状が落ち着き、通院先も決まった。火曜に退院日を決め、木曜午前に帰宅した。',
+    memo: [['入院形態', '医療保護入院'], ['予定の決定', '火曜'], ['実際の退院', '木曜の午前。家族が迎えに来て自宅へ']],
     vis: '火曜の退院予定の決定と、木曜に本人が病棟から出る場面を分けて描く。期限は答えた後に示す。',
     qs: [
       { q: '木曜に退院したことについて、法に基づき院外に出す書類は？',
         a: ['医療保護入院の退院届を出す', '措置入院の症状消退届を出す', '措置入院の定期病状報告を出す', '入院期間の更新届を最後に出す'],
+        point: '医療保護入院から退院したときは退院届を出す。',
         why: '医療保護入院者を退院させたときの書類は退院届です。症状消退届と措置入院の定期報告は措置入院の手続きです。入院期間の更新届は医療保護入院を更新したときに出します。',
         law: '精神保健福祉法 第33条の2',
         vis: '退院届・症状消退届・定期病状報告・更新届を、対応する入院形態と出来事につないで見比べる。' },
       { q: 'この退院届は、誰がどの時点から数えて提出する？',
-        a: ['管理者が、実際の退院から10日以内に保健所長を経て出す', '管理者が、退院を決めた日から10日以内に保健所長を経て出す', '指定医が、実際の退院から7日以内に保健所長を経て出す', '相談員が、退院後初めて通院した日から10日以内に出す'],
+        a: ['管理者が実際の退院から10日以内に保健所長を経て提出', '管理者が退院決定から10日以内に保健所長経由で提出', '指定医が実際の退院から7日以内に保健所長を経て提出', '相談員が退院後の初通院から10日以内に提出'],
+        point: '管理者が実際の退院から10日以内に保健所長経由で届ける。',
         why: '管理者が、実際に退院させた時点を基準に10日以内に、最寄りの保健所長を経て都道府県知事等へ届け出ます。退院を決めた日や次回通院日は起点になりません。初日・休日の扱いや様式は、施設と自治体の決まりで確認します。',
         law: '精神保健福祉法 第33条の2',
         vis: '火曜と木曜を並べ、期限の帯を木曜の実際の退院から伸ばす。具体的な締切日は表示しない。' },
       { q: '後日、期限を過ぎても退院届が提出されていないと分かった。どうする？',
-        a: ['管理者へすぐ共有し、実際の退院日と未提出の経緯を保健所へ伝える', '次回の外来受診日を退院日として記入し、そこから期限を数え直す', '退院予定を決めた日付を提出日として追記し、院内の控えを保管する', '次に退院する患者の書類とまとめ、翌月の提出日に一緒に提出する'],
+        a: ['管理者へすぐ共有し、退院日と経緯を保健所へ連絡', '次の外来受診日を退院日とし、期限を数え直す', '退院日を決めた日を提出日と記録し、控えを保管', '次の退院者の書類とまとめ、翌月の提出日に出す'],
+        point: '管理者にすぐ共有し、退院日と経緯を保健所に伝えて提出する。',
         why: '管理者にすぐ共有し、実際の退院日と遅れの経緯を整理して保健所に連絡し、速やかに提出します。提出や訂正の方法は自治体に確認します。退院日・提出日を動かしたり、ほかの届を待って遅れを広げたりしません。',
         law: '精神保健福祉法 第33条の2（届出義務）',
         vis: '予定の決定、実際の退院、未提出の発見、連絡と提出を順に置き、後から日付を動かさないことを示す。' }
@@ -1267,21 +1469,28 @@ var CASES = [
   var ref = document.querySelector('.ref');
   var refHeading = ref.querySelector('h2');
   var refTable = ref.querySelector('.tbl-wrap');
+  var hankoEl = document.querySelector('.hanko');
 
   // ---- 判子帳
   var HK_KEY = 'shorui-hanko-v1', HK_TITLES = [[0, "書類の手続き"]], HK_MAX = CASES.length * 2;
+  var wardHanko = HK_KEY === 'byoto-hanko-v1';
   var optionsKey = HK_KEY + '-show-opts';
   var alwaysShowOptions = lsGet(optionsKey) === '1';
   var HK = {}; try { HK = JSON.parse(lsGet(HK_KEY) || '{}') || {}; } catch (e) { HK = {}; }
-  function hkPts() { var p = 0; CASES.forEach(function (c, i) { p += HK[i] || 0; }); return p; }
+  function hkCount() { return CASES.filter(function (c, i) { return HK[i]; }).length; }
+  function hkProgress() {
+    if (wardHanko) return hkCount();
+    return CASES.reduce(function (p, c, i) { return p + (HK[i] || 0); }, 0);
+  }
   function hkTitle(p) { var t = HK_TITLES[0]; HK_TITLES.forEach(function (x) { if (p >= x[0]) t = x; }); return t; }
   function hkNext(p) { for (var i = 0; i < HK_TITLES.length; i++) if (HK_TITLES[i][0] > p) return HK_TITLES[i]; return null; }
-  function hkSummary() { var n = CASES.filter(function (c, i) { return HK[i]; }).length; return '判子帳 ' + n + ' / ' + CASES.length + ' ・ 称号「' + hkTitle(hkPts())[1] + '」'; }
+  function hkSummary() { return '判子帳 ' + hkCount() + ' / ' + CASES.length + ' ・ 称号「' + hkTitle(hkProgress())[1] + '」'; }
   function renderHanko() {
-    var p = hkPts(), t = hkTitle(p), nx = hkNext(p), n = CASES.filter(function (c, i) { return HK[i]; }).length;
+    var p = hkProgress(), t = hkTitle(p), nx = hkNext(p), n = hkCount();
     var gold = CASES.filter(function (c, i) { return HK[i] === 2; }).length;
     document.getElementById('hkCount').textContent = n + ' / ' + CASES.length + ' ・ 金 ' + gold;
-    document.getElementById('hkTitle').innerHTML = '称号　<b>' + esc(t[1]) + '</b>　' + (nx ? '<span class="muted">次の「' + esc(nx[1]) + '」まで あと ' + (nx[0] - p) + '</span>' : '<span class="muted">すべて金の判子です</span>');
+    var progress = nx ? '次の「' + esc(nx[1]) + '」まで あと ' + (nx[0] - p) : (wardHanko ? 'すべての患者さんの判子がそろいました' : 'すべて金の判子です');
+    document.getElementById('hkTitle').innerHTML = '称号　<b>' + esc(t[1]) + '</b>　<span class="muted">' + progress + '</span>';
     var m = document.getElementById('hkMeter'); m.firstChild.style.width = Math.round(p / HK_MAX * 100) + '%'; m.setAttribute('aria-label', p + ' / ' + HK_MAX);
     document.getElementById('hkGrid').innerHTML = CASES.map(function (c, i) {
       var tr = HK[i] || 0;
@@ -1294,9 +1503,9 @@ var CASES = [
   function awardHanko(i) {
     var tier = caseScore(i) === CASES[i].qs.length ? 2 : 1, cur = HK[i] || 0;
     if (tier <= cur) return;
-    var before = hkTitle(hkPts())[1];
+    var before = hkTitle(hkProgress())[1];
     HK[i] = tier; lsSet(HK_KEY, JSON.stringify(HK));
-    var after = hkTitle(hkPts())[1];
+    var after = hkTitle(hkProgress())[1];
     toast('<b>' + (tier === 2 ? '金の判子' : '判子') + 'を押しました</b><br>' + esc(CASES[i].stampName) + (after !== before ? '<br>称号が「' + esc(after) + '」になりました' : ''));
     renderHanko();
   }
@@ -1308,6 +1517,19 @@ var CASES = [
   function curQ(i) { var k = S.picks[i].indexOf(null); return k; }
   function seq() { return S.only || CASES.map(function (_, i) { return i; }); }
   function totalRight() { var n = 0; for (var i = 0; i < CASES.length; i++) n += caseScore(i); return n; }
+
+  // 回答後は「判定」と「要点1行」だけを見せ、長い解説は「くわしく」に入れる（2026-11-27 利用者「文字が多くて見づらい」）。
+  // 要点は q.point があればそれ、なければ解説の最初の一文。
+  function pointOf(q) {
+    var why = String(q.why || '');
+    if (q.point) return { point: q.point, rest: why };
+    var m = why.match(/^[^。]*。/);
+    return m ? { point: m[0], rest: why.slice(m[0].length) } : { point: why, rest: '' };
+  }
+  function verdictHTML(q, pick) {
+    return '<div class="verdict ' + (pick === 0 ? 'ok' : 'ng') + '" role="status"><span class="vd-mark">' + (pick === 0 ? '正解！' : 'おしい！') + '</span>' +
+      (pick === 0 ? '' : '<span class="vd-ans">正解は「' + esc(q.a[0]) + '」</span>') + '</div>';
+  }
 
   function stampHTML(c, cls) {
     return '<div class="stamp ' + (cls || '') + '" aria-hidden="true"><div><div class="s1">' + esc(c.stamp[0]) + '</div>' +
@@ -1372,8 +1594,12 @@ var CASES = [
         (pick === null && window.PG_NOTE ? '<label class="note-sure"><input type="checkbox" id="noteSure"> 自信あり</label>' : '') +
         optsHTML(i, qi, qi === k);
       if (pick !== null) {
-        html += '<p class="why"><b>' + (pick === 0 ? '正解。' : '正解は「' + esc(q.a[0]) + '」。') + '</b>' + esc(q.why) +
+        var pt = pointOf(q);
+        html += verdictHTML(q, pick) + '<p class="point">' + esc(pt.point) + '</p>' +
+          '<details class="more"><summary>くわしい解説・根拠・図</summary>' +
+          '<p class="why">' + esc(pt.rest) +
           (q.law ? '<span class="law">根拠　' + esc(q.law) + '</span>' : '') + '</p>';
+        html += '</details>';
       }
       html += '</section>';
     });
@@ -1399,6 +1625,18 @@ var CASES = [
     if (sharedLayout) mainEl.querySelector('.case-body').scrollTop = caseScroll;
   }
 
+  new MutationObserver(function () {
+    var ds = mainEl.querySelectorAll('section.q > details.more');
+    for (var i = 0; i < ds.length; i++) {
+      var n = ds[i].nextElementSibling;
+      while (n) {
+        var nx = n.nextElementSibling;
+        if (n.tagName === 'DIV' && !n.matches('.cq-actions, .done-q')) ds[i].appendChild(n);
+        n = nx;
+      }
+    }
+  }).observe(mainEl, { childList: true, subtree: true });
+
   function renderResult() {
     var right = totalRight();
     var missed = CASES.map(function (_, i) { return i; }).filter(function (i) { return caseScore(i) < CASES[i].qs.length; });
@@ -1421,6 +1659,8 @@ var CASES = [
     if (opts.activeQ != null) S.activeQ = opts.activeQ;
     renderSlots();
     refHeading.hidden = refTable.hidden = S.ci !== -1;
+    // 過去の判子に答えが書いてあるため、回診を終えてから表示する。
+    if (wardHanko) hankoEl.hidden = S.ci !== -1;
     if (S.ci === -1) {
       renderResult();
       if (opts.focus) document.getElementById('resh').focus();
@@ -2540,6 +2780,289 @@ IMG["sr-case8"] = "data:image/webp;base64,UklGRgQGAQBXRUJQVlA4IPgFAQCQiASdASrAA9
     enhanceCaseRoom();
   }
 
+  /* Aの部屋：短く・楽しく用の数字バッジと2行以内ラベル定義（細目・条文は「くわしく」へ格納） */
+  var STAGE_SHORT = {
+    'hogo-s1': { ev: '入院時：診察・同意・期間・告知', desc: '指定医の診察と家族等の同意で開始。2024改正で管理者が入院期間（6か月迄は3か月以内）を定めます。' },
+    'hogo-s2': { ev: '初期：7日以内・10日以内', desc: '入院から7日以内（相談員・計画書）と10日以内（入院の届）に締め切りが集中します。' },
+    'hogo-s3': { ev: '行動制限：12時間・常時観察', desc: '12時間を超える隔離と、すべての身体的拘束には精神保健指定医の判断が必要です。' },
+    'hogo-s4': { ev: '期間更新【2024改正】', desc: '満了前に指定医診察・退院支援委員会・家族同意をそろえて更新し、10日以内に更新届を出します。' },
+    'hogo-s5': { ev: '退院：10日以内に退院届', desc: '医療保護入院者が退院したら、管理者が10日以内に保健所長経由で都道府県知事へ届け出ます。' },
+    'nini-s1': { ev: '入院時〜7日以内：書面と計画書', desc: '本人の同意書面を受け取り告知します。入院診療計画書はどの入院形態でも入院後7日以内です。' },
+    'nini-s2': { ev: '開放処遇制限：おおむね72時間以内', desc: '任意入院は開放処遇が原則。制限時は医師が始め、おおむね72時間以内に指定医が診察します。' },
+    'nini-s3': { ev: '退院制限：72時間／特例12時間', desc: '退院申出を止めるのは指定医診察で72時間まで（特定医師は12時間まで）。措置要件なら直ちに届出。' },
+    'sochi-s1': { ev: '決定・告知：都道府県知事（緊急72時間）', desc: '緊急措置は指定医1人で72時間まで、措置入院は指定医2人以上の一致で都道府県知事が決定・告知します。' },
+    'sochi-s2': { ev: '7日以内：相談員選任【2024改正】', desc: '2024年4月から措置入院にも7日以内の退院後生活環境相談員の選任が義務化されました。' },
+    'sochi-s3': { ev: '定期報告（3・6か月）と症状消退届', desc: '定期報告は翌月を初月に3か月ごと（6か月超は6か月ごと）。自傷他害のおそれ消退時は直ちに届出。' },
+    'okyu-s1': { ev: '応急入院：72時間／直ちに届出', desc: '知事指定の病院で指定医診察72時間まで（特定医師12時間）。本人告知は入院時、入院届は直ちに提出。' },
+    'okyu-s2': { ev: '特定医師特例：12時間／記録1か月以内', desc: '特定医師の診察による緊急措置は12時間まで。管理者は1か月以内に記録を作って病院で保存します。' }
+  };
+
+  var COURSE_SHORT_SUB = {
+    hogo: '入院時・7日以内・10日以内・更新【2024改正】',
+    nini: '入院時書面・72時間まで（特例12時間）',
+    sochi: '緊急72時間・7日以内・3か月／6か月ごと',
+    okyu: '72時間／12時間・直ちに届出'
+  };
+
+  var DOC_SHORT = {
+    'hogo-exam': {
+      num: '入院の時', numCls: '',
+      prompt: '入院の要否を判定し、症状と理由を診療録に書く担当と時期は？',
+      who: ['精神保健指定医（特例は特定医師12時間）', '病院の管理者', '医師なら誰でも（時間制限なし）', '退院後生活環境相談員'],
+      when: ['入院の時', '入院から 7日以内', '入院から 10日以内', '4週間を経過する日まで'],
+      ok: '指定医が入院時に診察して判定し、症状と理由を診療録に記載します。',
+      ng: '指定医（緊急特例は12時間以内の特定医師）の診察なしに医療保護入院はできません。'
+    },
+    'hogo-consent': {
+      num: '入院の時（家族等1人）', numCls: 'ok',
+      prompt: '医療保護入院の同意は誰から、いつ得る？（同意書は入院届に添付）',
+      who: ['家族等のいずれか1人（不在等は市町村長）', '家族等の全員の一致', '都道府県知事', '家庭裁判所'],
+      when: ['入院の時', '入院から 7日以内', '入院から 10日以内', '満了日の 2週間前まで'],
+      ok: '入院時に家族等のうちいずれか1人（いない・全員意思表示不可等は居住地の市町村長）の同意を得ます。',
+      ng: '同意なしに医療保護入院はできません（同意が得られない緊急時は指定病院での応急入院を検討）。'
+    },
+    'hogo-period': {
+      num: '入院の時（3か月／6か月）', numCls: 'gold',
+      prompt: '【2024改正】入院期間（6か月迄は3か月、経過後は6か月以内）を定めるのは？',
+      who: ['管理者（精神科病院の院長）', '都道府県知事', '同意した家族等', '退院後生活環境相談員'],
+      when: ['入院の時に期間を決める', '入院から 10日以内', '入院から 6か月経過時', '退院が決まった時'],
+      ok: '2024年改正により、入院時に管理者が入院期間（6か月迄は3か月、6か月超は6か月以内）を定めます。',
+      ng: '入院期間を定めないと、退院支援委員会や更新通知（満了1か月前〜2週間前）の基準日が決まりません。'
+    },
+    'hogo-notice': {
+      num: '入院の時（猶予4週間）', numCls: '',
+      prompt: '入院理由や退院請求などを本人と同意した家族等に書面告知するのは？',
+      who: ['管理者（病院長）', '同意した家族等', '最寄りの保健所長', '市町村長'],
+      when: ['入院の時（本人は支障時4週間まで猶予可）', '入院から 1か月以内なら随時', '退院の時までに実施', '満了日の 2週間前まで'],
+      ok: '原則として入院時に管理者が本人と同意した家族等へ書面で知らせます（本人は支障時4週間まで猶予可）。',
+      ng: '告知が遅れると退院請求等の権利を知ることができません（猶予も入院から4週間を経過する日までが上限）。'
+    },
+    'hogo-sodanin': {
+      num: '7日以内', numCls: 'ok',
+      prompt: '退院後生活環境相談員（PSW・2024年から公認心理師も）を選ぶのは？',
+      who: ['管理者（病院長）', '都道府県知事', '同意した家族等', '最寄りの保健所長'],
+      when: ['入院から 7日以内', '入院から 10日以内', '4週間を経過する日まで', '満了日の 1か月前まで'],
+      ok: '入院から7日以内に管理者が選任します（2024年改正で措置入院にも義務化・公認心理師が追加）。',
+      ng: '7日以内の選任を逃すと法令違反となり、退院後生活相談や委員会の準備も遅れます。'
+    },
+    'hogo-keikaku': {
+      num: '7日以内', numCls: 'ok',
+      prompt: '病名・治療計画・推定入院期間などを本人に文書説明する計画書は？',
+      who: ['医師・看護師等の多職種が共同作成', '管理者1人だけで作成', '最寄りの保健所長が作成', '家族等が書いて病院へ提出'],
+      when: ['入院後 7日以内に文書で説明', '入院から 1か月以内に口頭説明', '退院させてから 10日以内', '入院から 6か月経過まで'],
+      ok: '多職種共同で作成し、入院後7日以内に本人へ文書で説明・交付して写しを診療録に添付します。',
+      ng: '7日以内の文書説明・交付と診療録への写し添付がないと、入院基本料等の基準を満たしません。'
+    },
+    'hogo-todoke': {
+      num: '10日以内', numCls: 'warn',
+      prompt: '同意書を添えて保健所長経由で都道府県知事に出す「入院の届」は？',
+      who: ['管理者（病院長）', '主治医（個人名義）', '同意した家族等', '退院後生活環境相談員'],
+      when: ['入院から 10日以内', '直ちに', '入院から 7日以内', '入院から 1か月以内'],
+      ok: '入院から10日以内に、管理者が同意書を添えて最寄りの保健所長経由で都道府県知事等へ届け出ます。',
+      ng: '10日以内の期限を過ぎると届出義務違反となり、精神医療審査会による入院適否の審査が遅れます。'
+    },
+    'hogo-kakuri': {
+      num: '12時間超は指定医', numCls: 'gold',
+      prompt: '隔離の診療録記載と「12時間を超える隔離」の判断・診察の決まりは？',
+      who: ['医師が記載（12時間超の隔離は指定医が判断）', '時間を問わず看護師長が判断', '12時間超でも非指定医だけで判断可', '都道府県知事が判断して記載'],
+      when: ['隔離のたび（12h超は指定医・毎日1回以上診察）', '入院から 10日以内に一括記載', '退院の時に一括記載', '1か月以内に記録保存のみ'],
+      ok: '隔離のたびに日時と理由を記録し、12時間を超える隔離は指定医が判断、隔離中は原則毎日1回以上診察します。',
+      ng: '12時間超の隔離を指定医判断なしに続けたり毎日の診察・日時記録を欠いたりすると違法な制限になります。'
+    },
+    'hogo-kosoku': {
+      num: '常時観察・頻回診察', numCls: 'warn',
+      prompt: '身体的拘束を行うときの判断者・記録と、拘束中の観察・診察は？',
+      who: ['精神保健指定医（時間を問わず指定医が判断）', '12時間以内なら非指定医でも判断可', '夜勤の看護師が判断して記載', '家族等の同意書があれば医師判断不要'],
+      when: ['拘束のたび（原則常時観察・医師は頻回に診察）', '12時間を超えた時だけ指定医判断', '医師の診察は週1回でよい', '退院させてから 10日以内'],
+      ok: '身体的拘束は時間の長さを問わず指定医の判断が必要で、原則として常時観察し医師が頻回に診察します。',
+      ng: '「12時間以内だから非指定医でよい」と誤解して拘束したり頻回診察を欠いたりするのは重大な違反です。'
+    },
+    'hogo-daicho': {
+      num: '常に整備', numCls: '',
+      prompt: '隔離・身体的拘束などの一覧性のある台帳は、誰がいつ整備する？',
+      who: ['病院（一覧性のある台帳を整備）', '最寄りの保健所長', '同意した家族等', '市町村長'],
+      when: ['常に（いつでも確認できるように）', '3か月ごとにまとめて作成', '退院から 10日以内', '条例で求められた時だけ'],
+      ok: '病院は隔離・身体的拘束の一覧性のある台帳を常に確認できるよう整備しておきます。',
+      ng: '一覧台帳がないと病棟全体の行動制限の把握や解除の見直しができず、算定要件にも関わります。'
+    },
+    'hogo-iinkai': {
+      num: '満了前（1か月前から・5年保存）', numCls: 'gold',
+      prompt: '【2024改正】更新前に開く「医療保護入院者退院支援委員会」の構成と時期は？',
+      who: ['主治医・看護職・相談員・指名職員（希望で本人・家族等も）', '知事が指定した2人以上の指定医のみ', '都道府県知事と保健所長のみ', '家族等と市町村長のみ'],
+      when: ['期間満了前（満了日の1か月前から開催可）', '入院から 7日以内に1回だけ', '入院から 10日以内に開催', '退院から 10日以内に開催'],
+      ok: '満了日の1か月前から満了前に多職種で審議し、結果を本人等に知らせ記録を5年間保存します。',
+      ng: '期間満了前に退院支援委員会で審議しないと、医療保護入院の期間更新の要件を満たせません。'
+    },
+    'hogo-minashi': {
+      num: '満了1か月前〜2週間前（回答2週間）', numCls: 'gold',
+      prompt: '【2024改正】更新の家族等への通知期間と「みなし同意」の回答期間は？',
+      who: ['管理者が、入院（前回更新）に同意した家族等に通知', '主治医が口頭で本人に伝えるだけ', '市町村長が家族等に通知', '最寄りの保健所長が通知'],
+      when: ['満了1か月前〜2週間前に通知（2週間不同意なしでみなし可）', '入院から 7日以内に通知', '入院から 10日以内に通知', '退院から 10日以内に通知'],
+      ok: '満了1か月前〜2週間前に通知します（通知から2週間が満了前に経過し不同意なし＋定期連絡あり等でみなし同意可）。',
+      ng: '通知が遅れて「通知から2週間後」が満了日を過ぎると、みなし同意は使えず明示の同意が必要になります。'
+    },
+    'hogo-koshin-todoke': {
+      num: '更新から 10日以内', numCls: 'warn',
+      prompt: '【2024改正】期間更新後に保健所長経由で知事等に出す「更新の届」は？',
+      who: ['管理者（病院長）', '主治医（個人名義）', '退院後生活環境相談員', '同意した家族等'],
+      when: ['更新から 10日以内', '更新から 7日以内', '更新から 1か月以内', '次の更新の時まで'],
+      ok: '更新から10日以内に管理者が同意書（またはみなし同意の旨）を添えて保健所長経由で知事等へ届け出ます。',
+      ng: '更新から10日以内の更新届を忘れると、都道府県知事等への法定の届出義務違反となります。'
+    },
+    'hogo-teiki-haishi': {
+      num: '2024年4月 廃止（更新届へ）', numCls: 'gold',
+      prompt: '【2024改正】従来の「医療保護入院の定期病状報告」はどうなった？',
+      who: ['不要（期間更新の手続きに置換。現行の定期報告は措置等）', '今も医療保護入院全員について毎月提出', '指定医2名が連名で提出', '退院後生活環境相談員が提出'],
+      when: ['廃止（2024年4月以降は期間ごとの更新手続きを実施）', '入院から 10日以内', '入院から 7日以内', '退院から 10日以内'],
+      ok: '医療保護入院の定期病状報告は2024年4月に廃止され、期間更新の手続き（委員会・同意・更新届）に置き換わりました。',
+      ng: '改正前の知識のまま更新手続き（指定医診察・委員会・家族同意・更新届）を落とさないよう注意が必要です。'
+    },
+    'hogo-taiin-todoke': {
+      num: '退院から 10日以内', numCls: 'ok',
+      prompt: '医療保護入院者を退院させたとき、保健所長経由で知事に出す退院届は？',
+      who: ['管理者（病院長）', '同意した家族等', '本人', '退院後生活環境相談員'],
+      when: ['退院させてから 10日以内', '退院の 1か月前まで', '退院から 4週間経過まで', '届出は不要'],
+      ok: '実際に退院させてから10日以内に、管理者が最寄りの保健所長を経て都道府県知事等へ届け出ます。',
+      ng: '退院から10日以内の退院届を忘れると、法第33条の2の届出義務違反となります。'
+    },
+    'hogo-chiiki': {
+      num: '求め・必要時（日数期限なし）', numCls: '',
+      prompt: '本人や家族の求め等に応じて地域援助事業者を紹介するのは誰？',
+      who: ['管理者（病院長）', '都道府県知事のみ', '家庭裁判所', '検察官'],
+      when: ['求めがあったとき・退院促進に必要なとき', '退院から 10日以内だけ', '入院から 12時間以内だけ', '条例のある病院だけ'],
+      ok: '本人や家族から求めがあったとき等、退院促進に必要なときに管理者が地域援助事業者を紹介するよう努めます。',
+      ng: '退院後の地域生活を支える相談支援事業所等の紹介が遅れると、退院後の孤立リスクが高まります。'
+    },
+    'nini-shomen': {
+      num: '入院の時', numCls: 'ok',
+      prompt: '任意入院時に権利等を書面で知らせ、本人の同意書面を受け取るのは？',
+      who: ['管理者が書面告知し、本人の同意書面を受領', '家族等から同意書を受領', '都道府県知事が書面を交付', '口頭だけで書面は一切不要'],
+      when: ['入院の時', '入院から 10日以内', '4週間を経過する日まで', '退院の時'],
+      ok: '入院時に管理者が退院請求等を書面で知らせ、本人から「自ら入院する旨」の書面を受け取ります。',
+      ng: '入院時の書面告知と本人書面の受領がないと、本人の意思による任意入院の法定手続きが欠けます。'
+    },
+    'nini-keikaku': {
+      num: '入院後 7日以内', numCls: 'ok',
+      prompt: '任意入院でも共通して必要な「入院診療計画書」の担当と期限は？',
+      who: ['医師・看護師等の多職種が共同作成', '指定医2人が別々に作成', '最寄りの保健所長が作成', '任意入院では計画書は不要'],
+      when: ['入院後 7日以内に文書で説明', '入院から 10日以内に保健所へ提出', '入院から 1か月以内', '退院から 10日以内'],
+      ok: 'どの入院形態でも多職種共同で作成し、入院後7日以内に文書で説明・交付して写しを診療録に添付します。',
+      ng: '「任意入院だから不要」と誤解して7日以内の文書説明を落とすと、入院基本料の基準を満たしません。'
+    },
+    'nini-kaiho': {
+      num: 'おおむね 72時間以内', numCls: 'gold',
+      prompt: '任意入院者の開放処遇の制限は誰が始められ、いつまでに指定医が診察する？',
+      who: ['医師の判断で始め、指定医が診察（理由を文書告知・記録）', '指定医2名の診察がないと不可', '看護師の判断だけで期限なく継続', '都道府県知事の命令で実施'],
+      when: ['医師が始め、おおむね72時間以内に指定医が診察', '12時間以内に知事へ届出', '入院から 10日以内に指定医が診察', '4週間を経過する日までに診察'],
+      ok: '医師の判断で始め、おおむね72時間以内に指定医が診察します（本人に理由を文書告知に努め診療録に記載）。',
+      ng: 'おおむね72時間以内の指定医診察や理由説明・診療録記載なしに閉鎖処遇を続けるのは告示違反です。'
+    },
+    'nini-teiki': {
+      num: '条例がある場合のみ', numCls: '',
+      prompt: '任意入院者の定期報告が求められるのは、どのような場合で誰が出す？',
+      who: ['知事が条例で求めた場合だけ、管理者が保健所長経由で提出', '全病院で指定医診察に基づき3か月ごとに提出', '家族等が市町村長に提出', '法律に条文は一切存在しない'],
+      when: ['条例で求めた場合だけ（一定病院の長期・制限あり任意入院者）', '全任意入院で入院から 10日以内', '全任意入院で退院から 10日以内', '入院から 72時間以内'],
+      ok: '知事が条例で求めた場合だけ、対象病院の一定の任意入院者について管理者が保健所長経由で知事に報告します。',
+      ng: '条例の対象病院・対象患者である場合に報告を怠ると法第38条の2第2項違反となります。'
+    },
+    'nini-seigen': {
+      num: '72時間まで（特例12時間）', numCls: 'warn',
+      prompt: '任意入院者の退院申出を止める（退院制限）のは誰の診察で何時間まで？',
+      who: ['指定医の診察（緊急特例は特定医師。本人に書面告知・記録）', '非指定医・非特定医師でも72時間可能', '家族等が認めれば期限なく制限可', '特定医師でない医師が12時間可能'],
+      when: ['指定医で 72時間まで（特定医師は 12時間まで）', '指定医の診察で 10日間まで', '指定医の診察で 4週間まで', '時間の上限はない'],
+      ok: '指定医の診察で72時間まで（特定医師の緊急特例は12時間まで）退院を制限でき、本人に書面告知し診療録に記します。',
+      ng: '72時間（特定医師12時間）を超えて退院制限は続けられません。継続入院が必要なら時間内に手続きを行います。'
+    },
+    'nini-sochi-moshide': {
+      num: '直ちに', numCls: 'warn',
+      prompt: '自傷他害のおそれがあり措置入院要件に当たる入院患者が退院を申し出たときは？',
+      who: ['管理者が、最寄りの保健所長を経て都道府県知事に届出', '家族等が警察署長に届出', '退院後生活環境相談員が市町村長に届出', '主治医が地方裁判所に申立て'],
+      when: ['直ちに', '退院申出から 10日以内', '退院申出から 7日以内', '72時間が経過したあと'],
+      ok: '措置要件に当たると認められる入院患者が退院を申し出たときは、管理者が「直ちに」保健所長経由で知事に届け出ます。',
+      ng: '届出が遅れると、退院制限（72時間／12時間）が切れる前に知事の措置診察が間に合わなくなります。'
+    },
+    'sochi-kinkyu': {
+      num: '72時間まで（指定医1人）', numCls: 'warn',
+      prompt: '急速を要する「緊急措置入院」は、誰の診察で誰が決め、何時間まで？',
+      who: ['指定医1人の診察で都道府県知事が決定', '特定医師1人の診察で病院管理者が決定', '指定医2人の診察で病院管理者が決定', '検察官の申立てで地方裁判所が決定'],
+      when: ['入院は 72時間を超えられない', '入院は 12時間を超えられない', '入院から 10日以内まで', '4週間を経過する日まで'],
+      ok: '緊急措置入院は指定医1人の診察で都道府県知事が決定し、入院期間は72時間を超えられません。',
+      ng: '72時間を超えて緊急措置入院は続けられず、時間内に指定医2人以上の措置診察が必要です。'
+    },
+    'sochi-kettei': {
+      num: '指定医2人以上・知事が決定', numCls: 'ok',
+      prompt: '措置入院を決め、本人と家族等に書面で告知するのは誰？',
+      who: ['2人以上の指定医の診察一致で都道府県知事が決定・書面告知', '病院管理者が決め10日以内に知事へ入院届を出す条文がある', '家族等の同意で病院管理者が決定', '市町村長が決めて本人に告知'],
+      when: ['入院を決める時（法に病院からの措置入院届の条文はない）', '入院から 10日以内に管理者が入院届', '入院から 7日以内に管理者が入院届', '入院から 4週間以内に告知'],
+      ok: '2人以上の指定医の診察一致で都道府県知事が決定し、本人・家族等への書面告知も知事が行います。',
+      ng: '措置入院（知事が決定・告知）と医療保護入院（管理者が告知・10日以内に入院届）を混同しないよう注意します。'
+    },
+    'sochi-sodanin': {
+      num: '7日以内【2024改正】', numCls: 'gold',
+      prompt: '【2024改正：措置にも義務／公認心理師追加】退院後生活環境相談員の選任は？',
+      who: ['管理者がPSW・公認心理師等の有資格者から選任', '都道府県知事が保健所職員から選任', '措置入院では相談員の選任は不要', '家族等が選任'],
+      when: ['入院措置の日から 7日以内', '入院措置の日から 10日以内', '症状消退届を出したあと', '入院から 6か月経過後'],
+      ok: '2024年改正で措置入院でも入院措置の日から7日以内に管理者が相談員を選任することが義務化されました。',
+      ng: '「相談員は医療保護入院だけ」という改正前の認識のままだと、措置入院での7日以内の選任義務を落とします。'
+    },
+    'sochi-keikaku': {
+      num: '入院後 7日以内', numCls: 'ok',
+      prompt: '措置入院でも作成・説明する「入院診療計画書」の担当と期限は？',
+      who: ['医師・看護師等の多職種が共同作成し本人等に交付', '都道府県知事が作って保健所から郵送', '指定医2名が連名で作成', '措置入院では計画書は不要'],
+      when: ['入院後 7日以内に文書で説明', '入院から 10日以内', '3か月ごとの定期報告の時', '退院の時'],
+      ok: '措置入院でも入院後7日以内に多職種共同で作成した入院診療計画書を文書で説明・交付し、写しを診療録に添付します。',
+      ng: '7日以内の文書説明・交付と診療録への写し添付を忘れると、診療報酬上の基準を満たしません。'
+    },
+    'sochi-teiki': {
+      num: '翌月初月・3か月→6か月ごと', numCls: 'gold',
+      prompt: '措置入院の「定期の病状報告」は誰の名義で、どの時期に出す？',
+      who: ['管理者（指定医の診察結果に基づき、指定医は診療録に記載）', '非指定医の診察だけで管理者が報告', '退院後生活環境相談員が報告', '2024年改正で措置の定期報告も廃止'],
+      when: ['翌月を初月とし、6か月迄は3か月ごと・以降は6か月ごとの各月', '入院から 10日以内', '入院から 7日以内', '退院させてから 10日以内'],
+      ok: '措置入院の定期報告は翌月を初月とし、6か月迄は3か月ごと、以降は6か月ごとの各月に指定医診察に基づき管理者が報告します。',
+      ng: '医療保護入院と混同して措置入院の定期報告（3か月→6か月ごと）を怠ると法第38条の2第1項違反になります。'
+    },
+    'sochi-shotai': {
+      num: '直ちに（解除は知事等）', numCls: 'warn',
+      prompt: '自傷他害のおそれがないと指定医が認めたときの「症状消退届」は？',
+      who: ['管理者（指定医の診察結果による。措置解除は都道府県知事等）', '管理者が先に解除してから10日以内に退院届', '家族等が知事に症状消退届を提出', '特定医師の診察結果で管理者が提出'],
+      when: ['直ちに', '認めてから 10日以内', '認めてから 7日以内', '次の定期病状報告の月まで待つ'],
+      ok: '指定医が自傷他害のおそれがないと認めたら、管理者が「直ちに」保健所長経由で知事に症状消退届を出します（解除は知事）。',
+      ng: '医療保護入院の退院届（10日以内）と混同して遅らせると、要件消退後の措置入院が不当に長引きます。'
+    },
+    'okyu-kikan': {
+      num: '72時間まで（特例12時間）', numCls: 'warn',
+      prompt: '知事指定病院で行う「応急入院」は、誰の診察で何時間まで？',
+      who: ['管理者が実施（指定医診察で72時間、特定医師は12時間まで）', 'どの病院でも医師なら誰でも72時間まで', '指定医2人の診察で3か月まで', '市町村長の同意で10日間まで'],
+      when: ['指定医で 72時間まで（特定医師は 12時間まで）', '指定医の診察で 10日間まで', '指定医の診察で 4週間まで', '6か月までは 3か月'],
+      ok: '知事が指定した病院に限り、指定医の診察で72時間まで（特定医師の診察なら12時間まで）入院させられます。',
+      ng: '72時間（特定医師は12時間）を超えて応急入院を続けることはできません。'
+    },
+    'okyu-kokuchi': {
+      num: '入院の時', numCls: 'ok',
+      prompt: '応急入院をさせるとき、本人への書面の告知は誰が、いつ行う？',
+      who: ['管理者（病院長）', '都道府県知事', '市町村長', '応急入院では書面告知は不要'],
+      when: ['入院の時', '入院から 10日以内', '退院の時', '入院から 1か月以内'],
+      ok: '応急入院では、入院の時に管理者が本人に理由や退院請求等を書面で告知します。',
+      ng: '家族等の同意なく緊急入院させる手続きのため、入院時の本人への書面告知を欠くことはできません。'
+    },
+    'okyu-todoke': {
+      num: '直ちに（10日以内ではない）', numCls: 'warn',
+      prompt: '応急入院させたとき、管理者が保健所長経由で知事に出す「入院の届」の期限は？',
+      who: ['管理者（応急入院させた理由などを届出）', '主治医（個人名義）', '家族等', '市町村長'],
+      when: ['直ちに', '入院から 10日以内', '入院から 7日以内', '72時間終了から 10日以内'],
+      ok: '医療保護入院（10日以内）と異なり、応急入院の届は「直ちに」管理者が保健所長経由で都道府県知事へ出します。',
+      ng: '「10日以内」と誤解して後回しにすると72時間の上限が先に終わり、法第33条の6第5項の「直ちに」に違反します。'
+    },
+    'okyu-tokutei': {
+      num: '記録保存 1か月以内（制限12時間）', numCls: 'gold',
+      prompt: '特定医師の診察（12時間まで）で応急入院等を行ったときの記録保存期限は？',
+      who: ['管理者（記録を作って病院で保存）', '都道府県知事', '家族等', '市町村長'],
+      when: ['措置（入院）から 1か月以内に記録保存（制限自体は12時間）', '措置から 10日以内', '措置から 7日以内', '記録の保存義務はない'],
+      ok: '特定医師の診察による入院・退院制限は12時間までで、管理者は1か月以内に記録を作って病院で保存します。',
+      ng: '12時間以内の指定医診察や、1か月以内の管理者による記録作成・保存を怠ると特例要件を満たしません。'
+    }
+  };
+
   function mountTopBtns() {
     var top = document.querySelector('.top');
     if (!top) {
@@ -2610,6 +3133,83 @@ IMG["sr-case8"] = "data:image/webp;base64,UklGRgQGAQBXRUJQVlA4IPgFAQCQiASdASrAA9
       if (rb) setMaxRoom(rb.getAttribute('data-sv-maxroom'));
     });
 
+    /* 最初の画面で遊びたくなる入口カード（説明2行以内・はじめるボタン・1場面約1分・挿絵1枚・遊び方折りたたみ） */
+    var leadEl = top.querySelector('.lead');
+    var ruleEl = top.querySelector('.rule');
+    var introCard = document.createElement('div');
+    introCard.className = 'sv-intro-card';
+    introCard.id = 'svIntroCard';
+    introCard.innerHTML =
+      '<div class="sv-intro-main">' +
+        '<div class="sv-intro-badges">' +
+          '<span class="sv-intro-pill time">⏱ 1場面 約1分</span>' +
+          '<span class="sv-intro-pill">📋 全8症例・24問</span>' +
+          '<span class="sv-intro-pill">📅 2024年改正対応</span>' +
+        '</div>' +
+        '<p class="sv-intro-copy">入院から退院まで「誰が・いつまでに・どこへ出すか」を攻略！10日以内・7日以内・72時間・直ちにがひと目で身につきます。</p>' +
+        '<div class="sv-intro-actions">' +
+          '<button type="button" class="sv-start-btn" id="svStartCaseBtn">▶ はじめる（症例の問いへ）</button>' +
+          '<button type="button" class="sv-sub-start-btn" id="svStartCalBtn">📅 カレンダーで試す（Aの部屋）</button>' +
+        '</div>' +
+      '</div>' +
+      '<div class="sv-intro-art">' +
+        renderIllust('sr-case1', '金曜夜21時の精神科病院の面談室で、落ち着いた32歳の男性患者が医師に入院の理由を尋ね、隣で姉が同意書に署名している場面', '') +
+        '<span class="sv-intro-art-tag">場面1：金曜 21:00 入院の夜</span>' +
+      '</div>';
+    top.appendChild(introCard);
+
+    var howto = document.createElement('details');
+    howto.className = 'sv-howto';
+    howto.id = 'svHowto';
+    howto.innerHTML =
+      '<summary>遊び方・部屋の使い分けを見る</summary>' +
+      '<div class="sv-howto-body" id="svHowtoBody">' +
+        '<ul class="sv-howto-list">' +
+          '<li><b>B の部屋（症例の問い・1場面 約1分）</b>：全8症例×3問。まず自分で考えてから選択肢を開き、答えると要点1行と判子が出ます。</li>' +
+          '<li><b>A の部屋（入院のカレンダー）</b>：書類カードを「誰が」「いつまでに」に置くパズルと、期限のものさし・役割図で全体像を整理できます。</li>' +
+          '<li><b>キー操作</b>：Enter / Space で選択肢を表示・次へ移動、数字キー 1〜4 で回答できます。</li>' +
+        '</ul>' +
+      '</div>';
+    top.appendChild(howto);
+    var howtoBody = document.getElementById('svHowtoBody');
+    if (howtoBody) {
+      if (leadEl) howtoBody.insertBefore(leadEl, howtoBody.firstChild);
+      if (ruleEl) howtoBody.appendChild(ruleEl);
+    }
+
+    var startCaseBtn = document.getElementById('svStartCaseBtn');
+    if (startCaseBtn) {
+      startCaseBtn.addEventListener('click', function () {
+        if (isMax()) {
+          setMaxRoom('b');
+          return;
+        }
+        var target = document.getElementById('svRoomBHead') || document.getElementById('main');
+        if (target && target.scrollIntoView) {
+          target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+      });
+    }
+    var startCalBtn = document.getElementById('svStartCalBtn');
+    if (startCalBtn) {
+      startCalBtn.addEventListener('click', function () {
+        if (isMax()) {
+          setMaxRoom('a');
+          return;
+        }
+        var b = document.getElementById('svRoomBody');
+        var t = document.getElementById('svRoomToggle');
+        if (b && b.hidden) {
+          b.hidden = false;
+          if (t) { t.setAttribute('aria-expanded', 'true'); t.textContent = 'たたむ'; }
+        }
+        var roomA = document.getElementById('svRoomA');
+        if (roomA && roomA.scrollIntoView) {
+          roomA.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+      });
+    }
+
     document.documentElement.setAttribute('data-sv-max-room', 'a');
     syncTheme();
     syncGatePrefBtn();
@@ -2646,12 +3246,13 @@ IMG["sr-case8"] = "data:image/webp;base64,UklGRgQGAQBXRUJQVlA4IPgFAQCQiASdASrAA9
   };
 
   /* =======================================================================
-   * A の部屋「入院のカレンダー」の描画
+   * A の部屋「入院のカレンダー」の描画（1枠2行以内・数字強調・条文と細目は「くわしく」）
    * ======================================================================= */
   function buildCalendarTabHTML() {
     var c = COURSES[state.course] || COURSES.hogo;
     if (state.stageIdx >= c.stages.length) state.stageIdx = 0;
     var st = c.stages[state.stageIdx];
+    var stShort = STAGE_SHORT[st.id] || { ev: st.title, desc: st.desc };
 
     /* 全体の達成数集計 */
     var totalDocs = 0, doneDocs = 0;
@@ -2662,8 +3263,8 @@ IMG["sr-case8"] = "data:image/webp;base64,UklGRgQGAQBXRUJQVlA4IPgFAQCQiASdASrAA9
       });
     });
 
-    /* 1. コース選択バー */
-    var courseHtml = '<div class="sv-course-bar sv-nav-group" role="group" aria-label="入院形態を選ぶ">' +
+    /* 1. コース選択バー（2行以内・数字強調） */
+    var courseHtml = '<nav class="sv-course-bar sv-nav-group" aria-label="入院形態を選ぶ">' +
       Object.keys(COURSES).map(function (ck) {
         var item = COURSES[ck];
         var cnt = 0, ok = 0;
@@ -2671,68 +3272,71 @@ IMG["sr-case8"] = "data:image/webp;base64,UklGRgQGAQBXRUJQVlA4IPgFAQCQiASdASrAA9
         var on = ck === c.id;
         return '<button type="button" class="sv-course-btn sv-tab-btn" data-sv-course="' + ck + '" aria-pressed="' + on + '">' +
           '<span>' + esc(item.name) + '（' + ok + '/' + cnt + '枚）</span>' +
-          '<small>' + esc(item.sub) + '</small>' +
+          '<small>' + esc(COURSE_SHORT_SUB[ck] || item.sub) + '</small>' +
         '</button>';
       }).join('') +
-    '</div>';
+    '</nav>';
 
-    /* 2. カレンダー進行盤 */
+    /* 2. カレンダー進行盤（各セル2行以内） */
     var cellsHtml = c.stages.map(function (s, idx) {
       var stState = stageStatus(s);
       var okN = s.docs.filter(function (d) { return docStatus(d) === 'ok'; }).length;
       var cls = 'sv-cal-cell sv-tab-cell' + (stState === 'done' ? ' is-done' : stState === 'warn' ? ' is-warn' : '');
       var badge = stState === 'done' ? '✓ 期限内' : stState === 'warn' ? '⚠ 要確認' : (okN + '/' + s.docs.length + '枚');
+      var ss = STAGE_SHORT[s.id] || { ev: s.title };
       return '<button type="button" class="' + cls + '" data-sv-stage="' + idx + '"' +
         (idx === state.stageIdx ? ' aria-current="step"' : '') + '>' +
         '<div class="sv-cal-day"><span>' + esc(s.dayLabel) + '</span><span>' + badge + '</span></div>' +
-        '<div class="sv-cal-ev">' + esc(s.title) + '</div>' +
-        '<div class="sv-cal-st">' + (stState === 'warn' ? '期限超過・担当違いの警告' : stState === 'done' ? 'すべての書類カード配置済' : '書類カード ' + s.docs.length + '枚') + '</div>' +
+        '<div class="sv-cal-ev">' + esc(ss.ev) + '</div>' +
       '</button>';
     }).join('');
 
     var calPanelHtml =
       '<div class="sv-cal-panel">' +
         '<div class="sv-cal-top">' +
-          '<div class="sv-cal-patient"><span class="sv-cal-tag">' + esc(c.name) + 'カレンダー</span><span>' + esc(c.patient) + '</span></div>' +
-          '<div class="sv-cal-score">配置完了：' + doneDocs + ' / ' + totalDocs + ' 枚</div>' +
+          '<div class="sv-cal-patient"><span class="sv-cal-tag">' + esc(c.name) + '</span><span>' + esc(COURSE_SHORT_SUB[c.id] || c.patient) + '</span></div>' +
+          '<div class="sv-cal-score">配置完了：<b>' + doneDocs + ' / ' + totalDocs + ' 枚</b></div>' +
         '</div>' +
-        '<div class="sv-cal-grid sv-nav-grid" role="navigation" aria-label="入院カレンダーの場面">' + cellsHtml + '</div>' +
+        '<nav class="sv-cal-grid sv-nav-grid" aria-label="入院カレンダーの場面">' + cellsHtml + '</nav>' +
       '</div>';
 
-    /* 3. 現在の場面ヘッダー＆アクションボタン */
+    /* 3. 現在の場面ヘッダー＆アクションボタン（説明2行以内） */
     var stageBarHtml =
       '<div class="sv-stage-bar">' +
         '<div class="sv-stage-info">' +
-          '<h3 class="sv-stage-h"><span>' + esc(st.dayLabel) + '：' + esc(st.title) + '</span></h3>' +
-          '<p class="sv-stage-desc">' + esc(st.desc) + '</p>' +
+          '<h3 class="sv-stage-h"><span>' + esc(st.dayLabel) + '：' + esc(stShort.ev) + '</span></h3>' +
+          '<p class="sv-stage-desc">' + esc(stShort.desc) + '</p>' +
         '</div>' +
-        '<div class="sv-stage-actions sv-nav-actions">' +
+        '<nav class="sv-stage-actions sv-nav-actions" aria-label="この場面の操作">' +
           '<button type="button" class="sv-act-btn sv-tab-act warn-btn" data-sv-act="toggle-overdue" aria-pressed="' + state.simOverdue + '">' +
-            (state.simOverdue ? '⚠️ 期限超過の赤警告を閉じる' : '⚠️ 期限を過ぎたらどうなる？') +
+            (state.simOverdue ? '⚠️ 赤警告を閉じる' : '⚠️ 期限を過ぎたら？') +
           '</button>' +
-          '<button type="button" class="sv-act-btn sv-tab-act ok-btn" data-sv-act="fill-stage">✨ この場面のお手本配置</button>' +
+          '<button type="button" class="sv-act-btn sv-tab-act ok-btn" data-sv-act="fill-stage">✨ お手本配置</button>' +
           '<button type="button" class="sv-act-btn sv-tab-act" data-sv-act="reset-stage">↺ リセット</button>' +
-        '</div>' +
+        '</nav>' +
       '</div>';
 
-    /* 4. 落ちてくる書類カード */
+    /* 4. 落ちてくる書類カード（1枠2行以内・数字強調・条文や細目は「くわしく」） */
     var cardsHtml = '<div class="sv-cards">' + st.docs.map(function (doc) {
       ensureDocState(doc);
       var p = state.picks[doc.id];
       var ord = state.order[doc.id];
       var ds = docStatus(doc);
+      var dm = DOC_SHORT[doc.id] || {};
       var cardCls = 'sv-doc-card' + (ds === 'ok' ? ' is-ok' : ds === 'ng' ? ' is-ng' : '');
       var stampTxt = ds === 'ok' ? '適法<br>済' : ds === 'ng' ? '期限<br>警告' : '未配置';
 
       var whoRight = p.who === doc.whoAns;
       var whenRight = p.when === doc.whenAns;
+      var whoList = dm.who || doc.whoOpts;
+      var whenList = dm.when || doc.whenOpts;
 
       var whoChips = ord.who.map(function (oi) {
         var picked = p.who === oi;
         var chipCls = 'sv-chip' + (picked ? (oi === doc.whoAns ? ' is-right' : ' is-wrong') : '');
         var mark = picked ? (oi === doc.whoAns ? '✓' : '✗') : '';
         return '<button type="button" class="' + chipCls + '" data-sv-doc="' + doc.id + '" data-sv-slot="who" data-sv-val="' + oi + '" aria-pressed="' + picked + '">' +
-          '<span>' + esc(doc.whoOpts[oi]) + '</span><span>' + mark + '</span>' +
+          '<span>' + esc(whoList[oi] || doc.whoOpts[oi]) + '</span><span>' + mark + '</span>' +
         '</button>';
       }).join('');
 
@@ -2741,7 +3345,7 @@ IMG["sr-case8"] = "data:image/webp;base64,UklGRgQGAQBXRUJQVlA4IPgFAQCQiASdASrAA9
         var chipCls = 'sv-chip' + (picked ? (oi === doc.whenAns ? ' is-right' : ' is-wrong') : '');
         var mark = picked ? (oi === doc.whenAns ? '✓' : '✗') : '';
         return '<button type="button" class="' + chipCls + '" data-sv-doc="' + doc.id + '" data-sv-slot="when" data-sv-val="' + oi + '" aria-pressed="' + picked + '">' +
-          '<span>' + esc(doc.whenOpts[oi]) + '</span><span>' + mark + '</span>' +
+          '<span>' + esc(whenList[oi] || doc.whenOpts[oi]) + '</span><span>' + mark + '</span>' +
         '</button>';
       }).join('');
 
@@ -2749,21 +3353,34 @@ IMG["sr-case8"] = "data:image/webp;base64,UklGRgQGAQBXRUJQVlA4IPgFAQCQiASdASrAA9
       if (state.simOverdue || ds === 'ng') {
         fbHtml =
           '<div class="sv-doc-fb fb-ng">' +
-            '<div><b class="ng-h">⚠️ 期限を過ぎた・担当を誤ったときの問題：</b>' + esc(doc.overdueProblem) + '</div>' +
-            '<div><b>正しい配置：</b>誰が＝「<b>' + esc(doc.whoOpts[doc.whoAns]) + '</b>」 ／ いつ（期限）＝「<b>' + esc(doc.whenOpts[doc.whenAns]) + '</b>」</div>' +
-            '<div class="sv-doc-meta">' +
-              '<span><strong>誰に出す：</strong>' + esc(doc.to) + '</span>' +
-              '<span><strong>根拠：</strong>' + esc(doc.law) + '</span>' +
+            '<div class="sv-fb-top">' +
+              '<span class="sv-big-num warn">期限：' + esc(dm.num || whenList[doc.whenAns]) + '</span>' +
+              '<b class="ng-h">⚠️ 期限・担当を再確認</b>' +
             '</div>' +
+            '<div class="sv-fb-summary">' + esc(dm.ng || doc.overdueProblem) + '</div>' +
+            '<details class="sv-more"><summary>くわしく（正しい配置・出し先・条文）</summary>' +
+              '<div class="sv-more-body">' +
+                '<div><b>正しい担当：</b>' + esc(doc.whoOpts[doc.whoAns]) + '</div>' +
+                '<div><b>正しい期限：</b>' + esc(doc.whenOpts[doc.whenAns]) + '</div>' +
+                '<div><b>問題点の詳細：</b>' + esc(doc.overdueProblem) + '</div>' +
+                '<div><b>出し先・記録先：</b>' + esc(doc.to) + ' ／ <b>根拠：</b>' + esc(doc.law) + '</div>' +
+              '</div>' +
+            '</details>' +
           '</div>';
       } else if (ds === 'ok') {
         fbHtml =
           '<div class="sv-doc-fb fb-ok">' +
-            '<div><b class="ok-h">✓ 期限内に配置完了：</b>' + esc(doc.okNote) + '</div>' +
-            '<div class="sv-doc-meta">' +
-              '<span><strong>誰に出す：</strong>' + esc(doc.to) + '</span>' +
-              '<span><strong>根拠：</strong>' + esc(doc.law) + '</span>' +
+            '<div class="sv-fb-top">' +
+              '<span class="sv-big-num ok">' + esc(dm.num || whenList[doc.whenAns]) + '</span>' +
+              '<b class="ok-h">✓ 期限内に配置完了！</b>' +
             '</div>' +
+            '<div class="sv-fb-summary">' + esc(dm.ok || doc.okNote) + '</div>' +
+            '<details class="sv-more"><summary>くわしく（細目・出し先・条文）</summary>' +
+              '<div class="sv-more-body">' +
+                '<div>' + esc(doc.okNote) + '</div>' +
+                '<div><b>出し先・記録先：</b>' + esc(doc.to) + ' ／ <b>根拠：</b>' + esc(doc.law) + '</div>' +
+              '</div>' +
+            '</details>' +
           '</div>';
       }
 
@@ -2778,18 +3395,18 @@ IMG["sr-case8"] = "data:image/webp;base64,UklGRgQGAQBXRUJQVlA4IPgFAQCQiASdASrAA9
           '</div>' +
           '<div class="sv-doc-stamp" aria-hidden="true">' + stampTxt + '</div>' +
         '</div>' +
-        '<p class="sv-doc-prompt">' + esc(doc.prompt) + '</p>' +
+        '<p class="sv-doc-prompt">' + esc(dm.prompt || doc.prompt) + '</p>' +
         '<div class="sv-slot-group">' +
           '<div class="sv-slot-lbl"><span>① 誰が書く・誰がする？</span>' +
             (p.who !== null ? '<span class="' + (whoRight ? 'st-ok' : 'st-ng') + '">' + (whoRight ? '✓ 正解' : '✗ 再確認') + '</span>' : '') +
           '</div>' +
-          '<div class="sv-chip-grid">' + whoChips + '</div>' +
+          '<nav class="sv-chip-grid" aria-label="誰が書くか選ぶ">' + whoChips + '</nav>' +
         '</div>' +
         '<div class="sv-slot-group">' +
           '<div class="sv-slot-lbl"><span>② いつ（期限）に置く？</span>' +
             (p.when !== null ? '<span class="' + (whenRight ? 'st-ok' : 'st-ng') + '">' + (whenRight ? '✓ 正解' : '✗ 再確認') + '</span>' : '') +
           '</div>' +
-          '<div class="sv-chip-grid">' + whenChips + '</div>' +
+          '<nav class="sv-chip-grid" aria-label="期限を選ぶ">' + whenChips + '</nav>' +
         '</div>' +
         fbHtml +
       '</article>';
@@ -2799,38 +3416,46 @@ IMG["sr-case8"] = "data:image/webp;base64,UklGRgQGAQBXRUJQVlA4IPgFAQCQiASdASrAA9
     var prevIdx = state.stageIdx > 0 ? state.stageIdx - 1 : null;
     var nextIdx = state.stageIdx < c.stages.length - 1 ? state.stageIdx + 1 : null;
     var navHtml =
-      '<div class="sv-stage-nav">' +
+      '<nav class="sv-stage-nav" aria-label="前後の場面移動">' +
         (prevIdx !== null
           ? '<button type="button" class="ghost" data-sv-stage="' + prevIdx + '">← 前の場面（' + esc(c.stages[prevIdx].dayLabel) + '）</button>'
           : '<span></span>') +
         (nextIdx !== null
           ? '<button type="button" class="next" data-sv-stage="' + nextIdx + '">次の場面へ（' + esc(c.stages[nextIdx].dayLabel) + '） →</button>'
           : '<span class="muted" style="font-size:var(--fs-xs)">この入院形態の最後の場面です（上のボタンで別の入院形態も試せます）</span>') +
-      '</div>';
+      '</nav>';
 
     return courseHtml + calPanelHtml + stageBarHtml + cardsHtml + navHtml;
   }
 
-  /* タブ2：「期限のものさし（形態別の比較図）」 */
+  /* タブ2：「期限のものさし（形態別の比較図）」（数字大きく・1枠2行以内・細目は「くわしく」） */
   function buildRulerSVG() {
     var ticks = [
-      { x: 52, t1: '入院の時', t2: '／直ちに', col: 'var(--seal)' },
-      { x: 162, t1: '12時間', t2: '特定医師／隔離境目', col: 'var(--lamp)' },
-      { x: 274, t1: '72時間', t2: '退院制限／応急／緊急措置', col: 'var(--lamp)' },
-      { x: 386, t1: '7日以内', t2: '相談員選任／診療計画書', col: 'var(--accent)' },
+      { x: 54, t1: '入院時／直ちに', t2: '応急届・症状消退', col: 'var(--seal)' },
+      { x: 164, t1: '12時間', t2: '特定医師／隔離境目', col: 'var(--lamp)' },
+      { x: 274, t1: '72時間', t2: '退院制限／応急／緊急', col: 'var(--lamp)' },
+      { x: 386, t1: '7日以内', t2: '相談員／診療計画書', col: 'var(--accent)' },
       { x: 498, t1: '10日以内', t2: '医療保護の入・更・退届', col: 'var(--accent)' },
       { x: 610, t1: '4週間・1か月', t2: '告知猶予／委員会・通知', col: 'var(--ok)' },
-      { x: 724, t1: '3か月・6か月', t2: '医療保護期間／措置定期報告', col: 'var(--ok)' }
+      { x: 724, t1: '3か月・6か月', t2: '医療保護期間／措置報告', col: 'var(--ok)' }
     ];
-    var out = '<line x1="36" y1="44" x2="744" y2="44" stroke="var(--line)" stroke-width="4" stroke-linecap="round"/>';
+    var out = '<line x1="36" y1="46" x2="744" y2="46" stroke="var(--line)" stroke-width="4" stroke-linecap="round"/>';
     for (var i = 0; i < ticks.length; i++) {
       var tk = ticks[i];
       out +=
-        '<circle cx="' + tk.x + '" cy="44" r="9" fill="' + tk.col + '" stroke="var(--panel)" stroke-width="2.5"/>' +
-        '<text x="' + tk.x + '" y="24" text-anchor="middle" font-size="11.5" font-weight="700">' + tk.t1 + '</text>' +
-        '<text x="' + tk.x + '" y="72" text-anchor="middle" font-size="9.5" class="svg-muted">' + tk.t2 + '</text>';
+        '<circle cx="' + tk.x + '" cy="46" r="10" fill="' + tk.col + '" stroke="var(--panel)" stroke-width="2.5"/>' +
+        '<text x="' + tk.x + '" y="24" text-anchor="middle" font-size="12.5" font-weight="700" class="svg-disp">' + tk.t1 + '</text>' +
+        '<text x="' + tk.x + '" y="74" text-anchor="middle" font-size="9.5" class="svg-muted">' + tk.t2 + '</text>';
     }
-    return '<svg class="sv-svg" viewBox="0 0 780 88" role="img" aria-label="入院の時・直ちにから3か月・6か月までの期限のものさし図">' + out + '</svg>';
+    return '<svg class="sv-svg" viewBox="0 0 780 90" role="img" aria-label="入院の時・直ちにから3か月・6か月までの期限のものさし図">' + out + '</svg>';
+  }
+
+  function extractShortNum(whenStr) {
+    var m = String(whenStr).match(/^(入院の時|直ちに|12時間まで|12時間を超える|72時間まで|72時間を超えられない|おおむね72時間以内|入院から7日以内|入院後7日以内|入院から10日以内|更新から10日以内|退院させてから10日以内|入院から4週間|入院（措置）から1か月以内|入院期間が過ぎる前|満了日の1か月前から2週間前まで|2024年4月以降は行う必要がない|隔離・拘束のたび)/);
+    if (m) return m[1];
+    if (/3か月ごとの各月/.test(whenStr)) return '翌月初月・3か月→6か月ごと';
+    if (/おおむね72時間/.test(whenStr)) return 'おおむね 72時間以内';
+    return String(whenStr).split('（')[0];
   }
 
   function buildRulerTabHTML() {
@@ -2843,11 +3468,11 @@ IMG["sr-case8"] = "data:image/webp;base64,UklGRgQGAQBXRUJQVlA4IPgFAQCQiASdASrAA9
       ['okyu', '応急入院'],
       ['limit', '行動制限・共通計画書']
     ];
-    var fBar = '<div class="sv-filter-bar" role="group" aria-label="期限のものさし絞り込み">' +
+    var fBar = '<nav class="sv-filter-bar" aria-label="期限のものさし絞り込み">' +
       filters.map(function (f) {
         return '<button type="button" class="sv-fbtn" data-sv-rfilter="' + f[0] + '" aria-pressed="' + (state.rulerFilter === f[0]) + '">' + esc(f[1]) + '</button>';
       }).join('') +
-    '</div>';
+    '</nav>';
 
     var bandsHtml = '<div class="sv-band-list">' + RULER_BANDS.map(function (b) {
       var itemsHtml = b.items.map(function (it) {
@@ -2855,13 +3480,22 @@ IMG["sr-case8"] = "data:image/webp;base64,UklGRgQGAQBXRUJQVlA4IPgFAQCQiASdASrAA9
         if (state.rulerFilter === 'rev2024') match = !!it.rev2024;
         else if (state.rulerFilter !== 'all') match = it.cat === state.rulerFilter;
         var cls = 'sv-band-item' + (!match ? ' is-dim' : state.rulerFilter !== 'all' ? ' is-hi' : '') + (it.abolished ? ' is-abolished' : '');
+        var shortNum = extractShortNum(it.when);
         return '<li class="' + cls + '">' +
-          '<div>' +
+          '<div class="sv-2line">' +
             (it.rev2024 ? '<span class="sv-tag-2024" style="margin-right:4px">【2024改正】</span>' : '') +
             '<b>' + esc(it.title) + '</b>' +
           '</div>' +
-          '<div>期限：<b>' + esc(it.when) + '</b></div>' +
-          '<div class="bi-meta">担当：' + esc(it.who) + ' ／ 出し先：' + esc(it.to) + '（' + esc(it.law) + '）</div>' +
+          '<div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap">' +
+            '<span class="sv-big-num' + (it.abolished ? ' warn' : '') + '">' + esc(shortNum) + '</span>' +
+          '</div>' +
+          '<details class="sv-more"><summary>くわしく（担当・出し先・条文）</summary>' +
+            '<div class="sv-more-body">' +
+              '<div><b>期限：</b>' + esc(it.when) + '</div>' +
+              '<div><b>担当：</b>' + esc(it.who) + '</div>' +
+              '<div><b>出し先：</b>' + esc(it.to) + '（' + esc(it.law) + '）</div>' +
+            '</div>' +
+          '</details>' +
         '</li>';
       }).join('');
       return '<section class="sv-band-col">' +
@@ -2877,13 +3511,13 @@ IMG["sr-case8"] = "data:image/webp;base64,UklGRgQGAQBXRUJQVlA4IPgFAQCQiASdASrAA9
       '</div>';
   }
 
-  /* タブ3：「誰が書く・誰に出す？（役割と提出先図）」 */
+  /* タブ3：「誰が書く・誰に出す？（役割と提出先図）」（1枠2行以内＋細目は「くわしく」） */
   function buildRoleFlowSVG(roleId) {
     var nodes = [
       { id: 'admin', x: 14, y: 14, w: 145, h: 42, t1: '① 管理者（病院長）', t2: '届の名義人・告知・選任' },
       { id: 'shitei', x: 14, y: 66, w: 145, h: 42, t1: '② 精神保健指定医', t2: '入院・更新・拘束・12h超隔離' },
-      { id: 'team', x: 175, y: 14, w: 160, h: 42, t1: '③ 主治医・看護・相談員', t2: '計画書・退院支援委員会' },
-      { id: 'tokutei', x: 175, y: 66, w: 160, h: 42, t1: '④ 特定医師（12h特例）', t2: '基準病院の緊急12時間' },
+      { id: 'team', x: 175, y: 14, w: 160, h: 42, t1: '③ 主治医・看護・相談員', t2: '計画書7日以内・委員会' },
+      { id: 'tokutei', x: 175, y: 66, w: 160, h: 42, t1: '④ 特定医師（12h特例）', t2: '緊急12時間・記録1か月' },
       { id: 'gov', x: 350, y: 40, w: 150, h: 44, t1: '⑤ 知事・家族等・市町村長', t2: '措置決定／医療保護同意' }
     ];
     var dests = [
@@ -2911,27 +3545,33 @@ IMG["sr-case8"] = "data:image/webp;base64,UklGRgQGAQBXRUJQVlA4IPgFAQCQiASdASrAA9
     for (var i = 0; i < ROLES.length; i++) {
       if (ROLES[i].id === state.roleId) { cur = ROLES[i]; break; }
     }
-    var btnsHtml = '<div class="sv-role-bar sv-nav-role" role="group" aria-label="担当する役割を選ぶ">' +
+    var btnsHtml = '<nav class="sv-role-bar sv-nav-role" aria-label="担当する役割を選ぶ">' +
       ROLES.map(function (r) {
         return '<button type="button" class="sv-role-btn sv-tab-role" data-sv-role="' + r.id + '" aria-pressed="' + (r.id === cur.id) + '">' +
           '<div>' + esc(r.name) + '</div>' +
-          '<small style="font-weight:400;color:var(--muted)">' + esc(r.sub) + '</small>' +
+          '<small class="sv-2line" style="font-weight:400;color:var(--muted)">' + esc(r.sub) + '</small>' +
         '</button>';
       }).join('') +
-    '</div>';
+    '</nav>';
 
     var listHtml = '<ul class="sv-role-list">' + cur.items.map(function (it) {
+      var shortNum = extractShortNum(it[1]);
       return '<li class="sv-role-card">' +
-        '<b>' + esc(it[0]) + '</b>' +
-        '<span>いつ（期限）：<b>' + esc(it[1]) + '</b></span>' +
-        '<span class="muted">誰に出す・保存：' + esc(it[2]) + '</span>' +
+        '<b class="sv-2line">' + esc(it[0]) + '</b>' +
+        '<div><span class="sv-big-num">' + esc(shortNum) + '</span></div>' +
+        '<details class="sv-more"><summary>くわしく（期限・出し先）</summary>' +
+          '<div class="sv-more-body">' +
+            '<div><b>いつ（期限）：</b>' + esc(it[1]) + '</div>' +
+            '<div><b>誰に出す・保存：</b>' + esc(it[2]) + '</div>' +
+          '</div>' +
+        '</details>' +
       '</li>';
     }).join('') + '</ul>';
 
     return btnsHtml +
       '<div class="sv-role-detail">' +
         buildRoleFlowSVG(cur.id) +
-        '<div><b>' + esc(cur.name) + '</b>：' + esc(cur.note) + '</div>' +
+        '<div class="sv-2line"><b>' + esc(cur.name) + '</b>：' + esc(cur.note) + '</div>' +
         '<div style="font-size:var(--fs-xs);color:var(--accent);font-weight:700">主な出し先・記録先：' + esc(cur.route) + '</div>' +
         listHtml +
       '</div>';
@@ -2971,18 +3611,20 @@ IMG["sr-case8"] = "data:image/webp;base64,UklGRgQGAQBXRUJQVlA4IPgFAQCQiASdASrAA9
             '<span class="sv-room-badge">A の部屋 ・ 触って試す</span>' +
             '<span>入院のカレンダー（書類と手続きの締め切り）</span>' +
           '</h2>' +
-          '<p class="sv-room-sub">出来事が起きるたびに落ちてくる書類カードを「誰が書く・するか」と「いつ（期限）」に置きます。期限を過ぎるとカレンダーが赤くなり、患者の権利や手続き上の問題を示します。</p>' +
+          '<p class="sv-room-sub">書類カードを「誰が」「いつまでに」に置くだけ！細目と条文は「くわしく」で確かめられます。</p>' +
         '</div>' +
         '<button type="button" class="sv-room-toggle" id="svRoomToggle" aria-expanded="true">たたむ</button>' +
       '</div>' +
       '<div class="sv-room-body" id="svRoomBody">' +
-        '<div class="sv-tabs" id="svRoomTabs" role="tablist" aria-label="Aの部屋の表示切り替え">' +
-          '<button type="button" class="sv-tab" role="tab" data-sv-tab="cal" aria-selected="true">📅 入院のカレンダー（書類カードを置く）</button>' +
-          '<button type="button" class="sv-tab" role="tab" data-sv-tab="ruler" aria-selected="false">⏱️ 期限のものさし（形態別の比較図）</button>' +
-          '<button type="button" class="sv-tab" role="tab" data-sv-tab="role" aria-selected="false">🏥 誰が書く・誰に出す？（役割と提出先図）</button>' +
-        '</div>' +
+        '<nav class="sv-tabs" id="svRoomTabs" role="tablist" aria-label="Aの部屋の表示切り替え">' +
+          '<button type="button" class="sv-tab" role="tab" data-sv-tab="cal" aria-selected="true">📅 入院のカレンダー（カードを置く）</button>' +
+          '<button type="button" class="sv-tab" role="tab" data-sv-tab="ruler" aria-selected="false">⏱️ 期限のものさし（数字で比較）</button>' +
+          '<button type="button" class="sv-tab" role="tab" data-sv-tab="role" aria-selected="false">🏥 誰が書く・誰に出す？（役割図）</button>' +
+        '</nav>' +
         '<div id="svRoomPane"></div>' +
-        '<p class="sv-note-box">2024年4月施行の改正後の精神保健福祉法・施行規則で確かめた（2026年11月）。「10日以内」「7日以内」の初日を数えるか・土日祝日をどう扱うか、届の様式と出し方は、勤務先の施設と自治体の決まりで確かめる。</p>' +
+        '<details class="sv-more"><summary>くわしく（法令の基準時点と自治体で確認する事項）</summary>' +
+          '<div class="sv-more-body">2024年4月施行の改正後の精神保健福祉法・施行規則で確かめた（2026年11月）。「10日以内」「7日以内」の初日を数えるか・土日祝日をどう扱うか、届の様式と出し方は、勤務先の施設と自治体の決まりで確かめる。</div>' +
+        '</details>' +
       '</div>';
 
     if (anchor && anchor.parentNode) {
@@ -2993,7 +3635,7 @@ IMG["sr-case8"] = "data:image/webp;base64,UklGRgQGAQBXRUJQVlA4IPgFAQCQiASdASrAA9
         bHead.id = 'svRoomBHead';
         bHead.innerHTML =
           '<h2 class="sv-room-b-title"><span class="sv-room-b-badge">B の部屋 ・ 症例の問い</span><span>誰が、何を、いつまでに、どこへ出すか</span></h2>' +
-          '<span class="sv-room-sub">全8症例・24問で確かめる</span>';
+          '<span class="sv-room-sub">⏱ 1場面 約1分 ・ 全8症例（24問）</span>';
         board.parentNode.insertBefore(bHead, board);
       }
     } else {
@@ -3108,57 +3750,57 @@ IMG["sr-case8"] = "data:image/webp;base64,UklGRgQGAQBXRUJQVlA4IPgFAQCQiASdASrAA9
       title: '金曜の夜に病棟へ',
       illustKey: 'sr-case1',
       illustAlt: '金曜夜21時の精神科病院の面談室で、落ち着いた32歳の男性患者が医師に「入院の理由を教えてください」と尋ね、隣で姉が同意書に署名している場面',
-      illustCap: '金曜 21:00・精神科救急外来：指定医が診察し、姉が書面で同意して医療保護入院となった。本人は落ち着いて話を聞ける状態。',
+      illustCap: '金曜 21:00：指定医が診察し、姉が書面で同意して医療保護入院へ。',
       badges: [['金曜 21:00（夜）', 'sp'], ['姉の同意書（署名あり）', 'good'], ['本人「理由を教えてください」', 'info']]
     },
     {
       title: '翌朝、家族と連絡がついた',
       illustKey: 'sr-case2',
       illustAlt: '昨夜の応急入院から一夜明けた朝8時30分の精神科救急病棟で、指定医の再診察のあと連絡が取れた母が同意書に署名している場面',
-      illustCap: '昨夜は家族等と連絡がつかず応急入院を開始。翌朝8:30、指定医が改めて要件を確認し、母が書面で同意して今朝から医療保護入院へ。',
-      badges: [['昨夜：応急入院を開始', 'crit'], ['今朝 8:30：指定医が再診察', 'sp'], ['母が書面同意 → 今朝から医療保護入院', 'good']]
+      illustCap: '昨夜は応急入院。今朝 8:30 に指定医が再診察し、母の書面同意で医療保護入院へ。',
+      badges: [['昨夜：応急入院', 'crit'], ['今朝 8:30：指定医が再診察', 'sp'], ['母が同意 → 医療保護入院', 'good']]
     },
     {
       title: '夜から続く隔離',
       illustKey: 'sr-case3',
       illustAlt: '昨夜22時から隔離が続いている翌朝8時の精神科病棟で、保護室の28歳男性患者が医師の声かけに応じているが落ち着きがない場面',
-      illustCap: '昨夜22時に非指定医の診察で隔離を開始。翌朝8:00、声かけには応じるが落ち着きがなく、隔離を続ける必要があるか見直している。',
-      badges: [['開始：昨夜 22:00（非指定医）', 'warn'], ['現在：翌朝 8:00（隔離中）', 'crit'], ['声かけに応じるが落ち着きなし', 'info']]
+      illustCap: '昨夜 22:00 に非指定医の診察で隔離。翌朝 8:00、継続の要否を見直し中。',
+      badges: [['昨夜 22:00（非指定医）', 'warn'], ['現在：翌朝 8:00（隔離中）', 'crit'], ['声かけに応じるが落ち着きなし', 'info']]
     },
     {
       title: '身体的拘束中の申し送り',
       illustKey: 'sr-case4',
       illustAlt: '午後1時30分の精神科病棟で、看護師がベッド脇の55歳女性患者に優しく声をかけ、交代する職員へ「さっきより落ち着いてきた」と反応の変化を申し送りしている場面',
-      illustCap: '13:30・精神科病棟：指定医が診察して身体的拘束を開始。午後の申し送りで、看護師から「呼びかけに応じ、さっきより落ち着いてきた」と共有された場面。',
-      badges: [['指定医が診察して開始', 'sp'], ['13:30：看護師の申し送り', 'info'], ['変化：呼びかけに応じる', 'good']]
+      illustCap: '13:30：指定医判断で身体的拘束中。午後の申し送りで「落ち着いてきた」と共有。',
+      badges: [['指定医が診察して拘束', 'sp'], ['13:30：看護師の申し送り', 'info'], ['変化：呼びかけに応じる', 'good']]
     },
     {
       title: '入院の満了が近い',
       illustKey: 'sr-case5',
       illustAlt: '月曜朝9時30分のカンファレンス室で、満了まで1週間の卓上カレンダーを前に主治医・看護師・相談員が退院支援の打ち合わせをしている場面',
-      illustCap: '月曜 9:30・退院支援の打ち合わせ：初回の医療保護入院の期間満了が1週間後に迫る中、症状が急に悪化。姉への更新通知はまだ出ていない。',
-      badges: [['初回満了まで：あと1週間', 'crit'], ['退院予定だったが症状悪化', 'warn'], ['姉への更新通知：未発送', 'info']]
+      illustCap: '月曜 9:30：初回の期間満了まであと1週間。症状悪化も、姉への更新通知は未発送。',
+      badges: [['初回満了まで：あと1週間', 'crit'], ['症状が悪化', 'warn'], ['姉への更新通知：未発送', 'info']]
     },
     {
       title: '「今日、退院したい」',
       illustKey: 'sr-case6',
       illustAlt: '午後3時の精神科病棟の面談室で、任意入院中の36歳女性患者が「今日退院したい」と申し出て、精神保健指定医が診察している場面',
-      illustCap: '15:00・精神科病棟の面談室：任意入院中の患者さんが午後3時に「今日退院したい」と申し出た。指定医が診察し、入院継続が必要と判断した場面。',
+      illustCap: '15:00：任意入院中の患者が「今日退院したい」と申出。指定医が診察し入院継続が必要と判断。',
       badges: [['任意入院中', 'good'], ['15:00「今日退院したい」', 'crit'], ['精神保健指定医が診察', 'sp']]
     },
     {
       title: '初めての定期病状報告',
       illustKey: 'sr-case7',
       illustAlt: '9月午前10時の精神科病棟で、6月に措置入院となった50歳男性患者のカレンダーと書類ファイルを前に医師たちが定期病状報告の時期を確認している場面',
-      illustCap: '9月 10:00・書類点検：6月に都道府県知事による措置入院となり現在も入院中。これまで定期病状報告はまだ出していない。',
-      badges: [['6月：措置入院を開始', 'sp'], ['現在：9月（措置入院中）', 'info'], ['これまでの定期報告：なし', 'warn']]
+      illustCap: '9月 10:00：6月に措置入院となり現在も入院中。これまで定期病状報告は未提出。',
+      badges: [['6月：措置入院', 'sp'], ['現在：9月（措置入院中）', 'info'], ['これまでの定期報告：なし', 'warn']]
     },
     {
       title: '退院した日の書類',
       illustKey: 'sr-case8',
       illustAlt: '木曜午前11時に医療保護入院中だった39歳男性患者が迎えに来た家族と一緒に病棟から自宅へ退院していく場面',
-      illustCap: '木曜 11:00・退院時の面談：医療保護入院中に症状が落ち着き、火曜に退院予定が決まり、木曜の午前に家族が迎えに来て実際に自宅へ帰った。',
-      badges: [['医療保護入院からの退院', 'sp'], ['火曜：退院予定を決定', 'info'], ['木曜午前：実際に自宅へ退院', 'good']]
+      illustCap: '木曜 11:00：火曜に退院予定が決まり、木曜午前に医療保護入院から実際に自宅へ退院。',
+      badges: [['医療保護入院からの退院', 'sp'], ['火曜：退院予定を決定', 'info'], ['木曜午前：実際に退院', 'good']]
     }
   ];
 
@@ -3643,6 +4285,34 @@ IMG["sr-case8"] = "data:image/webp;base64,UklGRgQGAQBXRUJQVlA4IPgFAQCQiASdASrAA9
     }
   }
 
+  /* 全24問の図解に付ける大きな数字・期限バッジと2行以内要約（長い説明は「くわしく」） */
+  var QVIS_SHORT = {
+    '0-0': { nums: [['書面告知：入院の時', 'ok'], ['入院届：10日以内（別手続き）', 'warn']], shortCap: '管理者が入院時に「本人」と「同意した姉」の両方へ書面で告知する。' },
+    '0-1': { nums: [['期限：入院から 10日以内', 'ok'], ['管理者 → 保健所長 → 知事等', '']], shortCap: '管理者が姉の同意書を添え、10日以内に保健所長経由で都道府県知事等へ届ける。' },
+    '0-2': { nums: [['計画書：入院後 7日以内', 'ok'], ['相談員選任：入院から 7日以内', '']], shortCap: '入院診療計画書の文書説明と退院後生活環境相談員の選任は、どちらも7日以内。' },
+    '1-0': { nums: [['本人告知：開始時', 'ok'], ['応急入院届：直ちに', 'warn'], ['上限：72時間（特定12時間）', 'gold']], shortCap: '応急入院の開始時に本人へ書面告知し、保健所長経由で「直ちに」届け出る。' },
+    '1-1': { nums: [['昨夜の応急届：直ちに', 'warn'], ['今朝の医療保護届：10日以内', 'ok']], shortCap: '昨夜の応急入院届と今朝の医療保護入院届（母の同意書を添付）は別々に出す。' },
+    '1-2': { nums: [['直ちに管理者共有・保健所連絡', 'ok'], ['日付・形態の遡及変更は不可', 'warn']], shortCap: '記録の日付や入院形態を後から書き換えず、実際の経過を整理して速やかに提出する。' },
+    '2-0': { nums: [['診療録：旨と理由・開始日時・解除日時', 'ok'], ['原則 毎日1回以上診察', '']], shortCap: '隔離の旨と理由・開始日時・解除日時を診療録に残し、本人に理由告知に努める。' },
+    '2-1': { nums: [['境目：12時間を超える前', 'warn'], ['精神保健指定医が診察・判断', 'ok']], shortCap: '22時開始なら翌10時（12時間）を超える前に、指定医の診察と判断を手配する。' },
+    '2-2': { nums: [['● 実際の解除日時（事実）', 'ok'], ['◆ 追記した日時（夕方）', '']], shortCap: '当時の記録から確かめた「実際の解除日時」と「追記した日時」を両方分かる形で残す。' },
+    '3-0': { nums: [['時間を問わず指定医が判断', 'warn'], ['内容・理由・開始と解除日時・症状', 'ok']], shortCap: '身体的拘束は指定医が判断し、開始時に内容・理由・日時・症状、解除時に解除日時を記す。' },
+    '3-1': { nums: [['原則：常時の臨床的観察', 'ok'], ['医師が頻回に診察・見直し', '']], shortCap: '身体的拘束中は原則として常時観察し、医師が頻回に診察して早期解除を見直す。' },
+    '3-2': { nums: [['最優先：今の診察と解除判断', 'ok'], ['別列：開始時の事実を確認・追記', '']], shortCap: '書類確認待ちで拘束を続けず、まず現在の状態を見直し、開始時理由は事実を確認して追記。' },
+    '4-0': { nums: [['満了前の3要件：指定医・委員会・家族同意', 'ok'], ['定期病状報告は 2024年4月廃止', 'gold']], shortCap: '期間満了前に①指定医判定、②退院支援委員会、③家族等の同意をそろえて管理者が更新する。' },
+    '4-1': { nums: [['原則通知：満了1か月前〜2週間前', 'ok'], ['残り1週間では「2週間」が取れず不可', 'warn']], shortCap: 'みなし同意には「通知から2週間経過日が満了日前」が必要。残り1週間では明示の同意を確認。' },
+    '4-2': { nums: [['更新届：更新から 10日以内', 'ok'], ['本人と姉への書面告知も実施', '']], shortCap: '正式な更新時点から10日以内に管理者が同意書を添えて届け出て、本人と姉へ書面告知も行う。' },
+    '5-0': { nums: [['開始時：本人→管理者（同意書面）', ''], ['退院制限時：管理者→本人（書面告知）', 'ok']], shortCap: '退院制限を行う時は、管理者が本人へ制限の旨と理由・退院請求等を書面で知らせる。' },
+    '5-1': { nums: [['指定医：上限 72時間まで', 'ok'], ['特定医師（緊急特例）：上限 12時間まで', 'gold']], shortCap: '指定医診察の退院制限は上限72時間で、開始・解除日時と開始時の症状を診療録に記す。' },
+    '5-2': { nums: [['直ちに書面告知・必要性見直し', 'ok'], ['上限 72時間の起算点は動かない', 'warn']], shortCap: '未交付に気づいたらすぐ見直し継続なら直ちに書面告知する。告知遅れで72時間上限は延びない。' },
+    '6-0': { nums: [['翌月（7月）＝初月', ''], ['3か月目（9月）＝初回の定期報告月', 'ok']], shortCap: '措置入院の定期病状報告は「入院月の翌月」を初月とし、6か月迄は3か月ごとの各月に行う。' },
+    '6-1': { nums: [['①指定医診察 → ②管理者報告', 'ok'], ['③保健所長経由 → ④都道府県知事等', '']], shortCap: '指定医の診察結果（診療録記載）に基づき、管理者が最寄りの保健所長を経て知事等へ報告する。' },
+    '6-2': { nums: [['症状消退届：直ちに（管理者）', 'warn'], ['措置解除：都道府県知事等', 'ok']], shortCap: '自傷他害のおそれがなくなったと指定医が認めたら、管理者が直ちに届出て知事等が解除する。' },
+    '7-0': { nums: [['医療保護の退院：退院届（10日以内）', 'ok'], ['症状消退届（直ちに）は措置入院', '']], shortCap: '医療保護入院者が退院したときの書類は「医療保護入院の退院届」（症状消退届は措置入院）。' },
+    '7-1': { nums: [['起点：木曜（実際の退院日）', 'ok'], ['期限：10日以内（管理者→保健所長経由）', 'warn']], shortCap: '退院届の「10日以内」は、退院予定を決めた火曜ではなく、実際に退院させた木曜から数える。' },
+    '7-2': { nums: [['直ちに管理者共有・保健所へ連絡', 'ok'], ['退院日（木曜）や提出日は動かさない', 'warn']], shortCap: '退院日や提出日を後から書き換えず、管理者に共有して実際の退院日と経緯を保健所へ伝え提出。' }
+  };
+
   function injectQuestionVisuals(body, ci) {
     var qs = body.querySelectorAll('section.q');
     for (var qi = 0; qi < qs.length; qi++) {
@@ -3654,15 +4324,24 @@ IMG["sr-case8"] = "data:image/webp;base64,UklGRgQGAQBXRUJQVlA4IPgFAQCQiASdASrAA9
         continue;
       }
       if (existing) continue;
+      var k = ci + '-' + qi;
       var v = buildQuestionVis(ci, qi);
       if (!v) continue;
+      var qsMeta = QVIS_SHORT[k] || { nums: [], shortCap: v.cap };
+      var kpiHtml = (qsMeta.nums || []).map(function (n) {
+        return '<span class="sv-big-num' + (n[1] ? ' ' + esc(n[1]) : '') + '">' + esc(n[0]) + '</span>';
+      }).join('');
       var box = document.createElement('div');
       box.className = 'sv-qvis';
-      box.setAttribute('data-sv-qvis', ci + '-' + qi);
+      box.setAttribute('data-sv-qvis', k);
       box.innerHTML =
         '<div class="sv-qvis-head"><span>' + esc(v.title) + '</span><span class="sv-qvis-tag">回答後の図解</span></div>' +
+        (kpiHtml ? '<div class="sv-qvis-kpis">' + kpiHtml + '</div>' : '') +
         v.svg +
-        '<p class="sv-qvis-cap">' + esc(v.cap) + '</p>';
+        '<p class="sv-qvis-cap">' + esc(qsMeta.shortCap || v.cap) + '</p>' +
+        (qsMeta.shortCap && qsMeta.shortCap !== v.cap
+          ? '<details class="sv-more"><summary>くわしく（図の補足）</summary><div class="sv-more-body">' + esc(v.cap) + '</div></details>'
+          : '');
       if (why.nextSibling) why.parentNode.insertBefore(box, why.nextSibling);
       else why.parentNode.appendChild(box);
     }
@@ -3741,7 +4420,7 @@ IMG["sr-case8"] = "data:image/webp;base64,UklGRgQGAQBXRUJQVlA4IPgFAQCQiASdASrAA9
           gateBtn.className = 'sv-reveal-box';
           gateBtn.setAttribute('data-sv-reveal', qKey);
           gateBtn.setAttribute('data-sv-qi', String(i));
-          gateBtn.textContent = '選択肢を表示（まず自分で考えてから押す ・ Enter / Space）';
+          gateBtn.textContent = '選択肢を表示して挑戦（まず自分で考えてから押す ・ Enter / Space）';
           opts.parentNode.insertBefore(gateBtn, opts);
         } else {
           gateBtn.hidden = false;

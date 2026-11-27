@@ -6,7 +6,7 @@
 <meta name="robots" content="noindex, nofollow">
 <!-- アクセス数（GoatCounter、Cookie なし・個人を特定しない。2026-11-23 利用者の依頼） -->
 <script data-goatcounter="https://psychogames.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
-<meta name="app-version" content="20261125152428">
+<meta name="app-version" content="20261127203041">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
@@ -98,6 +98,7 @@ h1{font-family:var(--f-display);font-weight:400;margin:0;font-size:clamp(2rem,7.
 @media (max-width:700px){.modes{grid-template-columns:repeat(2,minmax(0,1fr))}}
 .desk{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:16px;margin-top:16px;align-items:start}
 @media (max-width:860px){.desk{grid-template-columns:minmax(0,1fr)}}
+.view-actions{display:flex;flex-wrap:wrap;gap:6px;justify-content:flex-end}
 .viewer{display:grid;gap:8px;position:sticky;top:8px}
 @media (max-width:860px){.viewer{position:static}}
 @media (max-width:560px){.cases{grid-template-columns:repeat(2,minmax(0,1fr))}.case{padding:6px 8px}.case .cn{font-size:var(--fs-s)}}
@@ -143,14 +144,40 @@ th,td{padding:6px 8px;text-align:left;vertical-align:top;border-bottom:1px solid
 thead th{font-size:var(--fs-xs);color:var(--muted);font-weight:400;background:var(--accent-soft)}
 tbody tr:last-child th,tbody tr:last-child td{border-bottom:0}
 tr.on{background:var(--accent-soft)}
-.big{font-family:var(--f-display);font-size:2.6rem;line-height:1.1;color:var(--accent)}
-.grades{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:6px}
+.grades{display:grid;grid-auto-columns:minmax(0,1fr);grid-auto-flow:column;gap:6px}
 .grades button{font:inherit;font-weight:700;min-height:52px;border:2px solid var(--accent);border-radius:8px;background:var(--panel);color:var(--accent);cursor:pointer;font-size:1.2rem}
 .grades button.right{background:var(--ok);border-color:var(--ok);color:#fff}
 .grades button.wrong{background:var(--seal);border-color:var(--seal);color:#fff}
 .grades button:disabled{cursor:default}
 .foot{margin-top:28px;font-size:var(--fs-xs);color:var(--muted);max-width:60em}
 .foot a{color:var(--accent);display:inline-flex;align-items:center;min-height:44px;padding:0 4px}
+
+.showopt{font:inherit;cursor:pointer;min-height:44px;border:2px dashed var(--accent);background:var(--panel);color:var(--accent);border-radius:var(--r);padding:8px 12px;font-weight:700}
+.panel-content{display:grid;min-width:0;grid-auto-rows:max-content;gap:12px}
+.question-nav{display:flex;flex-wrap:wrap;gap:6px;justify-content:space-between}
+.case-picker summary{min-height:44px;align-content:center;cursor:pointer}
+.case-picker[open] .cases{margin-top:6px}
+.seq-opts{grid-template-columns:repeat(3,minmax(0,1fr))}
+html.is-max,html.is-max body{overflow:hidden}
+html.is-max .ipad-bar,html.is-max .wrap > *:not(.desk){display:none}
+html.is-max .desk{position:fixed;inset:0;z-index:15;margin:0;background:var(--paper);
+  padding:calc(6px + env(safe-area-inset-top,0px)) max(8px,env(safe-area-inset-right,0px)) calc(6px + env(safe-area-inset-bottom,0px)) max(8px,env(safe-area-inset-left,0px));
+  grid-template-columns:minmax(0,1fr) minmax(0,1fr);grid-template-rows:minmax(0,1fr);gap:8px;align-items:stretch}
+html.is-max .viewer{position:static;min-height:0;grid-template-rows:auto minmax(0,1fr) auto;gap:4px}
+html.is-max .film{min-height:0;grid-template-rows:auto minmax(0,1fr)}
+html.is-max #mr{width:100%;height:100%;min-height:0;object-fit:contain}
+html.is-max .vnote,html.is-max .ctl-row:not(:has(button:not([hidden]))){display:none}
+html.is-max .ctl-row{min-width:0;flex-wrap:nowrap}
+html.is-max .ctl-row .lb{flex:none;white-space:nowrap}
+html.is-max .ctl-row .seg{min-width:0;flex-wrap:nowrap;overflow:auto;scrollbar-width:thin}
+html.is-max .ctl-row .seg button{flex:none;white-space:nowrap}
+html.is-max .ctl-row .seg button:focus-visible{outline-offset:-3px}
+html.is-max .panel{min-height:0;overflow:hidden;grid-template-rows:minmax(0,1fr) auto;padding:8px;gap:6px}
+html.is-max .panel-content{overflow:auto;overscroll-behavior:contain;padding:4px;align-content:start}
+@media (orientation:portrait){
+  html.is-max .desk{grid-template-columns:minmax(0,1fr);grid-template-rows:minmax(0,46fr) minmax(0,54fr)}
+}
+@media (max-width:560px){.ctl-row .lb{min-width:0}}
 
 /* === スマホ押しやすさ(44px統一)・明暗切替・6系列白黒マトリクス（Gemini 担当） === */
 .seg button,.act{min-height:44px;touch-action:manipulation}
@@ -162,7 +189,7 @@ tr.on{background:var(--accent-soft)}
 
 .mr-lab{margin-top:12px;background:var(--panel);border:1.5px solid var(--line);border-radius:10px;overflow:hidden}
 .mr-lab-head{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:7px 12px;background:var(--accent-soft);border-bottom:1px solid var(--line)}
-.mr-lab-title{flex:1;min-width:0;display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin:0;font-family:var(--f-display);font-weight:400;font-size:.95rem;color:var(--ink)}
+.panel .mr-lab-title{flex:1;min-width:0;display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin:0;font-family:var(--f-display);font-weight:400;font-size:.95rem;color:var(--ink)}
 .mr-badge{font-family:var(--f-body);font-size:.7rem;font-weight:700;padding:2px 8px;border-radius:999px;background:var(--accent);color:var(--accent-ink);white-space:nowrap}
 .mr-toggle{min-height:44px;padding:0 12px;border-radius:8px;border:1px solid var(--line);background:var(--panel);color:var(--ink);font:inherit;font-size:var(--fs-xs);font-weight:700;cursor:pointer;white-space:nowrap;touch-action:manipulation}
 .mr-lab-body{padding:12px;display:grid;gap:10px}
@@ -181,7 +208,7 @@ tr.on{background:var(--accent-soft)}
 
 <div class="wrap">
   <header class="top">
-    <p class="eyebrow">精神科道場 ・ 頭部MRI（試作）</p>
+    <p class="eyebrow">精神科試験ゲーム ・ 頭部MRI（試作）</p>
     <h1>頭部MRIよみ道場</h1>
     <p>同じ断面を、T1・T2・FLAIR・拡散強調（DWI）・ADC・T2* に切りかえて見比べます。「どの系列で、何が白く・黒く見えるか」がわかれば、精神科で出会う器質因を見逃しにくくなります。</p>
     <nav class="modes" aria-label="モード">
@@ -194,6 +221,10 @@ tr.on{background:var(--accent-soft)}
 
   <div class="desk">
     <section class="viewer" aria-label="MRI の画面">
+      <div class="view-actions">
+        <button type="button" class="act" id="mrOpts" aria-pressed="false">選択肢を最初から出す</button>
+        <button type="button" class="act" id="mrFsBtn" aria-pressed="false">⛶ 全画面</button>
+      </div>
       <div class="film" id="film">
         <div class="film-h"><span id="filmL">—</span><span id="filmR">—</span></div>
         <canvas id="mr" width="720" height="840" role="img" aria-label="頭部MRIの画像"></canvas>
@@ -201,7 +232,10 @@ tr.on{background:var(--accent-soft)}
       <div class="ctl">
         <div class="ctl-row"><span class="lb">系列</span><span class="seg" id="seqSeg"></span></div>
         <div class="ctl-row"><span class="lb">高さ</span><span class="seg" id="lvSeg"></span></div>
-        <div class="ctl-row"><span class="lb"></span><button type="button" class="act" id="labelBtn" aria-pressed="false">名前を出す</button><button type="button" class="act" id="hlBtn" aria-pressed="false" hidden>所見に色</button></div>
+        <div class="ctl-row">
+          <button type="button" class="act" id="labelBtn" aria-pressed="false">名前を出す</button>
+          <button type="button" class="act" id="hlBtn" aria-pressed="false" hidden>所見に色</button>
+        </div>
         <p class="vnote" id="vnote"></p>
       </div>
     </section>
@@ -592,39 +626,54 @@ tr.on{background:var(--accent-soft)}
   var CASES = [
     { id: 'young', name: '初発の幻覚妄想', who: '22歳・男性', cat: '異常なし', vol: normal(22, 401), seqs: ['T1', 'T2', 'FLAIR', 'DWI'], lv: 2, lvs: [0, 1, 2, 3, 4], seq: 'FLAIR',
       story: '2週間前から「監視されている」と言い、初めて受診した。神経学的な異常はない。器質因を除くため頭部MRIを撮った。',
-      qs: [{ q: '所見として正しいのは？', a: ['明らかな異常はない（年齢相応）', '脳室の周りに白質病変が多発している', '両側の海馬が強く萎縮している', '左の側頭葉に FLAIR 高信号がある'], why: 'どの系列でも、信号の異常や萎縮はありません。初発の精神病では、脳炎・腫瘍・脱髄などの器質因を除くために MRI を撮ることが勧められます。「異常なし」と確かめることも大切な読影です。' },
-        { q: '初発の精神病で、MRI と合わせて考えるべき検査は？', a: ['血液検査（甲状腺・電解質・梅毒・HIV など）と、必要に応じて脳波・髄液検査', 'MRI が正常なら、ほかの検査は要らない', 'PET を全員に撮る', '頭部 CT を撮り直す'], why: 'MRI が正常でも、内分泌・感染・自己免疫性脳炎（MRI が正常のことも多い）などはありえます。発熱・けいれん・意識の変動・不随意運動があれば、脳波と髄液検査を考えます。' }], hl: [] },
+      // 初発の精神病で全員に画像検査を勧めるように読めたため、病歴・診察所見に基づく判断を示す（NICE TA136、APA）。
+      qs: [{ q: '所見として正しいのは？', a: ['明らかな異常はない（年齢相応）', '脳室の周りに白質病変が多発している', '両側の海馬が強く萎縮している', '左の側頭葉に FLAIR 高信号がある'], why: 'この症例の MRI には、明らかな信号異常や萎縮がありません。初発の精神病では、発作や局所の神経症状など、病歴と診察所見から脳の病気を疑う場合に MRI を検討します。' },
+        // 正解を短くし、血液検査の例と脳波・髄液検査を考える所見を解説に置く。
+        { q: '初発の精神病で、MRI と合わせて考えるべき検査は？', a: ['血液検査と、所見に応じた追加検査', 'MRI が正常なら、ほかの検査は要らない', 'PET を全員に撮る', '頭部 CT を撮り直す'], why: 'MRI が正常でも、身体の病気が関係することがあります。血液検査では電解質や甲状腺機能を調べ、病歴に応じて梅毒や HIV の検査を加えます。発熱・けいれん・意識の変動・不随意運動があれば、脳炎などを疑い脳波や髄液検査を検討します。' }], hl: [] },
     { id: 'ad', name: '物忘れが1年で進んだ', who: '76歳・女性', cat: '海馬の萎縮（アルツハイマー型を支持）', vol: { age: 76, A: 0.45, wml: 0.25, seed: 402, mta: 3 }, seqs: ['T1', 'T2', 'FLAIR'], lv: 5, lvs: [5, 2, 3, 4], seq: 'T1',
       story: 'この1年で、同じことを何度も聞き、約束を忘れることが増えた。道に迷ったこともある。歩き方や排尿は問題ない。',
-      qs: [{ q: '海馬の冠状断（T1）で、MTA スケールは？', a: ['MTA 3（海馬の体積がはっきり減り、下角と脈絡裂が広い）', 'MTA 0（海馬のまわりに髄液がない）', 'MTA 1（脈絡裂がわずかに広いだけ）', 'MTA 4（海馬がほとんど残っていない）'], why: '脈絡裂と側脳室下角が広がり、海馬の高さもはっきり低くなっています。MTA 3 です。MTA は冠状断の T1 で、左右それぞれを0〜4で判定します。75歳未満なら2以上、75歳以上なら3以上を異常の目安にします。' },
-        { q: 'この所見の意味として正しいのは？', a: ['年齢に比べて強い海馬の萎縮で、臨床像と合わせてアルツハイマー型認知症を支持する。MRI だけで診断はしない', 'MRI で海馬の萎縮があれば、アルツハイマー型認知症と確定できる', '海馬の萎縮は正常の加齢でも同じ程度に起こるので、意味はない', '海馬の萎縮があれば、抗アミロイド抗体薬は使えない'], why: '海馬の萎縮はアルツハイマー型でよく見られますが、ほかの認知症や加齢でも起こります。経過・神経心理検査・必要なら脳血流 SPECT やアミロイドの検査（PET・髄液）と合わせて判断します。VSRAD などの解析ソフトは、海馬周囲の萎縮の程度を数字にします。' }], hl: [T.HIPPO] },
+      // MTA の判定は海馬の高さと周囲の広がりで行い、年齢別の境目は文献・左右の集計法で変わる（Scheltens、Claus ら）。
+      qs: [{ q: '海馬の冠状断（T1）で、MTA スケールは？', a: ['MTA 3（海馬が明らかに低い）', 'MTA 0（周りのすきまは拡大なし）', 'MTA 1（脈絡裂のみ拡大）', 'MTA 4（海馬が著しく低い）'], why: 'MTA は、正面から見た断面（冠状断）の T1 画像で、脈絡裂・側脳室下角の広さと海馬の高さを左右それぞれ0〜4で評価する尺度です。この症例は脈絡裂と下角が広がり、海馬の高さが明らかに低いので MTA 3 です。異常とみなす境目は、年齢・左右の値の扱い・文献で異なります。' },
+        // 画像所見が診断を支持する点を正解に残し、診断の手順は解説に置く。
+        { q: 'この所見の意味として正しいのは？', a: ['症状と合わせてアルツハイマー型を支持する', 'MRIだけでアルツハイマー型と確定できる', 'すべて年齢相応の変化とみなせる', '海馬の萎縮があると抗アミロイド抗体薬は禁忌'], why: '海馬の萎縮はアルツハイマー型でよく見られますが、ほかの認知症や加齢でも起こります。経過・神経心理検査・必要なら脳血流 SPECT やアミロイドの検査（PET・髄液）と合わせて判断します。VSRAD などの解析ソフトは、海馬周囲の萎縮の程度を数字にします。' }], hl: [T.HIPPO] },
     { id: 'svd', name: '意欲が落ちて、動きが遅い', who: '72歳・男性', cat: '大脳白質病変（Fazekas 3）', vol: { age: 72, A: 0.35, fz: 3, seed: 403, mta: 1 }, seqs: ['T1', 'T2', 'FLAIR'], lv: 3, lvs: [2, 3, 4], seq: 'FLAIR',
       story: '高血圧と糖尿病がある。この1年、何をするのもおっくうになり、うつ病の疑いで紹介された。考えるのに時間がかかり、歩幅が小さい。',
       qs: [{ q: 'FLAIR の深部白質の所見（Fazekas 分類）は？', a: ['Fazekas 3（大きく融合した高信号）', 'Fazekas 0（白質病変なし）', 'Fazekas 1（点状の高信号がいくつか）', 'Fazekas 2（融合し始めた高信号）'], why: '側脳室のまわりから深部白質に、大きく融合した高信号が広がっています。Fazekas 3 です。T2 でも白く、T1 では淡く黒いのが白質病変の典型です（小血管病）。' },
-        { q: '精神科での意味として正しいのは？', a: ['小血管病による意欲低下・思考の遅さ（血管性うつ・アパシー）を考え、血圧・糖尿病などの管理を内科と進める', '白質病変は加齢だけの変化で、症状とは関係がない', '多発性硬化症なので、すぐにステロイドを使う', '抗うつ薬を最大量まで増やせば、必ず改善する'], why: '高度の白質病変は、意欲低下・思考緩慢・実行機能の低下・歩行障害と関係します（血管性うつ・血管性認知障害）。抗うつ薬の効きが悪いこともあり、危険因子の管理が大切です。' }], hl: [T.WML] },
+        // 正解の長さをそろえ、小血管病が症状に関わる可能性と危険因子の管理を解説に残す。
+        { q: '精神科での意味として正しいのは？', a: ['小血管病の関与を考え、血圧・糖尿病を管理する', '加齢だけの変化として、症状と切り離す', '多発性硬化症と判断し、ステロイドを使う', '抗うつ薬を最大量まで増やせば必ず改善する'], why: '高度の白質病変は、意欲低下・思考緩慢・実行機能の低下・歩行障害と関係します（血管性うつ・血管性認知障害）。抗うつ薬の効きが悪いこともあり、血圧や糖尿病などの管理を内科と進めます。' }], hl: [T.WML] },
     { id: 'stroke', name: '急に言葉がおかしい', who: '68歳・男性', cat: '急性期脳梗塞（左中大脳動脈領域）', vol: { age: 68, A: 0.35, wml: 0.25, seed: 404, mta: 1, lesions: [{ type: 'infarct', acute: true, side: 1, a0: -0.5, a1: 0.25, depth: 24, lv: [2, 3] }] }, seqs: ['T1', 'T2', 'FLAIR', 'DWI', 'ADC'], lv: 2, lvs: [1, 2, 3, 4], seq: 'DWI',
       story: '統合失調症で入院中。今朝の回診で、急に話が通じなくなり、言い間違いが多い。家族は「また悪くなった」と言うが、2時間前まではいつもどおり会話していた。',
-      qs: [{ q: 'どの系列で、何が見える？', a: ['左の前頭葉〜側頭葉の外側が DWI で白く、ADC で黒い（拡散制限）。急性期の脳梗塞', 'FLAIR で左の側頭葉内側だけが白い。脳炎', 'T2* で黒い点が多発している。微小出血', '異常はなく、精神症状の悪化と考えてよい'], why: 'DWI で白く、ADC で黒いのが本当の拡散制限で、急性期の脳梗塞の特徴です。発症から数時間では、T2・FLAIR ではまだはっきりしないことが多く、DWI がいちばん早く白くなります。左（優位半球）の言語野の梗塞で、失語が「話がまとまらない」ように見えています。' },
-        { q: 'このあとすることは？', a: ['ただちに脳卒中の担当医に連絡する。最終健常時刻（2時間前）を伝え、血栓溶解・血栓回収の適応を急いで判断してもらう', '精神症状の悪化として、抗精神病薬を増やす', '翌朝まで様子を見てから、もう一度 MRI を撮る', 'せん妄として、鎮静して休ませる'], why: '急性期脳梗塞は時間との勝負です。最後に普段どおりだった時刻（最終健常時刻）が治療の判断に欠かせません。精神疾患の患者さんの急な変化を、精神症状と決めつけないことが大切です。' }], hl: [T.ACUTE] },
+      // DWI と ADC の組み合わせを正解に残し、病変の位置と初期の見え方を解説に置く。
+      qs: [{ q: 'どの系列で、何が見える？', a: ['DWIで白くADCで黒い。急性期脳梗塞', 'FLAIR で左の側頭葉内側だけが白い。脳炎', 'T2* で黒い点が多発している。微小出血', '異常はなく、精神症状の悪化と考えてよい'], why: '左前頭葉から側頭葉の外側で DWI が白く ADC が黒く見えます。水分子が動きにくい所見（拡散制限）で、この急な失語の経過と合わせて急性期脳梗塞を疑います。発症早期には T2 や FLAIR より DWI で病変が分かりやすいことがあります。' },
+        // 連絡を急ぐ理由と伝える時刻を解説に移す（日本脳卒中学会の治療ガイドライン）。
+        { q: 'このあとすることは？', a: ['脳卒中の担当医にすぐ連絡し、時刻を伝える', '精神症状の悪化として、抗精神病薬を増やす', '翌朝まで様子を見てから、もう一度 MRI を撮る', 'せん妄として、鎮静して休ませる'], why: '最後に普段どおりだった時刻（最終健常時刻）は、この症例では2時間前です。その時刻を脳卒中の担当医に伝え、血栓を溶かす治療やカテーテルで血栓を取る治療が行えるか、急いで判断してもらいます。' }], hl: [T.ACUTE] },
     { id: 'csdh', name: '転んでから元気がない', who: '80歳・男性', cat: '慢性硬膜下血腫（右）', vol: { age: 80, A: 0.5, wml: 0.35, seed: 405, mta: 2, csdh: { side: -1, th: 12, hu: 24, shift: 5, mixed: false } }, seqs: ['T1', 'T2', 'FLAIR', 'T2*'], lv: 3, lvs: [1, 2, 3, 4], seq: 'FLAIR',
       story: '1か月半前に転倒して頭を打った。抗凝固薬を飲んでいる。この2週間、ぼんやりして食事も減り、「うつ病では」と紹介された。',
-      qs: [{ q: '目立つ所見は？', a: ['右の頭蓋骨の内側に、三日月形の液体（FLAIR で白い）。慢性硬膜下血腫', '両側の海馬の萎縮', '左の中大脳動脈領域の急性期梗塞', '異常なし'], why: '右の頭蓋骨に沿って三日月形の液体があり、脳を左へ押しています。ふつうの髄液は FLAIR で黒くなりますが、慢性硬膜下血腫はたんぱく質や血液を含むので FLAIR で白く残ります。これが髄液のすきま（萎縮）と見分ける決め手です。' },
-        { q: 'このあとすることは？', a: ['脳神経外科に相談する（穿頭術で改善しうる）。抗凝固薬の扱いも相談する', 'うつ病として抗うつ薬を始める', '高齢者の萎縮として経過を見る', '3か月後に MRI を撮り直す'], why: '慢性硬膜下血腫は、手術で治る「治る認知症・意欲低下」の代表です。転倒歴・抗血栓薬があれば、必ず疑います。' }], hl: [T.CSDH] },
+      // 慢性硬膜下血腫は FLAIR の信号が一様でないため、形と脳への圧迫も示す（Hasan ら）。
+      qs: [{ q: '目立つ所見は？', a: ['右の三日月形の慢性硬膜下血腫', '両側の海馬に目立つ萎縮', '左の中大脳動脈領域の急性期梗塞', '頭蓋内に目立つ異常はない'], why: '右の頭蓋骨に沿う三日月形の液体が、脳を左へ押しています。この症例では液体が FLAIR で髄液より明るく見えます。慢性硬膜下血腫の信号は症例ごとに異なるため、液体の形と脳への圧迫も確認します。' },
+        // 手術で改善する可能性を説明し、抗凝固薬の相談を解説に残す。
+        { q: 'このあとすることは？', a: ['速やかに脳神経外科へ相談する', 'うつ病として抗うつ薬を始める', '高齢者の萎縮として経過を見る', '3か月後に MRI を撮り直す'], why: '転倒と頭部打撲のあとに新しい認知・行動の変化があり、抗凝固薬も使っているため、慢性硬膜下血腫を考えます。血腫を排出する手術で症状が改善することがあります。抗凝固薬の扱いも脳神経外科と相談します。' }], hl: [T.CSDH] },
     { id: 'hse', name: '急に幻聴が始まり、熱がある', who: '45歳・女性', cat: '単純ヘルペス脳炎（左側頭葉）', vol: { age: 45, A: 0.1, seed: 406, mta: 0, lesions: [{ type: 'blob', code: 903, x: 30, y: -12, a: 9, b: 15, rot: 0.3, lv: [1, 2] }, { type: 'blob', code: 903, x: 26, y: -24, a: 8, b: 6, lv: [0] }] }, seqs: ['T1', 'T2', 'FLAIR', 'DWI'], lv: 1, lvs: [0, 1, 2], seq: 'FLAIR',
       story: '3日前から 38℃の熱と頭痛があり、昨日から「誰かの声が聞こえる」と言って落ち着かない。今朝、においがおかしいと訴えたあと、1分ほどぼんやりして口をもぐもぐさせた。',
-      qs: [{ q: '目立つ所見は？', a: ['左の側頭葉内側〜島に、FLAIR・DWI で高信号（片側性）。ヘルペス脳炎を強く疑う', '両側の脳室周囲の白質病変', '右の慢性硬膜下血腫', '異常なし（精神病の初発）'], why: '発熱・頭痛に、急な精神症状と発作（においの前兆と口のもぐもぐ＝焦点意識減損発作）。MRI で側頭葉内側〜島の FLAIR・DWI 高信号があれば、単純ヘルペス脳炎を強く疑います。' },
-        { q: 'このあとすることは？', a: ['髄液検査の結果を待たずに、ただちにアシクロビルの点滴を始め、神経内科と連携する', '統合失調症の初発として、抗精神病薬を始める', '髄液 PCR の結果が出てから治療を決める', '熱が下がるまで様子を見る'], why: 'ヘルペス脳炎は、治療が遅れるほど後遺症と死亡が増えます。疑った時点でアシクロビルを始め、髄液検査（PCR）・脳波で確かめます。' }], hl: [T.ENC] },
+      // 正解を画像所見の長さにそろえ、位置・系列と症状を組み合わせて脳炎を疑う理由は解説に置く。
+      qs: [{ q: '目立つ所見は？', a: ['左の側頭葉内側から島に高信号', '両側の脳室周囲に広がる白質病変', '右の頭蓋骨に沿う慢性硬膜下血腫', '目立つ異常はなく、年齢相応'], why: 'においの異常に続く反応低下と口の動きは、焦点発作を疑う所見です。発熱・頭痛と急な精神症状があり、左の側頭葉内側から島に FLAIR・DWI 高信号があるため、単純ヘルペス脳炎を強く疑います。' },
+        // 髄液 PCR は病原体の検査で、脳波は発作などを評価する（EAN・ESCMID）。
+        { q: 'このあとすることは？', a: ['直ちにアシクロビルの点滴を始める', '統合失調症の初発として、抗精神病薬を始める', '髄液 PCR の結果が出てから治療を決める', '熱が下がるまで様子を見る'], why: '疑った時点でアシクロビルの点滴を始め、神経内科と連携します。髄液 PCR でウイルスを調べ、発作が疑われる場合は脳波で評価します。初期の髄液 PCR が陰性でも、疑いが強ければ治療を続け、髄液の再検査を検討します。' }], hl: [T.ENC] },
     { id: 'wern', name: '飲酒の多い人が、ぼんやりしてふらつく', who: '52歳・男性', cat: 'ウェルニッケ脳症', vol: { age: 52, A: 0.4, alc: 0.5, seed: 407, mta: 1, lesions: [{ type: 'blob', code: 904, x: 0, y: 7, a: 4.5, b: 3, lv: [1] }, { type: 'blob', code: 904, x: -4.5, y: 7, a: 2.6, b: 7, lv: [2] }, { type: 'blob', code: 904, x: 4.5, y: 7, a: 2.6, b: 7, lv: [2] }] }, seqs: ['T1', 'T2', 'FLAIR', 'DWI'], lv: 2, lvs: [0, 1, 2], seq: 'FLAIR',
       story: '毎日焼酎を1本。この1週間ほとんど食べずに飲んでいた。ぼんやりして話がかみ合わず、歩くとふらつく。目が横に揺れている（眼振）。',
-      qs: [{ q: '目立つ所見は？', a: ['第三脳室のまわりの視床内側と、中脳水道のまわりが FLAIR で左右対称に白い。ウェルニッケ脳症', '左の側頭葉の高信号（ヘルペス脳炎）', '海馬だけの萎縮', '異常なし（酩酊）'], why: 'ウェルニッケ脳症では、第三脳室・中脳水道のまわり、視床内側、乳頭体に左右対称の T2・FLAIR 高信号が出ます。意識障害・眼球運動障害・失調の三つがそろうのは一部だけで、MRI が正常のことも少なくありません。' },
-        { q: 'このあとすることは？', a: ['ブドウ糖より先に、ビタミンB1を大量に点滴で入れる', 'まず栄養のためにブドウ糖の点滴だけをする', 'アルコール離脱として、ベンゾジアゼピン系だけを使う', 'MRI が正常になるまで治療を待つ'], why: 'ビタミンB1が足りないままブドウ糖を入れると悪化します。疑ったら（MRI の結果を待たずに）B1 を大量に点滴します。遅れるとコルサコフ症候群（記憶の障害・作話）が残ります。' }], hl: [T.WERN] },
+      // 答えを画像所見にそろえ、視床と中脳水道周囲の分布は解説で示す。
+      qs: [{ q: '目立つ所見は？', a: ['視床内側などに左右対称の高信号', '左側頭葉に限局した片側の高信号', '海馬だけに目立つ萎縮', '目立つ異常はなく、年齢相応'], why: 'この症例では、第三脳室に接する視床内側や中脳水道のまわりに、左右対称の FLAIR 高信号があり、ウェルニッケ脳症を支持します。乳頭体に異常が出ることもあります。意識障害・眼球運動障害・失調の三つがそろうのは一部で、MRI が正常でも除外できません。' },
+        // ビタミンB1の静注は早急に行い、低血糖に対する緊急のブドウ糖投与も遅らせない（EFNS、ASAM）。
+        { q: 'このあとすることは？', a: ['ビタミンB1の点滴をすぐに始める', '栄養補給としてブドウ糖だけを点滴する', 'アルコール離脱として鎮静薬だけを使う', 'MRI の再検査まで治療を待つ'], why: '疑った時点で、MRI の結果を待たずに高用量のビタミンB1（チアミン）を点滴します。栄養補給の糖投与には先立って補いますが、緊急の低血糖ではブドウ糖を遅らせず、ビタミンB1も速やかに投与します。治療が遅れると、記憶の障害（コルサコフ症候群）が残ることがあります。' }], hl: [T.WERN] },
     { id: 'mb', name: '抗認知症の新しい薬を考えている', who: '74歳・女性', cat: '多発する脳微小出血（皮質下）', vol: { age: 74, A: 0.42, wml: 0.35, seed: 408, mta: 2, lesions: [
       { type: 'dot', x: -40, y: -20, r: 1.6, hu: 902, lv: [3] }, { type: 'dot', x: 38, y: 12, r: 1.4, hu: 902, lv: [3] }, { type: 'dot', x: -30, y: 30, r: 1.5, hu: 902, lv: [3, 4] }, { type: 'dot', x: 44, y: -14, r: 1.3, hu: 902, lv: [2] },
       { type: 'dot', x: -46, y: 6, r: 1.5, hu: 902, lv: [2] }, { type: 'dot', x: 22, y: -38, r: 1.4, hu: 902, lv: [4] }, { type: 'dot', x: -18, y: 40, r: 1.3, hu: 902, lv: [4] }, { type: 'dot', x: 30, y: 34, r: 1.5, hu: 902, lv: [2, 3] }] },
       seqs: ['T1', 'T2', 'FLAIR', 'T2*'], lv: 3, lvs: [2, 3, 4], seq: 'T2*',
       story: '軽度認知障害（MCI）で、アミロイド PET が陽性だった。家族は、抗アミロイド抗体薬（レカネマブなど）の治療を希望している。',
-      qs: [{ q: 'T2* の所見は？', a: ['大脳の皮質〜皮質下に、点状の低信号（黒い点）が多発。脳微小出血', '急性期の脳梗塞', '白質病変だけで、出血はない', '正常の血管（流れによる信号の抜け）'], why: 'T2*（SWI）で黒く抜ける小さな点は、微小出血（ヘモジデリン）です。T1・T2・FLAIR ではほとんど見えません。皮質〜皮質下に多いのは脳アミロイド血管症、基底核・視床・脳幹に多いのは高血圧性が典型です。' },
-        { q: 'この所見の意味として正しいのは？', a: ['抗アミロイド抗体薬では、脳浮腫・出血の副作用（ARIA）の危険が高く、微小出血が多い（5個以上）と使えない。抗血栓薬の判断にも関わる', '微小出血は認知症とは関係がないので、気にしなくてよい', '微小出血があれば、すぐに抗凝固薬を始める', 'FLAIR で見えないので、病的意義はない'], why: '抗アミロイド抗体薬（レカネマブ・ドナネマブ）は、治療前の MRI で微小出血・脳表ヘモジデリン沈着を確かめ、多いと適応外です。治療中も定期的に MRI で ARIA を確かめます。抗血栓薬の使い方も、出血の危険と合わせて考えます。' }], hl: [T.MB] }
+      // T2* の黒い点には血管や石灰化もあり、微小出血の判定には形と分布を確認する（Greenberg ら、Boston 基準 v2.0）。
+      qs: [{ q: 'T2* の所見は？', a: ['皮質〜皮質下の多発する微小出血', '左中大脳動脈領域の急性期脳梗塞', '脳室のまわりに広がる白質病変', '正常な血管の流れによる黒い点'], why: 'T2* や SWI（鉄などの影響を捉えやすい撮り方）では、微小出血が丸い黒点に見えます。血管は前後の断面で走り方を追い、石灰化との区別に CT が役立つことがあります。大脳の皮質やその直下に限って多発する場合は脳アミロイド血管症を、基底核・視床・脳幹に多い場合は高血圧性の細い動脈の病変を考えます。' },
+        // 国内の電子添文2.3に沿って、開始前に確認した微小出血5個以上を両剤の禁忌として示す。
+        { q: '全断面で微小出血が5個以上。レカネマブとドナネマブの開始について正しいのは？', a: ['レカネマブもドナネマブも禁忌', 'レカネマブのみ開始できる', 'ドナネマブのみ開始できる', 'FLAIRで見えなければ両剤とも開始できる'], why: '国内の電子添文では、投与前の脳微小出血が5個以上、脳表に出血の跡が残る所見（脳表ヘモジデリン沈着症）、または1cmを超える脳出血のいずれかがあれば、両剤とも禁忌です。投与前の血管原性脳浮腫も禁忌です。投与できる場合も、治療中は MRI で脳浮腫や出血など（ARIA）を確認します。抗血栓薬は、必要性と出血リスクを合わせて判断します。' }], hl: [T.MB] }
   ];
 
   /* ====================== 6. 画面の状態と描画 ====================== */
@@ -659,10 +708,15 @@ tr.on{background:var(--accent-soft)}
   function syncCtl() {
     document.getElementById('seqSeg').innerHTML = SEQS.map(function (s) { var ok = V.seqs.indexOf(s) !== -1; return '<button type="button" data-seq="' + s + '" aria-pressed="' + (V.seq === s) + '"' + (ok ? '' : ' disabled') + '>' + s + '</button>'; }).join('');
     document.getElementById('lvSeg').innerHTML = V.lvs.map(function (l) { return '<button type="button" data-lv="' + l + '" aria-pressed="' + (V.lv === l) + '">' + LV_NAMES[l] + '</button>'; }).join('');
-    document.getElementById('labelBtn').setAttribute('aria-pressed', String(V.labels));
+    var labels = document.getElementById('labelBtn');
+    labels.setAttribute('aria-pressed', String(V.labels));
+    labels.hidden = V.mode !== 'atlas' && !V.review;
     var hb = document.getElementById('hlBtn'); hb.hidden = !V.hl || !V.hl.length || !V.hlReady; hb.setAttribute('aria-pressed', String(V.showHl));
-    document.getElementById('vnote').innerHTML = V.mode === 'seqq' && !SQ.done && SQ.items[SQ.i] && SQ.items[SQ.i].pick == null ? '系列の名前は、答えると出ます。' : '<b>' + V.seq + '</b>：' + SEQ_EX[V.seq];
-    document.getElementById('seqSeg').hidden = V.mode === 'seqq' || V.mode === 'grade';
+    var vnote = document.getElementById('vnote');
+    vnote.hidden = V.mode !== 'atlas' && !V.review;
+    vnote.innerHTML = vnote.hidden ? '' : '<b>' + V.seq + '</b>：' + SEQ_EX[V.seq];
+    document.getElementById('seqSeg').parentElement.hidden = V.mode === 'seqq' || V.mode === 'grade';
+    document.getElementById('lvSeg').parentElement.hidden = V.lvs.length < 2;
   }
   function setView(o) { for (var k in o) V[k] = o[k]; if (V.seqs.indexOf(V.seq) === -1) V.seq = V.seqs[0]; if (V.lvs.indexOf(V.lv) === -1) V.lv = V.lvs[0]; syncCtl(); draw(); }
   document.getElementById('seqSeg').addEventListener('click', function (e) { var b = e.target.closest('button'); if (!b || b.disabled) return; setView({ seq: b.getAttribute('data-seq') }); if (V.mode === 'atlas') renderAtlas(); });
@@ -671,57 +725,150 @@ tr.on{background:var(--accent-soft)}
   document.getElementById('hlBtn').addEventListener('click', function () { setView({ showHl: !V.showHl }); });
 
   /* ====================== 7. モード ====================== */
-  var panel = document.getElementById('panel');
+  var panel = document.getElementById('panel'), guide = null;
   function esc(s) { return String(s).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); }
   function lsGet(k) { try { return localStorage.getItem(k); } catch (e) { return null; } }
   function lsSet(k, v) { try { localStorage.setItem(k, v); } catch (e) {} }
   function shuffled(n) { var a = []; for (var i = 0; i < n; i++) a.push(i); for (var j = n - 1; j > 0; j--) { var r = Math.floor(Math.random() * (j + 1)); var t = a[j]; a[j] = a[r]; a[r] = t; } return a; }
-  function optsHTML(q, order, pick, attr) {
-    return '<ol class="opts">' + order.map(function (ai, pos) { var cls = '', tag = ''; if (pick != null) { if (ai === 0) { cls = ' right'; tag = '正解'; } else if (ai === pick) { cls = ' wrong'; tag = 'あなた'; } else cls = ' dim'; }
-      return '<li><button type="button" class="opt' + cls + '" ' + attr + '="' + ai + '"' + (pick != null ? ' disabled' : '') + '><span class="k">' + (pos + 1) + '</span><span>' + esc(q.a[ai]) + '</span><span class="v">' + tag + '</span></button></li>'; }).join('') + '</ol>';
+  var AUTO_OPT = lsGet('mri-options-v1') === '1', SHOWOPT = {};
+  var optSetting = document.getElementById('mrOpts');
+  optSetting.setAttribute('aria-pressed', String(AUTO_OPT));
+  optSetting.addEventListener('click', function () {
+    AUTO_OPT = !AUTO_OPT;
+    lsSet('mri-options-v1', AUTO_OPT ? '1' : '0');
+    optSetting.setAttribute('aria-pressed', String(AUTO_OPT));
+    renderPractice();
+  });
+  function optGate(key, pick) {
+    return pick != null || AUTO_OPT || SHOWOPT[key] ? '' :
+      '<button type="button" class="showopt" data-showopt="' + esc(key) + '">選択肢を表示</button>';
+  }
+  function optionsStart(key, pick, tag, cls) {
+    var gate = optGate(key, pick);
+    return gate + '<' + tag + ' class="' + cls + '"' + (gate ? ' hidden' : '') + '>';
+  }
+  function setPractice(html, actions, showGuide) {
+    if (guide) guide.remove();
+    panel.innerHTML = '<div class="panel-content">' + html + '</div>' +
+      (actions ? '<div class="question-nav">' + actions + '</div>' : '');
+    if (guide && showGuide) panel.querySelector('.panel-content').appendChild(guide);
+  }
+  function renderPractice() {
+    if (V.mode === 'seqq') showSQ(true);
+    else if (V.mode === 'cases') renderCases();
+    else if (V.mode === 'grade') showGR(true);
+  }
+  function focusPanel(selector) {
+    var el = panel.querySelector(selector);
+    if (!el) return;
+    if (!el.matches('button') && !el.hasAttribute('tabindex')) el.tabIndex = -1;
+    var full = document.documentElement.classList.contains('is-max');
+    if (full) {
+      var body = panel.querySelector('.panel-content');
+      if (body && body.contains(el)) body.scrollTop += el.getBoundingClientRect().top - body.getBoundingClientRect().top - 4;
+    }
+    el.focus({ preventScroll: full });
+  }
+  function miss(id, q, picked, answer, why, options, context) {
+    var note = window.PG_NOTE;
+    if (picked !== answer && note && typeof note.miss === 'function') {
+      var tag = document.querySelector('script[data-app][data-where]');
+      note.miss({ app: '頭部MRIよみ道場', id: id, q: q, picked: picked, answer: answer, why: why,
+        options: options, context: context, where: tag ? tag.dataset.where + '#' + V.mode : '' });
+    }
+  }
+  function optsHTML(q, order, pick, key, qi) {
+    return optionsStart(key, pick, 'ol', 'opts') + order.map(function (ai, pos) {
+      var cls = '', tag = '';
+      if (pick != null) {
+        if (ai === 0) { cls = ' right'; tag = '正解'; }
+        else if (ai === pick) { cls = ' wrong'; tag = 'あなた'; }
+        else cls = ' dim';
+      }
+      return '<li><button type="button" class="opt' + cls + '" data-ca="' + qi + ':' + ai + '"' + (pick != null ? ' disabled' : '') + '><span class="k">' + (pos + 1) + '</span><span>' + esc(q.a[ai]) + '</span><span class="v">' + tag + '</span></button></li>';
+    }).join('') + '</ol>';
   }
   // 系列を見比べる
   function renderAtlas() {
-    panel.innerHTML = '<h2 tabindex="-1" id="panelH">系列を見比べる</h2><p class="sub">35歳の正常な脳。左の「系列」を切りかえて、髄液・灰白質・白質・脂肪・骨の見え方の違いを確かめましょう。</p>' +
+    var html = '<h2 tabindex="-1" id="panelH">系列を見比べる</h2><p class="sub">35歳の正常な脳。左の「系列」を切りかえて、髄液・灰白質・白質・脂肪・骨の見え方の違いを確かめましょう。</p>' +
       '<div class="tbl-wrap"><table><thead><tr><th>系列</th><th>髄液</th><th>白質と灰白質</th><th>何に強い</th></tr></thead><tbody>' +
       [['T1', '黒', '白質が白い', '解剖・萎縮（海馬）・脂肪・亜急性期の出血'], ['T2', '白', '白質が暗い', 'むくみ・梗塞・脱髄など多くの病変'], ['FLAIR', '黒', '白質が暗い', '脳室のそば・脳表の病変、白質病変、慢性硬膜下血腫'], ['DWI', '黒', '差が少ない', '急性期脳梗塞（いちばん早い）・脳炎・ヤコブ病'], ['ADC', '白', '差が少ない', 'DWI で白いところが本当の拡散制限か（黒なら制限あり）'], ['T2*', '白', '白質が暗い', '微小出血・古い出血・石灰化・鉄']].map(function (r) { return '<tr' + (r[0] === V.seq ? ' class="on"' : '') + '><th>' + r[0] + '</th><td>' + r[1] + '</td><td>' + r[2] + '</td><td>' + r[3] + '</td></tr>'; }).join('') + '</tbody></table></div>' +
       '<p class="sub">見分けのコツ：まず<b>髄液</b>を見る（黒なら T1・FLAIR・DWI、白なら T2・ADC・T2*）。次に<b>白質</b>（灰白質より白ければ T1）、<b>頭皮の脂肪</b>（DWI・ADC は脂肪抑制で黒い）。海馬は「海馬（冠状断）」で、T1 で見ます。</p>';
+    setPractice(html, '', true);
   }
   // 何強調？クイズ
-  var SQ = { items: [], i: 0, done: false };
+  var SQ = { items: [], i: 0, done: false }, run = 0;
   function startSQ() {
     var pool = ['young', 'svd', 'stroke', 'csdh', 'hse', 'mb', 'ad'];
     SQ.items = []; for (var k = 0; k < 8; k++) { var c = CASES.filter(function (x) { return x.id === pool[k % pool.length]; })[0], seq = SEQS[Math.floor(Math.random() * 6)], lv = c.lvs[Math.floor(Math.random() * c.lvs.length)]; if (lv === 5) lv = 2; SQ.items.push({ c: c, seq: seq, lv: lv, order: shuffled(6), pick: null }); }
-    SQ.items.sort(function () { return Math.random() - 0.5; }); SQ.i = 0; SQ.done = false; showSQ();
+    SQ.items.sort(function () { return Math.random() - 0.5; }); SQ.i = 0; SQ.done = false; SQ.run = ++run; showSQ();
   }
-  function showSQ() {
-    if (SQ.done) { var ok = SQ.items.filter(function (x) { return x.pick === x.seq; }).length, best = +(lsGet('mri-sq-best') || 0); if (ok > best) lsSet('mri-sq-best', String(ok));
-      panel.innerHTML = '<h2 tabindex="-1" id="panelH">何強調？クイズ　結果</h2><p class="big">' + ok + ' / ' + SQ.items.length + '</p><p class="sub">自己ベスト ' + Math.max(best, ok) + '</p><button type="button" class="btn" id="sqAgain">もう一度</button>'; return; }
-    var it = SQ.items[SQ.i]; setView({ key: it.c.id, vol: it.c.vol, lv: it.lv, seq: it.seq, seqs: SEQS.slice(), lvs: [it.lv], title: '？', hl: null, showHl: false, hlReady: false });
-    var h = '<h2 tabindex="-1" id="panelH">何強調？　' + (SQ.i + 1) + ' / ' + SQ.items.length + '</h2><p class="sub">髄液・白質・頭皮の脂肪の明るさから、系列を当てましょう。</p><div class="opts" style="grid-template-columns:repeat(3,minmax(0,1fr));display:grid">' +
+  function showSQ(keepView) {
+    if (SQ.done) {
+      var ok = SQ.items.filter(function (x) { return x.pick === x.seq; }).length;
+      setPractice('<h2 tabindex="-1" id="panelH">何強調？クイズ　結果</h2><p>' + ok + ' / ' + SQ.items.length + ' 問正解</p>',
+        '<button type="button" class="btn" id="sqAgain">もう一度</button>', true);
+      return;
+    }
+    var it = SQ.items[SQ.i];
+    if (!keepView) setView({ key: it.c.id, vol: it.c.vol, lv: it.lv, seq: it.seq, seqs: SEQS.slice(), lvs: [it.lv], title: it.pick == null ? '？' : '答え：' + it.seq, labels: false, review: it.pick != null, hl: null, showHl: false, hlReady: false });
+    var h = '<h2 tabindex="-1" id="panelH">何強調？　' + (SQ.i + 1) + ' / ' + SQ.items.length + '</h2><p class="sub">髄液・白質・頭皮の脂肪の明るさから、系列を当てましょう。</p>' +
+      optionsStart('seq-' + SQ.run + '-' + SQ.i, it.pick, 'div', 'opts seq-opts') +
       it.order.map(function (k) { var s = SEQS[k], cls = ''; if (it.pick) cls = s === it.seq ? ' right' : s === it.pick ? ' wrong' : ' dim'; return '<button type="button" class="opt' + cls + '" data-sq="' + s + '"' + (it.pick ? ' disabled' : '') + ' style="grid-template-columns:1fr;text-align:center;font-weight:700">' + s + '</button>'; }).join('') + '</div>';
-    if (it.pick) h += '<p class="why"><b>' + (it.pick === it.seq ? '正解。' : '正解は ' + it.seq + '。') + '</b>' + esc(SEQ_EX[it.seq]) + '</p><button type="button" class="btn" id="sqNext">' + (SQ.i + 1 >= SQ.items.length ? '結果を見る' : '次へ') + '</button>';
-    panel.innerHTML = h; syncCtl();
+    var actions = SQ.i > 0 ? '<button type="button" class="act" id="sqPrev">前の問いへ</button>' : '';
+    if (it.pick) {
+      h += '<p class="why"><b>' + (it.pick === it.seq ? '正解。' : '正解は ' + it.seq + '。') + '</b>' + esc(SEQ_EX[it.seq]) + '</p>';
+      actions += '<button type="button" class="btn" id="sqNext">' + (SQ.i + 1 >= SQ.items.length ? '結果を見る' : '次へ') + '</button>';
+    }
+    setPractice(h, actions, it.pick != null);
   }
   // 症例で読む
-  var CS = { ci: null, picks: {}, order: {} }, CSDONE = {}; try { CSDONE = JSON.parse(lsGet('mri-cases-v1') || '{}') || {}; } catch (e) {}
+  var CS = { ci: null, qi: 0, cursor: {}, picks: {}, order: {} }, CSDONE = {};
+  try { CSDONE = JSON.parse(lsGet('mri-cases-v1') || '{}') || {}; } catch (e) {}
   function renderCases(focus) {
-    var h = '<h2 tabindex="-1" id="panelH">症例で読む</h2><p class="sub">精神科で出会う器質因。系列と高さを切りかえて読みましょう。</p><ul class="cases">' + CASES.map(function (c, i) { var d = CSDONE[c.id]; return '<li><button type="button" class="case" data-ci="' + i + '" aria-current="' + (CS.ci === i) + '"><span class="cn">' + esc(c.name) + '</span><span class="cs">' + esc(c.who) + '</span>' + (d != null ? '<span class="done">' + esc(c.cat) + '　' + d + ' / 2</span>' : '') + '</button></li>'; }).join('') + '</ul>';
+    var h = '<h2 tabindex="-1" id="panelH">症例で読む</h2><details class="case-picker"' + (CS.ci == null ? ' open' : '') + '><summary>症例を選ぶ</summary><ul class="cases">' +
+      CASES.map(function (c, i) { var d = CSDONE[c.id]; return '<li><button type="button" class="case" data-ci="' + i + '" aria-current="' + (CS.ci === i) + '"><span class="cn">' + esc(c.name) + '</span><span class="cs">' + esc(c.who) + '</span>' + (d != null ? '<span class="done">回答済み</span>' : '') + '</button></li>'; }).join('') + '</ul></details>';
+    var actions = '', answered = false;
     if (CS.ci != null) {
-      var c = CASES[CS.ci], pk = CS.picks[c.id];
-      h += '<h3 style="margin:0" id="caseH" tabindex="-1">' + esc(c.name) + '　<span class="sub">' + esc(c.who) + '</span></h3><p class="story">' + esc(c.story) + '</p><p class="sub">撮った系列：' + c.seqs.join('・') + '</p>';
-      c.qs.forEach(function (q, qi) { if (qi > pk.length) return; h += '<h4 class="qh"><span class="qn">問' + (qi + 1) + '</span><span>' + esc(q.q) + '</span></h4>' + optsHTML(q, CS.order[c.id][qi], pk[qi], 'data-ca="' + qi + ':') .replace(/data-ca="(\d+):="(\d+)"/g, 'data-ca="$1:$2"'); if (pk[qi] != null) h += '<p class="why"><b>' + (pk[qi] === 0 ? '正解。' : '正解は「' + esc(q.a[0]) + '」。') + '</b>' + esc(q.why) + '</p>'; });
-      if (pk.length >= c.qs.length) h += '<p class="sub">左の「所見に色」で、所見の場所に赤い色がつきます。<b>' + esc(c.cat) + '</b></p>' + (CS.ci + 1 < CASES.length ? '<button type="button" class="btn" id="csNext">次の症例へ</button>' : '');
+      var c = CASES[CS.ci], qi = CS.qi, q = c.qs[qi], pick = CS.picks[c.id][qi];
+      answered = pick != null;
+      h += '<h3 style="margin:0" id="caseH" tabindex="-1">' + esc(c.name) + '　<span class="sub">' + esc(c.who) + '</span></h3><p class="story">' + esc(c.story) + '</p>' +
+        '<h4 class="qh"><span class="qn">問' + (qi + 1) + '</span><span>' + esc(q.q) + '</span></h4>' + optsHTML(q, CS.order[c.id][qi], pick, c.id + '-' + qi, qi);
+      if (qi > 0) actions = '<button type="button" class="act" data-cq="' + (qi - 1) + '">前の問いへ</button>';
+      if (answered) {
+        h += '<p class="why"><b>' + (pick === 0 ? '正解。' : '正解は「' + esc(q.a[0]) + '」。') + '</b>' + esc(q.why) + '</p>';
+        if (c.hl && c.hl.length) h += '<p class="sub">「所見に色」で、所見の場所に赤い色がつきます。</p>';
+        if (qi + 1 < c.qs.length) actions += '<button type="button" class="btn" data-cq="' + (qi + 1) + '">次の問いへ</button>';
+        else {
+          h += '<p class="sub"><b>' + esc(c.cat) + '</b></p>';
+          if (CS.ci + 1 < CASES.length) actions += '<button type="button" class="btn" id="csNext">次の症例へ</button>';
+        }
+      }
     }
-    panel.innerHTML = h;
-    // 細い画面では画像が上にあるので、症例を選んだら画像へ送る
-    if (focus === 'case') { var el = window.innerWidth <= 860 ? document.getElementById('film') : document.getElementById('caseH'); if (el) el.scrollIntoView({ block: window.innerWidth <= 860 ? 'start' : 'nearest', behavior: 'smooth' }); }
+    setPractice(h, actions, CS.ci == null || answered);
+    if (focus) focusPanel(CS.ci == null ? '#panelH' : '.qh');
+  }
+  function caseReview() {
+    var answered = CS.picks[CASES[CS.ci].id][CS.qi] != null;
+    setView({ labels: false, review: answered, hlReady: answered, showHl: answered });
+  }
+  function moveCaseQuestion(qi) {
+    CS.qi = CS.cursor[CASES[CS.ci].id] = qi;
+    caseReview();
+    renderCases(true);
   }
   function openCase(i) {
-    CS.ci = i; var c = CASES[i]; if (!CS.picks[c.id]) { CS.picks[c.id] = []; CS.order[c.id] = c.qs.map(function (q) { return shuffled(q.a.length); }); }
-    var answered = CS.picks[c.id].length > 0;
-    setView({ key: c.id, vol: c.vol, lv: c.lv, seq: c.seq, seqs: c.seqs, lvs: c.lvs, title: c.who, hl: c.hl, showHl: false, hlReady: answered });
-    renderCases('case');
+    CS.ci = i;
+    var c = CASES[i];
+    if (!CS.picks[c.id]) {
+      CS.picks[c.id] = [];
+      CS.order[c.id] = c.qs.map(function (q) { return shuffled(q.a.length); });
+    }
+    CS.qi = CS.cursor[c.id] || 0;
+    var answered = CS.picks[c.id][CS.qi] != null;
+    setView({ key: c.id, vol: c.vol, lv: c.lv, seq: c.seq, seqs: c.seqs, lvs: c.lvs, title: c.who, hl: c.hl,
+      labels: false, review: answered, showHl: answered, hlReady: answered });
+    renderCases(true);
   }
   // 萎縮・白質を判定
   var GR = { kind: 'mta', items: [], i: 0, done: false };
@@ -729,51 +876,133 @@ tr.on{background:var(--accent-soft)}
     GR.kind = kind || GR.kind; GR.items = []; var grades = GR.kind === 'mta' ? [0, 1, 2, 3, 4, 2, 3, 1] : [0, 1, 2, 3, 2, 1, 3, 0];
     grades.sort(function () { return Math.random() - 0.5; }).forEach(function (g, k) { var age = GR.kind === 'mta' ? [62, 70, 74, 78, 82, 86][Math.floor(Math.random() * 6)] : 70; var seed = 500 + k * 7 + Math.floor(Math.random() * 1000);
       GR.items.push({ g: g, age: age, vol: GR.kind === 'mta' ? { age: age, A: 0.25 + 0.06 * g, mta: g, seed: seed } : { age: 70, A: 0.3, fz: g, seed: seed }, key: GR.kind + seed, pick: null }); });
-    GR.i = 0; GR.done = false; showGR();
+    GR.i = 0; GR.done = false; GR.run = ++run; showGR();
   }
   var MTA_EX = ['0：海馬のまわりに髄液のすきまがない', '1：脈絡裂がわずかに広い', '2：脈絡裂と側脳室下角がはっきり広い。海馬の高さが少し低い', '3：海馬の体積がはっきり減る（高さが低い）', '4：海馬の体積が強く減り、下角が大きく広い'];
   var FZ_EX = ['0：白質病変なし', '1：点状の高信号（小さな点がいくつか）', '2：融合し始めた高信号', '3：大きく融合した高信号'];
-  function showGR() {
+  function showGR(keepView) {
     var kindSeg = '<div class="ctl-row"><span class="seg" id="grKind"><button type="button" data-k="mta" aria-pressed="' + (GR.kind === 'mta') + '">海馬の萎縮（MTA）</button><button type="button" data-k="fz" aria-pressed="' + (GR.kind === 'fz') + '">白質病変（Fazekas）</button></span></div>';
-    if (GR.done) { var ok = GR.items.filter(function (x) { return x.pick === x.g; }).length, near = GR.items.filter(function (x) { return Math.abs(x.pick - x.g) <= 1; }).length;
-      panel.innerHTML = '<h2 tabindex="-1" id="panelH">判定の結果</h2>' + kindSeg + '<p class="big">' + ok + ' / ' + GR.items.length + '</p><p class="sub">±1 以内：' + near + ' / ' + GR.items.length + '。判定する人どうしでも1段のずれはよくあります。</p><button type="button" class="btn" id="grAgain">もう一度</button>'; return; }
+    if (GR.done) {
+      var ok = GR.items.filter(function (x) { return x.pick === x.g; }).length;
+      setPractice('<h2 tabindex="-1" id="panelH">判定の結果</h2>' + kindSeg + '<p>' + ok + ' / ' + GR.items.length +
+        ' 問正解</p><p class="sub">判定する人どうしでも1段のずれはよくあります。</p>',
+        '<button type="button" class="btn" id="grAgain">もう一度</button>', true);
+      return;
+    }
     var it = GR.items[GR.i], mta = GR.kind === 'mta', n = mta ? 5 : 4;
-    setView({ key: it.key, vol: it.vol, lv: mta ? 5 : 3, seq: mta ? 'T1' : 'FLAIR', seqs: [mta ? 'T1' : 'FLAIR'], lvs: mta ? [5] : [3, 4], title: mta ? it.age + '歳' : '白質病変', hl: null, showHl: false, hlReady: false });
+    if (!keepView) setView({ key: it.key, vol: it.vol, lv: mta ? 5 : 3, seq: mta ? 'T1' : 'FLAIR', seqs: [mta ? 'T1' : 'FLAIR'], lvs: mta ? [5] : [3, 4], title: mta ? it.age + '歳' : '白質病変', labels: false, review: it.pick != null, hl: null, showHl: false, hlReady: false });
     var h = '<h2 tabindex="-1" id="panelH">' + (mta ? '海馬の萎縮（MTA スケール）' : '深部白質病変（Fazekas 分類）') + '　' + (GR.i + 1) + ' / ' + GR.items.length + '</h2>' + kindSeg +
       '<p class="sub">' + (mta ? '冠状断の T1 で、海馬・脈絡裂・側脳室下角を見て、0〜4 で判定します（左右のうち悪いほう）。' : 'FLAIR の側脳室体部〜半卵円中心の高さで、深部白質の高信号を 0〜3 で判定します。') + '</p>' +
-      '<div class="grades" style="grid-template-columns:repeat(' + n + ',minmax(0,1fr))">' + Array.apply(null, Array(n)).map(function (_, g) { var cls = ''; if (it.pick != null) cls = g === it.g ? 'right' : g === it.pick ? 'wrong' : ''; return '<button type="button" class="' + cls + '" data-gr="' + g + '"' + (it.pick != null ? ' disabled' : '') + '>' + g + '</button>'; }).join('') + '</div>';
+      optionsStart('grade-' + GR.run + '-' + GR.i, it.pick, 'div', 'grades') + Array.apply(null, Array(n)).map(function (_, g) { var cls = ''; if (it.pick != null) cls = g === it.g ? 'right' : g === it.pick ? 'wrong' : ''; return '<button type="button" class="' + cls + '" data-gr="' + g + '"' + (it.pick != null ? ' disabled' : '') + '>' + g + '</button>'; }).join('') + '</div>';
+    var actions = GR.i > 0 ? '<button type="button" class="act" id="grPrev">前の問いへ</button>' : '';
     if (it.pick != null) {
       h += '<p class="why"><b>' + (it.pick === it.g ? '正解。' : '正解は ' + it.g + '。') + '</b>' + esc((mta ? MTA_EX : FZ_EX)[it.g]) + (mta ? '。この人は ' + it.age + '歳なので、' + (it.age < 75 ? '2以上' : '3以上') + 'が異常の目安。→ ' + ((it.age < 75 ? it.g >= 2 : it.g >= 3) ? '年齢に比べて萎縮が強い。' : '年齢の範囲内。') : '') + '</p>' +
-        '<ul class="sub" style="margin:0;padding-left:1.2em">' + (mta ? MTA_EX : FZ_EX).map(function (t) { return '<li>' + esc(t) + '</li>'; }).join('') + '</ul><button type="button" class="btn" id="grNext">' + (GR.i + 1 >= GR.items.length ? '結果を見る' : '次へ') + '</button>';
+        '<ul class="sub" style="margin:0;padding-left:1.2em">' + (mta ? MTA_EX : FZ_EX).map(function (t) { return '<li>' + esc(t) + '</li>'; }).join('') + '</ul>';
+      actions += '<button type="button" class="btn" id="grNext">' + (GR.i + 1 >= GR.items.length ? '結果を見る' : '次へ') + '</button>';
     }
-    panel.innerHTML = h;
+    setPractice(h, actions, it.pick != null);
   }
 
   panel.addEventListener('click', function (e) {
     var b = e.target.closest('button'); if (!b) return;
+    if (b.hasAttribute('data-showopt')) {
+      SHOWOPT[b.getAttribute('data-showopt')] = true;
+      renderPractice();
+      focusPanel('.opts:not([hidden]) .opt:not(:disabled), .grades:not([hidden]) button:not(:disabled)');
+      return;
+    }
     if (V.mode === 'seqq') {
-      if (b.hasAttribute('data-sq')) { var it = SQ.items[SQ.i]; if (!it.pick) { it.pick = b.getAttribute('data-sq'); V.title = '答え：' + it.seq; draw(); showSQ(); } }
-      else if (b.id === 'sqNext') { if (SQ.i + 1 >= SQ.items.length) SQ.done = true; else SQ.i++; showSQ(); }
-      else if (b.id === 'sqAgain') startSQ();
+      if (b.hasAttribute('data-sq')) {
+        var it = SQ.items[SQ.i];
+        if (it.pick == null) {
+          it.pick = b.getAttribute('data-sq');
+          miss('seq-' + it.c.id + '-' + it.lv + '-' + it.seq, '画像はどのMRI系列？', it.pick, it.seq, SEQ_EX[it.seq], SEQS, '');
+          setView({ title: '答え：' + it.seq, review: true });
+          showSQ(true); focusPanel('.why');
+        }
+      } else if (b.id === 'sqPrev') { SQ.i--; showSQ(); focusPanel('#panelH'); }
+      else if (b.id === 'sqNext') {
+        if (SQ.i + 1 >= SQ.items.length) SQ.done = true; else SQ.i++;
+        showSQ(); focusPanel('#panelH');
+      } else if (b.id === 'sqAgain') { startSQ(); focusPanel('#panelH'); }
     } else if (V.mode === 'cases') {
       if (b.hasAttribute('data-ci')) openCase(+b.getAttribute('data-ci'));
-      else if (b.hasAttribute('data-ca')) { var v = b.getAttribute('data-ca').split(':'), c = CASES[CS.ci], pk = CS.picks[c.id], qi = +v[0]; if (pk[qi] == null && qi === pk.length) { pk[qi] = +v[1]; if (qi === 0) { V.hlReady = true; V.showHl = true; syncCtl(); draw(); } if (pk.length === c.qs.length) { var ok = pk.filter(function (x) { return x === 0; }).length; if (CSDONE[c.id] == null || ok > CSDONE[c.id]) { CSDONE[c.id] = ok; lsSet('mri-cases-v1', JSON.stringify(CSDONE)); } } renderCases(); } }
-      else if (b.id === 'csNext') openCase(CS.ci + 1);
+      else if (b.hasAttribute('data-cq')) moveCaseQuestion(+b.getAttribute('data-cq'));
+      else if (b.hasAttribute('data-ca')) {
+        var v = b.getAttribute('data-ca').split(':'), c = CASES[CS.ci], pk = CS.picks[c.id], qi = +v[0];
+        if (pk[qi] == null && qi === pk.length) {
+          var pick = pk[qi] = +v[1], q = c.qs[qi];
+          miss(c.id + '-' + qi, q.q, q.a[pick], q.a[0], q.why, q.a, c.story);
+          if (pk.length === c.qs.length) {
+            var ok = pk.filter(function (a) { return a === 0; }).length;
+            if (CSDONE[c.id] == null || ok > CSDONE[c.id]) {
+              CSDONE[c.id] = ok;
+              lsSet('mri-cases-v1', JSON.stringify(CSDONE));
+            }
+          }
+          caseReview(); renderCases(); focusPanel('.why');
+        }
+      } else if (b.id === 'csNext') openCase(CS.ci + 1);
     } else if (V.mode === 'grade') {
-      if (b.hasAttribute('data-gr')) { var g = GR.items[GR.i]; if (g.pick == null) { g.pick = +b.getAttribute('data-gr'); showGR(); } }
-      else if (b.hasAttribute('data-k')) startGR(b.getAttribute('data-k'));
-      else if (b.id === 'grNext') { if (GR.i + 1 >= GR.items.length) GR.done = true; else GR.i++; showGR(); }
-      else if (b.id === 'grAgain') startGR();
+      if (b.hasAttribute('data-gr')) {
+        var g = GR.items[GR.i];
+        if (g.pick == null) {
+          g.pick = +b.getAttribute('data-gr');
+          var mta = GR.kind === 'mta', labels = mta ? MTA_EX : FZ_EX;
+          miss(GR.kind + '-' + g.g, mta ? '海馬の萎縮はどの段階？' : '深部白質病変はどの段階？',
+            String(g.pick), String(g.g), labels[g.g], labels.map(function (_, i) { return String(i); }), '');
+          setView({ review: true }); showGR(true); focusPanel('.why');
+        }
+      } else if (b.hasAttribute('data-k')) { startGR(b.getAttribute('data-k')); focusPanel('#panelH'); }
+      else if (b.id === 'grPrev') { GR.i--; showGR(); focusPanel('#panelH'); }
+      else if (b.id === 'grNext') {
+        if (GR.i + 1 >= GR.items.length) GR.done = true; else GR.i++;
+        showGR(); focusPanel('#panelH');
+      } else if (b.id === 'grAgain') { startGR(); focusPanel('#panelH'); }
     }
   });
   document.addEventListener('keydown', function (e) {
-    if (e.altKey || e.ctrlKey || e.metaKey) return;
-    if (V.mode === 'grade' && /^[0-4]$/.test(e.key)) { var g = GR.items[GR.i]; if (g && g.pick == null && +e.key < (GR.kind === 'mta' ? 5 : 4)) { g.pick = +e.key; showGR(); } }
+    if (e.defaultPrevented || e.repeat || e.altKey || e.ctrlKey || e.metaKey ||
+        e.target.closest('input, select, textarea, [contenteditable]')) return;
+    var reveal = panel.querySelector('[data-showopt]');
+    if (reveal && (e.key === 'Enter' || e.key === ' ') && !e.target.closest('button, a, summary')) {
+      e.preventDefault(); reveal.click(); return;
+    }
+    var b;
+    if (V.mode === 'grade' && /^[0-4]$/.test(e.key)) b = panel.querySelector('.grades:not([hidden]) [data-gr="' + e.key + '"]:not(:disabled)');
+    else if (/^[1-6]$/.test(e.key)) b = panel.querySelectorAll('.opts:not([hidden]) .opt:not(:disabled)')[+e.key - 1];
+    if (b) { e.preventDefault(); b.click(); }
+  });
+
+  var root = document.documentElement, fs = document.getElementById('mrFsBtn');
+  function fullElement() { return document.fullscreenElement || document.webkitFullscreenElement; }
+  function setMax(on) {
+    root.classList.toggle('is-max', on);
+    fs.setAttribute('aria-pressed', String(on));
+    fs.textContent = on ? '全画面を終了' : '⛶ 全画面';
+  }
+  function toggleFullscreen(on) {
+    setMax(on);
+    var target = on ? root : document;
+    var method = on ? root.requestFullscreen || root.webkitRequestFullscreen : document.exitFullscreen || document.webkitExitFullscreen;
+    if (!method || (!on && !fullElement())) return;
+    try {
+      var result = method.call(target);
+      if (result && result.catch) result.catch(function () {});
+    } catch (e) { /* 端末内の全画面表示を使う */ }
+  }
+  fs.addEventListener('click', function () { toggleFullscreen(!root.classList.contains('is-max')); });
+  ['fullscreenchange', 'webkitfullscreenchange'].forEach(function (name) {
+    document.addEventListener(name, function () { setMax(!!fullElement()); });
+  });
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape' && root.classList.contains('is-max')) toggleFullscreen(false);
   });
 
   function setMode() {
     var m = (location.hash || '#atlas').slice(1); if (['atlas', 'seqq', 'cases', 'grade'].indexOf(m) === -1) m = 'atlas';
-    V.mode = m; document.querySelectorAll('.mode').forEach(function (a) { if (a.getAttribute('data-mode') === m) a.setAttribute('aria-current', 'page'); else a.removeAttribute('aria-current'); });
+    V.mode = m; V.labels = false; V.review = false;
+    document.querySelectorAll('.mode').forEach(function (a) { if (a.getAttribute('data-mode') === m) a.setAttribute('aria-current', 'page'); else a.removeAttribute('aria-current'); });
     if (m === 'atlas') { setView({ key: 'n35', vol: normal(35, 35), lv: 2, seq: V.seq || 'T1', seqs: SEQS.slice(), lvs: [0, 1, 2, 3, 4, 5], title: '35歳', hl: null, showHl: false, hlReady: false }); renderAtlas(); }
     else if (m === 'seqq') startSQ();
     else if (m === 'cases') { if (CS.ci != null) openCase(CS.ci); else { setView({ key: 'young', vol: CASES[0].vol, lv: 2, seq: 'FLAIR', seqs: CASES[0].seqs, lvs: CASES[0].lvs, title: '症例を選ぶ', hl: null, showHl: false, hlReady: false }); renderCases(); } }
@@ -781,7 +1010,8 @@ tr.on{background:var(--accent-soft)}
   }
   window.addEventListener('hashchange', setMode);
   setMode();
-  window.__mri = { V: V, CASES: CASES, mrImage: mrImage, T: T, draw: draw };
+  window.__mri = { V: V, CASES: CASES, mrImage: mrImage, T: T, draw: draw,
+    attachGuide: function (lab) { guide = lab; if (V.mode === 'atlas') renderAtlas(); else renderPractice(); } };
 })();
 </script>
 <script>
@@ -889,20 +1119,20 @@ tr.on{background:var(--accent-soft)}
       '<p class="mr-msg" id="mrMatMsg"></p>' +
     '</div>';
 
-  desk.parentNode.insertBefore(lab, desk);
+
 
   var curS = 0;
   function renderMat(){
-    document.getElementById('mrSeqBtns').innerHTML = COLS.map(function(c, i){
+    lab.querySelector('#mrSeqBtns').innerHTML = COLS.map(function(c, i){
       return '<button type="button" class="mr-sbtn" data-ms="'+i+'" aria-pressed="'+(i===curS?'true':'false')+'">'+c.id+'</button>';
     }).join('');
-    document.getElementById('mrMatSvg').innerHTML = renderMatSvg(curS);
-    document.getElementById('mrMatMsg').textContent = COLS[curS].msg;
+    lab.querySelector('#mrMatSvg').innerHTML = renderMatSvg(curS);
+    lab.querySelector('#mrMatMsg').textContent = COLS[curS].msg;
   }
   lab.addEventListener('click', function(e){
     var tb = e.target.closest('#mrLabToggle');
     if(tb){
-      var b = document.getElementById('mrLabBody');
+      var b = lab.querySelector('#mrLabBody');
       var open = !b.hidden;
       b.hidden = open;
       tb.setAttribute('aria-expanded', open ? 'false' : 'true');
@@ -913,6 +1143,7 @@ tr.on{background:var(--accent-soft)}
     if(sb){ curS = +sb.getAttribute('data-ms'); renderMat(); }
   });
   renderMat();
+  window.__mri.attachGuide(lab);
 })();
 </script>
 

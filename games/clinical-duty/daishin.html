@@ -6,7 +6,7 @@
 <meta name="robots" content="noindex, nofollow">
 <!-- アクセス数（GoatCounter、Cookie なし・個人を特定しない。2026-11-23 利用者の依頼） -->
 <script data-goatcounter="https://psychogames.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
-<meta name="app-version" content="20261125152428">
+<meta name="app-version" content="20261127203041">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
@@ -182,7 +182,23 @@ h1{
 .opt.wrong{border-color:var(--seal); background:var(--seal-soft)}
 .opt.wrong .v{color:var(--seal)}
 .opt.dim{opacity:.62}
-.why{border-left:3px solid var(--accent); padding:4px 0 4px 12px; font-size:var(--fs-s); max-width:44em}
+.why{border-left:3px solid var(--line); padding:4px 0 4px 12px; font-size:var(--fs-s); max-width:44em; margin-top:6px}
+/* 回答後：判定・要点・くわしく（2026-11-27） */
+.verdict{display:flex; flex-wrap:wrap; align-items:baseline; gap:4px 12px; padding:8px 12px; border-radius:var(--r); font-weight:700}
+.verdict.ok{background:var(--ok-soft); color:var(--ok)}
+.verdict.ng{background:var(--seal-soft); color:var(--seal)}
+.vd-mark{font-family:var(--f-display); font-weight:400; font-size:var(--fs-xl); letter-spacing:.06em}
+.vd-ans{color:var(--ink); font-size:var(--fs-s)}
+.point{font-weight:700; line-height:1.65; padding-left:12px; border-left:4px solid var(--accent); max-width:40em}
+/* 答え終わって次の問いへ進んだら、選ばなかった選択肢はたたむ（正解とあなたの答えだけ残す） */
+.q:not(.cq-active) .opts li:has(.opt.dim){display:none}
+details.more{font-size:var(--fs-s)}
+details.more > summary{cursor:pointer; min-height:44px; display:flex; align-items:center; gap:6px; color:var(--accent); font-weight:700; width:fit-content}
+details.more > summary::marker{content:''}
+details.more > summary::before{content:'＋'; display:inline-grid; place-items:center; width:22px; height:22px; border:1.5px solid var(--accent); border-radius:50%; font-size:.8rem}
+details.more[open] > summary::before{content:'－'}
+@media (prefers-reduced-motion: no-preference){ .verdict{animation:vdpop .32s cubic-bezier(.2,1.4,.4,1)} }
+@keyframes vdpop{from{transform:scale(.92); opacity:0} to{transform:none; opacity:1}}
 .why b{font-weight:700}
 .why .law{display:block; margin-top:4px; font-size:var(--fs-xs); color:var(--muted)}
 .done-q{font-size:var(--fs-s); color:var(--muted); display:flex; gap:8px; align-items:baseline}
@@ -324,7 +340,13 @@ tbody th{white-space:nowrap}
 tbody tr:last-child th, tbody tr:last-child td{border-bottom:0}
 .foot{margin-top:28px; font-size:var(--fs-xs); color:var(--muted); max-width:52em}
 
-/* 代診の外来（daishin_vis.css）：上部ガイド・8症例の受診場面カード（2コマ動き対応）・全24問の回答後SVG図解・全画面最適化 */
+/* 代診の外来（daishin_vis.css）：
+ * 1. 最初の画面で遊びたくなる入口カード（2行以内の説明・大きな「▶ はじめる」ボタン・所要時間「⏱ 1場面 約1分」・症例1挿絵・長い前置きは「遊び方」折りたたみへ）
+ * 2. 上部「見て分かる 代診の3つの柱」判断マップ（初期折りたたみ・1枠2行以内・要点と数字バッジ強調・細目は「くわしく」へ）
+ * 3. 全8症例の受診場面カード（IMG["ds-case1"〜"ds-case8"]＋症例2・症例4の2コマ切り替え＋1枠2行以内の受診時観察SVG）
+ * 4. 全24問（8症例×3問）の回答後SVG解説図（要点バッジ＋1枠2行以内SVG＋2行要約＋「くわしく」補足）＋3問完了時のまとめカード
+ * 5. 答えたときの手応え演出（0.25秒スタンプ＆ポップ・prefers-reduced-motion対応）と明暗切替（daishin-theme-v1）・全画面（cq-max）最適化
+ */
 :root{
   --ds-card:color-mix(in srgb, var(--panel) 94%, var(--paper));
   --ds-stage:color-mix(in srgb, var(--accent) 6%, var(--panel));
@@ -340,6 +362,7 @@ tbody tr:last-child th, tbody tr:last-child td{border-bottom:0}
 }
 @media (prefers-color-scheme: dark){
   :root:not([data-theme="light"]){
+    --ds-stage:#151d22;
     --ds-good:#66cf9c;
     --ds-warn:#f0b85a;
     --ds-crit:#f27d74;
@@ -347,15 +370,292 @@ tbody tr:last-child th, tbody tr:last-child td{border-bottom:0}
   }
 }
 :root[data-theme="dark"]{
+  --ds-stage:#151d22;
   --ds-good:#66cf9c;
   --ds-warn:#f0b85a;
   --ds-crit:#f27d74;
   --ds-info:#8bd0d2;
 }
 
-/* 上部：見て分かる 代診の3つの柱ガイド */
+.rule a, .foot a{
+  display:inline-flex;
+  align-items:center;
+  min-height:44px;
+  padding:0 4px;
+  vertical-align:baseline;
+}
+
+/* ================= 最初の画面で遊びたくなる入口カード（2026-11-27 短く・楽しく） ================= */
+.ds-welcome{
+  background:var(--panel);
+  border:2px solid var(--accent);
+  border-radius:12px;
+  padding:14px 16px;
+  display:grid;
+  grid-template-columns:1.28fr 1fr;
+  gap:14px;
+  align-items:center;
+  box-shadow:0 4px 16px color-mix(in srgb, var(--accent) 12%, transparent);
+}
+@media (max-width:680px){
+  .ds-welcome{
+    grid-template-columns:1fr;
+    padding:12px;
+  }
+}
+.ds-welcome-main{
+  display:grid;
+  gap:10px;
+  min-width:0;
+}
+.ds-welcome-badges{
+  display:flex;
+  flex-wrap:wrap;
+  gap:6px;
+  align-items:center;
+}
+.ds-welcome-pill{
+  display:inline-flex;
+  align-items:center;
+  gap:4px;
+  padding:3px 10px;
+  border-radius:999px;
+  font-size:.76rem;
+  font-weight:700;
+  background:var(--accent-soft);
+  color:var(--accent);
+  border:1px solid color-mix(in srgb, var(--accent) 45%, var(--line));
+}
+.ds-welcome-pill.time{
+  background:var(--ds-warn-bg);
+  color:var(--ds-warn);
+  border-color:var(--ds-warn);
+}
+.ds-welcome-pill.law{
+  background:var(--ds-info-bg);
+  color:var(--ds-info);
+  border-color:var(--ds-info);
+}
+.ds-welcome-copy{
+  margin:0;
+  font-size:.94rem;
+  font-weight:700;
+  line-height:1.48;
+  color:var(--ink);
+  display:-webkit-box;
+  -webkit-line-clamp:2;
+  -webkit-box-orient:vertical;
+  overflow:hidden;
+}
+@media (max-width:480px){
+  .ds-welcome-copy{font-size:.86rem}
+}
+.ds-welcome-actions{
+  display:flex;
+  flex-wrap:wrap;
+  gap:8px;
+  align-items:center;
+}
+.ds-start-btn{
+  min-height:48px;
+  padding:8px 18px;
+  border-radius:999px;
+  border:0;
+  background:var(--accent);
+  color:var(--accent-ink);
+  font:inherit;
+  font-size:.95rem;
+  font-weight:700;
+  cursor:pointer;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  gap:8px;
+  touch-action:manipulation;
+  box-shadow:0 3px 10px color-mix(in srgb, var(--accent) 30%, transparent);
+  transition:transform .12s, filter .15s;
+}
+.ds-start-btn:hover{filter:brightness(1.08)}
+.ds-start-btn:active{transform:scale(.97)}
+.ds-sub-start-btn{
+  min-height:46px;
+  padding:6px 14px;
+  border-radius:999px;
+  border:1.5px solid var(--accent);
+  background:var(--paper);
+  color:var(--accent);
+  font:inherit;
+  font-size:var(--fs-xs);
+  font-weight:700;
+  cursor:pointer;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  gap:6px;
+  touch-action:manipulation;
+  transition:background .15s, transform .12s;
+}
+.ds-sub-start-btn:hover{background:var(--accent-soft)}
+.ds-sub-start-btn:active{transform:scale(.97)}
+.ds-welcome-art{
+  position:relative;
+  border-radius:10px;
+  overflow:hidden;
+  border:1.5px solid var(--line);
+  background:var(--ds-stage);
+  aspect-ratio:16 / 9;
+  max-height:168px;
+}
+.ds-welcome-art img{
+  width:100%;
+  height:100%;
+  object-fit:cover;
+  display:block;
+}
+.ds-welcome-art-ph{
+  width:100%;
+  height:100%;
+  min-height:130px;
+  display:grid;
+  place-items:center;
+  padding:10px;
+  text-align:center;
+  font-size:var(--fs-xs);
+  color:var(--muted);
+}
+.ds-welcome-art-tag{
+  position:absolute;
+  left:8px;
+  bottom:8px;
+  padding:2px 9px;
+  border-radius:999px;
+  background:color-mix(in srgb, var(--panel) 92%, transparent);
+  color:var(--ink);
+  border:1px solid var(--line);
+  font-size:.72rem;
+  font-weight:700;
+}
+
+/* 遊び方・前置きの折りたたみ */
+details.ds-howto{
+  background:var(--panel);
+  border:1px solid var(--line);
+  border-radius:8px;
+  padding:0 12px;
+  font-size:var(--fs-xs);
+  color:var(--muted);
+}
+details.ds-howto > summary{
+  min-height:44px;
+  cursor:pointer;
+  display:flex;
+  align-items:center;
+  gap:6px;
+  font-weight:700;
+  color:var(--accent);
+  list-style:none;
+}
+details.ds-howto > summary::-webkit-details-marker{display:none}
+details.ds-howto > summary::before{
+  content:'＋';
+  display:inline-grid;
+  place-items:center;
+  width:20px;
+  height:20px;
+  border:1.5px solid var(--accent);
+  border-radius:50%;
+  font-size:.75rem;
+  flex:none;
+}
+details.ds-howto[open] > summary::before{content:'－'}
+.ds-howto-body{
+  padding:6px 0 12px;
+  border-top:1px dashed var(--line);
+  display:grid;
+  gap:6px;
+  line-height:1.55;
+  color:var(--ink);
+}
+
+/* ================= 数字・要点バッジ・2行制限・「くわしく」折りたたみ ================= */
+.ds-kpi-row{
+  display:flex;
+  flex-wrap:wrap;
+  gap:6px;
+  align-items:center;
+}
+.ds-big-num{
+  display:inline-flex;
+  align-items:baseline;
+  gap:3px;
+  padding:2px 9px;
+  border-radius:6px;
+  font-family:var(--f-display);
+  font-size:.96rem;
+  font-weight:700;
+  line-height:1.3;
+  background:var(--accent-soft);
+  color:var(--accent);
+  border:1.5px solid var(--accent);
+  font-variant-numeric:tabular-nums;
+}
+.ds-big-num.ok{background:var(--ds-good-bg); color:var(--ds-good); border-color:var(--ds-good)}
+.ds-big-num.warn{background:var(--ds-warn-bg); color:var(--ds-warn); border-color:var(--ds-warn)}
+.ds-big-num.crit{background:var(--ds-crit-bg); color:var(--ds-crit); border-color:var(--ds-crit)}
+.ds-big-num.info{background:var(--ds-info-bg); color:var(--ds-info); border-color:var(--ds-info)}
+
+.ds-2line{
+  display:-webkit-box;
+  -webkit-line-clamp:2;
+  -webkit-box-orient:vertical;
+  overflow:hidden;
+  line-height:1.45;
+}
+details.ds-more{
+  font-size:.76rem;
+  color:var(--muted);
+  margin-top:2px;
+}
+details.ds-more > summary{
+  min-height:44px;
+  cursor:pointer;
+  display:inline-flex;
+  align-items:center;
+  gap:5px;
+  color:var(--accent);
+  font-weight:700;
+  list-style:none;
+  padding:2px 6px;
+  border-radius:6px;
+}
+details.ds-more > summary::-webkit-details-marker{display:none}
+details.ds-more > summary::before{
+  content:'＋';
+  display:inline-grid;
+  place-items:center;
+  width:18px;
+  height:18px;
+  border:1.5px solid var(--accent);
+  border-radius:50%;
+  font-size:.7rem;
+  flex:none;
+}
+details.ds-more[open] > summary::before{content:'－'}
+.ds-more-body{
+  padding:6px 9px;
+  margin-top:2px;
+  border-radius:6px;
+  background:var(--paper);
+  border:1px dashed var(--line);
+  line-height:1.5;
+  color:var(--ink);
+  display:grid;
+  gap:4px;
+}
+
+/* ================= 上部：見て分かる 代診の3つの柱ガイド ================= */
 .ds-guide{
-  margin-top:20px;
+  margin-top:18px;
   border:1.5px solid var(--ds-border);
   border-radius:var(--r);
   background:var(--panel);
@@ -372,6 +672,8 @@ tbody tr:last-child th, tbody tr:last-child td{border-bottom:0}
   border-bottom:1px solid var(--line);
 }
 .ds-guide-title{
+  flex:1;
+  min-width:0;
   margin:0;
   font-size:var(--fs-m);
   font-weight:700;
@@ -379,6 +681,7 @@ tbody tr:last-child th, tbody tr:last-child td{border-bottom:0}
   align-items:center;
   gap:8px;
   flex-wrap:wrap;
+  line-height:1.35;
 }
 .ds-badge{
   display:inline-flex;
@@ -390,12 +693,27 @@ tbody tr:last-child th, tbody tr:last-child td{border-bottom:0}
   background:var(--accent);
   color:var(--accent-ink);
   letter-spacing:.04em;
+  white-space:nowrap;
 }
+.ds-gate-note{
+  padding:8px 14px;
+  font-size:var(--fs-xs);
+  color:var(--muted);
+  background:var(--ds-stage);
+  border-bottom:1px dashed var(--line);
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+  flex-wrap:wrap;
+}
+.ds-gate-note b{color:var(--ink)}
 .ds-guide-body{
   padding:12px 14px 14px;
   display:grid;
-  gap:12px;
+  gap:10px;
 }
+.ds-guide-body[hidden]{display:none!important}
 .ds-nav-tabs{
   display:flex;
   flex-wrap:wrap;
@@ -413,20 +731,23 @@ tbody tr:last-child th, tbody tr:last-child td{border-bottom:0}
   color:var(--ink);
   cursor:pointer;
   text-align:left;
+  transition:border-color .15s, background .15s, transform .1s;
 }
 .ds-nav-tab:hover{
   border-color:var(--accent);
 }
+.ds-nav-tab:active{transform:scale(.97)}
 .ds-nav-tab[aria-selected="true"]{
   border-color:var(--accent);
   background:var(--accent-soft);
   box-shadow:inset 0 0 0 1px var(--accent);
+  animation:dsChipPop .22s cubic-bezier(.2,1.35,.4,1);
 }
 .ds-guide-pane{
   border:1px solid var(--line);
   border-radius:var(--r);
   background:var(--ds-stage);
-  padding:12px;
+  padding:10px 12px;
   display:grid;
   gap:8px;
 }
@@ -444,19 +765,20 @@ tbody tr:last-child th, tbody tr:last-child td{border-bottom:0}
   font-family:var(--f-body);
 }
 .ds-guide-note{
+  margin:0;
   font-size:var(--fs-s);
   color:var(--ink);
-  line-height:1.55;
+  line-height:1.48;
 }
 
-/* 各症例の受診場面カード（回答前に出す観察所見・場面挿絵） */
+/* ================= 各症例の受診場面カード（回答前に出す観察所見・場面挿絵） ================= */
 .ds-scene-card{
   border:1.5px solid var(--ds-border);
   border-radius:var(--r);
   background:var(--ds-stage);
   padding:10px 12px;
   display:grid;
-  gap:10px;
+  gap:8px;
 }
 .ds-scene-top{
   display:flex;
@@ -473,7 +795,7 @@ tbody tr:last-child th, tbody tr:last-child td{border-bottom:0}
 .ds-pill{
   display:inline-flex;
   align-items:center;
-  padding:2px 8px;
+  padding:2px 9px;
   border-radius:999px;
   font-size:var(--fs-xs);
   font-weight:700;
@@ -489,13 +811,13 @@ tbody tr:last-child th, tbody tr:last-child td{border-bottom:0}
 /* 生成挿絵枠＆2コマ切り替え（クロスフェード） */
 .ds-illust-wrap{
   display:grid;
-  gap:8px;
+  gap:6px;
 }
 .ds-illust-stage{
   position:relative;
   width:100%;
   aspect-ratio:16 / 9;
-  max-height:280px;
+  max-height:260px;
   border-radius:var(--r);
   overflow:hidden;
   border:1px solid var(--line);
@@ -543,11 +865,11 @@ tbody tr:last-child th, tbody tr:last-child td{border-bottom:0}
   display:inline-flex;
   align-items:center;
   gap:6px;
-  padding:4px 10px;
+  padding:3px 10px;
   border-radius:4px;
   font-size:var(--fs-xs);
   font-weight:700;
-  background:color-mix(in srgb, var(--panel) 90%, transparent);
+  background:color-mix(in srgb, var(--panel) 92%, transparent);
   color:var(--ink);
   border:1px solid var(--line);
   box-shadow:0 2px 8px var(--shadow);
@@ -575,20 +897,25 @@ tbody tr:last-child th, tbody tr:last-child td{border-bottom:0}
   background:var(--accent-soft);
 }
 .ds-scene-cap{
+  margin:0;
   font-size:var(--fs-xs);
   color:var(--muted);
-  line-height:1.5;
+  line-height:1.42;
+  display:-webkit-box;
+  -webkit-line-clamp:2;
+  -webkit-box-orient:vertical;
+  overflow:hidden;
 }
 
-/* 回答後の解説図（全24問） */
-.ds-qvis{
+/* ================= 回答後の解説図（全24問＋3問完了時のまとめカード） ================= */
+.ds-qvis, .ds-done-map{
   margin-top:8px;
   border:1.5px solid var(--ds-border);
   border-radius:var(--r);
   background:var(--ds-stage);
-  padding:10px 12px;
+  padding:9px 11px;
   display:grid;
-  gap:8px;
+  gap:6px;
 }
 .ds-qvis-head{
   display:flex;
@@ -602,36 +929,153 @@ tbody tr:last-child th, tbody tr:last-child td{border-bottom:0}
 }
 .ds-qvis-tag{
   display:inline-block;
-  padding:1px 7px;
-  border-radius:4px;
+  padding:1px 8px;
+  border-radius:999px;
   background:var(--accent-soft);
   border:1px solid var(--ds-border);
-  font-size:.72rem;
+  font-size:.7rem;
 }
 .ds-qvis-cap{
+  margin:0;
   font-size:var(--fs-xs);
   color:var(--ink);
-  line-height:1.5;
+  font-weight:700;
+  line-height:1.42;
+  display:-webkit-box;
+  -webkit-line-clamp:2;
+  -webkit-box-orient:vertical;
+  overflow:hidden;
 }
 
-/* 全画面（cq-max）での収まり調整 */
+/* 早見表の3つの柱バッジ */
+.ds-ref-badge{
+  display:inline-flex;
+  align-items:center;
+  gap:4px;
+  padding:2px 8px;
+  border-radius:999px;
+  font-size:.74rem;
+  font-weight:700;
+  margin-bottom:4px;
+  border:1px solid var(--line);
+}
+.ds-ref-badge.hear{background:var(--ds-crit-bg); color:var(--ds-crit); border-color:var(--ds-crit)}
+.ds-ref-badge.rx{background:var(--ds-warn-bg); color:var(--ds-warn); border-color:var(--ds-warn)}
+.ds-ref-badge.handover{background:var(--ds-info-bg); color:var(--ds-info); border-color:var(--ds-info)}
+
+/* ================= 答えたときの手応え演出（0.3秒以内・reduced-motion対応） ================= */
+.opt.right{
+  animation:dsAnsRight .24s cubic-bezier(.2,1.35,.4,1);
+}
+.opt.wrong{
+  animation:dsShake .24s ease-in-out;
+}
+.verdict{
+  position:relative;
+  overflow:hidden;
+  animation:dsVerdictStamp .24s cubic-bezier(.2,1.4,.4,1) both!important;
+}
+.verdict::after{
+  content:'代診・確認済';
+  margin-left:auto;
+  padding:1px 8px;
+  border-radius:999px;
+  font-family:var(--f-display);
+  font-size:.74rem;
+  border:1.5px solid currentColor;
+  transform:rotate(-4deg);
+}
+.verdict.ng::after{
+  content:'判断を再確認';
+}
+.point{
+  animation:dsPointSlide .22s ease-out both;
+}
+@keyframes dsAnsRight{
+  0%{transform:scale(1)}
+  60%{transform:scale(1.015)}
+  100%{transform:scale(1)}
+}
+@keyframes dsShake{
+  0%,100%{transform:translateX(0)}
+  25%{transform:translateX(-3px)}
+  75%{transform:translateX(3px)}
+}
+@keyframes dsChipPop{
+  0%{transform:scale(1)}
+  60%{transform:scale(1.03)}
+  100%{transform:scale(1)}
+}
+@keyframes dsVerdictStamp{
+  from{transform:scale(.94) translateY(-3px);opacity:0}
+  to{transform:none;opacity:1}
+}
+@keyframes dsPointSlide{
+  from{opacity:0;transform:translateX(-5px)}
+  to{opacity:1;transform:none}
+}
+@media (prefers-reduced-motion: reduce){
+  .ds-illust-img{transition:none}
+  .ds-nav-tab[aria-selected="true"],
+  .opt.right, .opt.wrong, .verdict, .point{
+    animation:none!important;
+  }
+}
+
+/* ================= 全画面（cq-max）での収まり調整 ================= */
 .cq-max .ds-guide{
   display:none!important;
 }
 .cq-max .ds-scene-card{
   padding:8px 10px;
-  gap:6px;
+  gap:5px;
 }
 .cq-max .ds-illust-stage{
-  max-height:175px;
+  max-height:165px;
 }
-.cq-max .ds-qvis{
-  padding:8px 10px;
-  gap:6px;
+.cq-max .ds-qvis, .cq-max .ds-done-map{
+  padding:7px 9px;
+  gap:4px;
+}
+.cq-max .ds-qvis-svg{
+  max-height:124px;
 }
 @media (max-width:850px) and (orientation:portrait), (max-width:620px){
+  .cq-max .cq-tools{
+    gap:4px;
+    flex-wrap:nowrap;
+  }
+  .cq-max .cq-tools .ghost{
+    padding:4px 8px;
+    font-size:.74rem;
+    white-space:nowrap;
+  }
+  .cq-max .case{
+    grid-template-rows:auto minmax(0,2.3fr) minmax(0,7.7fr);
+  }
   .cq-max .ds-illust-stage{
-    max-height:120px;
+    max-height:104px;
+  }
+  .cq-max .ds-qvis-svg{
+    max-height:88px;
+  }
+  .cq-max .q{
+    gap:5px;
+    padding:2px;
+  }
+  .cq-max .opts{
+    gap:4px;
+  }
+  .cq-max .opt{
+    padding:4px 8px;
+    line-height:1.35;
+  }
+  .cq-max .verdict{
+    padding:5px 10px;
+  }
+  .cq-max .point{
+    font-size:.82rem;
+    line-height:1.4;
   }
 }
 </style>
@@ -691,21 +1135,24 @@ var CASES = [
   {
     time: '9:10', where: '精神科外来', night: false,
     title: '「いつもの薬が切れました」', stamp: ['継続', '確認'], stampName: 'いつもの薬が切れた日',
-    story: '46歳の男性。統合失調症で長く通院し、ここ数年は同じ飲み薬で仕事を続けている。主治医の休診で予約がずれ、昨夜で薬を飲み切った。「今日の分から薬がありません」とお薬手帳を出した。',
-    memo: [['本人', '「普段どおり仕事に行けています」'], ['手元', '昨夜の分まで服用'], ['予定', '主治医の次の診察枠が取れる']],
+    story: '46歳の男性。統合失調症で通院し、同じ薬で仕事を続けている。主治医の休診で予約がずれ、昨夜で薬が切れた。お薬手帳を出す。',
+    memo: [['本人', '「普段どおり仕事に行けています」'], ['手元', '昨夜の分まで服用'], ['予定', '主治医の次の診察枠が取れる'], ['経過', '長く通院し、ここ数年は同じ飲み薬を続けている'], ['本人の訴え', '「今日の分から薬がありません」']],
     vis: 'お薬手帳と空の薬袋を机に置き、主治医の休診を告げる受付から診察室へ場面を切り替える。',
     qs: [
       { q: '同じ薬を出すか決める前に、何を確かめる？',
         a: ['薬の実際の飲み方と残り、最近の症状や副作用', '初診から今までの仕事と家族関係の詳しい経過', '前回の処方と次の予約だけをカルテで確認する', '薬を切らしたことがあるかと、薬局を変更したか'],
+        point: '記録上の処方と実際の服薬、今の症状を照らし合わせる。',
         why: 'カルテとお薬手帳を照らし、本人にも飲み方、幻聴や睡眠の変化、眠気などの副作用を聞きます。処方歴や以前に薬を切らした経験だけでは、実際に飲んだ量や今の状態が分かりません。生活歴を初めから詳しく聞き直す前に、今日の判断に関わる変化を押さえます。',
         law: '服薬と今の状態', vis: '回答後、診療録、お薬手帳、本人の話のカードを並べ、記録上の処方と実際の服薬を照らし合わせる。' },
       // 日本神経精神薬理学会ほか「統合失調症薬物治療ガイドライン2022」CQ2-1（安定期の中止と再発）：https://www.jsnp-org.jp/csrinfo/img/togo_guideline2022.pdf
       { q: '処方は記録と一致し、新しい症状や副作用もない。今日はどうする？',
-        a: ['同じ薬・同じ量で主治医の次の受診までつなぐ', '飲み忘れを防ぐため、今日から長く効く注射に替える', '安定が続いているので、受診まで服薬を休んでもらう', '受診がまたずれてもよいよう、先の日数までまとめて出す'],
+        a: ['同じ薬・同じ量で主治医の次の受診までつなぐ', '飲み忘れを防ぐため、今日から長く効く注射に替える', '安定が続いているので、受診まで服薬を休んでもらう', '受診がまたずれてもよいよう長めに処方する'],
+        point: '症状や処方に変化がなければ、同じ薬と量で次の受診までつなぐ。',
         why: '服薬を続けると再発を防ぎやすく、今回は同じ処方で次の診察まで切れ目を作らないことが目的です。安定だけを理由に休薬すると再発の危険があり、注射への変更は別に話し合う判断です。日数は実際に確保した診察日をもとに決めます。',
         law: '必要な期間の継続', vis: '回答後、昨夜の最終服用と主治医の予約日を時間軸に置き、その間を今回の処方でつなぐ。' },
       { q: '本人への説明と主治医への申し送りはどうする？',
-        a: ['継続の理由を伝え、確認した状態と次の受診日を残す', '「薬は出ました」とだけ伝え、カルテには薬名だけを残す', '次の予約は本人に任せ、主治医には次回の診察で聞いてもらう', '「今後も同じ薬です」と伝え、その約束を主治医に送る'],
+        a: ['継続の理由を伝え、確認した状態と次の受診日を残す', '「薬は出ました」とだけ伝え、薬名だけ記録', '予約は本人任せで、主治医は次回に本人から聞く', '「今後も同じ薬です」と伝え、その約束を主治医に送る'],
+        point: '継続した理由と次の受診日を伝え、悪化時の連絡先も確認する。',
         why: '今の所見と同じ処方でつないだ理由を記録し、主治医に伝えます。本人とは受診日と、それより前に症状が戻った場合の連絡先を確認します。薬名だけでは継続の根拠が伝わらず、将来の処方は次の診察で相談します。',
         law: 'つないだ理由と次の診察', vis: '回答後、本人の予約票と主治医への連絡欄に、同じ次回受診日が入る様子を見せる。' }
     ]
@@ -713,22 +1160,25 @@ var CASES = [
   {
     time: '9:45', where: '精神科外来', night: false,
     title: '「座っていられない。死にたい」', stamp: ['安全', '評価'], stampName: '薬を始めたあとの変化',
-    story: '29歳の女性。うつ病でエスシタロプラム（SSRIという種類の抗うつ薬）を始めて約2週間。数日前から体の内側が落ち着かず、部屋を歩き回り、眠れない。「薬を飲む前より、死にたい気持ちが強いです」。姉が待合にいる。',
-    memo: [['経過', '薬を始める前には歩き回ることはなかった'], ['診察室', '座っては立つ動きを繰り返す'], ['同伴', '姉が待合で待っている']],
+    story: '29歳の女性。うつ病で抗うつ薬エスシタロプラムを始めて約2週間。数日前から歩き回って眠れず、「死にたい気持ちが強くなった」と話す。',
+    memo: [['経過', '薬を始める前には歩き回ることはなかった'], ['診察室', '座っては立つ動きを繰り返す'], ['同伴', '姉が待合で待っている'], ['薬', 'SSRIという種類の抗うつ薬'], ['本人の訴え', '体の内側が落ち着かず、服薬前より死にたい気持ちが強い']],
     vis: '患者が椅子から何度も立ち上がり、室内を往復する様子を落ち着いた速度で示す。',
     qs: [
       // NICE 成人うつ病指針 NG222 1.2.8–1.2.12：https://www.nice.org.uk/guidance/ng222/chapter/Recommendations
       { q: 'この言葉を聞いて、その場で本人に何を尋ねる？',
         a: ['今の自殺の意思、計画、手段に近づけるか、過去の企図', '眠り始める時刻、目が覚める回数、朝の体のだるさ', '落ち着かなさが出る時刻と、椅子に座っていられる長さ', 'つらさを家族に話したか、姉と普段どのくらい会うか'],
+        point: '意思・計画・手段・過去の行動を聞き、今の危険を見極める。',
         why: '「死にたい」と聞いたら、自殺する意思、計画、手段を使える状態か、過去に実行を試みたかを率直に確認します。眠りやそわそわ、家族の支えも大切ですが、今の危険を直接聞く代わりにはなりません。薬との時間関係やうつの悪化も並行して調べます。',
         law: '自殺の危険を直接聞く', vis: '回答後、危険に関する質問と薬を始めてからの経過を、並行して確認する二本の流れで示す。' },
       // PMDA「レクサプロ錠」電子添文 8.1・8.2（症状悪化時の増量回避と減量・中止の検討）：https://www.pmda.go.jp/PmdaSearch/iyakuDetail/ResultDataSetPDF/790005_1179054F1022_1_21
       { q: '本人には今すぐ自殺を実行する意思がある。安全を確保しながら、処方はどう判断する？',
-        a: ['増量せず、薬の影響を評価し、減量や中止を今日検討する', 'うつの悪化と見立てて、効果を得るため今日から増量する', '抗うつ薬はそのままとし、睡眠薬だけ加えて経過をみる', '代診では薬を変えず、処方の判断は次の主治医の予約まで待つ'],
+        a: ['増量せず薬の影響を評価し、今日減量・中止を検討', 'うつの悪化と見立て、今日から増量する', '抗うつ薬はそのままとし、睡眠薬だけ加えて経過をみる', '代診では変えず、主治医の次の予約まで待つ'],
+        point: '薬の影響とうつの悪化を確かめ、増量を避けて今日見直す。',
         why: '開始後にじっとしていられなくなったため、アカシジア（じっとしていられないほどの落ち着かなさ）など薬の影響を疑い、うつの悪化なども評価します。薬の影響が疑われるときは増量を避け、診察所見を踏まえて減量や中止を検討します。睡眠薬の追加や通常の予約までの先送りでは、差し迫った危険に対応できません。',
         law: '薬の見直しは当日に', vis: '回答後、服薬開始と落ち着かなさの出現を時間軸に置き、薬の影響と病状の変化を両方検討する図を示す。' },
       { q: 'このあとの対応と申し送りで優先することは？',
-        a: ['一人にせず院内で応援を呼び、緊急対応先と主治医に当日つなぐ', '姉に付き添いを頼んで帰宅とし、主治医への連絡は明日まで待つ', '本人から自傷しないと約束をもらい、次回予約時に再評価する', '主治医へ記録を送って返事を待ち、その間は本人だけで待ってもらう'],
+        a: ['一人にせず応援を呼び、救急と主治医に当日連絡', '姉に付き添いを頼み帰宅、主治医への連絡は明日', '自傷しない約束を取り、次回の予約で再評価', '主治医の返事まで本人だけで待ってもらう'],
+        point: '危険が差し迫る間は一人にせず、当日中に引き継ぐ。',
         why: '差し迫った危険がある間は一人にせず、院内チームと安全を確保して緊急の評価・治療につなぎます。本人の意向を確認しながら姉に必要な協力を求めますが、付き添いや約束だけで帰宅できるとは判断しません。危険の所見、薬の判断、受け入れ先を記録して当日中に引き継ぎます。',
         law: '安全確保と当日の引き継ぎ', vis: '回答後、診察室の付き添い、緊急対応チーム、主治医に伝える情報を矢印で結ぶ。' }
     ]
@@ -736,21 +1186,24 @@ var CASES = [
   {
     time: '10:20', where: '精神科外来', night: false,
     title: '「眠れないので薬を増やして」', stamp: ['睡眠', '相談'], stampName: '睡眠薬の増量を頼まれた日',
-    story: '57歳の男性。ブロチゾラム（ベンゾジアゼピン系の睡眠薬）を毎晩使っている。夜勤が増えてから寝つけない日が続き、「薬を強くしてください」と受診した。薬は週内の主治医の予約まで残っている。',
-    memo: [['勤務', '最近、夜勤が増えた'], ['本人', '「翌日の昼までぼんやりする日もあります」'], ['残薬', '次の診察まで足りる']],
+    story: '57歳の男性。ブロチゾラムを毎晩使用。夜勤が増えて寝つけず、薬を強くしてほしいと言う。薬は週内の主治医の予約まで足りる。',
+    memo: [['勤務', '最近、夜勤が増えた'], ['本人', '「翌日の昼までぼんやりする日もあります」'], ['残薬', '次の診察まで足りる'], ['薬', 'ブロチゾラムはベンゾジアゼピン系の睡眠薬']],
     vis: '勤務表の夜勤欄と朝の目覚ましを並べ、本人が昼の眠気について話す場面を示す。',
     qs: [
       { q: '増量を考える前に、この外来で何を聞く？',
-        a: ['睡眠と勤務の時間、飲酒、薬の飲み方と翌日の眠気', '寝室の光と音を詳しく聞き、日中の眠気は次の診察で扱う', '薬を始めた頃の不眠と、これまでに試した睡眠薬を順に聞く', '薬が効くまでにかかる時間と、本人が希望する増量幅を聞く'],
+        a: ['睡眠と勤務の時間、飲酒、薬の飲み方と翌日の眠気', '寝室の光と音を聞き、日中の眠気は次回に回す', '薬を始めた頃の不眠と、試した薬を順に聞く', '薬が効くまでの時間と希望する増量幅を聞く'],
+        point: '勤務と睡眠のずれ、飲酒や服薬後の眠気を確かめる。',
         why: '勤務と睡眠のずれ、飲酒、実際の服薬、翌日の眠気を聞くと、原因と薬の安全を見直せます。寝室の環境、以前の薬、増量の希望も参考ですが、それだけでは今の不眠や眠気を評価できません。睡眠が少なくても元気で活動が増えていないかなど、気分の変化も聞きます。',
         law: '眠れない背景と翌日の影響', vis: '回答後、仕事、就寝、服薬、翌日の眠気を一日の時間軸に置き、ずれが見えるようにする。' },
       // PMDA「ブロチゾラム錠」電子添文 10.2・11.1.3（飲酒との相互作用、依存・離脱）：https://www.pmda.go.jp/PmdaSearch/iyakuDetail/ResultDataSetPDF/480235_1124009F1347_1_07
       { q: '急な気分の変化はなく、眠気は軽く転倒もない。今夜の処方は？',
-        a: ['増量せず、今の量で次の診察までの過ごし方を決める', '効き目が弱い日は倍にしてよいと伝え、本人に調整を任せる', '眠気が出たので、毎晩続けてきた睡眠薬を今夜から取りやめる', '今の薬は続け、寝つけない夜のために別の睡眠薬を上乗せする'],
+        a: ['増量せず、今の量で次の診察までの過ごし方を決める', '効き目が弱い日は倍にするよう伝える', '眠気があるので毎晩の薬を今夜から中止する', '寝つけない夜に使う別の睡眠薬を足す'],
+        point: '翌日も眠気がある。増量や上乗せ、急な中止を避ける。',
         why: '今回は残薬があり、翌日の眠気もあるので、増量や薬の上乗せで眠気を強める理由がありません。連用していた薬を急にやめると、かえって不眠や不安などが出ることがあります。飲酒との併用や自己増量を避けるよう説明し、睡眠の取り方を相談します。',
         law: '増量を見送り、急な中止も避ける', vis: '回答後、増量・追加で翌日の眠気が強まる可能性と、急な中止で離脱症状が出る可能性を左右に示す。' },
       { q: '次回につながるよう、本人と何を決めて主治医に残す？',
-        a: ['睡眠と眠気を簡単に記録し、据え置いた理由と再診日を共有する', '次回は増量できると約束し、主治医には患者の希望量だけを伝える', '眠れた日だけ記録してもらい、飲酒と眠気については記載しない', '主治医の診察を待つよう伝え、不眠が続く間の連絡先は案内しない'],
+        a: ['睡眠と眠気を記録し、据え置く理由と再診日を共有', '次回の増量を約束し、希望する量だけ伝える', '眠れた日だけ記録し、飲酒と眠気は書かない', '主治医の診察を待つよう伝え、連絡先は案内しない'],
+        point: '睡眠と眠気の記録が、次の診察での見直しに役立つ。',
         why: '勤務、睡眠、日中の眠気を記録しておくと、次の診察で原因と処方を考えやすくなります。本人の希望に加え、飲酒の有無、増量しなかった理由、次の診察日を伝えます。再診前に悪化したときの連絡先も本人と確認します。',
         law: '次回に確認する材料', vis: '回答後、本人が書く短い睡眠の記録から、診察で見直す項目に線をつなぐ。' }
     ]
@@ -764,15 +1217,18 @@ var CASES = [
     qs: [
       // PMDA「リーマス錠」電子添文 7・8.5・11.1.1（脱水時の注意、リチウム中毒の所見と対応）：https://www.pmda.go.jp/PmdaSearch/iyakuDetail/ResultDataSetPDF/400059_1179017F1056_1_22
       { q: '服薬と手のふるえを聞いて、まず何を疑い、何を確かめる？',
-        a: ['リチウム中毒を疑い、意識や歩行、脱水と最終服薬を確認する', '胃腸炎だけと考え、同じ食事をした人に症状がないか調べる', '以前からある手のふるえと考え、次回と比較する動画を撮る', '双極症が再燃したと考え、気分の波と睡眠時間を詳しく聞く'],
+        a: ['中毒を疑い、意識・歩行・脱水・最終服薬を確認', '胃腸炎と考え、同じ食事をした人の症状を調べる', '前からのふるえと考え、次回と比べる動画を撮る', '双極症の再燃と考え、気分の波と睡眠を聞く'],
+        point: '脱水にふるえやふらつきが重なれば、リチウム中毒を疑う。',
         why: '脱水に加え、新しいふるえとふらつきがあるため、リチウム中毒を疑います。胃腸炎が始まりでも中毒を併発し得るため、意識やバイタルサイン（血圧や脈拍など）、最終服薬時刻、市販薬を含む併用薬を確認します。ふるえだけの記録や気分の評価では、この急な身体の変化を説明できません。',
         law: '脱水と神経症状の組み合わせ', vis: '回答後、嘔吐・下痢と飲水低下のあとに歩行と手の変化が加わった経過を示す。' },
       { q: '代診医として、リチウムの処方と今日の検査をどうする？',
-        a: ['リチウムを中止し、救急で血中濃度・腎機能・電解質を調べる', 'いつもの量を続け、次の主治医の診察日に血中濃度を調べる', '次に飲む量を減らし、自宅で水分を取って明日まで様子を見る', '胃腸薬だけを足し、ふらつきが治まらなければ再診として帰す'],
+        a: ['薬を中止し、救急で血中濃度・腎機能・電解質を確認', 'いつもの量を続け、次回の予約で血中濃度を測る', '次の量を減らし、自宅で水分を取り明日まで待つ', '胃腸薬を足して帰し、ふらつけば再診とする'],
+        point: 'リチウムを止め、検査の結果を待たず救急につなぐ。',
         why: 'ふらつきと飲水困難のある中毒疑いでは、服薬を止め、救急で身体の評価と治療を受けられるよう直ちに連携します。血中濃度、腎機能、電解質を調べますが、結果が出るまで連携を待ちません。継続や減量だけ、胃腸症状だけへの対応では悪化を見逃すおそれがあります。',
         law: '中止と救急への連携', vis: '回答後、休薬、救急への連絡、採血と身体評価が並行して進む図を示す。' },
       { q: '救急の担当医と主治医へ、何を引き継ぐ？',
-        a: ['最終服薬時刻、併用薬、症状の経過と、休薬・検査の状況', '薬をやめたことと元の病名だけを伝え、今の所見は省く', '検査の結果が全部そろってから連絡し、最終服薬は本人に任せる', '「胃腸炎かもしれない」とだけ伝え、薬歴は次の受診で確認する'],
+        a: ['最終服薬時刻・併用薬・経過・休薬・検査の状況', '薬をやめたことと元の病名だけを伝え、今の所見は省く', '全検査の結果を待ち、最終服薬は本人に任せる', '胃腸炎の疑いだけ伝え、薬歴は次の受診で確認'],
+        point: '最終服薬時刻や併用薬は、中毒と検査値の判断に役立つ。',
         why: '最終服薬時刻は濃度の解釈に、症状と併用薬の経過は中毒の評価に役立ちます。休薬したことや検査の状況を先に伝え、結果やその後の方針を誰が確認するかも決めます。元の病名だけ、または結果がそろってからの連絡では、当面の治療判断に必要な情報が届きません。',
         law: '結果を待たずに渡す情報', vis: '回答後、最終服薬、併用薬、症状、休薬、検査のカードが、救急と主治医の連絡欄に入る。' }
     ]
@@ -780,20 +1236,23 @@ var CASES = [
   {
     time: '13:15', where: '精神科外来', night: false,
     title: '「先生を替えて、薬も変えて」', stamp: ['希望', '共有'], stampName: '主治医への不満を聞いた日',
-    story: '38歳の女性。「主治医には、薬を飲むと朝がつらいと言っても聞いてもらえません。先生を替えて、薬も今日変えてほしい」と予約外で来た。今の薬は持っており、量は自分では変えていない。',
+    story: '38歳の女性が予約外で来院。「薬で朝がつらいと話しても聞いてもらえません。先生も薬も替えてほしい」。自分で量は変えていない。',
     memo: [['本人', '「薬のことを話す時間がほしい」'], ['薬', '次の診察まで残っている'], ['希望', '主治医の変更と朝のつらさの相談']],
     vis: '患者が予約票と薬袋を机に置き、朝がつらいと伝える診察場面を示す。',
     qs: [
       { q: '希望を受けて、代診の場でまず何を聞く？',
-        a: ['何が伝わらず困ったか、朝のつらさと安全への影響', '主治医との会話を初診から順に聞き、どちらに非があるか', '本人と相性がよさそうな医師の性格や、希望する診察時間', 'これまでに通った全施設で、医師との関係がどう終わったか'],
+        a: ['何が伝わらず困ったか、朝のつらさと安全への影響', '初診からの会話を聞き、どちらに非があるか探る', '相性がよい医師の性格や希望の診察時間を聞く', '過去に通った全施設での医師との関係を聞く'],
+        point: '朝のつらさや生活への影響から、今日の対応を考える。',
         why: 'まず本人が伝えたかった困りごとを聞き、眠気やふらつき、生活への影響、症状の急な悪化を確認します。医師との相性や過去の関係より、今日対応が要る症状を先に押さえます。初診から会話を聞き直して責任を決める必要はありません。',
         law: '不満の中にある今日の困りごと', vis: '回答後、患者の言葉から「朝のつらさ」と「話を聞いてほしい」の二つを拾い、確認する所見につなぐ。' },
       { q: '朝の眠気は軽く、転倒や通勤上の危険はない。本人にはどう返す？',
-        a: ['つらさを受け止め、今日は処方を保ち、方針を相談する場を整える', 'これまでの処方は合っていないと伝え、今日から全体を組み直す', '主治医が選んだ処方には理由があると言い、眠気の話はここで終える', '関係がこじれる前に担当変更を約束し、希望された薬へ今日切り替える'],
+        a: ['つらさを聞き、薬は保ち相談の場を整える', '今の処方は合わないと告げ、今日全部組み直す', '主治医の処方を弁護し、眠気の話を打ち切る', '担当変更を約束し、今日希望の薬に替える'],
+        point: '緊急の変更が不要なら、困りごとを話し合う場を整える。',
         why: '本人の体験を具体的に受け止め、緊急の変更が要らないと判断した理由と、次に見直す機会を説明します。主治医を批判したり弁護だけで終えたりすると、患者が困っている点が共有されません。大きな処方変更や担当変更の約束は、経過や院内の手順を確認してから検討します。',
         law: '薬の相談と担当の相談', vis: '回答後、「今日の薬」と「担当や方針を相談する機会」を別の欄で示す。' },
       { q: '本人の希望を次の診察につなぐ申し送りとして適切なのは？',
-        a: ['本人と共有内容を確かめ、希望、症状、今日の所見と次の相談先を残す', '「主治医に不満あり」とだけ書き、詳しい話は本人に言い直してもらう', '主治医の対応を批判する形で書き、処方見直しの結論まで指示する', '診察では何も変えなかったので記録せず、希望は受付だけに伝える'],
+        a: ['本人と確認し、希望・症状・所見・相談先を残す', '主治医への不満とだけ書き、本人に言い直してもらう', '主治医を批判して記録し、処方変更を指示する', '変更していないので記録せず、希望は受付だけへ'],
+        point: '本人と共有範囲を確かめ、希望と診察所見を具体的に残す。',
         why: '本人の言葉を確認し、薬で困ること、診察での所見、担当変更も相談したい希望を具体的に記録します。評価や決めつけだけを書いたり、受付だけで止めたりすると、次の診察で相談すべき点が抜けます。希望を伝える先と、いつ相談できるかを本人と確認します。',
         law: '希望を言葉どおりに届ける', vis: '回答後、本人が確認した希望と代診医の所見が、申し送りの別々の欄に入る様子を見せる。' }
     ]
@@ -801,22 +1260,25 @@ var CASES = [
   {
     time: '14:00', where: '精神科外来', night: false,
     title: '「発作が増えて頓服がありません」', stamp: ['発作', '確認'], stampName: '発作と頓服の相談',
-    story: '33歳の女性。パニック症で通院し、発作時に使う頓服としてロラゼパムが出ている。職場の担当が変わってから動悸と息苦しさが増え、頓服を使い切った。「前と同じような発作です。今日もらっておきたいです」。診察時には症状は治まっている。',
-    memo: [['定期薬', '残っている。飲み方は変えていない'], ['発作', '職場で急に始まり、しばらくすると治まる'], ['予約', '主治医の診察を翌日に前倒しできる']],
+    story: '33歳の女性。パニック症で通院中。職場の担当が変わり、動悸と息苦しさが増えた。ロラゼパムの頓服を使い切り、診察時は症状が治まっている。',
+    memo: [['定期薬', '残っている。飲み方は変えていない'], ['発作', '職場で急に始まり、しばらくすると治まる'], ['予約', '主治医の診察を翌日に前倒しできる'], ['頓服', '発作時に使う薬'], ['本人', '「前と同じような発作です。今日もらっておきたいです」']],
     vis: '職場で作業の手を止めて息を整える様子と、診察室で落ち着いて症状を振り返る様子を示す。',
     qs: [
       // 日本不安症学会・日本神経精神薬理学会「パニック症の診療ガイドライン」第1.1版（身体疾患との鑑別、CQ1）：https://www.jsnp-org.jp/pdf/guideline_251104.pdf
       { q: '頓服を出すか考える前に、何を確かめる？',
-        a: ['以前との違い、胸痛や失神、頓服の使い方とカフェインの摂取', '発作のきっかけを一つに決め、職場の人との関係を最初から聞く', '以前と同じ病名かカルテで確認し、今回は薬の残りだけを聞く', '頓服を使った日の数を聞き、症状は不安が原因とみなして進める'],
+        a: ['以前との差、胸痛・失神、頓服の使い方とカフェイン', 'きっかけを一つに決め、職場の人間関係を聞く', '同じ病名か記録で確認し、薬の残りだけ聞く', '使用日数を聞き、症状は不安のためと考える'],
+        point: '普段と違う発作や胸痛・失神があれば身体の原因を優先する。',
         why: '以前と違う発作、胸痛や失神などがあれば身体の原因を優先して評価します。薬の使用頻度や飲酒、カフェインも聞き、所見に応じて不整脈や甲状腺の病気などを考えます。既往の病名や使った日数だけでは、別の身体疾患や薬の影響を除けません。',
         law: 'いつもの発作との違い', vis: '回答後、今回と以前の経過を並べ、胸痛や失神などがあれば身体の評価に進む分岐を示す。' },
       // PMDA「ワイパックス錠」電子添文 8.1・8.2・10.2・11.1.1（運転、長期使用、飲酒と依存への注意）：https://www.pmda.go.jp/PmdaSearch/iyakuDetail/ResultDataSetPDF/672212_1124022F1067_3_05
       { q: '身体診察で緊急所見はなく、頓服は指示内で間欠的に使用し、強い眠気もなかった。本人は翌日までの頓服を希望している。どうする？',
-        a: ['定期薬は保ち、頓服は既存の指示の範囲で翌日の診察までに絞る', '発作を予防するため、頓服を毎日決まった時刻に飲む形へ変える', 'すぐ効果が出るよう、定期の抗うつ薬を頓服の代わりに使ってもらう', '受診の回数を減らせるよう、次の予約にかかわらず頓服をまとめて出す'],
+        a: ['定期薬を保ち、頓服は今の指示で翌日まで', '発作予防のため、頓服を毎日の服用に変える', 'すぐ効くよう、定期の抗うつ薬を頓服にする', '予約日に関係なく、受診を減らすためまとめ処方'],
+        point: 'この場面で頓服を出すなら、指示の範囲で翌日の再診まで。',
         why: 'この場面で頓服を出すなら、既存の指示の範囲で翌日の再評価までに限り、飲酒との併用や運転を避けるよう説明します。毎日の使用やまとめ処方は依存などの問題につながり、定期の抗うつ薬をその場しのぎの頓服には使いません。発作の治療方針は早めに主治医と見直します。',
         law: '既存の頓服は短い期間に限る', vis: '回答後、当日と翌日の予約を時間軸に置き、既存の使い方を保つ範囲と、翌日に見直す点を示す。' },
       { q: '本人への説明と主治医への申し送りに、何を含める？',
-        a: ['発作と頓服の使用状況、使用の範囲、再診日と急変時の相談先', '薬の名前と渡した数だけ記録し、発作の変化は本人に委ねる', '頓服の効き目だけ伝え、本人には症状が強くても予約日まで待ってもらう', '職場の負担が原因と伝え、身体を評価した所見と薬の使い方は省く'],
+        a: ['発作と頓服、使用範囲、再診日と急変時の相談先', '薬名と数量だけを残し、発作の変化は本人任せ', '頓服の効果だけ伝え、悪化しても予約まで待つ', '職場が原因と伝え、診察所見と薬の使い方は省く'],
+        point: '発作と頓服の経過を引き継ぎ、急変時の相談先も伝える。',
         why: '発作の経過、身体を評価した所見、頓服の使い方と次回の再評価を伝えます。本人には症状がいつもと違う、胸痛や失神があるなどの急変時の相談先を説明します。薬名や職場の事情だけでは次に診る人が判断を引き継げません。',
         law: '発作と薬の情報を一緒に渡す', vis: '回答後、予定の再診と、急な胸痛や失神があるときの受診経路を二つの矢印で示す。' }
     ]
@@ -824,21 +1286,24 @@ var CASES = [
   {
     time: '14:50', where: '精神科外来', night: false,
     title: '「母が夜に眠らなくて」', stamp: ['生活', '変化'], stampName: '認知症の人の急な変化',
-    story: '81歳の女性。アルツハイマー型認知症で通院中。娘が「おとといから夜中に家の中を歩き回ります。私も眠れません」と連れてきた。本人は「お腹が苦しい」と言い、会話の途中で何を聞かれたか分からなくなる。昨日の昼には普段どおり話せた時間もあった。',
-    memo: [['変化', 'おとといから急に始まった'], ['生活', '飲水が減り、便が出ていないと娘が話す'], ['娘', '「今夜も一人でみるのは難しそうです」']],
+    story: '81歳の女性。アルツハイマー型認知症。おとといから夜中に歩き回る。今日は腹部の苦しさを訴え、会話中に質問が分からなくなる。昨日の昼は普段どおり話せた時も。',
+    memo: [['変化', 'おとといから急に始まった'], ['生活', '飲水が減り、便が出ていないと娘が話す'], ['娘', '「今夜も一人でみるのは難しそうです」'], ['娘の睡眠', '「私も眠れません」']],
     vis: '娘が夜の廊下と昼の会話の様子を話し、診察では本人が質問の途中で注意をそらす様子を示す。',
     qs: [
       // NICE 認知症指針 NG97 1.7.1–1.7.6（苦痛の原因を評価し、薬を使わない対応を基本とする）：https://www.nice.org.uk/guidance/ng97/chapter/Recommendations
       { q: '眠れない原因を見立てるため、まず何を確かめる？',
-        a: ['普段との差と注意の変動、痛み・便秘・感染や薬の変更', '認知症の検査の過去得点と、物忘れが目立ち始めた年齢', '夜に歩いた場所と回数を聞き、日中の様子は後で確かめる', '娘の睡眠不足の日数を聞き、本人の腹部症状は別の機会にする'],
+        a: ['普段との差と注意の変動、痛み・便秘・感染や薬の変更', '認知症の検査の過去得点と、物忘れが目立ち始めた年齢', '夜に歩いた場所と回数を聞き、昼の様子は後で', '娘が眠れない日数を聞き、腹部症状は後日'],
+        point: '急に注意が乱れるせん妄を疑い、身体の原因を探る。',
         why: '急な変化と注意の揺れは、せん妄（身体の不調などで注意や意識が急に乱れる状態）の手がかりです。本人と娘から普段との差を聞き、腹部症状、脱水、感染や薬の変更を診察で確かめます。以前の検査得点や夜の歩き方、介護の負担も参考ですが、身体の評価を後回しにはできません。',
         law: '急な変化と身体の原因', vis: '回答後、普段、昨夜、今の注意の様子を並べ、急な変化と時間による揺れを示す。' },
       { q: '娘から「夜だけでも眠る薬を」と頼まれた。今日の対応は？',
-        a: ['眠らせる薬は安易に足さず、今日の身体評価と原因への対応を進める', '今夜の介護を楽にするため、まず抗精神病薬を夜だけ追加する', '夜に歩くのは認知症の進行と判断し、認知症の薬を今日から増やす', '以前の眠りに戻るまで、手元の睡眠薬を多めに使ってもらう'],
+        a: ['安易に薬を足さず、今日身体を診て原因に対応', '介護を楽にするため、夜だけ抗精神病薬を足す', '認知症の進行と見て、認知症の薬を増やす', '以前の眠りに戻るまで、睡眠薬を多めに使う'],
+        point: '眠らせる薬を急がず、その日に身体の原因を調べて対応する。',
         why: 'この症例ではせん妄を疑い、その日のうちに身体の原因を評価し、苦痛を和らげる対応と環境調整を進めます。認知症の薬の増量や睡眠薬の上乗せは、原因の治療になりません。抗精神病薬は本人や周囲への危険や、興奮などによる強い苦痛が続くときに、危険と期待できる効果を説明し、必要最小限の量・期間で検討します。',
         law: '原因への対応が先', vis: '回答後、身体の原因への対応と刺激を減らす工夫を並べ、危険や強い苦痛が続く場合の分岐を示す。' },
       { q: '身体科と主治医につなぐとき、介護の負担も踏まえてどうする？',
-        a: ['発症と変動、身体所見、娘の負担を伝え、今夜の支援と連絡先を決める', '認知症の病名だけを伝え、今夜の見守りは娘一人に頼んで帰す', '家で夜の様子を録画してもらい、支援については次の予約まで待つ', '娘には睡眠を取るよう勧め、急に悪化した場合の相談先は伝えない'],
+        a: ['発症・変動・所見・介護負担を伝え支援先を決める', '病名だけを伝え、今夜の見守りは娘に任せる', '夜の様子の録画を頼み、支援は次の予約まで待つ', '娘には睡眠を勧め、悪化時の連絡先は伝えない'],
+        point: '今夜の安全を見据え、身体所見と介護の負担を引き継ぐ。',
         why: '身体科には今日の変化と身体所見、主治医には身体評価への引き継ぎと介護の限界を伝えます。本人と娘の意向を聞き、帰宅できる場合も無理なく見守れるか、使える支援と悪化時の連絡先をその場で確かめます。病名だけの連絡や録画だけでは今夜の安全を支えられません。',
         law: '本人の安全と介護者の支援', vis: '回答後、身体科と主治医に渡す所見の横に、娘と確認した今夜の支援と連絡先を示す。' }
     ]
@@ -846,20 +1311,23 @@ var CASES = [
   {
     time: '15:35', where: '精神科外来', night: false,
     title: '「なんとなく調子が悪いです」', stamp: ['体調', '相談'], stampName: '調子が悪いと感じた日',
-    story: '44歳の男性。うつ病で通院し、これまで仕事を続けられていた。「ここ最近、なんとなく調子が悪くて」と来院した。仕事での行き違いを話すうち、昔からの家族との関係に話題が移る。今の薬は次回分まで足りている。',
-    memo: [['本人', '「相談したいことがいくつもあります」'], ['仕事', 'ここ数日は朝がつらいが出勤している'], ['予約', '主治医の通常の予約まで間がある']],
+    story: '44歳の男性。うつ病で通院中。「最近、なんとなく調子が悪い」と来院。職場の行き違いから家族との話に移る。薬は次回まで足りる。',
+    memo: [['本人', '「相談したいことがいくつもあります」'], ['仕事', 'ここ数日は朝がつらいが出勤している'], ['予約', '主治医の通常の予約まで間がある'], ['経過', 'これまで仕事を続けられていた'], ['話題', '昔からの家族との関係も相談したい']],
     vis: '診察室で本人の話が職場から家族の話へ移り、医師が話を聞きながらメモを取る。',
     qs: [
       { q: '話を遮らず、今日の安全を判断するためにどう聞く？',
-        a: ['困りごとを受け止め、睡眠・食事・服薬と死にたい気持ちを聞く', '家族との関係を子どもの頃から整理し、今日の症状は最後に聞く', '仕事に行けているので安全と判断し、次の予約日だけを確認する', '相談したい話を一つに絞ってもらい、睡眠や服薬は主治医に任せる'],
+        a: ['話を聞き、睡眠・食事・服薬と死にたい気持ちを確認', '幼少期から家族関係を聞き、今の症状は最後に', '出勤できるので安全と判断し、予約日だけ確認', '話を一つに絞り、睡眠と服薬は主治医に任せる'],
+        point: '話を受け止め、先に今の症状や安全を確かめる。',
         why: '話したいことを受け止め、「まず最近の体調と安全を確かめたい」と伝えると、話題を戻しやすくなります。睡眠、食事、服薬、希死念慮（死にたい気持ち）、生活への影響を確認します。出勤できている事実だけで安全とは判断できず、家族との話を深く扱う時間は主治医と相談します。',
         law: '聞く順番を本人と共有する', vis: '回答後、本人が話したい点を残しながら、今日確かめる状態と次の診察で話すことを二つの欄に置く。' },
       { q: '睡眠が少し浅いが食事は取れ、急な悪化や自殺の危険、副作用は認めない。今日はどうする？',
-        a: ['処方を据え置き、主治医の再診を早めて変化を確かめる', '今の薬を飲んでいて不調なので、別の抗うつ薬に今日から替える', '大きな変化がないので薬を続け、普段の予約まで対策は決めない', '朝つらい日は本人の判断で多く飲むよう伝え、再診はそのままにする'],
+        a: ['処方を据え置き、主治医の再診を早めて変化を確かめる', '今の薬で不調なので、今日別の抗うつ薬に替える', '大きな変化はなく、薬も再診予定もそのまま', 'つらい朝は自己増量を勧め、再診日は変えない'],
+        point: '薬の変更を急ぐ所見がなくても、再診を早め経過をみる。',
         why: '今日の所見からは薬の変更を急ぐ理由がなく、主治医の診察を早めて経過を見直すのが適切です。薬の切り替えや自己調整では新たな副作用が出ることがあり、いつもの予約まで何も決めずに待つと悪化に気づくのが遅れます。寝つきや朝の様子の変化を再診で尋ねます。',
         law: '薬を保ち、見直す日を早める', vis: '回答後、元の予約と早めた予約を時間軸に並べ、薬は同じまま経過を確かめる区間を示す。' },
       { q: '診察を終えるときの一言と申し送りは？',
-        a: ['「今日のことは伝えます」と話し、所見と再診日、悪化時の連絡先を残す', '「詳しい話は主治医に」と伝え、今日の症状や確認した安全については記録しない', '「次の診察では必ず治療を変えます」と伝え、主治医には変更の約束だけを送る', '「薬はいつもどおりです」と伝え、予約変更や相談したい話は本人に任せる'],
+        a: ['引継ぎを伝え、所見・再診日・悪化時の連絡先を記録', '詳しくは主治医にと伝え、今日の症状は記録しない', '次回の治療変更を約束し、約束だけ伝える', '薬は同じと伝え、予約と相談は本人任せ'],
+        point: '本人と再診日・連絡先を確認し、所見と相談事を引き継ぐ。',
         why: '「今日は薬はそのままにして、困ったことは主治医に伝えます」と説明し、確認した所見、判断の理由と次回の予定を記録します。主治医には本人が次に話したいことも伝え、本人には早めた受診日と悪化時の連絡先を確認します。治療変更の約束や薬の伝達だけでは、相談の続きにつながりません。',
         law: '次に話せる形で渡す', vis: '回答後、本人に渡す再診案内と主治医に届く申し送りに、共通の受診日と次の相談点を示す。' }
     ]
@@ -899,21 +1367,28 @@ var CASES = [
   var ref = document.querySelector('.ref');
   var refHeading = ref.querySelector('h2');
   var refTable = ref.querySelector('.tbl-wrap');
+  var hankoEl = document.querySelector('.hanko');
 
   // ---- 判子帳
   var HK_KEY = 'daishin-hanko-v1', HK_TITLES = [[0, "代診の担当"], [4, "服薬の確認"], [8, "安全の確認"], [12, "次の診察の調整"], [16, "申し送り完了"]], HK_MAX = CASES.length * 2;
+  var wardHanko = HK_KEY === 'byoto-hanko-v1';
   var optionsKey = HK_KEY + '-show-opts';
   var alwaysShowOptions = lsGet(optionsKey) === '1';
   var HK = {}; try { HK = JSON.parse(lsGet(HK_KEY) || '{}') || {}; } catch (e) { HK = {}; }
-  function hkPts() { var p = 0; CASES.forEach(function (c, i) { p += HK[i] || 0; }); return p; }
+  function hkCount() { return CASES.filter(function (c, i) { return HK[i]; }).length; }
+  function hkProgress() {
+    if (wardHanko) return hkCount();
+    return CASES.reduce(function (p, c, i) { return p + (HK[i] || 0); }, 0);
+  }
   function hkTitle(p) { var t = HK_TITLES[0]; HK_TITLES.forEach(function (x) { if (p >= x[0]) t = x; }); return t; }
   function hkNext(p) { for (var i = 0; i < HK_TITLES.length; i++) if (HK_TITLES[i][0] > p) return HK_TITLES[i]; return null; }
-  function hkSummary() { var n = CASES.filter(function (c, i) { return HK[i]; }).length; return '判子帳 ' + n + ' / ' + CASES.length + ' ・ 称号「' + hkTitle(hkPts())[1] + '」'; }
+  function hkSummary() { return '判子帳 ' + hkCount() + ' / ' + CASES.length + ' ・ 称号「' + hkTitle(hkProgress())[1] + '」'; }
   function renderHanko() {
-    var p = hkPts(), t = hkTitle(p), nx = hkNext(p), n = CASES.filter(function (c, i) { return HK[i]; }).length;
+    var p = hkProgress(), t = hkTitle(p), nx = hkNext(p), n = hkCount();
     var gold = CASES.filter(function (c, i) { return HK[i] === 2; }).length;
     document.getElementById('hkCount').textContent = n + ' / ' + CASES.length + ' ・ 金 ' + gold;
-    document.getElementById('hkTitle').innerHTML = '称号　<b>' + esc(t[1]) + '</b>　' + (nx ? '<span class="muted">次の「' + esc(nx[1]) + '」まで あと ' + (nx[0] - p) + '</span>' : '<span class="muted">すべて金の判子です</span>');
+    var progress = nx ? '次の「' + esc(nx[1]) + '」まで あと ' + (nx[0] - p) : (wardHanko ? 'すべての患者さんの判子がそろいました' : 'すべて金の判子です');
+    document.getElementById('hkTitle').innerHTML = '称号　<b>' + esc(t[1]) + '</b>　<span class="muted">' + progress + '</span>';
     var m = document.getElementById('hkMeter'); m.firstChild.style.width = Math.round(p / HK_MAX * 100) + '%'; m.setAttribute('aria-label', p + ' / ' + HK_MAX);
     document.getElementById('hkGrid').innerHTML = CASES.map(function (c, i) {
       var tr = HK[i] || 0;
@@ -926,9 +1401,9 @@ var CASES = [
   function awardHanko(i) {
     var tier = caseScore(i) === CASES[i].qs.length ? 2 : 1, cur = HK[i] || 0;
     if (tier <= cur) return;
-    var before = hkTitle(hkPts())[1];
+    var before = hkTitle(hkProgress())[1];
     HK[i] = tier; lsSet(HK_KEY, JSON.stringify(HK));
-    var after = hkTitle(hkPts())[1];
+    var after = hkTitle(hkProgress())[1];
     toast('<b>' + (tier === 2 ? '金の判子' : '判子') + 'を押しました</b><br>' + esc(CASES[i].stampName) + (after !== before ? '<br>称号が「' + esc(after) + '」になりました' : ''));
     renderHanko();
   }
@@ -940,6 +1415,19 @@ var CASES = [
   function curQ(i) { var k = S.picks[i].indexOf(null); return k; }
   function seq() { return S.only || CASES.map(function (_, i) { return i; }); }
   function totalRight() { var n = 0; for (var i = 0; i < CASES.length; i++) n += caseScore(i); return n; }
+
+  // 回答後は「判定」と「要点1行」だけを見せ、長い解説は「くわしく」に入れる（2026-11-27 利用者「文字が多くて見づらい」）。
+  // 要点は q.point があればそれ、なければ解説の最初の一文。
+  function pointOf(q) {
+    var why = String(q.why || '');
+    if (q.point) return { point: q.point, rest: why };
+    var m = why.match(/^[^。]*。/);
+    return m ? { point: m[0], rest: why.slice(m[0].length) } : { point: why, rest: '' };
+  }
+  function verdictHTML(q, pick) {
+    return '<div class="verdict ' + (pick === 0 ? 'ok' : 'ng') + '" role="status"><span class="vd-mark">' + (pick === 0 ? '正解！' : 'おしい！') + '</span>' +
+      (pick === 0 ? '' : '<span class="vd-ans">正解は「' + esc(q.a[0]) + '」</span>') + '</div>';
+  }
 
   function stampHTML(c, cls) {
     return '<div class="stamp ' + (cls || '') + '" aria-hidden="true"><div><div class="s1">' + esc(c.stamp[0]) + '</div>' +
@@ -1004,8 +1492,12 @@ var CASES = [
         (pick === null && window.PG_NOTE ? '<label class="note-sure"><input type="checkbox" id="noteSure"> 自信あり</label>' : '') +
         optsHTML(i, qi, qi === k);
       if (pick !== null) {
-        html += '<p class="why"><b>' + (pick === 0 ? '正解。' : '正解は「' + esc(q.a[0]) + '」。') + '</b>' + esc(q.why) +
+        var pt = pointOf(q);
+        html += verdictHTML(q, pick) + '<p class="point">' + esc(pt.point) + '</p>' +
+          '<details class="more"><summary>くわしい解説・根拠・図</summary>' +
+          '<p class="why">' + esc(pt.rest) +
           (q.law ? '<span class="law">ポイント ' + esc(q.law) + '</span>' : '') + '</p>';
+        html += '</details>';
       }
       html += '</section>';
     });
@@ -1031,6 +1523,18 @@ var CASES = [
     if (sharedLayout) mainEl.querySelector('.case-body').scrollTop = caseScroll;
   }
 
+  new MutationObserver(function () {
+    var ds = mainEl.querySelectorAll('section.q > details.more');
+    for (var i = 0; i < ds.length; i++) {
+      var n = ds[i].nextElementSibling;
+      while (n) {
+        var nx = n.nextElementSibling;
+        if (n.tagName === 'DIV' && !n.matches('.cq-actions, .done-q')) ds[i].appendChild(n);
+        n = nx;
+      }
+    }
+  }).observe(mainEl, { childList: true, subtree: true });
+
   function renderResult() {
     var right = totalRight();
     var missed = CASES.map(function (_, i) { return i; }).filter(function (i) { return caseScore(i) < CASES[i].qs.length; });
@@ -1053,6 +1557,8 @@ var CASES = [
     if (opts.activeQ != null) S.activeQ = opts.activeQ;
     renderSlots();
     refHeading.hidden = refTable.hidden = S.ci !== -1;
+    // 過去の判子に答えが書いてあるため、回診を終えてから表示する。
+    if (wardHanko) hankoEl.hidden = S.ci !== -1;
     if (S.ci === -1) {
       renderResult();
       if (opts.focus) document.getElementById('resh').focus();
@@ -1246,11 +1752,12 @@ IMG["ds-case8"] = "data:image/webp;base64,UklGRsqtAABXRUJQVlA4IL6tAACQJQOdASrAAx
 </script>
 <script>
 /* 代診の外来（daishin_vis.js）：
- * 1. 上部「見て分かる 代診の3つの柱」図解ガイド（どこまで聞くか・処方をどうするか・どう引き継ぐか）
- * 2. 全8症例の受診時場面カード（IMG["ds-case1"〜"ds-case8"]＋症例2アカシジア・症例4リチウム振戦の2コマ切り替え＋受診時観察SVG）
+ * 1. 最初の画面で遊びたくなる入口カード（2行以内の説明・大きな「▶ はじめる」ボタン・所要時間「⏱ 1場面 約1分」・症例1挿絵・長い前置きは「遊び方」折りたたみへ）
+ * 2. 上部「見て分かる 代診の3つの柱」図解ガイド（初期折りたたみ・1枠2行以内・要点と数字バッジ強調・細目は「くわしく」へ）
+ * 3. 全8症例の受診時場面カード（IMG["ds-case1"〜"ds-case8"]＋症例2アカシジア・症例4リチウム振戦の2コマ切り替え＋1枠2行以内の受診時観察SVG）
  *    ※答える前は診断名や正解を出さず、受診時に見聞きできる生の所見のみを表示
- * 3. 全24問（8症例×3問）の回答後SVG解説図（.why の直下に回答後のみ表示）
- * 4. 明暗切替ボタン（daishin-theme-v1）と window.__feedbackWhere
+ * 4. 全24問（8症例×3問）の回答後専用SVG解説図（要点バッジ＋1枠2行以内SVG＋2行要約＋「くわしく」補足）＋3問完了時のまとめカード
+ * 5. 明暗切替ボタン（daishin-theme-v1）と window.__feedbackWhere
  */
 (function () {
   'use strict';
@@ -1271,8 +1778,15 @@ IMG["ds-case8"] = "data:image/webp;base64,UklGRsqtAABXRUJQVlA4IL6tAACQJQOdASrAAx
     return !!(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
   }
 
+  function renderKpis(kpis) {
+    if (!kpis || !kpis.length) return '';
+    return '<div class="ds-kpi-row">' + kpis.map(function (k) {
+      return '<span class="ds-big-num' + (k[1] ? ' ' + esc(k[1]) : '') + '">' + esc(k[0]) + '</span>';
+    }).join('') + '</div>';
+  }
+
   /* =======================================================================
-   * 1. 明暗テーマ切替 ＆ 不具合・感想フォーム位置情報（__feedbackWhere）
+   * 1. 明暗テーマ切替・最初の画面で遊びたくなる入口カード・__feedbackWhere
    * ======================================================================= */
   function currentTheme() {
     var saved = lsGet(THEME_KEY);
@@ -1309,6 +1823,85 @@ IMG["ds-case8"] = "data:image/webp;base64,UklGRsqtAABXRUJQVlA4IL6tAACQJQOdASrAAx
     tools.insertBefore(btn, tools.firstChild);
   }
 
+  function mountWelcomeCard() {
+    var top = document.querySelector('header.top');
+    if (!top || document.getElementById('dsWelcome')) return;
+    var lead = top.querySelector('.lead');
+    var rule = top.querySelector('.rule');
+    var src1 = getImg('ds-case1');
+    var artInner = src1
+      ? '<img src="' + src1 + '" alt="診察室の机にお薬手帳と空の薬袋を置き、代診の精神科医に説明する46歳男性患者の挿絵">'
+      : '<div class="ds-welcome-art-ph"><span>症例1の挿絵（ds-case1）<br>お薬手帳と空の薬袋の確認</span></div>';
+
+    var welcome = document.createElement('div');
+    welcome.className = 'ds-welcome';
+    welcome.id = 'dsWelcome';
+    welcome.innerHTML =
+      '<div class="ds-welcome-main">' +
+        '<div class="ds-welcome-badges">' +
+          '<span class="ds-welcome-pill time">⏱ 1場面 約1分</span>' +
+          '<span class="ds-welcome-pill">📋 全8症例・24問</span>' +
+          '<span class="ds-welcome-pill law">🩺 聞く範囲・処方・申し送り</span>' +
+        '</div>' +
+        '<p class="ds-welcome-copy">主治医が不在の日、予約外の患者さん8人を代診します。今日確かめる安全、処方の判断、主治医への申し送りを1場面約1分で体験します。</p>' +
+        '<div class="ds-welcome-actions">' +
+          '<button type="button" class="ds-start-btn" id="dsStartBtn">▶ はじめる（症例1へ ・ 1場面 約1分）</button>' +
+          '<button type="button" class="ds-sub-start-btn" id="dsOpenGuideBtn">🧭 代診の3つの柱を見る</button>' +
+        '</div>' +
+        '<details class="ds-howto" id="dsHowto"></details>' +
+      '</div>' +
+      '<div class="ds-welcome-art">' +
+        artInner +
+        '<span class="ds-welcome-art-tag">症例1（9:10）：「いつもの薬が切れました」</span>' +
+      '</div>';
+
+    top.appendChild(welcome);
+
+    var howto = welcome.querySelector('#dsHowto');
+    if (howto) {
+      var sum = document.createElement('summary');
+      sum.textContent = '遊び方・この外来の決まりを見る';
+      howto.appendChild(sum);
+      var hBody = document.createElement('div');
+      hBody.className = 'ds-howto-body';
+      if (lead) hBody.appendChild(lead);
+      if (rule) hBody.appendChild(rule);
+      howto.appendChild(hBody);
+    }
+
+    var startBtn = document.getElementById('dsStartBtn');
+    if (startBtn) {
+      startBtn.addEventListener('click', function () {
+        var main = document.getElementById('main');
+        if (!main) return;
+        requestAnimationFrame(function () {
+          var h = document.getElementById('caseh');
+          var target = (h && h.closest('article.case')) || main;
+          if (target && target.scrollIntoView) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          if (h && h.focus) h.focus({ preventScroll: true });
+        });
+      });
+    }
+
+    var openGuideBtn = document.getElementById('dsOpenGuideBtn');
+    if (openGuideBtn) {
+      openGuideBtn.addEventListener('click', function () {
+        userToggledGuide = true;
+        var bd = document.getElementById('dsGuideBody');
+        var tg = document.getElementById('dsGuideToggle');
+        if (bd && bd.hidden) {
+          bd.hidden = false;
+          if (tg) {
+            tg.setAttribute('aria-expanded', 'true');
+            tg.textContent = '図解をたたむ';
+          }
+        }
+        var gd = document.getElementById('dsGuide');
+        if (gd && gd.scrollIntoView) gd.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      });
+    }
+  }
+
   window.__feedbackWhere = function () {
     var caseEl = document.querySelector('#main .case');
     if (!caseEl) return '代診の外来／結果・早見表';
@@ -1320,76 +1913,76 @@ IMG["ds-case8"] = "data:image/webp;base64,UklGRsqtAABXRUJQVlA4IL6tAACQJQOdASrAAx
 
   /* =======================================================================
    * 2. 上部ガイド：「見て分かる 代診の3つの柱」
+   *    （1枠2行以内・要点バッジ強調・細目は「くわしく」へ・初期折りたたみ）
    * ======================================================================= */
   var guideTab = 'hear';
+  var userToggledGuide = false;
 
   function renderGuidePaneHTML(tab) {
     if (tab === 'hear') {
       return (
-        '<svg class="ds-guide-svg" viewBox="0 0 640 156" role="img" aria-label="代診で必ず確かめる安全の項目と、主治医の診察に委ねる深い話題の境界を示す図">' +
-          '<rect x="12" y="12" width="302" height="132" rx="8" fill="var(--ds-crit-bg)" stroke="var(--ds-crit)" stroke-width="2"/>' +
-          '<text x="26" y="34" font-size="11.5" font-weight="700">◎ 代診の今日、必ず踏み込んで聞くこと</text>' +
-          '<text x="26" y="56" font-size="10" font-weight="700">・自殺や他害の危険（意思・計画・手段・過去の企図）</text>' +
-          '<text x="26" y="76" font-size="10" font-weight="700">・重い副作用や薬の中毒（そわそわ・ふるえ・ふらつき）</text>' +
-          '<text x="26" y="96" font-size="10" font-weight="700">・急な身体の問題や意識・注意の変動（せん妄・胸痛等）</text>' +
-          '<text x="26" y="116" font-size="10" font-weight="700">・実際の服薬量・残薬・飲酒・翌日の眠気</text>' +
-          '<text x="26" y="134" font-size="9">※安全確認は「聞きすぎ」にならない（率直に直接確かめる）</text>' +
-          '<rect x="326" y="12" width="302" height="132" rx="8" fill="var(--ds-info-bg)" stroke="var(--ds-info)" stroke-width="1.8"/>' +
-          '<text x="340" y="34" font-size="11.5" font-weight="700">△ 主治医との継続的な診察に委ねること</text>' +
-          '<text x="340" y="56" font-size="10" font-weight="700">・生い立ちや昔からの家族関係の深い掘り下げ</text>' +
-          '<text x="340" y="76" font-size="10" font-weight="700">・初診時からの長い人間関係や職場の経緯の総整理</text>' +
-          '<text x="340" y="96" font-size="10" font-weight="700">・緊急性のない長期の治療方針や主治医の総見直し</text>' +
-          '<text x="340" y="118" font-size="9.5">→ 困りごとは受け止めてメモに残し、「まず今日の体調と</text>' +
-          '<text x="340" y="133" font-size="9.5">　 安全を確かめ、詳しい相談は主治医へ引き継ぐ」と共有</text>' +
+        renderKpis([
+          ['今日必ず確認：自殺の危険・中毒・急な身体変化', 'crit'],
+          ['長期方針・生い立ちの深掘りは主治医へ橋渡し', 'info']
+        ]) +
+        '<svg class="ds-guide-svg" viewBox="0 0 640 88" role="img" aria-label="代診で必ず確かめる安全の項目と主治医の診察に委ねる話題の境界を示す図">' +
+          '<rect x="10" y="10" width="302" height="68" rx="7" fill="var(--ds-crit-bg)" stroke="var(--ds-crit)" stroke-width="2"/>' +
+          '<text x="22" y="34" font-size="11" font-weight="700">◎ 代診の今日、必ず踏み込んで聞くこと</text>' +
+          '<text x="22" y="57" font-size="9.6" font-weight="700">自殺の意思と計画・中毒や重い副作用・急な身体変化・実際の服薬</text>' +
+          '<rect x="328" y="10" width="302" height="68" rx="7" fill="var(--ds-info-bg)" stroke="var(--ds-info)" stroke-width="1.8"/>' +
+          '<text x="340" y="34" font-size="11" font-weight="700">△ 主治医との継続的な診察へ橋渡し</text>' +
+          '<text x="340" y="57" font-size="9.6">生い立ちや家族関係の深掘り・緊急性のない長期方針の総見直し</text>' +
         '</svg>' +
-        '<p class="ds-guide-note"><b>柱1（どこまで聞くか）：</b>「死にたい気持ち」や「急な身体症状・副作用」は代診でもその場で具体的に確かめます。一方で、生い立ちや長期方針の掘り下げは広げて終わらなくなるのを防ぎ、主治医へ橋渡しします。</p>'
+        '<p class="ds-guide-note ds-2line"><b>柱1（どこまで聞くか）：</b>「死にたい気持ち」や急な身体症状・副作用はその場で直接確かめ、長期の相談は受け止めて主治医へ引き継ぎます。</p>' +
+        '<details class="ds-more"><summary>くわしく（今日確かめる具体項目）</summary><div class="ds-more-body">' +
+          '・自殺の危険（意思・具体的な計画・手段に近づけるか・過去の企図）は率直に直接尋ねます。<br>' +
+          '・抗うつ薬開始後の落ち着かなさ（アカシジア等）、脱水時の手指振戦・ふらつき（リチウム中毒）、急な注意の揺れ（せん妄）、胸痛や失神、実際の服薬量・残薬・飲酒・翌日の眠気を確かめます。' +
+        '</div></details>'
       );
     }
     if (tab === 'rx') {
       return (
-        '<svg class="ds-guide-svg" viewBox="0 0 640 156" role="img" aria-label="代診での処方判断を安定時・軽度変化時・危険時の3つに分ける流れ図">' +
-          '<rect x="12" y="14" width="194" height="128" rx="8" fill="var(--ds-good-bg)" stroke="var(--ds-good)" stroke-width="1.8"/>' +
-          '<text x="24" y="35" font-size="11" font-weight="700">① 安定・薬が切れたとき</text>' +
-          '<text x="24" y="56" font-size="9.8" font-weight="700">・お薬手帳とカルテを照合</text>' +
-          '<text x="24" y="74" font-size="9.8" font-weight="700">・新しい症状や副作用なし</text>' +
-          '<path d="M24 88h170" stroke="var(--line)" stroke-width="1"/>' +
-          '<text x="24" y="108" font-size="10" font-weight="700">→ 同じ薬・同じ量で</text>' +
-          '<text x="24" y="125" font-size="10" font-weight="700">　 次の主治医予約日までつなぐ</text>' +
-          '<rect x="223" y="14" width="194" height="128" rx="8" fill="var(--ds-warn-bg)" stroke="var(--ds-warn)" stroke-width="1.8"/>' +
-          '<text x="235" y="35" font-size="11" font-weight="700">② 増量希望・不満・軽い不調</text>' +
-          '<text x="235" y="56" font-size="9.8" font-weight="700">・睡眠薬の増量や変更希望</text>' +
-          '<text x="235" y="74" font-size="9.8" font-weight="700">・緊急の危険や重い副作用なし</text>' +
-          '<path d="M235 88h170" stroke="var(--line)" stroke-width="1"/>' +
-          '<text x="235" y="108" font-size="10" font-weight="700">→ 原則は据え置き（または</text>' +
-          '<text x="235" y="125" font-size="10" font-weight="700">　 既存指示内の短期）＋再診調整</text>' +
-          '<rect x="434" y="14" width="194" height="128" rx="8" fill="var(--ds-crit-bg)" stroke="var(--ds-crit)" stroke-width="2"/>' +
-          '<text x="446" y="35" font-size="11" font-weight="700">③ 中毒・重い副作用・急変</text>' +
-          '<text x="446" y="56" font-size="9.8" font-weight="700">・開始後の強い焦燥＋希死念慮</text>' +
-          '<text x="446" y="74" font-size="9.8" font-weight="700">・脱水＋手指振戦／急な意識変動</text>' +
-          '<path d="M446 88h170" stroke="var(--line)" stroke-width="1"/>' +
-          '<text x="446" y="108" font-size="10" font-weight="700">→ 「変えない」が危険！</text>' +
-          '<text x="446" y="125" font-size="10" font-weight="700">　 当日に休薬・減量・救急連携</text>' +
+        renderKpis([
+          ['安定・軽度不調：次回予約日まで最小限・短期でつなぐ', 'ok'],
+          ['中毒・強い焦燥＋希死念慮・急変：当日に休薬・減量・救急連携', 'crit']
+        ]) +
+        '<svg class="ds-guide-svg" viewBox="0 0 640 88" role="img" aria-label="代診での処方判断を安定時・軽度変化時・危険時の3つに分ける流れ図">' +
+          '<rect x="10" y="10" width="198" height="68" rx="7" fill="var(--ds-good-bg)" stroke="var(--ds-good)" stroke-width="1.8"/>' +
+          '<text x="20" y="34" font-size="10.4" font-weight="700">① 安定・薬が切れたとき</text>' +
+          '<text x="20" y="57" font-size="9.2">同じ薬・量で次回予約日までつなぐ</text>' +
+          '<rect x="220" y="10" width="198" height="68" rx="7" fill="var(--ds-warn-bg)" stroke="var(--ds-warn)" stroke-width="1.8"/>' +
+          '<text x="230" y="34" font-size="10.4" font-weight="700">② 増量希望・軽い不調</text>' +
+          '<text x="230" y="57" font-size="9.2">原則据え置き（既存指示内の短期）</text>' +
+          '<rect x="430" y="10" width="200" height="68" rx="7" fill="var(--ds-crit-bg)" stroke="var(--ds-crit)" stroke-width="2"/>' +
+          '<text x="440" y="34" font-size="10.4" font-weight="700">③ 中毒・重い副作用・急変</text>' +
+          '<text x="440" y="57" font-size="9.2" font-weight="700">当日に休薬・減量・救急や身体科へ</text>' +
         '</svg>' +
-        '<p class="ds-guide-note"><b>柱2（処方をどうするか）：</b>基本は「次の主治医の受診まで最小限・短期・見直せる形」ですが、リチウム中毒や抗うつ薬開始後の強い落ち着かなさ・自殺の危険、せん妄疑いでは当日の対応と連携を優先します。</p>'
+        '<p class="ds-guide-note ds-2line"><b>柱2（処方をどうするか）：</b>基本は「次の主治医の受診まで最小限・短期」ですが、中毒や重い副作用・自殺の危険では当日の見直しと連携を優先します。</p>' +
+        '<details class="ds-more"><summary>くわしく（3つの分岐の判断基準）</summary><div class="ds-more-body">' +
+          '・安定時の休薬は再発の危険があるため、お薬手帳とカルテを照合して次回予約日までの必要日数をつなぎます。<br>' +
+          '・睡眠薬の安易な増量・上乗せや連用薬の急な中止は避け、頓服も既存指示の範囲で再診までに絞ります。<br>' +
+          '・リチウム中毒疑い、抗うつ薬開始後の強い焦燥と希死念慮、認知症の急な夜間変化（せん妄疑い）では先送りせず当日に対応します。' +
+        '</div></details>'
       );
     }
     return (
-      '<svg class="ds-guide-svg" viewBox="0 0 640 156" role="img" aria-label="代診の医師から患者本人への説明と主治医・他科への申し送りの両輪を示す図">' +
-        '<rect x="242" y="14" width="156" height="44" rx="8" fill="var(--accent-soft)" stroke="var(--accent)" stroke-width="2"/>' +
-        '<text x="320" y="34" text-anchor="middle" font-size="11" font-weight="700">代診の精神科医</text>' +
-        '<text x="320" y="49" text-anchor="middle" font-size="9.2">今日の確認・判断・記録</text>' +
-        '<path d="M242 42 L150 74" stroke="var(--accent)" stroke-width="2.2"/>' +
-        '<path d="M398 42 L490 74" stroke="var(--accent)" stroke-width="2.2"/>' +
-        '<rect x="14" y="74" width="286" height="72" rx="8" fill="var(--ds-good-bg)" stroke="var(--ds-good)" stroke-width="1.8"/>' +
-        '<text x="26" y="94" font-size="10.8" font-weight="700">本人・家族へ伝えること（約束しすぎない）</text>' +
-        '<text x="26" y="113" font-size="9.6">・今日処方を保った（または変えた）理由と注意点</text>' +
-        '<text x="26" y="129" font-size="9.6">・次の受診日（誰が診るか）と、急変時の連絡先</text>' +
-        '<rect x="340" y="74" width="286" height="72" rx="8" fill="var(--ds-info-bg)" stroke="var(--ds-info)" stroke-width="1.8"/>' +
-        '<text x="352" y="94" font-size="10.8" font-weight="700">カルテと主治医・他科への申し送り</text>' +
-        '<text x="352" y="113" font-size="9.6">・確かめた所見（服薬・最終服薬時刻・安全評価）</text>' +
-        '<text x="352" y="129" font-size="9.6">・本人の希望は評価で決めつけず「言葉どおり」残す</text>' +
+      renderKpis([
+        ['本人へ：今回の判断理由・次回受診日・急変時の連絡先', 'ok'],
+        ['主治医・他科へ：最終服薬時刻・所見・言葉どおりの希望', 'info']
+      ]) +
+      '<svg class="ds-guide-svg" viewBox="0 0 640 88" role="img" aria-label="代診の医師から患者本人への説明と主治医・他科への申し送りの両輪を示す図">' +
+        '<rect x="10" y="10" width="302" height="68" rx="7" fill="var(--ds-good-bg)" stroke="var(--ds-good)" stroke-width="1.8"/>' +
+        '<text x="22" y="34" font-size="10.8" font-weight="700">本人・家族へ伝えること（次回を約束しすぎない）</text>' +
+        '<text x="22" y="57" font-size="9.4">処方を保った（変えた）理由・次回受診日・急変時の連絡先</text>' +
+        '<rect x="328" y="10" width="302" height="68" rx="7" fill="var(--ds-info-bg)" stroke="var(--ds-info)" stroke-width="1.8"/>' +
+        '<text x="340" y="34" font-size="10.8" font-weight="700">カルテと主治医・救急・身体科への申し送り</text>' +
+        '<text x="340" y="57" font-size="9.4">確認した所見・最終服薬時刻・言葉どおりの希望を記録し共有</text>' +
       '</svg>' +
-      '<p class="ds-guide-note"><b>柱3（どう引き継ぐか）：</b>本人には「次回の処方を約束」せず「今日確かめたことと希望を主治医に伝えます」と橋渡しし、急ぐ場合は当日中に直接つなぎます。</p>'
+      '<p class="ds-guide-note ds-2line"><b>柱3（どう引き継ぐか）：</b>次回の処方や担当変更をその場で約束せず、確かめた所見と本人の希望を具体的に残して次の診察へつなぎます。</p>' +
+      '<details class="ds-more"><summary>くわしく（申し送りで抜かさないポイント）</summary><div class="ds-more-body">' +
+        '・薬名や病名だけでなく「なぜ今日その判断にしたか」「いつ誰が次に診るか」「その前に悪化したらどこへ連絡するか」を本人と主治医の両方に残します。<br>' +
+        '・自殺の危険やリチウム中毒疑いなど急ぐ場面では、検査結果や次回予約を待たずに当日中に救急・主治医へ直接引き継ぎます。' +
+      '</div></details>'
     );
   }
 
@@ -1407,9 +2000,12 @@ IMG["ds-case8"] = "data:image/webp;base64,UklGRsqtAABXRUJQVlA4IL6tAACQJQOdASrAAx
           '<span class="ds-badge">見て分かる</span>' +
           '<span>代診の外来：3つの判断の羅針盤（聞く範囲・処方・申し送り）</span>' +
         '</h2>' +
-        '<button type="button" class="ghost" id="dsGuideToggle" aria-expanded="true">たたむ</button>' +
+        '<button type="button" class="ghost" id="dsGuideToggle" aria-expanded="false">図解をひらく</button>' +
       '</div>' +
-      '<div class="ds-guide-body" id="dsGuideBody">' +
+      '<div class="ds-gate-note" id="dsGateNote">' +
+        '<span>💡 答える前のネタバレを防ぐため閉じています（3問答えるか「図解をひらく」でいつでも見られます）。</span>' +
+      '</div>' +
+      '<div class="ds-guide-body" id="dsGuideBody" hidden>' +
         '<div class="ds-nav-tabs" role="tablist" aria-label="代診の3つの柱">' +
           '<button type="button" class="ds-nav-tab" role="tab" data-dstab="hear" aria-selected="true">① どこまで聞くか（安全確認）</button>' +
           '<button type="button" class="ds-nav-tab" role="tab" data-dstab="rx" aria-selected="false">② 処方をどうするか（3つの分岐）</button>' +
@@ -1423,10 +2019,11 @@ IMG["ds-case8"] = "data:image/webp;base64,UklGRsqtAABXRUJQVlA4IL6tAACQJQOdASrAAx
     var bd = document.getElementById('dsGuideBody');
     if (tg && bd) {
       tg.addEventListener('click', function () {
+        userToggledGuide = true;
         var open = bd.hidden;
         bd.hidden = !open;
         tg.setAttribute('aria-expanded', String(open));
-        tg.textContent = open ? 'たたむ' : 'ひらく';
+        tg.textContent = open ? '図解をたたむ' : '図解をひらく';
       });
     }
     sec.addEventListener('click', function (e) {
@@ -1443,7 +2040,7 @@ IMG["ds-case8"] = "data:image/webp;base64,UklGRsqtAABXRUJQVlA4IL6tAACQJQOdASrAAx
   }
 
   /* =======================================================================
-   * 3. 全8症例の受診場面カード（回答前に出してよい観察所見のみ）
+   * 3. 全8症例の受診場面カード（回答前に出してよい観察所見のみ・1枠2行以内）
    * ======================================================================= */
   var CASE_SCENES = [
     {
@@ -1451,49 +2048,49 @@ IMG["ds-case8"] = "data:image/webp;base64,UklGRsqtAABXRUJQVlA4IL6tAACQJQOdASrAAx
       illustKey: 'ds-case1',
       illustAlt: '診察室の机にお薬手帳と空の薬袋を置き、代診の精神科医に説明する46歳男性患者の挿絵',
       overlayTag: '受診時の様子：主治医休診で予約がずれ、昨夜の分まで服用済み',
-      cap: '受付で主治医の休診を聞き、お薬手帳と空になった薬袋を診察机に出して「普段どおり仕事に行けています」と話す場面。',
-      svg: '<svg class="ds-scene-svg" viewBox="0 0 560 74" role="img" aria-label="受付の休診案内から診察室のお薬手帳と空の薬袋へ切り替わる受診場面図">' +
-        '<rect x="10" y="10" width="166" height="54" rx="6" fill="var(--ds-info-bg)" stroke="var(--ds-info)" stroke-width="1.5"/>' +
-        '<text x="20" y="29" font-size="9.8" font-weight="700">外来受付（予約外）</text>' +
-        '<text x="20" y="48" font-size="9">主治医休診・次回予約枠あり</text>' +
-        '<path d="M182 37h24" stroke="var(--accent)" stroke-width="2"/>' +
-        '<rect x="212" y="10" width="338" height="54" rx="6" fill="var(--panel)" stroke="var(--accent)" stroke-width="1.6"/>' +
-        '<text x="224" y="29" font-size="9.8" font-weight="700">診察机の上：お薬手帳 ＋ 空の薬袋（昨夜分まで服用）</text>' +
-        '<text x="224" y="48" font-size="9">本人「普段どおり仕事に行けています。今日の分から薬がありません」</text>' +
+      cap: '主治医の休診で予約がずれ、お薬手帳と空の薬袋を出して「普段どおり仕事に行けています」と話す場面。',
+      svg: '<svg class="ds-scene-svg" viewBox="0 0 560 68" role="img" aria-label="受付の休診案内から診察室のお薬手帳と空の薬袋へ切り替わる受診場面図">' +
+        '<rect x="10" y="8" width="166" height="52" rx="6" fill="var(--ds-info-bg)" stroke="var(--ds-info)" stroke-width="1.5"/>' +
+        '<text x="20" y="27" font-size="9.6" font-weight="700">外来受付（予約外 9:10）</text>' +
+        '<text x="20" y="46" font-size="8.8">主治医休診・次回予約枠あり</text>' +
+        '<path d="M182 34h24" stroke="var(--accent)" stroke-width="2"/>' +
+        '<rect x="212" y="8" width="338" height="52" rx="6" fill="var(--panel)" stroke="var(--accent)" stroke-width="1.6"/>' +
+        '<text x="224" y="27" font-size="9.6" font-weight="700">診察机：お薬手帳 ＋ 空の薬袋（昨夜分まで服用）</text>' +
+        '<text x="224" y="46" font-size="8.8">本人「普段どおり仕事に行けています。今日の分から薬がありません」</text>' +
       '</svg>'
     },
     {
-      pills: [['予約外 9:45', 'crit'], ['29歳女性・抗うつ薬開始2週', 'warn'], ['動きの所見：座っては立つ', 'crit']],
+      pills: [['予約外 9:45', 'crit'], ['29歳女性・抗うつ薬開始 約2週間', 'warn'], ['動きの所見：座っては立つ', 'crit']],
       illustKey: 'ds-case2-1',
       illustKey2: 'ds-case2-2',
       illustAlt: '診察室の椅子から何度も立ち上がり、落ち着いた速度で室内を往復する29歳女性患者の挿絵',
       overlayTag: '診察室の観察：じっと座っていられず立ち上がって室内を往復（待合に姉）',
-      cap: 'エスシタロプラム開始から約2週間。椅子に座っては立ち上がって歩く動きを繰り返し、「薬を飲む前より、死にたい気持ちが強いです」と訴える場面。',
-      svg: '<svg class="ds-scene-svg" viewBox="0 0 560 74" role="img" aria-label="診察室の椅子から立ち上がって往復する動きと待合室の姉を示す観察図">' +
-        '<rect x="10" y="10" width="356" height="54" rx="6" fill="var(--ds-crit-bg)" stroke="var(--ds-crit)" stroke-width="1.6"/>' +
-        '<text x="22" y="29" font-size="9.8" font-weight="700">診察室での様子：椅子に座る ⇄ 立ち上がって室内を往復</text>' +
-        '<text x="22" y="48" font-size="9">数日前から体の内側が落ち着かず眠れない・「死にたい気持ちが強い」</text>' +
-        '<rect x="376" y="10" width="174" height="54" rx="6" fill="var(--ds-info-bg)" stroke="var(--ds-info)" stroke-width="1.5"/>' +
-        '<text x="388" y="29" font-size="9.8" font-weight="700">待合室の状況</text>' +
-        '<text x="388" y="48" font-size="9">同伴した姉が待っている</text>' +
+      cap: 'エスシタロプラム開始から約2週間。座っては立つ動きを繰り返し「死にたい気持ちが強くなった」と話す場面。',
+      svg: '<svg class="ds-scene-svg" viewBox="0 0 560 68" role="img" aria-label="診察室の椅子から立ち上がって往復する動きと待合室の姉を示す観察図">' +
+        '<rect x="10" y="8" width="356" height="52" rx="6" fill="var(--ds-crit-bg)" stroke="var(--ds-crit)" stroke-width="1.6"/>' +
+        '<text x="22" y="27" font-size="9.6" font-weight="700">診察室での様子：椅子に座る ⇄ 立ち上がって室内を往復</text>' +
+        '<text x="22" y="46" font-size="8.8">数日前から眠れず落ち着かない・「服薬前より死にたい気持ちが強い」</text>' +
+        '<rect x="376" y="8" width="174" height="52" rx="6" fill="var(--ds-info-bg)" stroke="var(--ds-info)" stroke-width="1.5"/>' +
+        '<text x="388" y="27" font-size="9.6" font-weight="700">待合室の状況</text>' +
+        '<text x="388" y="46" font-size="8.8">同伴した姉が待っている</text>' +
       '</svg>'
     },
     {
-      pills: [['予約外 10:20', 'warn'], ['57歳男性・夜勤増', 'info'], ['睡眠薬は次回まで残薬あり', 'good']],
+      pills: [['予約外 10:20', 'warn'], ['57歳男性・夜勤が増加', 'info'], ['睡眠薬は週内の予約まで残薬あり', 'good']],
       illustKey: 'ds-case3',
       illustAlt: '夜勤が増えた勤務表と朝の目覚ましを前に、昼の眠気と不眠を話す57歳男性患者の挿絵',
       overlayTag: '受診時の様子：夜勤が増えて寝つけず、翌日の昼までぼんやりする日がある',
-      cap: 'ブロチゾラムを毎晩服用中。夜勤が増えて寝つけない日が続き増量を希望するが、「翌日の昼までぼんやりする日もある」と話す場面。',
-      svg: '<svg class="ds-scene-svg" viewBox="0 0 560 74" role="img" aria-label="勤務表の夜勤欄と朝の目覚まし、昼まで残る眠気を示す場面図">' +
-        '<rect x="10" y="10" width="174" height="54" rx="6" fill="var(--ds-warn-bg)" stroke="var(--ds-warn)" stroke-width="1.5"/>' +
-        '<text x="20" y="29" font-size="9.8" font-weight="700">勤務表：夜勤の増加</text>' +
-        '<text x="20" y="48" font-size="9">生活時刻がずれて寝つけない</text>' +
-        '<rect x="194" y="10" width="174" height="54" rx="6" fill="var(--panel)" stroke="var(--accent)" stroke-width="1.5"/>' +
-        '<text x="204" y="29" font-size="9.8" font-weight="700">翌日の昼の様子</text>' +
-        '<text x="204" y="48" font-size="9">「昼までぼんやりする日もある」</text>' +
-        '<rect x="378" y="10" width="172" height="54" rx="6" fill="var(--ds-good-bg)" stroke="var(--ds-good)" stroke-width="1.5"/>' +
-        '<text x="388" y="29" font-size="9.8" font-weight="700">手元の薬と予約</text>' +
-        '<text x="388" y="48" font-size="9">週内の主治医予約まで残薬あり</text>' +
+      cap: 'ブロチゾラムを毎晩使用。夜勤が増えて薬を強くしてほしいと言うが、翌日の昼までぼんやりする日もある場面。',
+      svg: '<svg class="ds-scene-svg" viewBox="0 0 560 68" role="img" aria-label="勤務表の夜勤欄と朝の目覚まし、昼まで残る眠気を示す場面図">' +
+        '<rect x="10" y="8" width="174" height="52" rx="6" fill="var(--ds-warn-bg)" stroke="var(--ds-warn)" stroke-width="1.5"/>' +
+        '<text x="20" y="27" font-size="9.6" font-weight="700">勤務表：夜勤の増加</text>' +
+        '<text x="20" y="46" font-size="8.8">生活時刻がずれて寝つけない</text>' +
+        '<rect x="194" y="8" width="174" height="52" rx="6" fill="var(--panel)" stroke="var(--accent)" stroke-width="1.5"/>' +
+        '<text x="204" y="27" font-size="9.6" font-weight="700">翌日の昼の様子</text>' +
+        '<text x="204" y="46" font-size="8.8">「昼までぼんやりする日もある」</text>' +
+        '<rect x="378" y="8" width="172" height="52" rx="6" fill="var(--ds-good-bg)" stroke="var(--ds-good)" stroke-width="1.5"/>' +
+        '<text x="388" y="27" font-size="9.6" font-weight="700">手元の薬と次回予約</text>' +
+        '<text x="388" y="46" font-size="8.8">週内の主治医予約まで残薬あり</text>' +
       '</svg>'
     },
     {
@@ -1502,14 +2099,14 @@ IMG["ds-case8"] = "data:image/webp;base64,UklGRsqtAABXRUJQVlA4IL6tAACQJQOdASrAAx
       illustKey2: 'ds-case4-2',
       illustAlt: '水のコップを持つ手がふるえ、診察室の椅子までふらついて歩く52歳女性患者の挿絵',
       overlayTag: '診察室の観察：昨日から下痢・嘔吐で飲水困難、今朝から手のふるえと歩行のふらつき',
-      cap: '炭酸リチウムを今朝も服用。昨日からの下痢・嘔吐で水分が取れず、今朝からコップを持つ手がふるえてまっすぐ歩きにくい場面。',
-      svg: '<svg class="ds-scene-svg" viewBox="0 0 560 74" role="img" aria-label="下痢と嘔吐による飲水困難と、コップを持つ手のふるえ・歩行のふらつきを示す観察図">' +
-        '<rect x="10" y="10" width="262" height="54" rx="6" fill="var(--ds-warn-bg)" stroke="var(--ds-warn)" stroke-width="1.5"/>' +
-        '<text x="22" y="29" font-size="9.8" font-weight="700">昨日からの経過：下痢・嘔吐と飲水困難</text>' +
-        '<text x="22" y="48" font-size="9">水分がほとんど取れず尿が少ない（今朝も定期薬服用）</text>' +
-        '<rect x="282" y="10" width="268" height="54" rx="6" fill="var(--ds-crit-bg)" stroke="var(--ds-crit)" stroke-width="1.6"/>' +
-        '<text x="294" y="29" font-size="9.8" font-weight="700">今朝からの所見：手指のふるえ ＋ ふらつき</text>' +
-        '<text x="294" y="48" font-size="9">コップを持つ手がふるえ、診察室の入口から椅子までふらつく</text>' +
+      cap: '炭酸リチウムを今朝も服用。昨日からの下痢・嘔吐で水分が取れず、今朝から手がふるえ歩きにくい場面。',
+      svg: '<svg class="ds-scene-svg" viewBox="0 0 560 68" role="img" aria-label="下痢と嘔吐による飲水困難と、コップを持つ手のふるえ・歩行のふらつきを示す観察図">' +
+        '<rect x="10" y="8" width="262" height="52" rx="6" fill="var(--ds-warn-bg)" stroke="var(--ds-warn)" stroke-width="1.5"/>' +
+        '<text x="22" y="27" font-size="9.6" font-weight="700">昨日からの経過：下痢・嘔吐と飲水困難</text>' +
+        '<text x="22" y="46" font-size="8.8">水分がほとんど取れず尿が少ない（今朝も定期薬服用）</text>' +
+        '<rect x="282" y="8" width="268" height="52" rx="6" fill="var(--ds-crit-bg)" stroke="var(--ds-crit)" stroke-width="1.6"/>' +
+        '<text x="294" y="27" font-size="9.6" font-weight="700">今朝からの所見：手指のふるえ ＋ ふらつき</text>' +
+        '<text x="294" y="46" font-size="8.8">コップを持つ手がふるえ、入口から椅子までふらつく</text>' +
       '</svg>'
     },
     {
@@ -1517,29 +2114,29 @@ IMG["ds-case8"] = "data:image/webp;base64,UklGRsqtAABXRUJQVlA4IL6tAACQJQOdASrAAx
       illustKey: 'ds-case5',
       illustAlt: '予約票と薬袋を机に置き、朝がつらいことと主治医への不満を代診医に伝える38歳女性患者の挿絵',
       overlayTag: '受診時の様子：予約票と残っている薬袋を置き「朝がつらい」「薬のことを話す時間がほしい」',
-      cap: '手元の薬は次回まで残っており自己調整はしていない。「薬を飲むと朝がつらいと言っても聞いてもらえない」と話す場面。',
-      svg: '<svg class="ds-scene-svg" viewBox="0 0 560 74" role="img" aria-label="予約票と薬袋を机に置き、朝のつらさと相談時間を求める患者の場面図">' +
-        '<rect x="10" y="10" width="268" height="54" rx="6" fill="var(--ds-warn-bg)" stroke="var(--ds-warn)" stroke-width="1.5"/>' +
-        '<text x="22" y="29" font-size="9.8" font-weight="700">本人の訴え：「薬を飲むと朝がつらい」</text>' +
-        '<text x="22" y="48" font-size="9">「薬のことを話す時間がほしい。先生も薬も変えてほしい」</text>' +
-        '<rect x="288" y="10" width="262" height="54" rx="6" fill="var(--ds-good-bg)" stroke="var(--ds-good)" stroke-width="1.5"/>' +
-        '<text x="300" y="29" font-size="9.8" font-weight="700">服薬と残薬の状況</text>' +
-        '<text x="300" y="48" font-size="9">薬は次回診察分まで残っており、量は自分で変えていない</text>' +
+      cap: '手元の薬は次回まで残り自己調整はしていない。「朝がつらいと話しても聞いてもらえない」と訴える場面。',
+      svg: '<svg class="ds-scene-svg" viewBox="0 0 560 68" role="img" aria-label="予約票と薬袋を机に置き、朝のつらさと相談時間を求める患者の場面図">' +
+        '<rect x="10" y="8" width="268" height="52" rx="6" fill="var(--ds-warn-bg)" stroke="var(--ds-warn)" stroke-width="1.5"/>' +
+        '<text x="22" y="27" font-size="9.6" font-weight="700">本人の訴え：「薬で朝がつらい」</text>' +
+        '<text x="22" y="46" font-size="8.8">「薬のことを話す時間がほしい。先生も薬も替えてほしい」</text>' +
+        '<rect x="288" y="8" width="262" height="52" rx="6" fill="var(--ds-good-bg)" stroke="var(--ds-good)" stroke-width="1.5"/>' +
+        '<text x="300" y="27" font-size="9.6" font-weight="700">服薬と残薬の状況</text>' +
+        '<text x="300" y="46" font-size="8.8">薬は次回診察分まで残っており、自分で量は変えていない</text>' +
       '</svg>'
     },
     {
-      pills: [['予約外 14:00', 'info'], ['33歳女性・パニック症', 'warn'], ['診察時は発作おさまる・翌日予約可', 'good']],
+      pills: [['予約外 14:00', 'info'], ['33歳女性・パニック症', 'warn'], ['診察時は発作鎮静・翌日予約可', 'good']],
       illustKey: 'ds-case6',
       illustAlt: '職場で息を整えた経過を振り返り、診察室で落ち着いて代診医に頓服の相談をする33歳女性患者の挿絵',
       overlayTag: '受診時の様子：職場で動悸・息苦しさが増えて頓服を使い切り、診察室では落ち着いて振り返る',
-      cap: '職場の担当変更後に発作が増えてロラゼパム頓服を使い切った。診察時には症状は治まっており、主治医の診察を翌日に前倒しできる場面。',
-      svg: '<svg class="ds-scene-svg" viewBox="0 0 560 74" role="img" aria-label="職場での発作の経過と診察室での落ち着いた様子、翌日予約の前倒しを示す場面図">' +
-        '<rect x="10" y="10" width="262" height="54" rx="6" fill="var(--ds-warn-bg)" stroke="var(--ds-warn)" stroke-width="1.5"/>' +
-        '<text x="22" y="29" font-size="9.8" font-weight="700">職場での経過：動悸と息苦しさが増加</text>' +
-        '<text x="22" y="48" font-size="9">急に始まりしばらくすると治まる・手元の頓服を使い切った</text>' +
-        '<rect x="282" y="10" width="268" height="54" rx="6" fill="var(--ds-good-bg)" stroke="var(--ds-good)" stroke-width="1.5"/>' +
-        '<text x="294" y="29" font-size="9.8" font-weight="700">診察室での状態：現在は落ち着いている</text>' +
-        '<text x="294" y="48" font-size="9">定期薬は継続中・主治医の診察を「明日」に前倒し可能</text>' +
+      cap: '職場の担当変更後に発作が増えロラゼパム頓服を使い切った。診察時は治まっており、主治医予約を翌日に前倒しできる場面。',
+      svg: '<svg class="ds-scene-svg" viewBox="0 0 560 68" role="img" aria-label="職場での発作の経過と診察室での落ち着いた様子、翌日予約の前倒しを示す場面図">' +
+        '<rect x="10" y="8" width="262" height="52" rx="6" fill="var(--ds-warn-bg)" stroke="var(--ds-warn)" stroke-width="1.5"/>' +
+        '<text x="22" y="27" font-size="9.6" font-weight="700">職場での経過：動悸と息苦しさが増加</text>' +
+        '<text x="22" y="46" font-size="8.8">急に始まりしばらくすると治まる・頓服を使い切った</text>' +
+        '<rect x="282" y="8" width="268" height="52" rx="6" fill="var(--ds-good-bg)" stroke="var(--ds-good)" stroke-width="1.5"/>' +
+        '<text x="294" y="27" font-size="9.6" font-weight="700">診察室での状態：現在は症状が治まっている</text>' +
+        '<text x="294" y="46" font-size="8.8">定期薬は継続中・主治医の診察を「翌日」に前倒し可能</text>' +
       '</svg>'
     },
     {
@@ -1547,14 +2144,14 @@ IMG["ds-case8"] = "data:image/webp;base64,UklGRsqtAABXRUJQVlA4IL6tAACQJQOdASrAAx
       illustKey: 'ds-case7',
       illustAlt: '診察室で娘が母の夜間の様子を説明し、81歳の母親が腹部を押さえながら質問の途中で注意をそらす挿絵',
       overlayTag: '受診時の様子：おとといから夜中に歩き回り、飲水減・便秘・「お腹が苦しい」と注意が揺れる',
-      cap: 'おとといから夜中に歩き回るようになり疲弊した娘と来院。昨日の昼は普段どおり話せた時間もあったが、診察では質問の途中で注意がそれる場面。',
-      svg: '<svg class="ds-scene-svg" viewBox="0 0 560 74" role="img" aria-label="おとといからの急な夜間変化と昼の会話、診察室での腹部症状と注意の揺れを示す場面図">' +
-        '<rect x="10" y="10" width="268" height="54" rx="6" fill="var(--ds-warn-bg)" stroke="var(--ds-warn)" stroke-width="1.5"/>' +
-        '<text x="22" y="29" font-size="9.8" font-weight="700">娘からの話：おとといから急に夜中歩き回る</text>' +
-        '<text x="22" y="48" font-size="9">昨日の昼は普段どおり話せた時間も・飲水が減り便が出ていない</text>' +
-        '<rect x="288" y="10" width="262" height="54" rx="6" fill="var(--ds-crit-bg)" stroke="var(--ds-crit)" stroke-width="1.6"/>' +
-        '<text x="300" y="29" font-size="9.8" font-weight="700">診察室での本人：「お腹が苦しい」</text>' +
-        '<text x="300" y="48" font-size="9">会話の途中で何を聞かれたか分からなくなり注意がそれる</text>' +
+      cap: 'おとといから夜中に歩き回り娘と来院。昨日の昼は普段どおり話せた時もあったが、今日は腹部の苦しさを訴え注意がそれる場面。',
+      svg: '<svg class="ds-scene-svg" viewBox="0 0 560 68" role="img" aria-label="おとといからの急な夜間変化と昼の会話、診察室での腹部症状と注意の揺れを示す場面図">' +
+        '<rect x="10" y="8" width="268" height="52" rx="6" fill="var(--ds-warn-bg)" stroke="var(--ds-warn)" stroke-width="1.5"/>' +
+        '<text x="22" y="27" font-size="9.6" font-weight="700">娘からの話：おとといから急に夜中歩き回る</text>' +
+        '<text x="22" y="46" font-size="8.8">昨日の昼は普段どおり話せた時も・飲水が減り便が出ていない</text>' +
+        '<rect x="288" y="8" width="262" height="52" rx="6" fill="var(--ds-crit-bg)" stroke="var(--ds-crit)" stroke-width="1.6"/>' +
+        '<text x="300" y="27" font-size="9.6" font-weight="700">診察室での本人：「お腹が苦しい」</text>' +
+        '<text x="300" y="46" font-size="8.8">会話中に質問が分からなくなり注意が揺れる</text>' +
       '</svg>'
     },
     {
@@ -1562,14 +2159,14 @@ IMG["ds-case8"] = "data:image/webp;base64,UklGRsqtAABXRUJQVlA4IL6tAACQJQOdASrAAx
       illustKey: 'ds-case8',
       illustAlt: '診察室で職場の話から昔の家族の話へ話題が移る44歳男性患者と、耳を傾けながらメモを取る代診医の挿絵',
       overlayTag: '受診時の様子：朝がつらいが出勤は継続・薬は次回分まであり、相談したい話題が次々に広がる',
-      cap: '「なんとなく調子が悪くて」と予約外で来院。仕事の行き違いから昔からの家族関係へ話が広がり、医師が遮らずにメモを取っている場面。',
-      svg: '<svg class="ds-scene-svg" viewBox="0 0 560 74" role="img" aria-label="職場の話から昔の家族の話へ広がる患者とメモを取る代診医の場面図">' +
-        '<rect x="10" y="10" width="268" height="54" rx="6" fill="var(--ds-info-bg)" stroke="var(--ds-info)" stroke-width="1.5"/>' +
-        '<text x="22" y="29" font-size="9.8" font-weight="700">診察室での対話：仕事の行き違い → 昔の家族の話</text>' +
-        '<text x="22" y="48" font-size="9">本人「相談したいことがいくつもあります」（出勤は継続）</text>' +
-        '<rect x="288" y="10" width="262" height="54" rx="6" fill="var(--ds-good-bg)" stroke="var(--ds-good)" stroke-width="1.5"/>' +
-        '<text x="300" y="29" font-size="9.8" font-weight="700">手元の薬と主治医の予約</text>' +
-        '<text x="300" y="48" font-size="9">今の薬は次回まで足りている・通常の予約まで少し間がある</text>' +
+      cap: '「最近、なんとなく調子が悪い」と来院。職場の行き違いから家族との話へ移り、薬は次回まで足りている場面。',
+      svg: '<svg class="ds-scene-svg" viewBox="0 0 560 68" role="img" aria-label="職場の話から昔の家族の話へ広がる患者とメモを取る代診医の場面図">' +
+        '<rect x="10" y="8" width="268" height="52" rx="6" fill="var(--ds-info-bg)" stroke="var(--ds-info)" stroke-width="1.5"/>' +
+        '<text x="22" y="27" font-size="9.6" font-weight="700">診察室での対話：職場の行き違い → 家族の話</text>' +
+        '<text x="22" y="46" font-size="8.8">本人「相談したいことがいくつもあります」（出勤は継続）</text>' +
+        '<rect x="288" y="8" width="262" height="52" rx="6" fill="var(--ds-good-bg)" stroke="var(--ds-good)" stroke-width="1.5"/>' +
+        '<text x="300" y="27" font-size="9.6" font-weight="700">手元の薬と主治医の予約</text>' +
+        '<text x="300" y="46" font-size="8.8">薬は次回まで足りる・通常の予約まで少し間がある</text>' +
       '</svg>'
     }
   ];
@@ -1651,459 +2248,425 @@ IMG["ds-case8"] = "data:image/webp;base64,UklGRsqtAABXRUJQVlA4IL6tAACQJQOdASrAAx
   }
 
   /* =======================================================================
-   * 4. 全24問（8症例×3問）の回答後SVG解説図（q.vis に1問ずつ対応）
+   * 4. 全24問（8症例×3問）の回答後専用SVG解説図
+   *    （要点バッジ＋1枠2行以内SVG＋2行要約＋「くわしく」折りたたみ）
    * ======================================================================= */
   function buildQuestionVis(ci, qi) {
     switch (ci + '-' + qi) {
       /* ---------------- 症例1（9:10 薬切れ） ---------------- */
       case '0-0':
         return {
-          title: '図解：同じ処方を出す前に照らし合わせる3つの情報',
-          cap: '診療録（カルテ）の処方記録・手元のお薬手帳・本人の話（実際の飲み方、最近の症状や眠気などの副作用）を並べて照合します。',
-          svg: '<svg class="ds-qvis-svg" viewBox="0 0 560 106" role="img" aria-label="診療録とお薬手帳と本人の話の3枚のカードを並べて照合する図">' +
-            '<rect x="10" y="12" width="160" height="82" rx="6" fill="var(--ds-info-bg)" stroke="var(--ds-info)" stroke-width="1.6"/>' +
-            '<text x="20" y="33" font-size="10.2" font-weight="700">① 診療録（カルテ）</text>' +
-            '<text x="20" y="52" font-size="9">・前回の処方内容と日数</text>' +
-            '<text x="20" y="68" font-size="9">・これまでの経過と次回予約</text>' +
-            '<text x="181" y="57" text-anchor="middle" font-size="14" font-weight="700">⇄</text>' +
-            '<rect x="192" y="12" width="160" height="82" rx="6" fill="var(--ds-good-bg)" stroke="var(--ds-good)" stroke-width="1.6"/>' +
-            '<text x="202" y="33" font-size="10.2" font-weight="700">② お薬手帳・空の薬袋</text>' +
-            '<text x="202" y="52" font-size="9">・実際の処方日と薬局記録</text>' +
-            '<text x="202" y="68" font-size="9">・昨夜分までで飲み切った確認</text>' +
-            '<text x="363" y="57" text-anchor="middle" font-size="14" font-weight="700">⇄</text>' +
-            '<rect x="374" y="12" width="176" height="82" rx="6" fill="var(--ds-warn-bg)" stroke="var(--ds-warn)" stroke-width="1.6"/>' +
-            '<text x="384" y="33" font-size="10.2" font-weight="700">③ 本人への聞き取り</text>' +
-            '<text x="384" y="52" font-size="9">・実際の飲み方と残薬の有無</text>' +
-            '<text x="384" y="68" font-size="9">・最近の幻聴・睡眠・副作用</text>' +
+          title: '図解：同じ処方を出す前に照合する3つの情報',
+          kpis: [['照合：診療録 × お薬手帳 × 本人の話', 'info'], ['実際の飲み方・残薬・症状・副作用を確認', 'ok']],
+          shortCap: 'カルテの記録とお薬手帳、本人の話（実際の服薬・症状・副作用）を照らし合わせます。',
+          moreCap: '処方歴や薬局変更の有無だけでは実際に飲んだ量や今の状態が分かりません。生活歴を初めから聞き直す前に今日の判断に関わる変化を押さえます。',
+          svg: '<svg class="ds-qvis-svg" viewBox="0 0 560 84" role="img" aria-label="診療録とお薬手帳と本人の話の3枚のカードを並べて照合する図">' +
+            '<rect x="10" y="10" width="166" height="64" rx="6" fill="var(--ds-info-bg)" stroke="var(--ds-info)" stroke-width="1.6"/>' +
+            '<text x="20" y="32" font-size="10" font-weight="700">① 診療録（カルテ）</text>' +
+            '<text x="20" y="54" font-size="8.8">前回処方・経過・次回予約枠</text>' +
+            '<text x="186" y="47" text-anchor="middle" font-size="13" font-weight="700">⇄</text>' +
+            '<rect x="196" y="10" width="166" height="64" rx="6" fill="var(--ds-good-bg)" stroke="var(--ds-good)" stroke-width="1.6"/>' +
+            '<text x="206" y="32" font-size="10" font-weight="700">② お薬手帳・空の薬袋</text>' +
+            '<text x="206" y="54" font-size="8.8">処方日と昨夜まで服用の確認</text>' +
+            '<text x="372" y="47" text-anchor="middle" font-size="13" font-weight="700">⇄</text>' +
+            '<rect x="382" y="10" width="168" height="64" rx="6" fill="var(--ds-warn-bg)" stroke="var(--ds-warn)" stroke-width="1.6"/>' +
+            '<text x="392" y="32" font-size="10" font-weight="700">③ 本人への聞き取り</text>' +
+            '<text x="392" y="54" font-size="8.8">実際の服薬・残薬・症状・眠気</text>' +
           '</svg>'
         };
       case '0-1':
         return {
-          title: '図解：昨夜の最終服用から主治医の次回受診日までを切れ目なくつなぐ',
-          cap: '安定期の休薬は再発の危険を高めるため、確保した主治医の次回予約日までの必要日数を同じ薬・同じ量でつなぎます。',
-          svg: '<svg class="ds-qvis-svg" viewBox="0 0 560 100" role="img" aria-label="昨夜の最終服用と主治医の次回予約日の間を今回の同処方でつなぐ時間軸図">' +
-            '<line x1="36" y1="50" x2="524" y2="50" stroke="var(--line)" stroke-width="3"/>' +
-            '<circle cx="76" cy="50" r="8" fill="var(--ds-info)"/>' +
-            '<text x="76" y="28" text-anchor="middle" font-size="9.8" font-weight="700">昨夜</text>' +
-            '<text x="76" y="74" text-anchor="middle" font-size="8.8">最終服用（薬切れ）</text>' +
-            '<rect x="136" y="30" width="268" height="40" rx="6" fill="var(--ds-good-bg)" stroke="var(--ds-good)" stroke-width="2"/>' +
-            '<text x="270" y="48" text-anchor="middle" font-size="10.2" font-weight="700">今日の代診処方：同じ薬・同じ量でつなぐ</text>' +
-            '<text x="270" y="63" text-anchor="middle" font-size="8.8">（切れ目を作らず再発を防ぐ・必要日数分）</text>' +
-            '<circle cx="468" cy="50" r="8" fill="var(--accent)"/>' +
-            '<text x="468" y="28" text-anchor="middle" font-size="9.8" font-weight="700">主治医の次回予約日</text>' +
-            '<text x="468" y="74" text-anchor="middle" font-size="8.8">確保した受診枠へ引き継ぐ</text>' +
+          title: '図解：昨夜の最終服用から主治医の次回受診日までつなぐ',
+          kpis: [['処方：同じ薬・同じ量で次回受診日まで', 'ok'], ['安定期の休薬による再発を防ぐ', 'warn']],
+          shortCap: '症状や処方に変化がなければ、同じ薬・同じ量で確保した主治医の次回受診日までつなぎます。',
+          moreCap: '統合失調症薬物治療ガイドライン2022（CQ2-1）。安定だけを理由に休薬すると再発の危険があり、持効性注射剤への変更や予備の長期処方は代診の目的を超えます。',
+          svg: '<svg class="ds-qvis-svg" viewBox="0 0 560 86" role="img" aria-label="昨夜の最終服用と主治医の次回予約日の間を今回の同処方でつなぐ時間軸図">' +
+            '<line x1="36" y1="43" x2="524" y2="43" stroke="var(--line)" stroke-width="3"/>' +
+            '<circle cx="72" cy="43" r="7" fill="var(--ds-info)"/>' +
+            '<text x="72" y="23" text-anchor="middle" font-size="9.5" font-weight="700">昨夜（最終服用）</text>' +
+            '<rect x="136" y="21" width="272" height="44" rx="6" fill="var(--ds-good-bg)" stroke="var(--ds-good)" stroke-width="2"/>' +
+            '<text x="272" y="40" text-anchor="middle" font-size="10" font-weight="700">今日の代診：同じ薬・同じ量でつなぐ</text>' +
+            '<text x="272" y="56" text-anchor="middle" font-size="8.6">切れ目を作らず再発を防ぐ（予約日までの必要日数）</text>' +
+            '<circle cx="476" cy="43" r="7" fill="var(--accent)"/>' +
+            '<text x="476" y="23" text-anchor="middle" font-size="9.5" font-weight="700">主治医の次回受診日</text>' +
           '</svg>'
         };
       case '0-2':
         return {
-          title: '図解：本人の予約票と主治医への申し送り欄に共通の受診日と根拠を残す',
-          cap: '「薬名だけ」ではなく、今の安定所見・同じ処方でつないだ理由・共通の次回受診日・悪化時の連絡先を両方に残します。',
-          svg: '<svg class="ds-qvis-svg" viewBox="0 0 560 104" role="img" aria-label="本人の予約票と主治医への連絡欄に同じ次回受診日と継続理由が入る図">' +
-            '<rect x="12" y="12" width="250" height="80" rx="6" fill="var(--ds-good-bg)" stroke="var(--ds-good)" stroke-width="1.6"/>' +
-            '<text x="24" y="32" font-size="10.2" font-weight="700">本人へ渡す予約票・説明</text>' +
-            '<text x="24" y="51" font-size="9.2">・次回受診日（主治医の予約枠）</text>' +
-            '<text x="24" y="67" font-size="9.2">・今日同じ処方でつないだ理由</text>' +
-            '<text x="24" y="83" font-size="8.8">・受診前に症状が戻ったときの連絡先</text>' +
-            '<path d="M266 52h28" stroke="var(--accent)" stroke-width="2.2"/>' +
-            '<rect x="298" y="12" width="250" height="80" rx="6" fill="var(--ds-info-bg)" stroke="var(--ds-info)" stroke-width="1.6"/>' +
-            '<text x="310" y="32" font-size="10.2" font-weight="700">主治医への申し送り欄（カルテ）</text>' +
-            '<text x="310" y="51" font-size="9.2">・同じ次回受診日までの処方日数</text>' +
-            '<text x="310" y="67" font-size="9.2">・確認した服薬状況・症状・副作用なし</text>' +
-            '<text x="310" y="83" font-size="8.8">・今後の処方は次回主治医と相談する旨</text>' +
+          title: '図解：本人の予約票と主治医への申し送りに共通の受診日を残す',
+          kpis: [['本人へ：継続理由・次回受診日・悪化時連絡先', 'ok'], ['主治医へ：確認した安定所見とつないだ日数', 'info']],
+          shortCap: '継続した理由と確認した状態、共通の次回受診日を残し、本人とは悪化時の連絡先も確認します。',
+          moreCap: '「薬名だけ」の記録では継続した根拠が伝わりません。将来の処方方針の約束はせず、次の主治医の診察へ引き継ぎます。',
+          svg: '<svg class="ds-qvis-svg" viewBox="0 0 560 84" role="img" aria-label="本人の予約票と主治医への連絡欄に同じ次回受診日と継続理由が入る図">' +
+            '<rect x="12" y="10" width="250" height="64" rx="6" fill="var(--ds-good-bg)" stroke="var(--ds-good)" stroke-width="1.6"/>' +
+            '<text x="24" y="32" font-size="10" font-weight="700">本人へ渡す予約票と説明</text>' +
+            '<text x="24" y="54" font-size="8.8">次回受診日・同処方でつないだ理由・悪化時連絡先</text>' +
+            '<path d="M266 42h28" stroke="var(--accent)" stroke-width="2.2"/>' +
+            '<rect x="298" y="10" width="250" height="64" rx="6" fill="var(--ds-info-bg)" stroke="var(--ds-info)" stroke-width="1.6"/>' +
+            '<text x="310" y="32" font-size="10" font-weight="700">主治医への申し送り欄（カルテ）</text>' +
+            '<text x="310" y="54" font-size="8.8">共通の次回受診日・服薬と症状安定の確認所見</text>' +
           '</svg>'
         };
 
       /* ---------------- 症例2（9:45 座っていられない・死にたい） ---------------- */
       case '1-0':
         return {
-          title: '図解：自殺の危険の直接確認と、薬を始めてからの経過確認の2本の流れ',
-          cap: '「死にたい」と聞いたら意思・計画・手段・過去の企図を率直に直接尋ね、並行して抗うつ薬開始後の経過やアカシジア・うつ悪化を調べます。',
-          svg: '<svg class="ds-qvis-svg" viewBox="0 0 560 112" role="img" aria-label="自殺の危険に関する直接の質問と薬開始後の経過確認を並行して進める2本の流れ図">' +
-            '<rect x="12" y="10" width="536" height="42" rx="6" fill="var(--ds-crit-bg)" stroke="var(--ds-crit)" stroke-width="1.8"/>' +
-            '<text x="24" y="28" font-size="10.2" font-weight="700">流れ①：今の自殺の危険を直接・率直に尋ねる（最優先）</text>' +
-            '<text x="24" y="44" font-size="9.2">自殺の意思 ／ 具体的な計画 ／ 手段に近づけるか ／ 過去の自傷・自殺企図歴</text>' +
-            '<rect x="12" y="60" width="536" height="42" rx="6" fill="var(--ds-warn-bg)" stroke="var(--ds-warn)" stroke-width="1.6"/>' +
-            '<text x="24" y="78" font-size="10.2" font-weight="700">流れ②：薬（SSRI）を始めてからの時間関係と病状を並行確認</text>' +
-            '<text x="24" y="94" font-size="9.2">開始2週での内的な落ち着かなさ（アカシジア等）の出現時期 ／ 不眠 ／ うつ症状自体の変化</text>' +
+          title: '図解：自殺の危険の直接確認と、薬開始後の経過確認の2本立て',
+          kpis: [['最優先：意思・計画・手段・過去の企図を直接聞く', 'crit'], ['並行確認：抗うつ薬開始 約2週間の経過', 'warn']],
+          shortCap: '自殺の意思・計画・手段に近づけるか・過去の企図を率直に尋ね、薬開始後の経過も並行して調べます。',
+          moreCap: 'NICE成人うつ病指針（NG222）。睡眠やそわそわ、家族の支えの確認も大切ですが、今の自殺の危険を直接聞く代わりにはなりません。',
+          svg: '<svg class="ds-qvis-svg" viewBox="0 0 560 86" role="img" aria-label="自殺の危険に関する直接の質問と薬開始後の経過確認を並行して進める図">' +
+            '<rect x="10" y="10" width="264" height="66" rx="6" fill="var(--ds-crit-bg)" stroke="var(--ds-crit)" stroke-width="1.8"/>' +
+            '<text x="22" y="32" font-size="10" font-weight="700">① 今の自殺の危険を直接尋ねる</text>' +
+            '<text x="22" y="54" font-size="8.8">意思・具体的な計画・手段への接近・過去の企図</text>' +
+            '<rect x="286" y="10" width="264" height="66" rx="6" fill="var(--ds-warn-bg)" stroke="var(--ds-warn)" stroke-width="1.6"/>' +
+            '<text x="298" y="32" font-size="10" font-weight="700">② 薬開始後（約2週間）の経過を並行確認</text>' +
+            '<text x="298" y="54" font-size="8.8">落ち着かなさ（アカシジア等）とうつの悪化を評価</text>' +
           '</svg>'
         };
       case '1-1':
         return {
-          title: '図解：服薬開始からの時間軸と、増量を避けて当日に見直す判断',
-          cap: 'SSRI開始後にそわそわと希死念慮が強まったときは増量を避け、薬の影響（アカシジア等）と病状悪化の両面から当日に減量・中止を検討します。',
-          svg: '<svg class="ds-qvis-svg" viewBox="0 0 560 108" role="img" aria-label="抗うつ薬開始から落ち着かなさ出現までの時間軸と当日の減量・中止検討を示す図">' +
-            '<rect x="12" y="14" width="276" height="80" rx="6" fill="var(--ds-warn-bg)" stroke="var(--ds-warn)" stroke-width="1.6"/>' +
-            '<text x="22" y="34" font-size="10" font-weight="700">時間軸：SSRI開始（約2週前）→ 数日前〜今日</text>' +
-            '<text x="22" y="53" font-size="9">・開始前には無かった「座っていられない」動き</text>' +
-            '<text x="22" y="69" font-size="9">・眠れず「飲む前より死にたい気持ちが強い」</text>' +
-            '<text x="22" y="84" font-size="8.6">→ アカシジア等の薬の影響＋病状変化の両方を評価</text>' +
-            '<path d="M294 54h24" stroke="var(--ds-crit)" stroke-width="2.4"/>' +
-            '<rect x="322" y="14" width="226" height="80" rx="6" fill="var(--ds-crit-bg)" stroke="var(--ds-crit)" stroke-width="2"/>' +
-            '<text x="334" y="34" font-size="10.2" font-weight="700">今日の処方判断（先送りしない）</text>' +
-            '<text x="334" y="53" font-size="9.5" font-weight="700">✗ 増量しない・次回まで放置しない</text>' +
-            '<text x="334" y="71" font-size="9.5" font-weight="700">◎ 減量や中止を「今日」検討する</text>' +
+          title: '図解：抗うつ薬開始後の焦燥と希死念慮は増量を避け当日に見直す',
+          kpis: [['SSRI開始 約2週間：落ち着かなさ＋希死念慮', 'crit'], ['増量を避け「今日」減量・中止を検討', 'warn']],
+          shortCap: '薬の影響（アカシジア等）とうつの悪化の両面を評価し、増量を避けて今日のうちに減量・中止を検討します。',
+          moreCap: 'エスシタロプラム電子添文（8.1・8.2）。睡眠薬の上乗せだけや次回予約までの先送り、機械的な増量では差し迫った危険に対応できません。',
+          svg: '<svg class="ds-qvis-svg" viewBox="0 0 560 86" role="img" aria-label="抗うつ薬開始から落ち着かなさ出現までの時間軸と当日の減量・中止検討を示す図">' +
+            '<rect x="10" y="10" width="272" height="66" rx="6" fill="var(--ds-warn-bg)" stroke="var(--ds-warn)" stroke-width="1.6"/>' +
+            '<text x="22" y="32" font-size="9.8" font-weight="700">経過：開始 約2週間で「座っていられない」</text>' +
+            '<text x="22" y="54" font-size="8.8">アカシジア等の薬の影響＋病状悪化の両方を評価</text>' +
+            '<path d="M286 43h24" stroke="var(--ds-crit)" stroke-width="2.4"/>' +
+            '<rect x="314" y="10" width="236" height="66" rx="6" fill="var(--ds-crit-bg)" stroke="var(--ds-crit)" stroke-width="2"/>' +
+            '<text x="326" y="32" font-size="10" font-weight="700">今日の処方判断（先送りしない）</text>' +
+            '<text x="326" y="54" font-size="9" font-weight="700">✗ 増量しない ／ ◎ 今日減量・中止を検討</text>' +
           '</svg>'
         };
       case '1-2':
         return {
-          title: '図解：一人にしない安全確保と、緊急対応チーム・主治医への当日引き継ぎ',
-          cap: '今すぐ実行する意思がある間は一人にせず院内で応援を呼び、姉の協力も得ながら緊急対応先と主治医へ当日中につなぎます。',
-          svg: '<svg class="ds-qvis-svg" viewBox="0 0 560 104" role="img" aria-label="診察室の付き添いから院内緊急対応チームと主治医への当日連絡を結ぶ図">' +
-            '<rect x="10" y="16" width="164" height="72" rx="6" fill="var(--ds-crit-bg)" stroke="var(--ds-crit)" stroke-width="1.8"/>' +
-            '<text x="20" y="38" font-size="10" font-weight="700">① 診察室での安全確保</text>' +
-            '<text x="20" y="56" font-size="9">・本人を一人にしない</text>' +
-            '<text x="20" y="72" font-size="9">・院内の応援スタッフを呼ぶ</text>' +
-            '<path d="M178 52h22" stroke="var(--accent)" stroke-width="2.2"/>' +
-            '<rect x="204" y="16" width="164" height="72" rx="6" fill="var(--ds-warn-bg)" stroke="var(--ds-warn)" stroke-width="1.6"/>' +
-            '<text x="214" y="38" font-size="10" font-weight="700">② 緊急の評価・治療先</text>' +
-            '<text x="214" y="56" font-size="9">・約束や付き添いだけで帰さない</text>' +
-            '<text x="214" y="72" font-size="9">・待合の姉にも意向確認し協力</text>' +
-            '<path d="M372 52h22" stroke="var(--accent)" stroke-width="2.2"/>' +
-            '<rect x="398" y="16" width="152" height="72" rx="6" fill="var(--ds-info-bg)" stroke="var(--ds-info)" stroke-width="1.6"/>' +
-            '<text x="408" y="38" font-size="10" font-weight="700">③ 当日中の引き継ぎ</text>' +
-            '<text x="408" y="56" font-size="9">・危険所見・薬の判断を記録</text>' +
-            '<text x="408" y="72" font-size="9">・緊急対応先と主治医へ当日連絡</text>' +
+          title: '図解：一人にしない安全確保と、救急・主治医への当日引き継ぎ',
+          kpis: [['差し迫った危険：一人にせず院内応援を呼ぶ', 'crit'], ['救急対応先と主治医へ「当日中」に連絡', 'ok']],
+          shortCap: '危険が差し迫る間は一人にせず応援を呼び、救急と主治医に当日中に連絡して引き継ぎます。',
+          moreCap: '家族の付き添いや「自傷しない約束」だけで帰宅させる判断はしません。危険の所見・薬の判断・受け入れ先を記録し当日中につなぎます。',
+          svg: '<svg class="ds-qvis-svg" viewBox="0 0 560 84" role="img" aria-label="診察室の付き添いから院内緊急対応チームと主治医への当日連絡を結ぶ図">' +
+            '<rect x="10" y="10" width="166" height="64" rx="6" fill="var(--ds-crit-bg)" stroke="var(--ds-crit)" stroke-width="1.8"/>' +
+            '<text x="20" y="32" font-size="9.8" font-weight="700">① 診察室で安全確保</text>' +
+            '<text x="20" y="54" font-size="8.8">一人にせず応援を呼ぶ</text>' +
+            '<path d="M180 42h18" stroke="var(--accent)" stroke-width="2"/>' +
+            '<rect x="202" y="10" width="166" height="64" rx="6" fill="var(--ds-warn-bg)" stroke="var(--ds-warn)" stroke-width="1.6"/>' +
+            '<text x="212" y="32" font-size="9.8" font-weight="700">② 緊急の評価・治療へ</text>' +
+            '<text x="212" y="54" font-size="8.8">約束や付き添いだけで帰さない</text>' +
+            '<path d="M372 42h18" stroke="var(--accent)" stroke-width="2"/>' +
+            '<rect x="394" y="10" width="156" height="64" rx="6" fill="var(--ds-info-bg)" stroke="var(--ds-info)" stroke-width="1.6"/>' +
+            '<text x="404" y="32" font-size="9.8" font-weight="700">③ 当日中に引き継ぎ</text>' +
+            '<text x="404" y="54" font-size="8.8">救急と主治医へ所見を連絡</text>' +
           '</svg>'
         };
 
       /* ---------------- 症例3（10:20 睡眠薬の増量希望） ---------------- */
       case '2-0':
         return {
-          title: '図解：勤務・就寝・服薬・翌日の眠気を1日の時間軸に並べる',
-          cap: '夜勤による睡眠時間帯のずれ、飲酒の有無、実際の服薬時刻と「翌日の昼までぼんやりする眠気」を時間軸で確認します。',
-          svg: '<svg class="ds-qvis-svg" viewBox="0 0 560 102" role="img" aria-label="夜勤と就寝と服薬と翌日の昼の眠気を一日の時間軸に置いた図">' +
-            '<line x1="24" y1="54" x2="536" y2="54" stroke="var(--line)" stroke-width="3"/>' +
-            '<rect x="28" y="22" width="114" height="26" rx="4" fill="var(--ds-info-bg)" stroke="var(--ds-info)"/>' +
-            '<text x="85" y="39" text-anchor="middle" font-size="9.2" font-weight="700">夜勤の増加・交代</text>' +
-            '<rect x="156" y="22" width="118" height="26" rx="4" fill="var(--ds-warn-bg)" stroke="var(--ds-warn)"/>' +
-            '<text x="215" y="39" text-anchor="middle" font-size="9.2" font-weight="700">飲酒の有無・服薬時刻</text>' +
-            '<rect x="288" y="22" width="112" height="26" rx="4" fill="var(--panel)" stroke="var(--accent)"/>' +
-            '<text x="344" y="39" text-anchor="middle" font-size="9.2" font-weight="700">入眠と睡眠の時間帯</text>' +
-            '<rect x="414" y="22" width="118" height="26" rx="4" fill="var(--ds-crit-bg)" stroke="var(--ds-crit)"/>' +
-            '<text x="473" y="39" text-anchor="middle" font-size="9.2" font-weight="700">翌日昼の持ち越し眠気</text>' +
-            '<text x="280" y="82" text-anchor="middle" font-size="9.2">＋ 睡眠が少なくても元気・活動増加がないか（気分の波）もあわせて確認</text>' +
+          title: '図解：勤務・睡眠・飲酒・服薬後の眠気を1日の時間軸で確認',
+          kpis: [['確認：夜勤と睡眠のずれ・飲酒・服薬時刻', 'info'], ['翌日の昼まで残る眠気と気分の波も聴取', 'warn']],
+          shortCap: '勤務と睡眠のずれ、飲酒の有無、実際の飲み方と翌日の眠気を確かめて原因と安全を見直します。',
+          moreCap: '寝室の光や音、過去の薬歴や希望増量幅だけでは今の不眠や翌日の持ち越し眠気を評価できません。睡眠が減っても活動が増えていないかも確認します。',
+          svg: '<svg class="ds-qvis-svg" viewBox="0 0 560 84" role="img" aria-label="夜勤と就寝と服薬と翌日の昼の眠気を一日の時間軸に置いた図">' +
+            '<rect x="10" y="10" width="170" height="64" rx="6" fill="var(--ds-info-bg)" stroke="var(--ds-info)" stroke-width="1.5"/>' +
+            '<text x="20" y="32" font-size="9.8" font-weight="700">① 勤務と就寝の時刻</text>' +
+            '<text x="20" y="54" font-size="8.8">夜勤増加による睡眠時間帯のずれ</text>' +
+            '<rect x="194" y="10" width="172" height="64" rx="6" fill="var(--ds-warn-bg)" stroke="var(--ds-warn)" stroke-width="1.5"/>' +
+            '<text x="204" y="32" font-size="9.8" font-weight="700">② 服薬と飲酒の有無</text>' +
+            '<text x="204" y="54" font-size="8.8">実際の飲み方・アルコール併用</text>' +
+            '<rect x="380" y="10" width="170" height="64" rx="6" fill="var(--ds-crit-bg)" stroke="var(--ds-crit)" stroke-width="1.6"/>' +
+            '<text x="390" y="32" font-size="9.8" font-weight="700">③ 翌日昼の眠気・気分</text>' +
+            '<text x="390" y="54" font-size="8.8">持ち越し眠気・躁的変化の有無</text>' +
           '</svg>'
         };
       case '2-1':
         return {
-          title: '図解：増量・上乗せの危険と、連用薬の急な中止の危険を左右で見比べる',
-          cap: '翌日の眠気があるため増量や上乗せは避け、毎晩連用していた睡眠薬の急な中止による反跳性不眠・離脱も避けて今の量を保ちます。',
-          svg: '<svg class="ds-qvis-svg" viewBox="0 0 560 106" role="img" aria-label="増量による眠気増強と急な中止による離脱症状を左右に置き中央に現状維持を示す図">' +
-            '<rect x="10" y="14" width="168" height="78" rx="6" fill="var(--ds-crit-bg)" stroke="var(--ds-crit)" stroke-width="1.5"/>' +
-            '<text x="20" y="34" font-size="9.8" font-weight="700">✗ 増量・別薬の上乗せ</text>' +
-            '<text x="20" y="54" font-size="8.8">・翌日昼の眠気がさらに強まる</text>' +
-            '<text x="20" y="70" font-size="8.8">・ふらつき・転倒・依存の危険</text>' +
-            '<rect x="190" y="10" width="180" height="86" rx="6" fill="var(--ds-good-bg)" stroke="var(--ds-good)" stroke-width="2"/>' +
-            '<text x="280" y="32" text-anchor="middle" font-size="10.2" font-weight="700">◎ 今夜は今の量を据え置く</text>' +
-            '<text x="202" y="52" font-size="9">・残薬で次回主治医予約までつなぐ</text>' +
-            '<text x="202" y="68" font-size="9">・自己増量や飲酒併用を避ける説明</text>' +
-            '<text x="202" y="84" font-size="9">・夜勤後の睡眠の取り方を相談</text>' +
-            '<rect x="382" y="14" width="168" height="78" rx="6" fill="var(--ds-warn-bg)" stroke="var(--ds-warn)" stroke-width="1.5"/>' +
-            '<text x="392" y="34" font-size="9.8" font-weight="700">✗ 連用薬を今夜から急中止</text>' +
-            '<text x="392" y="54" font-size="8.8">・反跳性不眠（かえって眠れない）</text>' +
-            '<text x="392" y="70" font-size="8.8">・不安や離脱症状が出るおそれ</text>' +
+          title: '図解：増量・上乗せの危険と、連用薬の急な中止の危険を両方避ける',
+          kpis: [['処方：増量・上乗せせず今の量を保つ', 'ok'], ['連用薬の急な中止（反跳性不眠・離脱）も避ける', 'warn']],
+          shortCap: '翌日も眠気があり残薬も足りるため、増量や上乗せ、連用薬の急な中止を避けて今の量でつなぎます。',
+          moreCap: 'ブロチゾラム電子添文（10.2・11.1.3）。連用中の睡眠薬を急にやめると反跳性不眠や不安などの離脱症状が出ることがあります。自己増量や飲酒併用を避けるよう説明します。',
+          svg: '<svg class="ds-qvis-svg" viewBox="0 0 560 86" role="img" aria-label="増量による眠気増強と急な中止による離脱症状を左右に置き中央に現状維持を示す図">' +
+            '<rect x="10" y="12" width="166" height="62" rx="6" fill="var(--ds-crit-bg)" stroke="var(--ds-crit)" stroke-width="1.5"/>' +
+            '<text x="20" y="34" font-size="9.6" font-weight="700">✗ 増量・別薬の上乗せ</text>' +
+            '<text x="20" y="54" font-size="8.6">翌日の眠気増強・転倒・依存</text>' +
+            '<rect x="188" y="8" width="184" height="70" rx="6" fill="var(--ds-good-bg)" stroke="var(--ds-good)" stroke-width="2"/>' +
+            '<text x="280" y="32" text-anchor="middle" font-size="10" font-weight="700">◎ 今の量を据え置く</text>' +
+            '<text x="280" y="54" text-anchor="middle" font-size="8.8">残薬で次回診察へ＋過ごし方相談</text>' +
+            '<rect x="384" y="12" width="166" height="62" rx="6" fill="var(--ds-warn-bg)" stroke="var(--ds-warn)" stroke-width="1.5"/>' +
+            '<text x="394" y="34" font-size="9.6" font-weight="700">✗ 今夜から急に中止</text>' +
+            '<text x="394" y="54" font-size="8.6">反跳性不眠・不安等の離脱症状</text>' +
           '</svg>'
         };
       case '2-2':
         return {
-          title: '図解：本人の短い睡眠メモから、次回診察で見直す項目へ線をつなぐ',
-          cap: '次回に増量を約束するのではなく、勤務・睡眠・昼の眠気・飲酒の有無を簡単に記録してもらい、据え置いた理由とともに主治医へ共有します。',
-          svg: '<svg class="ds-qvis-svg" viewBox="0 0 560 104" role="img" aria-label="本人が書く短い睡眠の記録から次回主治医が見直す項目へ線をつなぐ図">' +
-            '<rect x="14" y="14" width="234" height="76" rx="6" fill="var(--ds-info-bg)" stroke="var(--ds-info)" stroke-width="1.6"/>' +
-            '<text x="26" y="34" font-size="10.2" font-weight="700">本人が次回までつける短いメモ</text>' +
-            '<text x="26" y="53" font-size="9.2">・夜勤と就寝・起床の時刻</text>' +
-            '<text x="26" y="69" font-size="9.2">・翌日の昼の眠気 ／ 飲酒の有無</text>' +
-            '<path d="M252 52h46" stroke="var(--accent)" stroke-width="2.2"/>' +
-            '<rect x="302" y="14" width="244" height="76" rx="6" fill="var(--ds-good-bg)" stroke="var(--ds-good)" stroke-width="1.6"/>' +
-            '<text x="314" y="34" font-size="10.2" font-weight="700">主治医への申し送り・次回の見直し</text>' +
-            '<text x="314" y="53" font-size="9.2">・増量を見送った理由（昼の眠気と残薬）</text>' +
-            '<text x="314" y="69" font-size="9.2">・本人の希望＋再診日と悪化時の連絡先</text>' +
+          title: '図解：睡眠と眠気の短い記録を、次回診察の見直しにつなぐ',
+          kpis: [['本人と決める：勤務・睡眠・昼の眠気を記録', 'ok'], ['主治医へ共有：据え置いた理由・飲酒有無・再診日', 'info']],
+          shortCap: '睡眠と日中の眠気を記録してもらい、据え置いた理由と再診日を本人・主治医と共有します。',
+          moreCap: '代診の場で次回の増量を約束するのではなく、主治医が原因と処方を見直せる材料（勤務・睡眠・眠気・飲酒の有無）を残します。',
+          svg: '<svg class="ds-qvis-svg" viewBox="0 0 560 84" role="img" aria-label="本人が書く短い睡眠の記録から次回主治医が見直す項目へ線をつなぐ図">' +
+            '<rect x="12" y="10" width="246" height="64" rx="6" fill="var(--ds-info-bg)" stroke="var(--ds-info)" stroke-width="1.6"/>' +
+            '<text x="24" y="32" font-size="10" font-weight="700">本人が次回までつける短いメモ</text>' +
+            '<text x="24" y="54" font-size="8.8">夜勤と睡眠の時間帯・翌日の眠気・飲酒の有無</text>' +
+            '<path d="M262 42h36" stroke="var(--accent)" stroke-width="2.2"/>' +
+            '<rect x="302" y="10" width="246" height="64" rx="6" fill="var(--ds-good-bg)" stroke="var(--ds-good)" stroke-width="1.6"/>' +
+            '<text x="314" y="32" font-size="10" font-weight="700">主治医への申し送り・次回の見直し</text>' +
+            '<text x="314" y="54" font-size="8.8">増量見送りの理由・本人の希望・再診日と連絡先</text>' +
           '</svg>'
         };
 
       /* ---------------- 症例4（11:05 リチウム中毒疑い） ---------------- */
       case '3-0':
         return {
-          title: '図解：下痢・嘔吐と飲水低下（脱水）に手指振戦とふらつきが加わった経過',
-          cap: '炭酸リチウム服用中の脱水に新しい手のふるえと歩行のふらつきが加わったときは、リチウム中毒を疑って意識・バイタル・最終服薬・併用薬を確かめます。',
-          svg: '<svg class="ds-qvis-svg" viewBox="0 0 560 104" role="img" aria-label="嘔吐下痢と飲水低下のあとに手のふるえと歩行のふらつきが加わったリチウム中毒疑いの経過図">' +
-            '<rect x="10" y="16" width="166" height="72" rx="6" fill="var(--ds-warn-bg)" stroke="var(--ds-warn)" stroke-width="1.6"/>' +
-            '<text x="20" y="36" font-size="9.8" font-weight="700">昨日：下痢・嘔吐・飲水低下</text>' +
-            '<text x="20" y="54" font-size="8.8">・脱水と尿量減少</text>' +
-            '<text x="20" y="70" font-size="8.8">・リチウム排泄が低下しやすい</text>' +
-            '<path d="M180 52h20" stroke="var(--ds-crit)" stroke-width="2.2"/>' +
-            '<rect x="204" y="16" width="166" height="72" rx="6" fill="var(--ds-crit-bg)" stroke="var(--ds-crit)" stroke-width="1.8"/>' +
-            '<text x="214" y="36" font-size="9.8" font-weight="700">今朝：手のふるえ＋ふらつき</text>' +
-            '<text x="214" y="54" font-size="8.8">・今朝も炭酸リチウムを服用</text>' +
-            '<text x="214" y="70" font-size="8.8">・コップがふるえ、歩くとふらつく</text>' +
-            '<path d="M374 52h20" stroke="var(--ds-crit)" stroke-width="2.2"/>' +
-            '<rect x="398" y="16" width="152" height="72" rx="6" fill="var(--panel)" stroke="var(--ds-crit)" stroke-width="2"/>' +
-            '<text x="408" y="36" font-size="9.8" font-weight="700">直ちに確かめること</text>' +
-            '<text x="408" y="54" font-size="8.8">・意識・バイタル・歩行・脱水</text>' +
-            '<text x="408" y="70" font-size="8.8">・最終服薬時刻と併用薬（NSAIDs等）</text>' +
+          title: '図解：脱水（下痢・嘔吐）に手のふるえとふらつきが重なれば中毒を疑う',
+          kpis: [['脱水＋手指振戦＋ふらつき → リチウム中毒疑い', 'crit'], ['意識・バイタル・歩行・最終服薬時刻・併用薬を確認', 'warn']],
+          shortCap: '脱水に新しいふるえやふらつきが重なればリチウム中毒を疑い、意識・歩行・脱水・最終服薬を確認します。',
+          moreCap: '炭酸リチウム電子添文（7・8.5・11.1.1）。胃腸炎がきっかけでも排泄低下からリチウム中毒を併発しうるため、市販の鎮痛薬（NSAIDs等）を含む併用薬や最終服薬時刻を確かめます。',
+          svg: '<svg class="ds-qvis-svg" viewBox="0 0 560 84" role="img" aria-label="嘔吐下痢と飲水低下のあとに手のふるえと歩行のふらつきが加わったリチウム中毒疑いの経過図">' +
+            '<rect x="10" y="10" width="166" height="64" rx="6" fill="var(--ds-warn-bg)" stroke="var(--ds-warn)" stroke-width="1.6"/>' +
+            '<text x="20" y="32" font-size="9.6" font-weight="700">昨日：下痢・嘔吐・飲水減</text>' +
+            '<text x="20" y="54" font-size="8.6">脱水でリチウム排泄が低下</text>' +
+            '<path d="M180 42h18" stroke="var(--ds-crit)" stroke-width="2.2"/>' +
+            '<rect x="202" y="10" width="166" height="64" rx="6" fill="var(--ds-crit-bg)" stroke="var(--ds-crit)" stroke-width="1.8"/>' +
+            '<text x="212" y="32" font-size="9.6" font-weight="700">今朝：ふるえ＋ふらつき</text>' +
+            '<text x="212" y="54" font-size="8.6">リチウム中毒を強く疑う所見</text>' +
+            '<path d="M372 42h18" stroke="var(--ds-crit)" stroke-width="2.2"/>' +
+            '<rect x="394" y="10" width="156" height="64" rx="6" fill="var(--panel)" stroke="var(--ds-crit)" stroke-width="2"/>' +
+            '<text x="404" y="32" font-size="9.6" font-weight="700">その場で確かめること</text>' +
+            '<text x="404" y="54" font-size="8.6">意識・脱水・最終服薬・併用薬</text>' +
           '</svg>'
         };
       case '3-1':
         return {
-          title: '図解：リチウムの休薬・救急への連絡・採血と身体評価を並行して進める',
-          cap: '中毒が疑われるときは「変えない」が危険です。リチウムを中止し、検査結果を待たずに救急で血中濃度・腎機能・電解質と身体治療につなぎます。',
-          svg: '<svg class="ds-qvis-svg" viewBox="0 0 560 108" role="img" aria-label="リチウム休薬と救急連絡と採血・身体評価が並行して進む図">' +
-            '<rect x="14" y="12" width="160" height="84" rx="6" fill="var(--ds-crit-bg)" stroke="var(--ds-crit)" stroke-width="1.8"/>' +
-            '<text x="24" y="36" font-size="10.2" font-weight="700">代診医の当日判断</text>' +
-            '<text x="24" y="56" font-size="9.2">・継続・様子見はしない</text>' +
-            '<text x="24" y="73" font-size="9.2">・結果を待たず直ちに連携</text>' +
-            '<path d="M178 30h34 M178 54h34 M178 78h34" stroke="var(--ds-crit)" stroke-width="2"/>' +
-            '<rect x="216" y="10" width="330" height="24" rx="4" fill="var(--ds-crit-bg)" stroke="var(--ds-crit)"/>' +
-            '<text x="228" y="26" font-size="9.5" font-weight="700">① 炭酸リチウムを中止（休薬）する</text>' +
-            '<rect x="216" y="42" width="330" height="24" rx="4" fill="var(--ds-warn-bg)" stroke="var(--ds-warn)"/>' +
-            '<text x="228" y="58" font-size="9.5" font-weight="700">② 救急・身体科へ直ちに連絡し、輸液など身体評価につなぐ</text>' +
-            '<rect x="216" y="74" width="330" height="24" rx="4" fill="var(--ds-info-bg)" stroke="var(--ds-info)"/>' +
-            '<text x="228" y="90" font-size="9.5" font-weight="700">③ 血中リチウム濃度・腎機能・電解質を調べる</text>' +
+          title: '図解：リチウムを中止し、検査結果を待たずに救急へ連携する',
+          kpis: [['処方：炭酸リチウムを直ちに中止（休薬）', 'crit'], ['救急で血中濃度・腎機能・電解質と身体治療へ', 'ok']],
+          shortCap: 'リチウムを直ちに止め、検査の結果が出るのを待たずに救急へつないで血中濃度・腎機能・電解質を確認します。',
+          moreCap: 'ふらつきと飲水困難がある中毒疑いでは、いつもの量の継続や減量での自宅経過観察、胃腸薬のみの処方は悪化を見逃すおそれがあります。',
+          svg: '<svg class="ds-qvis-svg" viewBox="0 0 560 86" role="img" aria-label="リチウム休薬と救急連絡と採血・身体評価が並行して進む図">' +
+            '<rect x="10" y="10" width="166" height="66" rx="6" fill="var(--ds-crit-bg)" stroke="var(--ds-crit)" stroke-width="1.8"/>' +
+            '<text x="20" y="32" font-size="10" font-weight="700">① リチウムを中止</text>' +
+            '<text x="20" y="54" font-size="8.8">継続・自宅様子見はしない</text>' +
+            '<path d="M180 43h18" stroke="var(--ds-crit)" stroke-width="2.2"/>' +
+            '<rect x="202" y="10" width="172" height="66" rx="6" fill="var(--ds-warn-bg)" stroke="var(--ds-warn)" stroke-width="1.6"/>' +
+            '<text x="212" y="32" font-size="10" font-weight="700">② 結果を待たず救急連携</text>' +
+            '<text x="212" y="54" font-size="8.8">輸液や全身管理へ直ちにつなぐ</text>' +
+            '<path d="M378 43h18" stroke="var(--accent)" stroke-width="2.2"/>' +
+            '<rect x="400" y="10" width="150" height="66" rx="6" fill="var(--ds-info-bg)" stroke="var(--ds-info)" stroke-width="1.6"/>' +
+            '<text x="410" y="32" font-size="10" font-weight="700">③ 血液検査を実施</text>' +
+            '<text x="410" y="54" font-size="8.8">血中濃度・腎機能・電解質</text>' +
           '</svg>'
         };
       case '3-2':
         return {
-          title: '図解：検査結果を待たずに救急の担当医と主治医へ渡す5つのカード',
-          cap: '血中濃度の解釈に欠かせない「最終服薬時刻」をはじめ、併用薬・症状の経過・休薬・検査状況を先に伝え、結果の確認役も決めます。',
-          svg: '<svg class="ds-qvis-svg" viewBox="0 0 560 106" role="img" aria-label="最終服薬・併用薬・症状・休薬・検査の5枚のカードが救急と主治医の連絡欄に入る図">' +
-            '<rect x="10" y="14" width="62" height="40" rx="5" fill="var(--ds-crit-bg)" stroke="var(--ds-crit)"/>' +
-            '<text x="41" y="38" text-anchor="middle" font-size="8.8" font-weight="700">最終服薬</text>' +
-            '<rect x="78" y="14" width="62" height="40" rx="5" fill="var(--ds-warn-bg)" stroke="var(--ds-warn)"/>' +
-            '<text x="109" y="38" text-anchor="middle" font-size="8.8" font-weight="700">併用薬</text>' +
-            '<rect x="146" y="14" width="62" height="40" rx="5" fill="var(--ds-warn-bg)" stroke="var(--ds-warn)"/>' +
-            '<text x="177" y="38" text-anchor="middle" font-size="8.8" font-weight="700">症状経過</text>' +
-            '<rect x="214" y="14" width="62" height="40" rx="5" fill="var(--ds-good-bg)" stroke="var(--ds-good)"/>' +
-            '<text x="245" y="38" text-anchor="middle" font-size="8.8" font-weight="700">休薬済み</text>' +
-            '<rect x="282" y="14" width="62" height="40" rx="5" fill="var(--ds-info-bg)" stroke="var(--ds-info)"/>' +
-            '<text x="313" y="38" text-anchor="middle" font-size="8.8" font-weight="700">検査状況</text>' +
-            '<path d="M350 34h28" stroke="var(--accent)" stroke-width="2.2"/>' +
-            '<rect x="382" y="12" width="168" height="82" rx="6" fill="var(--panel)" stroke="var(--accent)" stroke-width="1.8"/>' +
-            '<text x="394" y="32" font-size="10" font-weight="700">救急担当医・主治医へ</text>' +
-            '<text x="394" y="51" font-size="8.8">・結果を待たずにすぐ共有</text>' +
-            '<text x="394" y="67" font-size="8.8">・誰が結果と今後の方針を</text>' +
-            '<text x="394" y="81" font-size="8.8">　確認するかも取り決める</text>' +
-            '<text x="177" y="80" text-anchor="middle" font-size="9">※最終服薬時刻は血中濃度の解釈に不可欠</text>' +
+          title: '図解：最終服薬時刻と併用薬・経過を結果を待たずに引き継ぐ',
+          kpis: [['必須情報：最終服薬時刻（血中濃度の解釈に不可欠）', 'crit'], ['併用薬・症状経過・休薬・検査状況を即時共有', 'info']],
+          shortCap: '血中濃度の判断に欠かせない最終服薬時刻や併用薬、経過、休薬と検査の状況を救急と主治医へ引き継ぎます。',
+          moreCap: '検査結果がすべてそろうまで連絡を待たず、先に必要な情報を渡したうえで、結果とその後の方針を誰が確認するかも決めておきます。',
+          svg: '<svg class="ds-qvis-svg" viewBox="0 0 560 84" role="img" aria-label="最終服薬・併用薬・症状経過・休薬・検査状況を救急と主治医の連絡欄に渡す図">' +
+            '<rect x="10" y="10" width="280" height="64" rx="6" fill="var(--ds-crit-bg)" stroke="var(--ds-crit)" stroke-width="1.8"/>' +
+            '<text x="22" y="32" font-size="10" font-weight="700">結果を待たずに渡す5項目</text>' +
+            '<text x="22" y="54" font-size="8.8" font-weight="700">最終服薬時刻・併用薬・症状経過・休薬済・検査状況</text>' +
+            '<path d="M294 42h24" stroke="var(--accent)" stroke-width="2.2"/>' +
+            '<rect x="322" y="10" width="228" height="64" rx="6" fill="var(--ds-info-bg)" stroke="var(--ds-info)" stroke-width="1.6"/>' +
+            '<text x="334" y="32" font-size="10" font-weight="700">救急の担当医 ＋ 主治医へ連携</text>' +
+            '<text x="334" y="54" font-size="8.8">血中濃度の解釈と治療判断＋結果確認役を決定</text>' +
           '</svg>'
         };
 
       /* ---------------- 症例5（13:15 主治医への不満と薬変更希望） ---------------- */
       case '4-0':
         return {
-          title: '図解：不満の言葉から「朝のつらさ」と「話を聞いてほしい希望」を拾う',
-          cap: '主治医との過去の責任追及ではなく、今日確かめるべき「朝のつらさ・ふらつき等の安全への影響」と「何が伝わらず困ったか」を押さえます。',
-          svg: '<svg class="ds-qvis-svg" viewBox="0 0 560 104" role="img" aria-label="患者の言葉から朝のつらさと話を聞いてほしい希望の2つを拾い確認所見につなぐ図">' +
-            '<rect x="10" y="20" width="176" height="64" rx="6" fill="var(--ds-warn-bg)" stroke="var(--ds-warn)" stroke-width="1.6"/>' +
-            '<text x="20" y="42" font-size="9.8" font-weight="700">患者の言葉</text>' +
-            '<text x="20" y="60" font-size="8.8">「朝がつらいと言っても</text>' +
-            '<text x="20" y="74" font-size="8.8">　聞いてもらえない」</text>' +
-            '<path d="M190 42 L222 28 M190 62 L222 76" stroke="var(--accent)" stroke-width="2"/>' +
-            '<rect x="226" y="10" width="322" height="38" rx="6" fill="var(--ds-crit-bg)" stroke="var(--ds-crit)" stroke-width="1.5"/>' +
-            '<text x="238" y="27" font-size="9.8" font-weight="700">① 朝のつらさ・眠気・ふらつきと安全（通勤・転倒）への影響</text>' +
-            '<text x="238" y="41" font-size="8.8">→ 今日すぐ処方変更が要る緊急の副作用や悪化がないか評価</text>' +
-            '<rect x="226" y="56" width="322" height="38" rx="6" fill="var(--ds-info-bg)" stroke="var(--ds-info)" stroke-width="1.5"/>' +
-            '<text x="238" y="73" font-size="9.8" font-weight="700">② 「薬のことを話す時間がほしい」という困りごと</text>' +
-            '<text x="238" y="87" font-size="8.8">→ 主治医を批判も弁護もせず、伝えたかった内容を具体的に聞く</text>' +
+          title: '図解：不満の言葉から「朝のつらさ・安全」と「困りごと」を拾う',
+          kpis: [['まず確認：朝のつらさと生活・安全への影響', 'warn'], ['何が伝わらず困ったかを具体的に聴く', 'info']],
+          shortCap: '誰に非があるかではなく、何が伝わらず困ったかと、朝の眠気やふらつきなど安全への影響を先に確かめます。',
+          moreCap: '初診からの会話を聞き直して責任を決めたり、相性のよい医師の性格を聞いたりするより、今日対応が要る副作用や悪化の有無を押さえます。',
+          svg: '<svg class="ds-qvis-svg" viewBox="0 0 560 84" role="img" aria-label="患者の言葉から朝のつらさと話を聞いてほしい希望の2つを拾い確認所見につなぐ図">' +
+            '<rect x="10" y="10" width="264" height="64" rx="6" fill="var(--ds-warn-bg)" stroke="var(--ds-warn)" stroke-width="1.6"/>' +
+            '<text x="22" y="32" font-size="10" font-weight="700">① 朝のつらさと安全への影響を確認</text>' +
+            '<text x="22" y="54" font-size="8.8">眠気・ふらつき・転倒や通勤上の危険・急な悪化</text>' +
+            '<rect x="286" y="10" width="264" height="64" rx="6" fill="var(--ds-info-bg)" stroke="var(--ds-info)" stroke-width="1.6"/>' +
+            '<text x="298" y="32" font-size="10" font-weight="700">② 伝わらずに困っていた点を受け止める</text>' +
+            '<text x="298" y="54" font-size="8.8">批判も弁護もせず、話したかった困りごとを聴く</text>' +
           '</svg>'
         };
       case '4-1':
         return {
-          title: '図解：「今日の薬の判断」と「担当や方針を相談する機会」を分けて示す',
-          cap: '朝の眠気は軽く通勤・転倒の危険もないため、今日は処方を保った理由を説明し、処方や担当を相談する機会を別に整えます。',
-          svg: '<svg class="ds-qvis-svg" viewBox="0 0 560 102" role="img" aria-label="今日の薬の維持と担当や方針を相談する機会を別々の欄で示す図">' +
-            '<rect x="12" y="12" width="258" height="78" rx="6" fill="var(--ds-good-bg)" stroke="var(--ds-good)" stroke-width="1.8"/>' +
-            '<text x="24" y="33" font-size="10.2" font-weight="700">欄①：今日の薬（処方は保つ）</text>' +
-            '<text x="24" y="52" font-size="9">・緊急の変更が要る危険所見はないと説明</text>' +
-            '<text x="24" y="68" font-size="9">・代診の場で全体の処方を急に組み直さない</text>' +
-            '<rect x="290" y="12" width="258" height="78" rx="6" fill="var(--ds-info-bg)" stroke="var(--ds-info)" stroke-width="1.8"/>' +
-            '<text x="302" y="33" font-size="10.2" font-weight="700">欄②：方針・担当を相談する機会</text>' +
-            '<text x="302" y="52" font-size="9">・朝のつらさの体験を受け止めて共有する</text>' +
-            '<text x="302" y="68" font-size="9">・経過や院内手順を踏まえ相談の場を整える</text>' +
+          title: '図解：「今日の薬の維持」と「相談する場を整える」を分ける',
+          kpis: [['緊急の危険なし → 今日の処方は保つ', 'ok'], ['主治医の批判やその場での担当変更約束はしない', 'info']],
+          shortCap: '緊急の変更が要らない理由を伝えて今日の薬は保ち、困りごとや担当について相談する機会を整えます。',
+          moreCap: '代診の場で処方を全部組み直したり、主治医を弁護して話を打ち切ったり、院内手順を確認せず担当変更を約束したりするのは避けます。',
+          svg: '<svg class="ds-qvis-svg" viewBox="0 0 560 84" role="img" aria-label="今日の薬の維持と担当や方針を相談する機会を別々の欄で示す図">' +
+            '<rect x="12" y="10" width="256" height="64" rx="6" fill="var(--ds-good-bg)" stroke="var(--ds-good)" stroke-width="1.8"/>' +
+            '<text x="24" y="32" font-size="10" font-weight="700">欄①：今日の処方はそのまま保つ</text>' +
+            '<text x="24" y="54" font-size="8.8">眠気は軽く転倒等の危険がない理由を丁寧に説明</text>' +
+            '<rect x="292" y="10" width="256" height="64" rx="6" fill="var(--ds-info-bg)" stroke="var(--ds-info)" stroke-width="1.8"/>' +
+            '<text x="304" y="32" font-size="10" font-weight="700">欄②：薬や担当を相談する場を整える</text>' +
+            '<text x="304" y="54" font-size="8.8">つらさを受け止め、次回見直す機会と手順を案内</text>' +
           '</svg>'
         };
       case '4-2':
         return {
-          title: '図解：本人が確認した希望と代診医の所見を、申し送りの別々の欄に残す',
-          cap: '「不満あり」と決めつけたり批判を書いたりせず、本人の言葉どおりの希望と代診での診察所見・次の相談先を分けて記録します。',
-          svg: '<svg class="ds-qvis-svg" viewBox="0 0 560 104" role="img" aria-label="本人が確認した希望と代診医の所見が申し送りの別々の欄に入る図">' +
-            '<rect x="12" y="10" width="536" height="84" rx="7" fill="var(--panel)" stroke="var(--accent)" stroke-width="1.8"/>' +
-            '<text x="24" y="29" font-size="10.2" font-weight="700">申し送り記録シート（本人と共有内容を確かめてから記載）</text>' +
-            '<rect x="24" y="36" width="250" height="48" rx="5" fill="var(--ds-info-bg)" stroke="var(--ds-info)"/>' +
-            '<text x="34" y="54" font-size="9.5" font-weight="700">【本人の希望（言葉どおり）】</text>' +
-            '<text x="34" y="72" font-size="8.8">・朝のつらさを相談したい／担当変更も相談希望</text>' +
-            '<rect x="286" y="36" width="250" height="48" rx="5" fill="var(--ds-good-bg)" stroke="var(--ds-good)"/>' +
-            '<text x="296" y="54" font-size="9.5" font-weight="700">【代診医の所見と今日の対応】</text>' +
-            '<text x="296" y="72" font-size="8.8">・眠気は軽度で危険なし／処方維持と次の相談先</text>' +
+          title: '図解：本人の言葉どおりの希望と代診医の所見を分けて残す',
+          kpis: [['本人と共有範囲を確認して具体的に記録', 'ok'], ['希望・症状・診察所見・相談先を別欄で残す', 'info']],
+          shortCap: '本人と共有範囲を確かめ、言葉どおりの希望と代診での診察所見・相談先を具体的に記録します。',
+          moreCap: '「主治医への不満」とだけ書いたり、主治医を批判して処方変更を指示したり、受付任せにしてカルテに残さなかったりすると次の相談につながりません。',
+          svg: '<svg class="ds-qvis-svg" viewBox="0 0 560 84" role="img" aria-label="本人が確認した希望と代診医の所見が申し送りの別々の欄に入る図">' +
+            '<rect x="12" y="10" width="256" height="64" rx="6" fill="var(--ds-info-bg)" stroke="var(--ds-info)" stroke-width="1.6"/>' +
+            '<text x="24" y="32" font-size="10" font-weight="700">本人の希望（本人と確認した言葉）</text>' +
+            '<text x="24" y="54" font-size="8.8">朝のつらさの相談希望・担当変更も相談したい旨</text>' +
+            '<rect x="292" y="10" width="256" height="64" rx="6" fill="var(--ds-good-bg)" stroke="var(--ds-good)" stroke-width="1.6"/>' +
+            '<text x="304" y="32" font-size="10" font-weight="700">代診医の所見と案内した相談先</text>' +
+            '<text x="304" y="54" font-size="8.8">眠気軽度・危険所見なし・処方維持と次回の相談先</text>' +
           '</svg>'
         };
 
       /* ---------------- 症例6（14:00 パニック症の頓服希望） ---------------- */
       case '5-0':
         return {
-          title: '図解：これまでの発作との違いと、身体評価に進む分岐',
-          cap: '既往の病名だけで不安と決めつけず、以前の発作との違い・胸痛や失神・頓服の使い方・飲酒やカフェインを確かめ、身体所見があれば身体評価を優先します。',
-          svg: '<svg class="ds-qvis-svg" viewBox="0 0 560 106" role="img" aria-label="今回の発作と以前の経過を並べ胸痛や失神があれば身体評価に進む分岐図">' +
-            '<rect x="10" y="14" width="230" height="78" rx="6" fill="var(--ds-info-bg)" stroke="var(--ds-info)" stroke-width="1.6"/>' +
-            '<text x="20" y="34" font-size="9.8" font-weight="700">頓服を出す前に確かめること</text>' +
-            '<text x="20" y="52" font-size="8.8">・以前の発作との違い（持続・誘因）</text>' +
-            '<text x="20" y="67" font-size="8.8">・胸痛・失神などの身体症状の有無</text>' +
-            '<text x="20" y="82" font-size="8.8">・頓服の使用頻度・飲酒・カフェイン</text>' +
-            '<path d="M244 38 L280 28 M244 66 L280 76" stroke="var(--accent)" stroke-width="2"/>' +
-            '<rect x="284" y="10" width="264" height="38" rx="5" fill="var(--ds-crit-bg)" stroke="var(--ds-crit)"/>' +
-            '<text x="296" y="27" font-size="9.5" font-weight="700">胸痛・失神・いつもと違う所見あり</text>' +
-            '<text x="296" y="41" font-size="8.8">→ 不整脈・甲状腺など身体の原因を優先して評価</text>' +
-            '<rect x="284" y="56" width="264" height="38" rx="5" fill="var(--ds-good-bg)" stroke="var(--ds-good)"/>' +
-            '<text x="296" y="73" font-size="9.5" font-weight="700">緊急の身体所見なし・指示内の間欠使用</text>' +
-            '<text x="296" y="87" font-size="8.8">→ 翌日の主治医診察までのつなぎを検討</text>' +
+          title: '図解：普段の発作との違いと、胸痛・失神時の身体評価分岐',
+          kpis: [['確認：以前との差・胸痛や失神・頓服の使い方', 'crit'], ['普段と違う発作や身体所見は身体評価を優先', 'warn']],
+          shortCap: '以前の発作との差、胸痛・失神、頓服の使い方や飲酒・カフェインを確かめ、身体症状があれば身体原因を優先します。',
+          moreCap: 'パニック症診療ガイドライン。既往の病名や使用日数だけで不安のためと決めつけず、不整脈や甲状腺疾患などの身体疾患や薬の影響を鑑別します。',
+          svg: '<svg class="ds-qvis-svg" viewBox="0 0 560 84" role="img" aria-label="今回の発作と以前の経過を並べ胸痛や失神があれば身体評価に進む分岐図">' +
+            '<rect x="10" y="10" width="252" height="64" rx="6" fill="var(--ds-info-bg)" stroke="var(--ds-info)" stroke-width="1.6"/>' +
+            '<text x="22" y="32" font-size="9.8" font-weight="700">頓服を出す前に確かめること</text>' +
+            '<text x="22" y="54" font-size="8.8">以前との差・胸痛や失神・使用頻度・カフェイン</text>' +
+            '<path d="M266 42h24" stroke="var(--accent)" stroke-width="2.2"/>' +
+            '<rect x="294" y="10" width="256" height="64" rx="6" fill="var(--ds-crit-bg)" stroke="var(--ds-crit)" stroke-width="1.8"/>' +
+            '<text x="306" y="32" font-size="9.8" font-weight="700">普段と違う発作・胸痛・失神あり</text>' +
+            '<text x="306" y="54" font-size="8.8">不整脈・甲状腺など身体の原因の評価を優先</text>' +
           '</svg>'
         };
       case '5-1':
         return {
-          title: '図解：今日から翌日の主治医予約まで、既存の使い方を保つ範囲に絞る',
-          cap: '定期薬は保ち、ロラゼパム頓服は既存の指示の範囲で翌日の再評価までに限り、飲酒併用や運転を避けるよう説明します。',
-          svg: '<svg class="ds-qvis-svg" viewBox="0 0 560 102" role="img" aria-label="当日と翌日の主治医予約を時間軸に置き既存の頓服の使い方を保つ範囲を示す図">' +
-            '<rect x="14" y="16" width="246" height="72" rx="6" fill="var(--ds-good-bg)" stroke="var(--ds-good)" stroke-width="1.8"/>' +
-            '<text x="26" y="36" font-size="10" font-weight="700">今日（代診）〜明日までの範囲</text>' +
-            '<text x="26" y="54" font-size="9">・定期薬はそのまま維持</text>' +
-            '<text x="26" y="70" font-size="9">・頓服は既存指示の範囲で翌日分までに絞る</text>' +
-            '<text x="26" y="83" font-size="8.4">（※運転・飲酒併用を避ける説明）</text>' +
-            '<path d="M266 52h28" stroke="var(--accent)" stroke-width="2.2"/>' +
-            '<rect x="298" y="16" width="248" height="72" rx="6" fill="var(--ds-info-bg)" stroke="var(--ds-info)" stroke-width="1.6"/>' +
-            '<text x="310" y="36" font-size="10" font-weight="700">翌日（前倒しした主治医の診察）</text>' +
-            '<text x="310" y="54" font-size="9">・発作が増えた背景と治療方針の見直し</text>' +
-            '<text x="310" y="70" font-size="9">✗ 毎日の定時頓服化やまとめ処方はしない</text>' +
+          title: '図解：頓服は既存指示の範囲で「翌日の再診まで」に絞る',
+          kpis: [['頓服処方：既存指示の範囲で翌日（再診）まで', 'ok'], ['毎日の定時化・まとめ処方・運転や飲酒併用は避ける', 'warn']],
+          shortCap: '定期薬を保ち、頓服を出すなら既存の指示の範囲で翌日の主治医再診までに限ります。',
+          moreCap: 'ロラゼパム電子添文（8.1・8.2・10.2・11.1.1）。毎日の連用化やまとめ処方は依存につながり、定期の抗うつ薬は頓服に使いません。飲酒併用や運転を避けるよう説明します。',
+          svg: '<svg class="ds-qvis-svg" viewBox="0 0 560 84" role="img" aria-label="当日と翌日の主治医予約を時間軸に置き既存の頓服の使い方を保つ範囲を示す図">' +
+            '<rect x="12" y="10" width="252" height="64" rx="6" fill="var(--ds-good-bg)" stroke="var(--ds-good)" stroke-width="1.8"/>' +
+            '<text x="24" y="32" font-size="10" font-weight="700">今日〜翌日（前倒し再診）までのつなぎ</text>' +
+            '<text x="24" y="54" font-size="8.8">定期薬は維持＋頓服は今の指示内で翌日分まで</text>' +
+            '<path d="M268 42h24" stroke="var(--accent)" stroke-width="2.2"/>' +
+            '<rect x="296" y="10" width="252" height="64" rx="6" fill="var(--ds-info-bg)" stroke="var(--ds-info)" stroke-width="1.6"/>' +
+            '<text x="308" y="32" font-size="10" font-weight="700">翌日の主治医再診で治療方針を見直す</text>' +
+            '<text x="308" y="54" font-size="8.8">✗ まとめ処方や定時頓服化はせず運転・飲酒注意</text>' +
           '</svg>'
         };
       case '5-2':
         return {
-          title: '図解：予定の翌日再診と、急な胸痛・失神時の受診経路の2本の矢印',
-          cap: '主治医には発作経過・身体所見・頓服の使用状況と渡した範囲を引き継ぎ、本人には翌日の再診と急変時の相談先の両方を伝えます。',
-          svg: '<svg class="ds-qvis-svg" viewBox="0 0 560 104" role="img" aria-label="予定の翌日再診と急な胸痛や失神があるときの受診経路を2本の矢印で示す図">' +
-            '<rect x="12" y="24" width="144" height="56" rx="6" fill="var(--panel)" stroke="var(--accent)" stroke-width="1.6"/>' +
-            '<text x="84" y="48" text-anchor="middle" font-size="9.8" font-weight="700">今日の診察終了</text>' +
-            '<text x="84" y="64" text-anchor="middle" font-size="8.6">発作経過＋身体所見記録</text>' +
-            '<path d="M160 40 L204 28 M160 64 L204 76" stroke="var(--accent)" stroke-width="2.2"/>' +
-            '<rect x="208" y="10" width="340" height="38" rx="6" fill="var(--ds-good-bg)" stroke="var(--ds-good)" stroke-width="1.6"/>' +
-            '<text x="220" y="27" font-size="9.6" font-weight="700">経路①（予定）：翌日の主治医再診へ申し送り</text>' +
-            '<text x="220" y="41" font-size="8.8">発作の頻度・頓服の使用状況・渡した範囲・身体診察所見を共有</text>' +
-            '<rect x="208" y="56" width="340" height="38" rx="6" fill="var(--ds-crit-bg)" stroke="var(--ds-crit)" stroke-width="1.6"/>' +
-            '<text x="220" y="73" font-size="9.6" font-weight="700">経路②（急変時）：胸痛・失神・いつもと違う強い症状</text>' +
-            '<text x="220" y="87" font-size="8.8">予約日を待たずに連絡・受診する相談先を本人へ具体的に案内</text>' +
+          title: '図解：予定の翌日再診と、急変時の受診経路の2本を渡す',
+          kpis: [['主治医へ：発作経過・身体所見・頓服の使用範囲', 'info'], ['本人へ：翌日の再診日＋胸痛や失神時の相談先', 'ok']],
+          shortCap: '発作と頓服の経過・渡した範囲を主治医に引き継ぎ、本人には再診日と急変時の相談先を伝えます。',
+          moreCap: '薬名と数量だけ、または「職場が原因」という記述だけでは次に診る医師が判断を引き継げません。胸痛や失神など普段と違う症状が出たときの受診先も案内します。',
+          svg: '<svg class="ds-qvis-svg" viewBox="0 0 560 84" role="img" aria-label="予定の翌日再診と急な胸痛や失神があるときの受診経路を2本の矢印で示す図">' +
+            '<rect x="12" y="10" width="256" height="64" rx="6" fill="var(--ds-good-bg)" stroke="var(--ds-good)" stroke-width="1.6"/>' +
+            '<text x="24" y="32" font-size="10" font-weight="700">経路①：翌日の主治医再診へ申し送り</text>' +
+            '<text x="24" y="54" font-size="8.8">発作の経過・身体所見・頓服の使い方と処方範囲</text>' +
+            '<rect x="292" y="10" width="256" height="64" rx="6" fill="var(--ds-crit-bg)" stroke="var(--ds-crit)" stroke-width="1.6"/>' +
+            '<text x="304" y="32" font-size="10" font-weight="700">経路②：急変時の相談・受診先を案内</text>' +
+            '<text x="304" y="54" font-size="8.8">胸痛・失神・普段と違う発作時は予約を待たず連絡</text>' +
           '</svg>'
         };
 
       /* ---------------- 症例7（14:50 認知症の母の急な夜間変化） ---------------- */
       case '6-0':
         return {
-          title: '図解：普段・昨夜・昼・今の注意の様子を並べ、急な発症と日内変動を見る',
-          cap: 'おとといからの急な発症と時間による注意の揺れはせん妄の手がかりです。腹部症状・便秘・脱水・感染・薬の変更など身体の原因を確かめます。',
-          svg: '<svg class="ds-qvis-svg" viewBox="0 0 560 106" role="img" aria-label="普段と昨夜と昼と今の注意の様子を並べて急な変化と揺れおよび身体原因確認を示す図">' +
-            '<rect x="10" y="12" width="124" height="50" rx="5" fill="var(--ds-good-bg)" stroke="var(--ds-good)"/>' +
-            '<text x="72" y="31" text-anchor="middle" font-size="9.2" font-weight="700">おととい前（普段）</text>' +
-            '<text x="72" y="48" text-anchor="middle" font-size="8.6">夜間も落ち着いていた</text>' +
-            '<rect x="142" y="12" width="128" height="50" rx="5" fill="var(--ds-crit-bg)" stroke="var(--ds-crit)"/>' +
-            '<text x="206" y="31" text-anchor="middle" font-size="9.2" font-weight="700">おととい・昨夜</text>' +
-            '<text x="206" y="48" text-anchor="middle" font-size="8.6">急に夜中歩き回る</text>' +
-            '<rect x="278" y="12" width="128" height="50" rx="5" fill="var(--ds-info-bg)" stroke="var(--ds-info)"/>' +
-            '<text x="342" y="31" text-anchor="middle" font-size="9.2" font-weight="700">昨日の昼</text>' +
-            '<text x="342" y="48" text-anchor="middle" font-size="8.6">普段どおり話せた時間も</text>' +
-            '<rect x="414" y="12" width="136" height="50" rx="5" fill="var(--ds-warn-bg)" stroke="var(--ds-warn)"/>' +
-            '<text x="482" y="31" text-anchor="middle" font-size="9.2" font-weight="700">今の診察室</text>' +
-            '<text x="482" y="48" text-anchor="middle" font-size="8.6">注意がそれる・お腹が苦しい</text>' +
-            '<rect x="10" y="70" width="540" height="26" rx="5" fill="var(--panel)" stroke="var(--accent)"/>' +
-            '<text x="280" y="87" text-anchor="middle" font-size="9.2" font-weight="700">→ 急な発症＋注意の日内変動（せん妄疑い）：痛み・便秘・脱水・感染・薬の変更を診察で確かめる</text>' +
+          title: '図解：おとといからの急な発症＋注意の揺れ（せん妄疑い）',
+          kpis: [['おととい（2日前）から急発症＋注意の日内変動', 'crit'], ['せん妄を疑い痛み・便秘・脱水・感染・薬を確認', 'warn']],
+          shortCap: '普段との差と注意の変動からせん妄を疑い、腹部の痛み・便秘・脱水・感染や薬の変更を確かめます。',
+          moreCap: 'NICE認知症指針（NG97）。過去の検査得点や夜の歩行回数、娘の不眠日数だけでは急な身体原因を除けません。身体の評価を最優先します。',
+          svg: '<svg class="ds-qvis-svg" viewBox="0 0 560 84" role="img" aria-label="普段と昨夜と昼と今の注意の様子を並べて急な変化と揺れおよび身体原因確認を示す図">' +
+            '<rect x="10" y="10" width="258" height="64" rx="6" fill="var(--ds-warn-bg)" stroke="var(--ds-warn)" stroke-width="1.6"/>' +
+            '<text x="22" y="32" font-size="9.8" font-weight="700">経過：おとといから急発症＋日内変動</text>' +
+            '<text x="22" y="54" font-size="8.8">夜間の徘徊・昼は話せた時も・今は注意がそれる</text>' +
+            '<path d="M272 42h22" stroke="var(--ds-crit)" stroke-width="2.2"/>' +
+            '<rect x="298" y="10" width="252" height="64" rx="6" fill="var(--ds-crit-bg)" stroke="var(--ds-crit)" stroke-width="1.8"/>' +
+            '<text x="310" y="32" font-size="9.8" font-weight="700">せん妄を疑い身体の原因を診察で確認</text>' +
+            '<text x="310" y="54" font-size="8.8">腹部の苦しさ・便秘・飲水低下・感染・薬の変更</text>' +
           '</svg>'
         };
       case '6-1':
         return {
-          title: '図解：身体の原因への対応と環境調整を基本に置き、薬は限定的に検討する',
-          cap: '眠らせる薬を安易に足したり認知症薬を増量したりせず、その日の身体評価と刺激を減らす工夫を優先します（抗精神病薬は危険や強い苦痛が続くときに限定）。',
-          svg: '<svg class="ds-qvis-svg" viewBox="0 0 560 106" role="img" aria-label="身体原因への対応と環境調整を基本とし危険や強い苦痛が続く場合の分岐を示す図">' +
-            '<rect x="12" y="12" width="318" height="82" rx="6" fill="var(--ds-good-bg)" stroke="var(--ds-good)" stroke-width="1.8"/>' +
-            '<text x="24" y="33" font-size="10.2" font-weight="700">◎ 今日まず進める基本の対応</text>' +
-            '<text x="24" y="52" font-size="9.2">① 身体の原因（便秘・腹部症状・脱水・感染・薬）の評価と治療</text>' +
-            '<text x="24" y="68" font-size="9.2">② 苦痛を和らげ、夜間の刺激を減らす環境調整・声かけ</text>' +
-            '<text x="24" y="84" font-size="8.6">✗ 介護を楽にする目的だけで睡眠薬や抗精神病薬を安易に足さない</text>' +
-            '<path d="M334 53h22" stroke="var(--accent)" stroke-width="2"/>' +
-            '<rect x="360" y="12" width="188" height="82" rx="6" fill="var(--ds-warn-bg)" stroke="var(--ds-warn)" stroke-width="1.5"/>' +
-            '<text x="370" y="33" font-size="9.6" font-weight="700">危険や強い苦痛が続くとき</text>' +
-            '<text x="370" y="51" font-size="8.6">・本人や周囲への危険、強い苦痛が</text>' +
-            '<text x="370" y="65" font-size="8.6">　非薬物対応で収まらない場合のみ</text>' +
-            '<text x="370" y="81" font-size="8.6">・危険と効果を説明し最小量・短期で</text>' +
+          title: '図解：眠らせる薬を急がず、当日の身体評価と環境調整を優先',
+          kpis: [['基本：当日の身体評価＋苦痛緩和・環境調整', 'ok'], ['抗精神病薬は危険や強い苦痛が続くときに最小限で', 'warn']],
+          shortCap: '安易に睡眠薬や抗精神病薬を足さず、その日のうちに身体を診て原因への対応と環境調整を進めます。',
+          moreCap: '認知症薬の増量や睡眠薬の上乗せはせん妄の原因治療になりません。抗精神病薬は自傷他害の危険や強い苦痛が非薬物対応で収まらない場合に限り、危険と効果を説明して最小量・短期間で検討します。',
+          svg: '<svg class="ds-qvis-svg" viewBox="0 0 560 84" role="img" aria-label="身体原因への対応と環境調整を基本とし危険や強い苦痛が続く場合の分岐を示す図">' +
+            '<rect x="12" y="10" width="286" height="64" rx="6" fill="var(--ds-good-bg)" stroke="var(--ds-good)" stroke-width="1.8"/>' +
+            '<text x="24" y="32" font-size="10" font-weight="700">◎ 今日優先する基本対応（原因治療）</text>' +
+            '<text x="24" y="54" font-size="8.8">身体原因（便秘・脱水・感染等）の評価＋環境調整</text>' +
+            '<rect x="310" y="10" width="238" height="64" rx="6" fill="var(--ds-warn-bg)" stroke="var(--ds-warn)" stroke-width="1.6"/>' +
+            '<text x="322" y="32" font-size="9.8" font-weight="700">危険や強い苦痛が続く場合の例外</text>' +
+            '<text x="322" y="54" font-size="8.6">説明のうえ必要最小限の量・期間で慎重に検討</text>' +
           '</svg>'
         };
       case '6-2':
         return {
-          title: '図解：身体科と主治医に渡す所見の横に、娘と確認した今夜の支援と連絡先',
-          cap: '身体科と主治医への引き継ぎに加え、疲弊している娘一人で抱え込まないよう、今夜の見守り体制・使える支援・急変時の連絡先をその場で決めます。',
-          svg: '<svg class="ds-qvis-svg" viewBox="0 0 560 104" role="img" aria-label="身体科と主治医への引き継ぎの横に娘と確認した今夜の支援と連絡先を並べる図">' +
-            '<rect x="12" y="12" width="260" height="80" rx="6" fill="var(--ds-info-bg)" stroke="var(--ds-info)" stroke-width="1.6"/>' +
+          title: '図解：身体所見と介護の負担を引き継ぎ、今夜の支援と連絡先を決める',
+          kpis: [['身体科・主治医へ：急な発症・変動・身体所見・介護限界', 'info'], ['本人・娘と確認：今夜の見守り支援と急変時連絡先', 'ok']],
+          shortCap: '発症・変動・身体所見・介護負担を身体科と主治医に伝え、今夜使える支援先と悪化時の連絡先を決めます。',
+          moreCap: '病名だけの伝達や夜間録画の依頼だけでは今夜の安全を支えられません。帰宅できる場合も娘一人で無理なく見守れるかをその場で確かめます。',
+          svg: '<svg class="ds-qvis-svg" viewBox="0 0 560 84" role="img" aria-label="身体科と主治医への引き継ぎの横に娘と確認した今夜の支援と連絡先を並べる図">' +
+            '<rect x="12" y="10" width="256" height="64" rx="6" fill="var(--ds-info-bg)" stroke="var(--ds-info)" stroke-width="1.6"/>' +
             '<text x="24" y="32" font-size="10" font-weight="700">身体科・主治医への引き継ぎ</text>' +
-            '<text x="24" y="51" font-size="9">・おとといからの急な発症と日内変動</text>' +
-            '<text x="24" y="67" font-size="9">・腹部症状・飲水減・便秘などの身体所見</text>' +
-            '<text x="24" y="83" font-size="9">・娘の睡眠不足と介護の負担・限界</text>' +
-            '<rect x="288" y="12" width="260" height="80" rx="6" fill="var(--ds-good-bg)" stroke="var(--ds-good)" stroke-width="1.8"/>' +
-            '<text x="300" y="32" font-size="10" font-weight="700">本人・娘とその場で決めること</text>' +
-            '<text x="300" y="51" font-size="9">・帰宅できる場合も無理なく見守れる体制か</text>' +
-            '<text x="300" y="67" font-size="9">・今夜使える家族・地域の支援の確認</text>' +
-            '<text x="300" y="83" font-size="9">・夜間に悪化したときの具体的な連絡先</text>' +
+            '<text x="24" y="54" font-size="8.8">急な発症と日内変動・腹部や脱水所見・介護の限界</text>' +
+            '<rect x="292" y="10" width="256" height="64" rx="6" fill="var(--ds-good-bg)" stroke="var(--ds-good)" stroke-width="1.8"/>' +
+            '<text x="304" y="32" font-size="10" font-weight="700">本人・娘とその場で決める安全策</text>' +
+            '<text x="304" y="54" font-size="8.8">今夜の見守り体制・使える支援先・悪化時の連絡先</text>' +
           '</svg>'
         };
 
       /* ---------------- 症例8（15:35 なんとなく調子が悪い） ---------------- */
       case '7-0':
         return {
-          title: '図解：本人の話を受け止めつつ「今日確かめる安全」と「次回話す話題」に分ける',
-          cap: '話を遮らずに受け止めたうえで、「まず最近の体調と安全を確かめたい」と共有し、睡眠・食事・服薬・希死念慮を確認します。',
-          svg: '<svg class="ds-qvis-svg" viewBox="0 0 560 104" role="img" aria-label="本人が話したい点を残しながら今日確かめる状態と次の診察で話すことを2つの欄に置く図">' +
-            '<rect x="12" y="12" width="260" height="80" rx="6" fill="var(--ds-crit-bg)" stroke="var(--ds-crit)" stroke-width="1.8"/>' +
-            '<text x="24" y="32" font-size="10.2" font-weight="700">欄①：今日の代診で必ず確かめる状態</text>' +
-            '<text x="24" y="51" font-size="9.2">・最近の睡眠・食事・実際の服薬状況</text>' +
-            '<text x="24" y="67" font-size="9.2">・死にたい気持ち（希死念慮）の有無</text>' +
-            '<text x="24" y="83" font-size="8.6">※出勤できている事実だけで安全とは決めつけない</text>' +
-            '<rect x="288" y="12" width="260" height="80" rx="6" fill="var(--ds-info-bg)" stroke="var(--ds-info)" stroke-width="1.6"/>' +
-            '<text x="300" y="32" font-size="10.2" font-weight="700">欄②：主治医の診察へ橋渡しする話題</text>' +
-            '<text x="300" y="51" font-size="9.2">・仕事の行き違いと昔からの家族関係の話</text>' +
-            '<text x="300" y="67" font-size="9.2">・本人が相談したいテーマをメモに残す</text>' +
-            '<text x="300" y="83" font-size="8.6">→ 聞く順番を本人と共有して安心して話せるように</text>' +
+          title: '図解：話を受け止めつつ「今日の安全確認」と「次回の相談」を整理',
+          kpis: [['今日先に確認：睡眠・食事・服薬・死にたい気持ち', 'crit'], ['職場や昔の家族の話はメモに残し主治医へ橋渡し', 'info']],
+          shortCap: '話したいことを受け止めつつ、先に最近の睡眠・食事・服薬と死にたい気持ち（希死念慮）を確かめます。',
+          moreCap: '「まず最近の体調と安全を確かめたい」と聞く順番を共有すると話題を戻しやすくなります。出勤できている事実だけで安全とは決めつけません。',
+          svg: '<svg class="ds-qvis-svg" viewBox="0 0 560 84" role="img" aria-label="本人が話したい点を残しながら今日確かめる状態と次の診察で話すことを2つの欄に置く図">' +
+            '<rect x="12" y="10" width="256" height="64" rx="6" fill="var(--ds-crit-bg)" stroke="var(--ds-crit)" stroke-width="1.8"/>' +
+            '<text x="24" y="32" font-size="10" font-weight="700">欄①：今日の代診で先に確かめる安全</text>' +
+            '<text x="24" y="54" font-size="8.8">睡眠・食事・服薬状況・希死念慮・生活への影響</text>' +
+            '<rect x="292" y="10" width="256" height="64" rx="6" fill="var(--ds-info-bg)" stroke="var(--ds-info)" stroke-width="1.6"/>' +
+            '<text x="304" y="32" font-size="10" font-weight="700">欄②：主治医の診察へつなぐ相談テーマ</text>' +
+            '<text x="304" y="54" font-size="8.8">職場の行き違いと家族関係の話を受け止めメモに残す</text>' +
           '</svg>'
         };
       case '7-1':
         return {
-          title: '図解：処方は据え置いたまま、主治医の再診日を早めて経過を確かめる',
-          cap: '急な悪化や希死念慮・副作用がないため当日の薬変更は急がず、主治医の再診を早めて浅い睡眠や朝の様子の経過を見直します。',
-          svg: '<svg class="ds-qvis-svg" viewBox="0 0 560 100" role="img" aria-label="元の予約と早めた予約を時間軸に並べ薬は同じまま経過を確かめる区間を示す図">' +
-            '<line x1="36" y1="52" x2="524" y2="52" stroke="var(--line)" stroke-width="3"/>' +
-            '<circle cx="64" cy="52" r="8" fill="var(--ds-info)"/>' +
-            '<text x="64" y="30" text-anchor="middle" font-size="9.5" font-weight="700">今日（代診）</text>' +
-            '<text x="64" y="76" text-anchor="middle" font-size="8.6">処方は据え置き</text>' +
-            '<rect x="108" y="32" width="184" height="38" rx="6" fill="var(--ds-good-bg)" stroke="var(--ds-good)" stroke-width="2"/>' +
-            '<text x="200" y="49" text-anchor="middle" font-size="9.8" font-weight="700">薬は同じまま経過観察</text>' +
-            '<text x="200" y="63" text-anchor="middle" font-size="8.4">（寝つき・朝のつらさの変化を見る）</text>' +
-            '<circle cx="332" cy="52" r="9" fill="var(--accent)"/>' +
-            '<text x="332" y="28" text-anchor="middle" font-size="9.8" font-weight="700">◎ 早めた主治医再診</text>' +
-            '<text x="332" y="76" text-anchor="middle" font-size="8.6">ここで経過と相談を継続</text>' +
-            '<path d="M474 52 L352 52" stroke="var(--accent)" stroke-width="2" stroke-dasharray="4 3"/>' +
-            '<circle cx="486" cy="52" r="7" fill="var(--muted)"/>' +
-            '<text x="486" y="30" text-anchor="middle" font-size="9" fill="var(--muted)">元の通常予約</text>' +
-            '<text x="486" y="76" text-anchor="middle" font-size="8.4" fill="var(--muted)">（間が空くのを前倒し）</text>' +
+          title: '図解：処方は据え置き、主治医の再診日を早めて経過をみる',
+          kpis: [['処方：急な悪化や副作用なし → 今日そのまま保つ', 'ok'], ['予約調整：主治医の再診を早めて変化を確かめる', 'info']],
+          shortCap: '薬の変更を急ぐ所見がなくても放置せず、処方は据え置いたまま主治医の再診を早めて経過を確かめます。',
+          moreCap: '代診での別薬への切り替えや自己増量の勧めは新たな副作用の危険があり、元の遠い予約まで何も決めずに待つと悪化への気づきが遅れます。',
+          svg: '<svg class="ds-qvis-svg" viewBox="0 0 560 86" role="img" aria-label="元の予約と早めた予約を時間軸に並べ薬は同じまま経過を確かめる区間を示す図">' +
+            '<line x1="36" y1="43" x2="524" y2="43" stroke="var(--line)" stroke-width="3"/>' +
+            '<circle cx="64" cy="43" r="7" fill="var(--ds-info)"/>' +
+            '<text x="64" y="23" text-anchor="middle" font-size="9.2" font-weight="700">今日（処方据え置き）</text>' +
+            '<rect x="116" y="21" width="176" height="44" rx="6" fill="var(--ds-good-bg)" stroke="var(--ds-good)" stroke-width="1.8"/>' +
+            '<text x="204" y="40" text-anchor="middle" font-size="9.6" font-weight="700">薬は保ち経過を観察</text>' +
+            '<text x="204" y="56" text-anchor="middle" font-size="8.4">睡眠・朝のつらさの変化を見る</text>' +
+            '<circle cx="336" cy="43" r="8" fill="var(--accent)"/>' +
+            '<text x="336" y="23" text-anchor="middle" font-size="9.5" font-weight="700">◎ 早めた主治医再診</text>' +
+            '<path d="M474 43 L354 43" stroke="var(--accent)" stroke-width="2" stroke-dasharray="4 3"/>' +
+            '<circle cx="486" cy="43" r="6" fill="var(--muted)"/>' +
+            '<text x="486" y="23" text-anchor="middle" font-size="8.8">元の通常予約</text>' +
           '</svg>'
         };
       case '7-2':
         return {
-          title: '図解：本人に渡す再診案内と主治医への申し送りに、共通の受診日と相談点を入れる',
-          cap: '「今日のことは主治医に伝えます」と話し、確認した安全所見・据え置いた理由・早めた再診日・次に話したい話題・悪化時の連絡先を残します。',
-          svg: '<svg class="ds-qvis-svg" viewBox="0 0 560 104" role="img" aria-label="本人に渡す再診案内と主治医に届く申し送りに共通の受診日と次の相談点を示す図">' +
-            '<rect x="12" y="12" width="252" height="80" rx="6" fill="var(--ds-good-bg)" stroke="var(--ds-good)" stroke-width="1.6"/>' +
-            '<text x="24" y="32" font-size="10.2" font-weight="700">本人へ渡す再診案内と説明</text>' +
-            '<text x="24" y="51" font-size="9.2">・「今日は薬を保ち、困りごとは主治医に伝えます」</text>' +
-            '<text x="24" y="67" font-size="9.2">・早めた次回受診日と、次に話すテーマの確認</text>' +
-            '<text x="24" y="83" font-size="8.8">・再診前に悪化したときの連絡先</text>' +
-            '<path d="M268 52h24" stroke="var(--accent)" stroke-width="2.2"/>' +
-            '<rect x="296" y="12" width="252" height="80" rx="6" fill="var(--ds-info-bg)" stroke="var(--ds-info)" stroke-width="1.6"/>' +
-            '<text x="308" y="32" font-size="10.2" font-weight="700">主治医に届く申し送り（カルテ）</text>' +
-            '<text x="308" y="51" font-size="9.2">・睡眠浅め／食事・服薬維持／希死念慮・副作用なし</text>' +
-            '<text x="308" y="67" font-size="9.2">・処方を据え置き再診を早めた理由（共通の受診日）</text>' +
-            '<text x="308" y="83" font-size="8.8">・本人が次回相談したい職場・家族の話題</text>' +
+          title: '図解：本人の再診案内と主治医への申し送りに共通の受診日と相談点を残す',
+          kpis: [['本人へ：据え置き理由・早めた再診日・悪化時連絡先', 'ok'], ['主治医へ：安全確認所見と次回話したい相談事', 'info']],
+          shortCap: '本人と早めた再診日・悪化時の連絡先を確認し、主治医には確認した所見と次に話したい相談事を引き継ぎます。',
+          moreCap: '「今日は薬をそのままにして、困ったことは主治医に伝えます」と橋渡しします。次回の治療変更を勝手に約束したり記録を省いたりしません。',
+          svg: '<svg class="ds-qvis-svg" viewBox="0 0 560 84" role="img" aria-label="本人に渡す再診案内と主治医に届く申し送りに共通の受診日と次の相談点を示す図">' +
+            '<rect x="12" y="10" width="252" height="64" rx="6" fill="var(--ds-good-bg)" stroke="var(--ds-good)" stroke-width="1.6"/>' +
+            '<text x="24" y="32" font-size="10" font-weight="700">本人へ渡す再診案内と説明</text>' +
+            '<text x="24" y="54" font-size="8.8">早めた次回受診日・引き継ぐ約束・悪化時の連絡先</text>' +
+            '<path d="M268 42h24" stroke="var(--accent)" stroke-width="2.2"/>' +
+            '<rect x="296" y="10" width="252" height="64" rx="6" fill="var(--ds-info-bg)" stroke="var(--ds-info)" stroke-width="1.6"/>' +
+            '<text x="308" y="32" font-size="10" font-weight="700">主治医への申し送り欄（カルテ）</text>' +
+            '<text x="308" y="54" font-size="8.8">安全所見・再診前倒しの理由・次回相談したい話題</text>' +
           '</svg>'
         };
       default:
@@ -2111,8 +2674,53 @@ IMG["ds-case8"] = "data:image/webp;base64,UklGRsqtAABXRUJQVlA4IL6tAACQJQOdASrAAx
     }
   }
 
+  /* 各症例の3問すべてに答えたあとに表示する「この症例の代診3ステップまとめ」 */
+  var CASE_SUMMARY = [
+    ['症例1：薬切れの継続処方', '手帳・カルテ・本人確認', '同薬・同量で次回まで', '継続理由と次回日を共有', 'ok'],
+    ['症例2：SSRI開始後の焦燥と希死念慮', '自殺の意思・計画を直聴', '増量避け今日減量・中止検討', '一人にせず救急・主治医へ当日連携', 'crit'],
+    ['症例3：夜勤増での睡眠薬増量希望', '勤務・睡眠・飲酒・眠気確認', '増量も急中止も避け据え置き', '睡眠メモと据え置き理由を共有', 'warn'],
+    ['症例4：脱水とふるえ（リチウム中毒疑い）', '意識・歩行・脱水・最終服薬確認', '直ちに休薬し救急で採血・評価', '最終服薬時刻と経過を即時連携', 'crit'],
+    ['症例5：朝のつらさと主治医変更希望', '朝のつらさと安全影響を聴取', '薬は保ち相談の機会を整える', '言葉どおりの希望と所見を記録', 'info'],
+    ['症例6：パニック発作増と頓服相談', '普段との差・胸痛や失神確認', '頓服は既存指示で翌日分まで', '翌日再診と急変時相談先を共有', 'ok'],
+    ['症例7：認知症の急な夜間変化（せん妄疑い）', '急発症と日内変動・身体原因確認', '睡眠薬を急がず身体評価優先', '身体所見と今夜の支援・連絡先共有', 'crit'],
+    ['症例8：漠然とした不調と広がる話題', '睡眠・食事・服薬・希死念慮を先確認', '処方据え置き＋再診日を前倒し', '所見・前倒し受診日・相談事を引継ぐ', 'info']
+  ];
+
+  function buildDoneMapHTML(ci) {
+    var s = CASE_SUMMARY[ci] || CASE_SUMMARY[0];
+    return (
+      '<div class="ds-done-map">' +
+        '<div class="ds-qvis-head">' +
+          '<span>3つの柱での振り返り：' + esc(s[0]) + '</span>' +
+          '<span class="ds-qvis-tag">3問回答後の整理</span>' +
+        '</div>' +
+        renderKpis([
+          ['①聞く：' + s[1], s[4]],
+          ['②処方：' + s[2], s[4] === 'crit' ? 'crit' : 'ok'],
+          ['③引継ぎ：' + s[3], 'info']
+        ]) +
+      '</div>'
+    );
+  }
+
+  function enhanceRefTable() {
+    var rows = document.querySelectorAll('.ref tbody tr');
+    if (!rows || !rows.length) return;
+    var badges = [
+      ['hear', '🛡️ 柱1：安全確認'],
+      ['rx', '💊 柱2：処方の範囲'],
+      ['handover', '📋 柱3：説明と申し送り']
+    ];
+    for (var i = 0; i < rows.length; i++) {
+      var th = rows[i].querySelector('th');
+      if (!th || th.querySelector('.ds-ref-badge')) continue;
+      var b = badges[i] || badges[0];
+      th.innerHTML = '<span class="ds-ref-badge ' + b[0] + '">' + b[1] + '</span><br>' + th.innerHTML;
+    }
+  }
+
   /* =======================================================================
-   * 5. 症例画面への差し込み（受診場面カード＋回答後の解説図）
+   * 5. 症例画面への差し込み（受診場面カード＋回答後の解説図＋上部ガイド連動）
    * ======================================================================= */
   var lastMountedCase = -1;
 
@@ -2120,9 +2728,24 @@ IMG["ds-case8"] = "data:image/webp;base64,UklGRsqtAABXRUJQVlA4IL6tAACQJQOdASrAAx
     var main = document.getElementById('main');
     if (!main) return;
     var caseEl = main.querySelector('article.case');
+    var resultEl = main.querySelector('section.result');
+    var guideBody = document.getElementById('dsGuideBody');
+    var guideToggle = document.getElementById('dsGuideToggle');
+    var gateNote = document.getElementById('dsGateNote');
+
+    enhanceRefTable();
+
     if (!caseEl) {
       clearMotionTimer();
       lastMountedCase = -1;
+      if (resultEl && guideBody && !userToggledGuide) {
+        guideBody.hidden = false;
+        if (guideToggle) {
+          guideToggle.setAttribute('aria-expanded', 'true');
+          guideToggle.textContent = '図解をたたむ';
+        }
+        if (gateNote) gateNote.hidden = true;
+      }
       return;
     }
     var ci = +(caseEl.getAttribute('data-case') || 0);
@@ -2188,15 +2811,58 @@ IMG["ds-case8"] = "data:image/webp;base64,UklGRsqtAABXRUJQVlA4IL6tAACQJQOdASrAAx
       box.className = 'ds-qvis';
       box.innerHTML =
         '<div class="ds-qvis-head"><span>' + esc(v.title) + '</span><span class="ds-qvis-tag">回答後の図解</span></div>' +
+        renderKpis(v.kpis) +
         v.svg +
-        '<p class="ds-qvis-cap">' + esc(v.cap) + '</p>';
+        '<p class="ds-qvis-cap">' + esc(v.shortCap || v.cap) + '</p>' +
+        (v.moreCap
+          ? '<details class="ds-more"><summary>くわしく（判断の根拠・注意点）</summary><div class="ds-more-body">' + esc(v.moreCap) + '</div></details>'
+          : '');
       if (why.nextSibling) why.parentNode.insertBefore(box, why.nextSibling);
       else why.parentNode.appendChild(box);
+    }
+
+    /* 3問すべて回答済み（.done-q がある）なら症例まとめカードを表示し、上部ガイドもアンロック */
+    var doneQ = caseEl.querySelector('.done-q');
+    var existingMap = caseEl.querySelector('.ds-done-map');
+    if (doneQ) {
+      if (!existingMap) {
+        var mapWrap = document.createElement('div');
+        mapWrap.innerHTML = buildDoneMapHTML(ci);
+        var mapNode = mapWrap.firstElementChild;
+        if (mapNode) {
+          if (doneQ.nextSibling) doneQ.parentNode.insertBefore(mapNode, doneQ.nextSibling);
+          else doneQ.parentNode.appendChild(mapNode);
+        }
+      }
+      if (guideBody && !userToggledGuide) {
+        guideBody.hidden = false;
+        if (guideToggle) {
+          guideToggle.setAttribute('aria-expanded', 'true');
+          guideToggle.textContent = '図解をたたむ';
+        }
+      }
+      if (gateNote) {
+        gateNote.innerHTML = '<span>✅ <b>この症例の3問に回答しました：</b>代診の3つの柱（聞く範囲・処方・申し送り）の全体図解を見比べられます。</span>';
+      }
+    } else {
+      if (existingMap) existingMap.remove();
+      if (guideBody && !userToggledGuide) {
+        guideBody.hidden = true;
+        if (guideToggle) {
+          guideToggle.setAttribute('aria-expanded', 'false');
+          guideToggle.textContent = '図解をひらく';
+        }
+      }
+      if (gateNote) {
+        gateNote.hidden = false;
+        gateNote.innerHTML = '<span>💡 答える前のネタバレを防ぐため閉じています（3問答えるか「図解をひらく」でいつでも見られます）。</span>';
+      }
     }
   }
 
   function init() {
     mountThemeBtn();
+    mountWelcomeCard();
     mountGuide();
     enhanceCaseView();
     var main = document.getElementById('main');

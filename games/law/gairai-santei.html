@@ -6,7 +6,7 @@
 <meta name="robots" content="noindex, nofollow">
 <!-- アクセス数（GoatCounter、Cookie なし・個人を特定しない。2026-11-23 利用者の依頼） -->
 <script data-goatcounter="https://psychogames.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
-<meta name="app-version" content="20261125152428">
+<meta name="app-version" content="20261127203041">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
@@ -182,7 +182,23 @@ h1{
 .opt.wrong{border-color:var(--seal); background:var(--seal-soft)}
 .opt.wrong .v{color:var(--seal)}
 .opt.dim{opacity:.62}
-.why{border-left:3px solid var(--accent); padding:4px 0 4px 12px; font-size:var(--fs-s); max-width:44em}
+.why{border-left:3px solid var(--line); padding:4px 0 4px 12px; font-size:var(--fs-s); max-width:44em; margin-top:6px}
+/* 回答後：判定・要点・くわしく（2026-11-27） */
+.verdict{display:flex; flex-wrap:wrap; align-items:baseline; gap:4px 12px; padding:8px 12px; border-radius:var(--r); font-weight:700}
+.verdict.ok{background:var(--ok-soft); color:var(--ok)}
+.verdict.ng{background:var(--seal-soft); color:var(--seal)}
+.vd-mark{font-family:var(--f-display); font-weight:400; font-size:var(--fs-xl); letter-spacing:.06em}
+.vd-ans{color:var(--ink); font-size:var(--fs-s)}
+.point{font-weight:700; line-height:1.65; padding-left:12px; border-left:4px solid var(--accent); max-width:40em}
+/* 答え終わって次の問いへ進んだら、選ばなかった選択肢はたたむ（正解とあなたの答えだけ残す） */
+.q:not(.cq-active) .opts li:has(.opt.dim){display:none}
+details.more{font-size:var(--fs-s)}
+details.more > summary{cursor:pointer; min-height:44px; display:flex; align-items:center; gap:6px; color:var(--accent); font-weight:700; width:fit-content}
+details.more > summary::marker{content:''}
+details.more > summary::before{content:'＋'; display:inline-grid; place-items:center; width:22px; height:22px; border:1.5px solid var(--accent); border-radius:50%; font-size:.8rem}
+details.more[open] > summary::before{content:'－'}
+@media (prefers-reduced-motion: no-preference){ .verdict{animation:vdpop .32s cubic-bezier(.2,1.4,.4,1)} }
+@keyframes vdpop{from{transform:scale(.92); opacity:0} to{transform:none; opacity:1}}
 .why b{font-weight:700}
 .why .law{display:block; margin-top:4px; font-size:var(--fs-xs); color:var(--muted)}
 .done-q{font-size:var(--fs-s); color:var(--muted); display:flex; gap:8px; align-items:baseline}
@@ -1090,21 +1106,28 @@ var CASES = [
   var ref = document.querySelector('.ref');
   var refHeading = ref.querySelector('h2');
   var refTable = ref.querySelector('.tbl-wrap');
+  var hankoEl = document.querySelector('.hanko');
 
   // ---- 判子帳
   var HK_KEY = 'gairai-santei-hanko-v1', HK_TITLES = [[0, "外来の記録"], [4, "外来の記録"], [8, "外来の記録"], [12, "外来の記録"], [16, "外来の記録"]], HK_MAX = CASES.length * 2;
+  var wardHanko = HK_KEY === 'byoto-hanko-v1';
   var optionsKey = HK_KEY + '-show-opts';
   var alwaysShowOptions = lsGet(optionsKey) === '1';
   var HK = {}; try { HK = JSON.parse(lsGet(HK_KEY) || '{}') || {}; } catch (e) { HK = {}; }
-  function hkPts() { var p = 0; CASES.forEach(function (c, i) { p += HK[i] || 0; }); return p; }
+  function hkCount() { return CASES.filter(function (c, i) { return HK[i]; }).length; }
+  function hkProgress() {
+    if (wardHanko) return hkCount();
+    return CASES.reduce(function (p, c, i) { return p + (HK[i] || 0); }, 0);
+  }
   function hkTitle(p) { var t = HK_TITLES[0]; HK_TITLES.forEach(function (x) { if (p >= x[0]) t = x; }); return t; }
   function hkNext(p) { for (var i = 0; i < HK_TITLES.length; i++) if (HK_TITLES[i][0] > p) return HK_TITLES[i]; return null; }
-  function hkSummary() { var n = CASES.filter(function (c, i) { return HK[i]; }).length; return '判子帳 ' + n + ' / ' + CASES.length + ' ・ 称号「' + hkTitle(hkPts())[1] + '」'; }
+  function hkSummary() { return '判子帳 ' + hkCount() + ' / ' + CASES.length + ' ・ 称号「' + hkTitle(hkProgress())[1] + '」'; }
   function renderHanko() {
-    var p = hkPts(), t = hkTitle(p), nx = hkNext(p), n = CASES.filter(function (c, i) { return HK[i]; }).length;
+    var p = hkProgress(), t = hkTitle(p), nx = hkNext(p), n = hkCount();
     var gold = CASES.filter(function (c, i) { return HK[i] === 2; }).length;
     document.getElementById('hkCount').textContent = n + ' / ' + CASES.length + ' ・ 金 ' + gold;
-    document.getElementById('hkTitle').innerHTML = '称号　<b>' + esc(t[1]) + '</b>　' + (nx ? '<span class="muted">次の「' + esc(nx[1]) + '」まで あと ' + (nx[0] - p) + '</span>' : '<span class="muted">すべて金の判子です</span>');
+    var progress = nx ? '次の「' + esc(nx[1]) + '」まで あと ' + (nx[0] - p) : (wardHanko ? 'すべての患者さんの判子がそろいました' : 'すべて金の判子です');
+    document.getElementById('hkTitle').innerHTML = '称号　<b>' + esc(t[1]) + '</b>　<span class="muted">' + progress + '</span>';
     var m = document.getElementById('hkMeter'); m.firstChild.style.width = Math.round(p / HK_MAX * 100) + '%'; m.setAttribute('aria-label', p + ' / ' + HK_MAX);
     document.getElementById('hkGrid').innerHTML = CASES.map(function (c, i) {
       var tr = HK[i] || 0;
@@ -1117,9 +1140,9 @@ var CASES = [
   function awardHanko(i) {
     var tier = caseScore(i) === CASES[i].qs.length ? 2 : 1, cur = HK[i] || 0;
     if (tier <= cur) return;
-    var before = hkTitle(hkPts())[1];
+    var before = hkTitle(hkProgress())[1];
     HK[i] = tier; lsSet(HK_KEY, JSON.stringify(HK));
-    var after = hkTitle(hkPts())[1];
+    var after = hkTitle(hkProgress())[1];
     toast('<b>' + (tier === 2 ? '金の判子' : '判子') + 'を押しました</b><br>' + esc(CASES[i].stampName) + (after !== before ? '<br>称号が「' + esc(after) + '」になりました' : ''));
     renderHanko();
   }
@@ -1131,6 +1154,19 @@ var CASES = [
   function curQ(i) { var k = S.picks[i].indexOf(null); return k; }
   function seq() { return S.only || CASES.map(function (_, i) { return i; }); }
   function totalRight() { var n = 0; for (var i = 0; i < CASES.length; i++) n += caseScore(i); return n; }
+
+  // 回答後は「判定」と「要点1行」だけを見せ、長い解説は「くわしく」に入れる（2026-11-27 利用者「文字が多くて見づらい」）。
+  // 要点は q.point があればそれ、なければ解説の最初の一文。
+  function pointOf(q) {
+    var why = String(q.why || '');
+    if (q.point) return { point: q.point, rest: why };
+    var m = why.match(/^[^。]*。/);
+    return m ? { point: m[0], rest: why.slice(m[0].length) } : { point: why, rest: '' };
+  }
+  function verdictHTML(q, pick) {
+    return '<div class="verdict ' + (pick === 0 ? 'ok' : 'ng') + '" role="status"><span class="vd-mark">' + (pick === 0 ? '正解！' : 'おしい！') + '</span>' +
+      (pick === 0 ? '' : '<span class="vd-ans">正解は「' + esc(q.a[0]) + '」</span>') + '</div>';
+  }
 
   function stampHTML(c, cls) {
     return '<div class="stamp ' + (cls || '') + '" aria-hidden="true"><div><div class="s1">' + esc(c.stamp[0]) + '</div>' +
@@ -1195,8 +1231,12 @@ var CASES = [
         (pick === null && window.PG_NOTE ? '<label class="note-sure"><input type="checkbox" id="noteSure"> 自信あり</label>' : '') +
         optsHTML(i, qi, qi === k);
       if (pick !== null) {
-        html += '<p class="why"><b>' + (pick === 0 ? '正解。' : '正解は「' + esc(q.a[0]) + '」。') + '</b>' + esc(q.why) +
+        var pt = pointOf(q);
+        html += verdictHTML(q, pick) + '<p class="point">' + esc(pt.point) + '</p>' +
+          '<details class="more"><summary>くわしい解説・根拠・図</summary>' +
+          '<p class="why">' + esc(pt.rest) +
           (q.law ? '<span class="law">根拠 ' + esc(q.law) + '</span>' : '') + '</p>';
+        html += '</details>';
       }
       html += '</section>';
     });
@@ -1222,6 +1262,18 @@ var CASES = [
     if (sharedLayout) mainEl.querySelector('.case-body').scrollTop = caseScroll;
   }
 
+  new MutationObserver(function () {
+    var ds = mainEl.querySelectorAll('section.q > details.more');
+    for (var i = 0; i < ds.length; i++) {
+      var n = ds[i].nextElementSibling;
+      while (n) {
+        var nx = n.nextElementSibling;
+        if (n.tagName === 'DIV' && !n.matches('.cq-actions, .done-q')) ds[i].appendChild(n);
+        n = nx;
+      }
+    }
+  }).observe(mainEl, { childList: true, subtree: true });
+
   function renderResult() {
     var right = totalRight();
     var missed = CASES.map(function (_, i) { return i; }).filter(function (i) { return caseScore(i) < CASES[i].qs.length; });
@@ -1244,6 +1296,8 @@ var CASES = [
     if (opts.activeQ != null) S.activeQ = opts.activeQ;
     renderSlots();
     refHeading.hidden = refTable.hidden = S.ci !== -1;
+    // 過去の判子に答えが書いてあるため、回診を終えてから表示する。
+    if (wardHanko) hankoEl.hidden = S.ci !== -1;
     if (S.ci === -1) {
       renderResult();
       if (opts.focus) document.getElementById('resh').focus();

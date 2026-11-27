@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="robots" content="noindex, nofollow">
-<meta name="app-version" content="20261125152428">
+<meta name="app-version" content="20261127203041">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=BIZ+UDPGothic:wght@400;700&family=DotGothic16&display=swap">
 <title>復習ノート｜精神科道場</title>
@@ -224,7 +224,8 @@ document.addEventListener('DOMContentLoaded', function () {
       const retry = add(actions, 'button', 'もう一度解く');
       retry.type = 'button';
       retry.addEventListener('click', () => practice(entry.id, false, retry));
-      if (/^games\/[\w-]+\/[\w-]+\.html(?:#[\w-]+)?$/.test(entry.where)) {
+      if (/^games\/[\w-]+\/[\w-]+\.html(?:#[\w-]+)?$/.test(entry.where) ||
+        entry.where === '../psych-nurse-work/ikari.html') {
         add(actions, 'a', 'アプリを開く', 'game-link').href = entry.where;
       }
     }
